@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Страница не найдена · Аделина Уржанова</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="/assets/avatar.png">
+
+<!-- Paint the correct background before first frame so a dark-theme reload never flashes white. -->
+<script>
+  (function () {
+    try {
+      var dark = localStorage.getItem('pf-theme') === 'dark';
+      var bg = dark ? '#000000' : '#ffffff';
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.background = bg;
+      var s = document.createElement('style');
+      s.textContent = 'html,body{background:' + bg + ';}';
+      document.head.appendChild(s);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/base.css">
+<style>
+  .notfound {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 32px;
+    text-align: center;
+  }
+  .notfound-code {
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.006em;
+    text-transform: uppercase;
+    color: var(--text-tertiary);
+  }
+  .notfound-title {
+    font-size: 28px;
+    line-height: 34px;
+    font-weight: 600;
+    letter-spacing: -0.011em;
+    color: var(--text-primary);
+    margin: 0;
+  }
+  .notfound-text {
+    font-size: 17px;
+    line-height: 26px;
+    letter-spacing: -0.004em;
+    color: var(--text-secondary);
+    margin: 0 0 8px;
+    max-width: 420px;
+  }
+</style>
+</head>
+
+<body>
+<div class="page">
+  <div class="notfound">
+    <div class="notfound-code">404</div>
+    <h1 class="notfound-title" data-title>Страница не найдена</h1>
+    <p class="notfound-text" data-text>Возможно, ссылка устарела или в адресе опечатка.</p>
+    <a class="back-link" href="/"><span class="back-arrow">←</span><span data-home>На главную</span></a>
+  </div>
+</div>
+
+<script>
+  // Match whichever language the visitor last chose on the site.
+  (function () {
+    try {
+      if (localStorage.getItem('pf-lang') !== 'ru') {
+        document.documentElement.lang = 'en';
+        document.title = 'Page not found · Adelina Urzhanova';
+        document.querySelector('[data-title]').textContent = 'Page not found';
+        document.querySelector('[data-text]').textContent = 'The link may be out of date, or the address has a typo.';
+        document.querySelector('[data-home]').textContent = 'Home';
+      } else {
+        document.documentElement.lang = 'ru';
+      }
+    } catch (e) {}
+  })();
+</script>
+</body>
+</html>

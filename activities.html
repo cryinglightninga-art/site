@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Активности: сертификаты, конкурсы и выступления · Аделина Уржанова</title>
+<meta name="description" content="Выступления, олимпиады, конкурсы и курсы: Google Project Management, Tilda School, Adobe InDesign, FutureLearn и другие.">
+<link rel="canonical" href="https://urzhanovaa.com/activities">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Adelina Urzhanova">
+<meta property="og:title" content="Активности: сертификаты, конкурсы и выступления">
+<meta property="og:description" content="Выступления, олимпиады, конкурсы и курсы.">
+<meta property="og:url" content="https://urzhanovaa.com/activities">
+<meta property="og:image" content="https://urzhanovaa.com/assets/og.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="assets/avatar.png">
+
+<!-- Paint the correct background before first frame so a dark-theme reload never flashes white. -->
+<script>
+  (function () {
+    try {
+      var dark = localStorage.getItem('pf-theme') === 'dark';
+      var bg = dark ? '#000000' : '#ffffff';
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.background = bg;
+      var s = document.createElement('style');
+      s.textContent = 'html,body{background:' + bg + ';}';
+      document.head.appendChild(s);
+    } catch (e) {}
+  })();
+</script>
+
+<!-- One-per-session splash spinner. -->
+<script>
+  (function () {
+    try {
+      if (sessionStorage.getItem('om-splash-seen')) return;
+      sessionStorage.setItem('om-splash-seen', '1');
+      var dark = localStorage.getItem('pf-theme') === 'dark';
+      var el = document.createElement('div');
+      el.id = 'om-splash';
+      el.style.background = dark ? '#000000' : '#ffffff';
+      el.style.color = dark ? '#f5f5f7' : '#1d1d1f';
+      el.innerHTML = '<i></i>';
+      var mount = function () { document.body.appendChild(el); };
+      if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+      var hide = function () { el.classList.add('done'); setTimeout(function () { el.remove(); }, 650); };
+      if (document.readyState === 'complete') setTimeout(hide, 450);
+      else window.addEventListener('load', function () { setTimeout(hide, 350); });
+      setTimeout(hide, 4000);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="article.css">
+<script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js" defer></script>
+<script src="shared.js" defer></script>
+<script src="page-activities.js" defer></script>
+</head>
+
+<body>
+<div class="page">
+  <div class="layout">
+    <!-- shared.js fills the sidebar and both back-link rows. -->
+    <aside class="author" data-author></aside>
+
+    <main class="work">
+      <div class="topbar-row" data-topbar-row></div>
+      <!-- page-activities.js renders the page content here. -->
+      <div data-content></div>
+    </main>
+  </div>
+</div>
+</body>
+</html>

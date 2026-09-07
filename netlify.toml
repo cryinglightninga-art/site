@@ -1,0 +1,9 @@
+# Netlify serves /mujo for mujo.html on its own ("Pretty URLs"), so this only
+# needs to point at the folder the site lives in.
+[build]
+  publish = "."
+
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"

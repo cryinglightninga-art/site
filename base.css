@@ -1,0 +1,488 @@
+/* ============================================================================
+   Adelina Urzhanova — portfolio · shared foundation
+   Tokens, reset, page shell, sidebar and controls. Loaded by every page.
+
+   Layout model:
+     desktop (>= 900px) — fixed 374px author column, 6-column dense tile grid
+     mobile  (<  900px) — single stacked column, tile reveal on scroll
+   Theme is explicit (light default, persisted in localStorage) — it does not
+   follow prefers-color-scheme, matching the prototype.
+   ========================================================================== */
+
+/* ── Theme tokens ─────────────────────────────────────────────────────────── */
+
+:root {
+  --bg: #ffffff;
+  --bg-secondary: #f5f5f7;
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --divider: rgba(0, 0, 0, 0.08);
+  --card-border: rgba(0, 0, 0, 0.06);
+  --surface: rgba(0, 0, 0, 0.06);
+  --surface-strong: rgba(0, 0, 0, 0.1);
+  --accent: #1d1d1f;
+  --accent-contrast: #ffffff;
+  --soon-border: rgba(0, 0, 0, 0.24);
+}
+
+[data-theme="dark"] {
+  --bg: #000000;
+  --bg-secondary: #1c1c1e;
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #86868b;
+  --divider: rgba(255, 255, 255, 0.1);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --surface: rgba(255, 255, 255, 0.08);
+  --surface-strong: rgba(255, 255, 255, 0.14);
+  --accent: #f5f5f7;
+  --accent-contrast: #1d1d1f;
+  --soon-border: rgba(255, 255, 255, 0.32);
+}
+
+/* ── Reset / base ─────────────────────────────────────────────────────────── */
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  background: var(--bg);
+  color-scheme: light;
+}
+
+[data-theme="dark"] { color-scheme: dark; }
+
+body {
+  margin: 0;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Filtering hides cards with the `hidden` attribute — beat the display rules. */
+[hidden] { display: none !important; }
+
+a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #0052a3;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.page {
+  background: var(--bg);
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--text-primary);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+/* ── Entrance + splash animations ─────────────────────────────────────────── */
+
+@keyframes om-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes om-splash-spin { to { transform: rotate(360deg); } }
+@keyframes om-splash-out  { to { opacity: 0; visibility: hidden; } }
+
+@media (prefers-reduced-motion: reduce) {
+  @keyframes om-enter {
+    from { opacity: 1; }
+    to   { opacity: 1; }
+  }
+}
+
+#om-splash {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#om-splash.done {
+  animation: om-splash-out 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+#om-splash i {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  opacity: 0.35;
+  animation: om-splash-spin 0.8s linear infinite;
+}
+
+/* ── Layout: mobile first (< 900px) ───────────────────────────────────────── */
+
+.layout {
+  display: flex;
+  flex-direction: column;
+}
+
+.author {
+  padding: 16px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  animation: om-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.work {
+  padding: 8px 16px 40px;
+  animation: om-enter 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
+}
+
+/* On mobile the reading order is: identity → contacts → experience. */
+.contacts-block { order: 1; margin-bottom: 28px; }
+.exp-label,
+.exp-block { order: 2; }
+
+/* ── Author column ────────────────────────────────────────────────────────── */
+
+.topbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.avatar-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--bg-secondary);
+  border: none;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.avatar-circle img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.logo {
+  width: 190px;
+  height: 50px;
+  display: block;
+  margin-bottom: 28px;
+}
+
+/* Text stand-in used only if the Lottie wordmark fails to load. */
+.logo.is-fallback {
+  height: auto;
+  font-size: 26px;
+  font-weight: 600;
+  letter-spacing: -0.011em;
+  color: var(--text-primary);
+  line-height: 50px;
+  white-space: nowrap;
+}
+
+.bio {
+  margin: 0 0 24px;
+  font-size: 15px;
+  line-height: 20px;
+  letter-spacing: -0.002em;
+  color: var(--text-secondary);
+}
+
+.section-label {
+  font-size: 11px;
+  line-height: 13px;
+  letter-spacing: 0.006em;
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+}
+
+.exp-label { margin-bottom: 10px; }
+
+.exp-block {
+  margin-bottom: 24px;
+  flex-shrink: 0;
+}
+
+.exp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--divider);
+}
+
+.exp-row:last-child { border-bottom: none; }
+
+.exp-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.exp-company-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.exp-company {
+  font-size: 16px;
+  letter-spacing: -0.003em;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.exp-role {
+  font-size: 13px;
+  letter-spacing: -0.001em;
+  color: var(--text-tertiary);
+}
+
+.exp-dates {
+  font-size: 12px;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  padding-left: 12px;
+}
+
+.exp-logos {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.exp-logo {
+  width: 18px;
+  height: 18px;
+  box-sizing: content-box;
+  border-radius: 50%;
+  background-color: var(--bg-secondary);
+  background-position: center;
+  background-repeat: no-repeat;
+  box-shadow: 0 0 0 1px var(--card-border);
+  flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.exp-logo + .exp-logo { margin-left: -6px; }
+
+.contacts-block { padding-top: 0; }
+
+.contacts-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.contact-link {
+  font-size: 13px;
+  letter-spacing: -0.001em;
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 9px 16px;
+  border-radius: 980px;
+  transition: box-shadow 0.2s ease;
+  display: inline-block;
+}
+
+.contact-link:hover {
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 999px var(--surface-strong);
+}
+
+/* ── Controls: language switch + theme toggle ─────────────────────────────── */
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  height: 34px;
+  background: var(--surface);
+  border-radius: 980px;
+  padding: 0 3px;
+}
+
+.lang-btn {
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  padding: 0 11px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 980px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, filter 0.15s ease;
+}
+
+.lang-btn.is-active {
+  background: var(--bg);
+  color: var(--text-primary);
+}
+
+.theme-btn {
+  background: var(--surface);
+  border-radius: 980px;
+  border: none;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+.theme-btn:hover {
+  box-shadow: inset 0 0 0 999px var(--surface-strong);
+}
+
+
+/* ── Sub-page chrome: back link + the row it sits in ──────────────────────── */
+
+/* On a sub-page the sidebar body is desktop-only; mobile gets just the top bar. */
+.page-sub .sidebar-body { display: none; }
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  font-size: 13px;
+  letter-spacing: -0.001em;
+  font-weight: 400;
+  color: var(--text-primary);
+  padding: 0 16px;
+  height: 34px;
+  box-sizing: border-box;
+  border-radius: 980px;
+  background: var(--surface);
+  transition: box-shadow 0.2s ease;
+}
+
+.back-link:hover {
+  color: var(--text-primary);
+  box-shadow: inset 0 0 0 999px var(--surface-strong);
+}
+
+.back-arrow {
+  margin-right: 8px;
+  font-size: 16px;
+}
+
+/* Desktop-only row above the article; the mobile equivalent is .topbar. */
+.topbar-row {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.topbar-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.logo-link { display: block; text-decoration: none; }
+
+/* ── Reduced motion ───────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .om-shimmer { animation: none !important; }
+}
+
+/* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
+
+@media (min-width: 900px) {
+  .layout {
+    display: block;
+    max-width: 1472px;
+    margin: 0 auto;
+    position: relative;
+    padding: 32px 32px 80px;
+  }
+
+  /* Pinned to the design's 1472px column, then flush left on narrower screens. */
+  .author {
+    position: fixed;
+    top: 32px;
+    left: max(32px, calc((100vw - 1472px) / 2 + 32px));
+    width: 374px;
+    height: calc(100vh - 64px);
+    min-height: 0;
+    overflow-y: auto;
+    padding: 0 14px 0 0;
+    animation-duration: 0.9s;
+  }
+
+  .work {
+    margin-left: 408px;
+    max-width: 1000px;
+    min-width: 0;
+    padding: 0;
+    animation: om-enter 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+  }
+
+  /* Desktop restores the natural order and hides the mobile top bar. */
+  .topbar { display: none; }
+  .contacts-block { order: 0; margin-bottom: 0; padding-top: 24px; padding-bottom: 8px; flex-shrink: 0; }
+  .exp-label,
+  .exp-block { order: 0; }
+
+  .logo { margin-bottom: 20px; }
+
+  /* Must out-specify `.page-sub .sidebar-body { display: none }` above. */
+  .page-sub .sidebar-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+  .topbar-row { display: flex; }
+}
+
+/* Contacts sink to the bottom of the sidebar only when there's room for it. */
+@media (min-width: 900px) and (min-height: 820px) {
+  .contacts-block { margin-top: auto; }
+}

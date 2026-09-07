@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Аделина Уржанова — Product Designer</title>
+<meta name="description" content="Портфолио продуктового дизайнера Аделины Уржановой: B2B/B2C-продукты, AI-инструменты, дизайн-системы и интерфейсная анимация.">
+<link rel="canonical" href="https://urzhanovaa.com/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Adelina Urzhanova">
+<meta property="og:title" content="Аделина Уржанова — Product Designer">
+<meta property="og:description" content="Портфолио продуктового дизайнера: B2B/B2C-продукты, AI-инструменты, дизайн-системы и интерфейсная анимация.">
+<meta property="og:url" content="https://urzhanovaa.com/">
+<meta property="og:image" content="https://urzhanovaa.com/assets/og.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="assets/avatar.png">
+
+<!-- Paint the correct background before first frame so a dark-theme reload never flashes white. -->
+<script>
+  (function () {
+    try {
+      var dark = localStorage.getItem('pf-theme') === 'dark';
+      var bg = dark ? '#000000' : '#ffffff';
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.background = bg;
+      var s = document.createElement('style');
+      s.textContent = 'html,body{background:' + bg + ';}';
+      document.head.appendChild(s);
+    } catch (e) {}
+  })();
+</script>
+
+<!-- One-per-session splash spinner. -->
+<script>
+  (function () {
+    try {
+      if (sessionStorage.getItem('om-splash-seen')) return;
+      sessionStorage.setItem('om-splash-seen', '1');
+      var dark = localStorage.getItem('pf-theme') === 'dark';
+      var el = document.createElement('div');
+      el.id = 'om-splash';
+      el.style.background = dark ? '#000000' : '#ffffff';
+      el.style.color = dark ? '#f5f5f7' : '#1d1d1f';
+      el.innerHTML = '<i></i>';
+      var mount = function () { document.body.appendChild(el); };
+      if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+      var hide = function () { el.classList.add('done'); setTimeout(function () { el.remove(); }, 650); };
+      if (document.readyState === 'complete') setTimeout(hide, 450);
+      else window.addEventListener('load', function () { setTimeout(hide, 350); });
+      setTimeout(hide, 4000);
+    } catch (e) {}
+  })();
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="home.css">
+<script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js" defer></script>
+<script src="shared.js" defer></script>
+<script src="home.js" defer></script>
+</head>
+
+<body>
+<div class="page">
+  <div class="layout">
+
+    <!-- ── Author column ───────────────────────────────────────────── -->
+    <aside class="author">
+      <!-- Mobile-only top bar: avatar on the left, language + theme on the right. -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="avatar-circle">
+            <img src="assets/avatar.png" alt="" width="44" height="44">
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="lang-switch" data-lang-switch>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          </div>
+          <button type="button" class="theme-btn" data-theme-toggle aria-label="Toggle theme"></button>
+        </div>
+      </div>
+
+      <h1 class="sr-only" data-sr-heading></h1>
+
+      <div class="logo" data-logo></div>
+
+      <p class="bio" data-bio></p>
+
+      <div class="section-label exp-label" data-exp-label></div>
+      <div class="exp-block" data-exp-list></div>
+
+      <div class="contacts-block">
+        <div class="section-label" data-contacts-label></div>
+        <div class="contacts-row" data-contacts></div>
+      </div>
+    </aside>
+
+    <!-- ── Work column ─────────────────────────────────────────────── -->
+    <main class="work">
+      <div class="filter-bar">
+        <div class="chips-row" data-filters></div>
+        <!-- Desktop-only mirror of the mobile top bar controls. -->
+        <div class="filter-controls">
+          <div class="lang-switch" data-lang-switch>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          </div>
+          <button type="button" class="theme-btn" data-theme-toggle aria-label="Toggle theme"></button>
+        </div>
+      </div>
+
+      <div class="empty-state" data-empty hidden></div>
+      <div class="grid" data-grid></div>
+    </main>
+
+  </div>
+</div>
+</body>
+</html>
