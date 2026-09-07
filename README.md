@@ -63,6 +63,18 @@ the domain — leave them alone.
 `copy-assets.sh` is kept for regenerating `assets/` from the design bundle in
 `../project/`, should a source image ever change. It isn't part of deploying.
 
+### Updating the site
+
+1. Change the files in this folder — or ask Claude to.
+2. Open GitHub Desktop. The changed files show up in the left column.
+3. Type a short summary in the box at the bottom left, click **Commit to main**.
+4. Click **Push origin**.
+
+Vercel notices the push and rebuilds within a minute or two. The domain, the
+HTTPS certificate and every project setting stay exactly as they are — only the
+files change. Each push is kept in the history, so any version can be restored
+from the Deployments page in Vercel.
+
 
 ## How it fits together
 
