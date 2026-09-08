@@ -111,7 +111,8 @@ bio) edit `shared.js` once. To change one page's copy, edit its `page-*.js`.
 toggle is used, then stored in `localStorage['pf-theme']` and painted before
 first frame so a dark reload never flashes white. The same inline script writes
 `<meta name="theme-color">`, which is what colours the strips a phone draws
-above and below the page; EN/RU stored
+above and below the page — and `applyTheme` replaces that whole element rather
+than editing it, because Safari re-reads the value only from a new node; EN/RU stored
 in `localStorage['pf-lang']`, with Russian copy run through the prototype's
 non-breaking-space pass; the fixed 374px sidebar at ≥900px collapsing to a
 stacked column below; the Lottie wordmark with a text fallback; a one-per-
@@ -146,7 +147,12 @@ walkthrough is 4/3 on a phone and 16/9 above 900px; the ratio is fixed either
 way so the block never resizes as the file arrives.
 
 **Activities** — a 3-column masonry (2 on mobile) preserving each image's
-natural ratio; captions fade in on hover, five cells link out.
+natural ratio; captions fade in on hover, five cells link out. Every `<img>`
+carries its real pixel size as `width`/`height` attributes, so a cell is its
+full height from the first paint rather than a couple of pixels tall until the
+file lands. Adding a certificate means a new `assets/activities-N.webp`, a
+`{ src, w, h }` entry in `PHOTOS`, and a label in **both** languages — the two
+lists are matched by position.
 
 **Animation challenge** — 30 numbered cells, each loaded only once it comes
 within 400px of the viewport, with a shimmer until it does.
@@ -170,9 +176,15 @@ the slideshow, and pins the avatars band.
 - **Content is rendered by JavaScript**, matching the prototype, so the HTML
   source is nearly empty. Search engines run JS these days, but if organic
   search matters a lot for the articles, that's the thing worth changing first.
-- **`assets/desk-hero-mobile.webp` does not come from the design bundle**, so
-  `copy-assets.sh` cannot regenerate it. It survives a rebuild — that script
-  only copies — but emptying `assets/` would lose it.
+- **Three files do not come from the design bundle** and `copy-assets.sh`
+  cannot regenerate them: `desk-hero-mobile.webp` (the phone-only desk photo),
+  `wb-partners.svg` (the wordmark on the coming-soon tile, which replaced the
+  bundle's `wb.svg`) and `activities-13.webp`. They survive a rebuild — that
+  script only copies — but emptying `assets/` would lose them.
+- **Every `background-size: cover` needs `background-repeat: no-repeat`.**
+  `cover` is rounded to whole pixels and on a fractional device pixel ratio can
+  land a hair short of its box, where the default `repeat` shows a sliver of
+  the image wrapping around — thin duplicated strips down one edge.
 - Asset filenames are ASCII. The bundle's Cyrillic names are mapped in
   `copy-assets.sh`, which prints `MISSING:` for anything it can't find.
 - The sidebar's left offset is `max(32px, calc((100vw - 1472px) / 2 + 32px))`,

@@ -263,7 +263,9 @@
 .soon-logo {
   width: 52%;
   max-width: 260px;
-  aspect-ratio: 3 / 1;
+  /* The wordmark's own ratio, so `contain` fills the box exactly rather than
+     letterboxing it. */
+  aspect-ratio: 130 / 23;
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -285,6 +287,7 @@
   inset: 0;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   transform: scale(1);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -484,6 +487,7 @@
   background-color: var(--bg);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   transform-origin: left center;
   transform-style: preserve-3d;
   transform: perspective(700px) rotateY(0deg);

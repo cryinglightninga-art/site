@@ -15,6 +15,9 @@
   background-image: var(--hero-mobile, var(--hero));
   background-size: cover;
   background-position: center;
+  /* `cover` is rounded to whole pixels and can land a hair short of the box;
+     without this the wrapped copy shows as a sliver down one edge. */
+  background-repeat: no-repeat;
   border: 1px solid var(--card-border);
   border-radius: 12px;
   display: block;
@@ -157,6 +160,7 @@
 
 .gallery-img {
   width: 100%;
+  height: auto;
   display: block;
   border-radius: 12px;
   background: var(--bg-secondary);
@@ -443,6 +447,7 @@ a.photo-cell { cursor: pointer; }
   background-color: var(--bg-secondary);
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   border: 1px solid var(--card-border);
 }
 

@@ -61,7 +61,7 @@
     { type: 'article', c1: '#dad3c9', c2: '#c9c0af', shapeAlt: true, cert: true, href: 'activities.html' },
     { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
     { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
-    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', soon: true, logo: 'assets/wb.svg' }
+    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', soon: true, logo: 'assets/wb-partners.svg' }
   ];
 
   var BOOKS = [

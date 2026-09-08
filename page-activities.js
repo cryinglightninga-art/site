@@ -25,7 +25,8 @@
         'Tilda School — PRO course',
         'FutureLearn × Accenture — Digital Skills: User Experience',
         'Uxcel — HTML for Designers',
-        'Skyeng — English, Intermediate'
+        'Skyeng — English, Intermediate',
+        'Онлайн-волонтёр / участник исследований'
       ]
     },
     en: {
@@ -43,26 +44,33 @@
         'Tilda School — PRO Course',
         'FutureLearn × Accenture — Digital Skills: User Experience',
         'Uxcel — HTML for Designers',
-        'Skyeng — English, Intermediate'
+        'Skyeng — English, Intermediate',
+        'Online Volunteer / Research Contributor'
       ]
     }
   };
 
   // Natural aspect ratios are preserved — the masonry columns absorb the
   // height differences. Order matches COPY[lang].labels.
+  //
+  // `w` and `h` are each file's real pixel size and go on the <img> as
+  // attributes. Without them a cell is a couple of pixels tall until its
+  // picture arrives and then jumps to full height, which reshuffles the whole
+  // wall; with them the browser knows the shape up front and holds the space.
   var PHOTOS = [
-    { src: 'assets/activities-1.webp' },
-    { src: 'assets/activities-2.webp' },
-    { src: 'assets/activities-3.webp' },
-    { src: 'assets/activities-4.webp', href: 'https://laenguild.org/workshop' },
-    { src: 'assets/activities-5.webp', href: 'https://www.coursera.org/account/accomplishments/verify/QLV2VPCNZA7S' },
-    { src: 'assets/activities-6.webp' },
-    { src: 'assets/activities-7.webp', href: 'https://staroekrukovo.ru/print.php?item=studenty-mieta-diplomanty-xxvi-mezhdunarodnogo-studencheskogo-konkursa-na-luchshiy-dizayn-upakovki-z' },
-    { src: 'assets/activities-8.webp' },
-    { src: 'assets/activities-9.webp', href: 'https://tilda.school/stories/ugk5guxxb1-istoriya-studenta-adelina-urzhanova' },
-    { src: 'assets/activities-10.webp' },
-    { src: 'assets/activities-11.webp' },
-    { src: 'assets/activities-12.webp' }
+    { src: 'assets/activities-1.webp', w: 580, h: 800 },
+    { src: 'assets/activities-2.webp', w: 800, h: 478 },
+    { src: 'assets/activities-3.webp', w: 800, h: 566 },
+    { src: 'assets/activities-4.webp', w: 566, h: 800, href: 'https://laenguild.org/workshop' },
+    { src: 'assets/activities-5.webp', w: 800, h: 618, href: 'https://www.coursera.org/account/accomplishments/verify/QLV2VPCNZA7S' },
+    { src: 'assets/activities-6.webp', w: 558, h: 800 },
+    { src: 'assets/activities-7.webp', w: 559, h: 800, href: 'https://staroekrukovo.ru/print.php?item=studenty-mieta-diplomanty-xxvi-mezhdunarodnogo-studencheskogo-konkursa-na-luchshiy-dizayn-upakovki-z' },
+    { src: 'assets/activities-8.webp', w: 800, h: 574 },
+    { src: 'assets/activities-9.webp', w: 565, h: 800, href: 'https://tilda.school/stories/ugk5guxxb1-istoriya-studenta-adelina-urzhanova' },
+    { src: 'assets/activities-10.webp', w: 800, h: 548 },
+    { src: 'assets/activities-11.webp', w: 800, h: 565 },
+    { src: 'assets/activities-12.webp', w: 800, h: 569 },
+    { src: 'assets/activities-13.webp', w: 800, h: 586 }
   ];
 
   var content = document.querySelector('[data-content]');
@@ -72,7 +80,10 @@
       ? el('a', 'photo-cell', { href: photo.href, target: '_blank', rel: 'noopener' })
       : el('div', 'photo-cell');
 
-    cell.appendChild(el('img', null, { src: photo.src, alt: label, loading: 'lazy' }));
+    cell.appendChild(el('img', null, {
+      src: photo.src, alt: label, loading: 'lazy',
+      width: String(photo.w), height: String(photo.h)
+    }));
     cell.appendChild(el('div', 'photo-scrim'));
 
     var caption = el('div', 'photo-caption');

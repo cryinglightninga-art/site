@@ -284,8 +284,17 @@ window.PF = (function () {
     // Drop the inline background the pre-paint script set so the token wins.
     root.style.background = '';
 
-    var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', state.theme === 'dark' ? '#000000' : '#ffffff');
+    // Safari ignores a theme-color meta whose content merely changes — it only
+    // re-reads the value when the element itself is new, which is why the
+    // strips around the page used to stay put until the next reload. Swap the
+    // whole node instead of editing it.
+    var head = document.head;
+    var old = head.querySelector('meta[name="theme-color"]');
+    if (old) head.removeChild(old);
+    var meta = document.createElement('meta');
+    meta.setAttribute('name', 'theme-color');
+    meta.setAttribute('content', state.theme === 'dark' ? '#000000' : '#ffffff');
+    head.appendChild(meta);
 
     var icon = state.theme === 'dark' ? '☀️' : '🌙';
     Array.prototype.forEach.call(document.querySelectorAll('[data-theme-toggle]'), function (btn) {

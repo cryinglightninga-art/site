@@ -59,8 +59,12 @@
     frag.appendChild(ui.videoFrame(video, failedLabel, 'walkthrough'));
 
     var grid = el('div', 'gallery-grid');
+    // Sized up front so the block does not grow under the reader as the files
+    // arrive; both stills are 1024x728.
     ['assets/airtrip-1.webp', 'assets/airtrip-2.webp'].forEach(function (src) {
-      grid.appendChild(el('img', 'gallery-img', { src: src, alt: '', loading: 'lazy' }));
+      grid.appendChild(el('img', 'gallery-img', {
+        src: src, alt: '', loading: 'lazy', width: '1024', height: '728'
+      }));
     });
     frag.appendChild(grid);
 
