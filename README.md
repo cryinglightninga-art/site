@@ -1,6 +1,7 @@
 # urzhanovaa.com
 
 Static implementation of the Claude Design handoff bundle in `../project/`.
+
 No framework, no build step — seven pages sharing one CSS and JS foundation.
 
 Page filenames match the canonical URLs the design specified, so `mujo.html`
