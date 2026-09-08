@@ -123,17 +123,17 @@
 
   // Product photos, in item order. The last item uses INTERIOR instead.
   var PHOTOS = [
-    'assets/desk-1.png',
-    'assets/desk-2.png',
-    'assets/desk-3.png',
-    'assets/desk-4.png',
-    'assets/desk-5.png',
-    'assets/desk-6.png',
-    'assets/desk-7.png',
+    'assets/desk-1.webp',
+    'assets/desk-2.webp',
+    'assets/desk-3.webp',
+    'assets/desk-4.webp',
+    'assets/desk-5.webp',
+    'assets/desk-6.webp',
+    'assets/desk-7.webp',
     ''
   ];
 
-  var INTERIOR = ['assets/desk-interior-1.png', 'assets/desk-interior-2.png', 'assets/desk-interior-3.png'];
+  var INTERIOR = ['assets/desk-interior-1.webp', 'assets/desk-interior-2.webp', 'assets/desk-interior-3.webp'];
   var INTERIOR_INDEX = 7;
 
   var content = document.querySelector('[data-content]');
@@ -184,7 +184,7 @@
     var t = PF.localize(COPY);
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/desk-hero.png'));
+    content.appendChild(ui.hero('assets/desk-hero.webp'));
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta, 'cols-2'));

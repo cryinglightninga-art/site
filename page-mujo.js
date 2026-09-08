@@ -44,7 +44,7 @@
   };
 
   var SLIDES = Array.from({ length: 10 }, function (_, i) {
-    return 'assets/mujo-slide-' + (i + 1) + '.png';
+    return 'assets/mujo-slide-' + (i + 1) + '.webp';
   });
 
   var content = document.querySelector('[data-content]');
@@ -103,21 +103,21 @@
     var frag = document.createDocumentFragment();
 
     var pair1 = el('div', 'gallery-grid has-top-gap');
-    pair1.appendChild(shot('assets/mujo-shot-2.png'));
-    pair1.appendChild(shot('assets/mujo-shot-1.png'));
+    pair1.appendChild(shot('assets/mujo-shot-2.webp'));
+    pair1.appendChild(shot('assets/mujo-shot-1.webp'));
     frag.appendChild(pair1);
 
     // Wider left cell — 1.464fr / 1fr on desktop.
     var row = el('div', 'gallery-row-start');
-    row.appendChild(shot('assets/mujo-shot-5.png', 'is-cover'));
+    row.appendChild(shot('assets/mujo-shot-5.webp', 'is-cover'));
     row.lastChild.style.aspectRatio = '1347 / 920';
-    row.appendChild(shot('assets/mujo-shot-6.png', 'is-cover'));
+    row.appendChild(shot('assets/mujo-shot-6.webp', 'is-cover'));
     row.lastChild.style.aspectRatio = '1 / 1';
     frag.appendChild(row);
 
     var pair2 = el('div', 'gallery-grid has-top-gap');
-    pair2.appendChild(shot('assets/mujo-shot-4.png'));
-    pair2.appendChild(shot('assets/mujo-shot-3.png'));
+    pair2.appendChild(shot('assets/mujo-shot-4.webp'));
+    pair2.appendChild(shot('assets/mujo-shot-3.webp'));
     frag.appendChild(pair2);
 
     return frag;
@@ -130,7 +130,7 @@
     document.title = t.title + ' · ' + PF.sidebarCopy().name;
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/mujo-hero.png'));
+    content.appendChild(ui.hero('assets/mujo-hero.webp'));
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta));

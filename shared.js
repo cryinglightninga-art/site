@@ -53,10 +53,10 @@ window.PF = (function () {
   ];
 
   var LOGO_SRC = {
-    wildberries: [{ src: 'assets/logo-wildberries.png', zoom: '100% 100%' }],
-    mujo: [{ src: 'assets/logo-mujo.png', zoom: '100% 100%' }],
-    teamly: [{ src: 'assets/logo-teamly.png', zoom: '100% 100%' }],
-    other: ['assets/logo-au-1.png', 'assets/logo-au-2.png']
+    wildberries: [{ src: 'assets/logo-wildberries.webp', zoom: '100% 100%' }],
+    mujo: [{ src: 'assets/logo-mujo.webp', zoom: '100% 100%' }],
+    teamly: [{ src: 'assets/logo-teamly.webp', zoom: '100% 100%' }],
+    other: ['assets/logo-au-1.webp', 'assets/logo-au-2.webp']
   };
 
   var LOTTIE_SRC = { light: 'assets/logo-light.json', dark: 'assets/logo-dark.json' };

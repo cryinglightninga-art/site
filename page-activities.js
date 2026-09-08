@@ -51,8 +51,8 @@
   // Natural aspect ratios are preserved — the masonry columns absorb the
   // height differences. Order matches COPY[lang].labels.
   var PHOTOS = [
-    { src: 'assets/activities-1.jpg' },
-    { src: 'assets/activities-2.png' },
+    { src: 'assets/activities-1.webp' },
+    { src: 'assets/activities-2.webp' },
     { src: 'assets/activities-3.webp' },
     { src: 'assets/activities-4.webp', href: 'https://laenguild.org/workshop' },
     { src: 'assets/activities-5.webp', href: 'https://www.coursera.org/account/accomplishments/verify/QLV2VPCNZA7S' },

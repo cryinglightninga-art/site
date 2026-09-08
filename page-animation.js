@@ -149,7 +149,7 @@
     var t = PF.localize(COPY);
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/animation-hero.png'));
+    content.appendChild(ui.hero('assets/animation-hero.webp'));
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title, 'is-compact'));
     content.appendChild(ui.metaGrid(t.meta, 'cols-3'));

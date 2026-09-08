@@ -45,11 +45,11 @@
   };
 
   var SHOTS = [
-    'assets/shot-1.png',
-    'assets/shot-2.png',
-    'assets/shot-3.png',
-    'assets/shot-4.png',
-    'assets/shot-5.png'
+    'assets/shot-1.webp',
+    'assets/shot-2.webp',
+    'assets/shot-3.webp',
+    'assets/shot-4.webp',
+    'assets/shot-5.webp'
   ];
 
   // Cover treatment per tile. Order matches COPY[lang].tiles.
@@ -59,18 +59,18 @@
     { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', shape: true, shots: true, href: 'payment-split.html' },
     { type: 'project', c1: '#d9d9dc', c2: '#bdbdc2', shape: true, fan: true, href: 'airtrip.html' },
     { type: 'article', c1: '#dad3c9', c2: '#c9c0af', shapeAlt: true, cert: true, href: 'activities.html' },
-    { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.png', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
-    { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.png', href: 'desk-setup.html' },
+    { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
+    { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
     { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', soon: true, logo: 'assets/wb.svg' }
   ];
 
   var BOOKS = [
-    { size: 'm', cover: 'assets/book-1.png', href: 'https://ozon.kz/product/upravlenie-zhiznennym-tsiklom-kompanii-kak-organizatsii-rastut-razvivayutsya-i-umirayut-i-chto-627926985/', ru: { title: 'Управление жизненным циклом компании', author: 'Ицхак Адизес' }, en: { title: 'Managing Corporate Lifecycles', author: 'Ichak Adizes' } },
-    { size: 'm', cover: 'assets/book-2.png', href: 'https://ozon.kz/product/kak-rabotaet-google-32221772/', ru: { title: 'Как работает Google', author: 'Джоанн Харрис' }, en: { title: 'How Google Works', author: 'Joanne Harris' } },
-    { size: 's', cover: 'assets/book-3.png', href: 'https://www.litres.ru/book/rob-fitcpatrik/sprosi-mamu-kak-obschatsya-s-klientami-i-podtverdit-pravotu-23963007/chitat-onlayn/', ru: { title: 'Спроси маму', author: 'Роб Фитцпатрик' }, en: { title: 'The Mom Test', author: 'Rob Fitzpatrick' } },
-    { size: 'l', cover: 'assets/book-4.png', href: 'https://ozon.kz/product/patterny-dizayn-menedzhmenta-kak-kompanii-dostich-organizatsionnoy-zrelosti-i-uluchshit-1312155565/', ru: { title: 'Паттерны дизайн-менеджмента', author: 'Юрий Ветров' }, en: { title: 'Design Management Patterns', author: 'Yury Vetrov' } },
-    { size: 'm', cover: 'assets/book-5.png', href: 'https://www.labirint.ru/books/639546/', ru: { title: 'Непонятное искусство', author: 'Уилл Гомперц' }, en: { title: 'What Are You Looking At?', author: 'Will Gompertz' } },
-    { size: 's', cover: 'assets/book-6.png', href: 'https://ozon.kz/product/mozgouskoriteli-kak-nauchitsya-effektivno-myslit-ispolzuya-priemy-iz-raznyh-nauk-nisbett-richard-1411242453/', ru: { title: 'Мозгоускорители', author: 'Ричард Нисбетт' }, en: { title: 'Mindware: Tools for Smart Thinking', author: 'Richard Nisbett' } }
+    { size: 'm', cover: 'assets/book-1.webp', href: 'https://ozon.kz/product/upravlenie-zhiznennym-tsiklom-kompanii-kak-organizatsii-rastut-razvivayutsya-i-umirayut-i-chto-627926985/', ru: { title: 'Управление жизненным циклом компании', author: 'Ицхак Адизес' }, en: { title: 'Managing Corporate Lifecycles', author: 'Ichak Adizes' } },
+    { size: 'm', cover: 'assets/book-2.webp', href: 'https://ozon.kz/product/kak-rabotaet-google-32221772/', ru: { title: 'Как работает Google', author: 'Джоанн Харрис' }, en: { title: 'How Google Works', author: 'Joanne Harris' } },
+    { size: 's', cover: 'assets/book-3.webp', href: 'https://www.litres.ru/book/rob-fitcpatrik/sprosi-mamu-kak-obschatsya-s-klientami-i-podtverdit-pravotu-23963007/chitat-onlayn/', ru: { title: 'Спроси маму', author: 'Роб Фитцпатрик' }, en: { title: 'The Mom Test', author: 'Rob Fitzpatrick' } },
+    { size: 'l', cover: 'assets/book-4.webp', href: 'https://ozon.kz/product/patterny-dizayn-menedzhmenta-kak-kompanii-dostich-organizatsionnoy-zrelosti-i-uluchshit-1312155565/', ru: { title: 'Паттерны дизайн-менеджмента', author: 'Юрий Ветров' }, en: { title: 'Design Management Patterns', author: 'Yury Vetrov' } },
+    { size: 'm', cover: 'assets/book-5.webp', href: 'https://www.labirint.ru/books/639546/', ru: { title: 'Непонятное искусство', author: 'Уилл Гомперц' }, en: { title: 'What Are You Looking At?', author: 'Will Gompertz' } },
+    { size: 's', cover: 'assets/book-6.webp', href: 'https://ozon.kz/product/mozgouskoriteli-kak-nauchitsya-effektivno-myslit-ispolzuya-priemy-iz-raznyh-nauk-nisbett-richard-1411242453/', ru: { title: 'Мозгоускорители', author: 'Ричард Нисбетт' }, en: { title: 'Mindware: Tools for Smart Thinking', author: 'Richard Nisbett' } }
   ];
 
   var ROW_PATTERN = [2, 2, 3];
@@ -147,9 +147,9 @@
     if (meta.fan) {
       var fanWrap = el('div', 'fan-wrap');
       [
-        ['assets/fan-left.png', 'fan-img fan-left'],
-        ['assets/fan-right.png', 'fan-img fan-right'],
-        ['assets/fan-center.png', 'fan-img fan-center']
+        ['assets/fan-left.webp', 'fan-img fan-left'],
+        ['assets/fan-right.webp', 'fan-img fan-right'],
+        ['assets/fan-center.webp', 'fan-img fan-center']
       ].forEach(function (pair) {
         fanWrap.appendChild(el('img', pair[1], { src: pair[0], alt: '', loading: 'lazy' }));
       });
@@ -159,9 +159,9 @@
     if (meta.stack) {
       var stackWrap = el('div', 'fan-wrap');
       [
-        ['assets/stack-back.png', 'stack-img stack-back'],
-        ['assets/stack-mid.png', 'stack-img stack-mid'],
-        ['assets/stack-front.png', 'stack-img stack-front']
+        ['assets/stack-back.webp', 'stack-img stack-back'],
+        ['assets/stack-mid.webp', 'stack-img stack-mid'],
+        ['assets/stack-front.webp', 'stack-img stack-front']
       ].forEach(function (pair) {
         stackWrap.appendChild(el('img', pair[1], { src: pair[0], alt: '', loading: 'lazy' }));
       });
@@ -202,7 +202,7 @@
     if (meta.cert) {
       var certWrap = el('div', 'cert-wrap');
       var certImg = el('div', 'cert-img');
-      certImg.style.backgroundImage = 'url("assets/cert.png")';
+      certImg.style.backgroundImage = 'url("assets/cert.webp")';
       certWrap.appendChild(certImg);
       media.appendChild(certWrap);
     }
@@ -280,7 +280,7 @@
 
   function buildAvatars() {
     avatarsNode = el('div', 'avatars');
-    avatarsImg = el('img', null, { src: 'assets/avatars-collage.png', alt: '', loading: 'lazy' });
+    avatarsImg = el('img', null, { src: 'assets/avatars-collage.webp', alt: '', loading: 'lazy' });
     avatarsNode.appendChild(avatarsImg);
     return avatarsNode;
   }

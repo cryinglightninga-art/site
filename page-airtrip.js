@@ -69,7 +69,7 @@
     var t = PF.localize(COPY);
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/airtrip-hero.png'));
+    content.appendChild(ui.hero('assets/airtrip-hero.webp'));
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta));
