@@ -96,6 +96,16 @@ window.PF = (function () {
     try { localStorage.setItem(key, val); } catch (e) {}
   }
 
+  // Until the visitor picks a side with the toggle, the site follows the phone
+  // or the laptop — which is also what keeps the strips above and below the
+  // page (the clock, the battery) from staying white on a dark phone.
+  function systemTheme() {
+    try {
+      return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        ? 'dark' : 'light';
+    } catch (e) { return 'light'; }
+  }
+
   /* ── DOM helper ───────────────────────────────────────────────────────── */
 
   function el(tag, className, attrs) {
@@ -108,7 +118,7 @@ window.PF = (function () {
   /* ── State ────────────────────────────────────────────────────────────── */
 
   var state = {
-    theme: readPref('pf-theme', 'light'),
+    theme: readPref('pf-theme', systemTheme()),
     lang: readPref('pf-lang', 'en'),
     isDesktop: window.innerWidth >= DESKTOP_MIN
   };
@@ -470,7 +480,10 @@ window.PF = (function () {
   // Home only: save the position on every exit, and flag the exits that should
   // come back to it — the ones that follow one of our own links.
   function watchHomeScroll() {
-    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+    // Deliberately NOT history.scrollRestoration = 'manual'. On a phone the
+    // browser usually hands back its own cached copy of this page and never
+    // re-runs any script — 'manual' would stop it restoring the position and
+    // leave nothing to do the job instead.
 
     document.addEventListener('click', function (e) {
       var node = e.target;
@@ -489,6 +502,29 @@ window.PF = (function () {
     });
   }
 
+  // Scroll there and keep checking for a moment. A phone settles its layout
+  // late — web fonts arrive, the address bar slides away, images take their
+  // final height — and each of those can drag the page back up. The moment the
+  // visitor scrolls themselves, stop interfering.
+  function scrollBackTo(y) {
+    var cancelled = false;
+    function stop() { cancelled = true; }
+    ['wheel', 'touchstart', 'keydown'].forEach(function (evt) {
+      window.addEventListener(evt, stop, { once: true, passive: true });
+    });
+
+    var tries = 0;
+    function attempt() {
+      if (cancelled) return;
+      if (Math.abs(window.scrollY - y) > 2) window.scrollTo(0, y);
+      tries += 1;
+      if (tries < 7) setTimeout(attempt, tries < 4 ? 60 : 220);
+    }
+    requestAnimationFrame(function () {
+      requestAnimationFrame(attempt);
+    });
+  }
+
   // Home only, and only once the grid is on the page — the position cannot be
   // restored while the document is still too short to hold it.
   function restoreHomeScroll() {
@@ -502,13 +538,18 @@ window.PF = (function () {
     if (!returning && type !== 'back_forward' && type !== 'reload') return;
 
     var y = parseInt(stored, 10);
-    if (!(y > 0)) return;
+    if (y > 0) scrollBackTo(y);
+  }
 
-    // Two frames: one for the grid to lay out, one for the page height to
-    // settle around it.
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () { window.scrollTo(0, y); });
-    });
+  // The other route home: the browser returns its own cached copy of the page,
+  // so nothing above runs. Usually it restores the position too — but not
+  // always, and on a phone that is the common case. Only step in when the page
+  // has genuinely come back at the top.
+  function restoreCachedScroll() {
+    sessionDel(RETURN_KEY);
+    if (window.scrollY > 2) return;
+    var y = parseInt(sessionGet(SCROLL_KEY) || '0', 10);
+    if (y > 0) scrollBackTo(y);
   }
 
   // A sub-page reached from the home page goes back through history instead of
@@ -536,6 +577,21 @@ window.PF = (function () {
 
   /* ── Viewport ─────────────────────────────────────────────────────────── */
 
+  // Follow the system while no explicit choice is stored, so flipping the
+  // phone into dark mode repaints the page under the visitor.
+  function watchSystemTheme() {
+    if (!window.matchMedia) return;
+    var mq = window.matchMedia('(prefers-color-scheme: dark)');
+    function follow() {
+      if (readPref('pf-theme', '')) return;
+      state.theme = mq.matches ? 'dark' : 'light';
+      applyTheme();
+      emit('theme');
+    }
+    if (mq.addEventListener) mq.addEventListener('change', follow);
+    else if (mq.addListener) mq.addListener(follow);
+  }
+
   function watchResize() {
     window.addEventListener('resize', function () {
       var isDesktop = window.innerWidth >= DESKTOP_MIN;
@@ -557,6 +613,7 @@ window.PF = (function () {
     applyTheme();
     applyLanguage();
     watchResize();
+    watchSystemTheme();
   }
 
   function renderContactsInto() {
@@ -568,9 +625,13 @@ window.PF = (function () {
   /* ── Building blocks shared by the project and article pages ──────────── */
 
   var ui = {
-    hero: function (src) {
+    // `mobileSrc` is optional; article.css swaps to it below 900px. Both go in
+    // as custom properties rather than as an inline background-image, which no
+    // media query could out-rank.
+    hero: function (src, mobileSrc) {
       var node = el('div', 'hero');
-      if (src) node.style.backgroundImage = 'url("' + src + '")';
+      if (src) node.style.setProperty('--hero', 'url("' + src + '")');
+      if (mobileSrc) node.style.setProperty('--hero-mobile', 'url("' + mobileSrc + '")');
       return node;
     },
     badge: function (text) {
@@ -620,6 +681,47 @@ window.PF = (function () {
       node.textContent = text;
       return node;
     },
+    // These clips play muted with no controls, so until one starts moving
+    // there is nothing to say it is a video rather than a photo. This dims the
+    // first frame and spins over it until playback actually begins.
+    videoVeil: function (video, onFail) {
+      var veil = el('div', 'video-veil');
+      veil.appendChild(el('i'));
+
+      var gone = false;
+      function clear() {
+        if (gone) return;
+        gone = true;
+        veil.classList.add('is-gone');
+        setTimeout(function () { veil.remove(); }, 400);
+      }
+
+      video.addEventListener('playing', clear);
+      // A browser that refuses to autoplay still shows the first frame, and a
+      // spinner that never stops would be worse than no spinner at all.
+      video.addEventListener('loadeddata', function () { setTimeout(clear, 2500); });
+      video.addEventListener('error', function () {
+        gone = true;
+        veil.remove();
+        if (onFail) onFail();
+      });
+
+      return veil;
+    },
+    // A clip in its own box: the video, the loading veil over it, and a label
+    // for the case where the file never arrives.
+    videoFrame: function (video, failedLabel, extraClass) {
+      var wrap = el('div', 'video-frame' + (extraClass ? ' ' + extraClass : ''));
+
+      var failed = el('div', 'failed-label');
+      failed.textContent = failedLabel || '';
+      failed.hidden = true;
+
+      wrap.appendChild(ui.autoplay(video));
+      wrap.appendChild(ui.videoVeil(video, function () { failed.hidden = false; }));
+      wrap.appendChild(failed);
+      return wrap;
+    },
     // Muted, non-looping autoplay that survives browsers refusing the promise.
     autoplay: function (video) {
       video.muted = true;
@@ -652,6 +754,7 @@ window.PF = (function () {
     applyLanguage: applyLanguage,
     watchResize: watchResize,
     restoreHomeScroll: restoreHomeScroll,
+    restoreCachedScroll: restoreCachedScroll,
     init: init
   };
 })();

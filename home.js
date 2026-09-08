@@ -393,6 +393,23 @@
     });
   }
 
+  // Coming back from a project on a phone almost always means the browser
+  // handing back its own cached copy of this page: no script runs, so the
+  // tiles would sit there already revealed and the return would look dead.
+  // Take the reveal off and put it back so it plays again.
+  function replayReveal() {
+    inView = {};
+    tiles.forEach(function (tile) {
+      tile.node.classList.remove('labels-on', 'hovered');
+    });
+    // Read a layout value in between, or the browser folds the two class
+    // changes into one and animates nothing.
+    void dom.grid.offsetHeight;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(applyTileStates);
+    });
+  }
+
   function setFilter(key) {
     filter = key;
     applyFilter();
@@ -505,6 +522,12 @@
     // Last, with the grid in place: the page is now tall enough to scroll back
     // to wherever it was when a tile was clicked.
     PF.restoreHomeScroll();
+
+    window.addEventListener('pageshow', function (e) {
+      if (!e.persisted) return;
+      replayReveal();
+      PF.restoreCachedScroll();
+    });
   }
 
   if (document.readyState === 'loading') {

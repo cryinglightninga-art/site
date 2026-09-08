@@ -100,14 +100,13 @@
       }
 
       var video = el('video', 'clip-video', {
-        autoplay: '', loop: '', muted: '', playsinline: '', src: src
+        autoplay: '', loop: '', muted: '', playsinline: '', preload: 'auto', src: src
       });
+      var veil = ui.videoVeil(video, function () { failed.hidden = false; });
       video.addEventListener('loadeddata', function () { skeleton.remove(); });
-      video.addEventListener('error', function () {
-        skeleton.remove();
-        failed.hidden = false;
-      });
+      video.addEventListener('error', function () { skeleton.remove(); });
       cell.insertBefore(ui.autoplay(video), num);
+      cell.insertBefore(veil, num);
     };
 
     return cell;

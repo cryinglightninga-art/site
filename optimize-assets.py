@@ -64,8 +64,8 @@ RULES = [
     # Desk setup: half-column photos, ~490px.
     ("desk-*.png", 1000, 80),
 
-    # Animation gallery: two columns of the 1000px work column.
-    ("anim-*.webp", 1000, 80),
+    # The animation-gallery clips are deliberately absent: they are animated
+    # WebP, and is_animated() below sends them through untouched.
 ]
 
 # Left alone: SVG, Lottie JSON, and the favicon (browsers want a real PNG
@@ -79,6 +79,22 @@ KEEP_AS_PNG = {"avatar.png": (128, 95)}
 VIDEOS = {"animation.mp4": 900, "anim-30.mp4": 900}
 
 
+def is_animated(path):
+    """True for animated WebP and GIF.
+
+    Pillow reads only the first frame of these unless it is asked to save every
+    one, so re-encoding an animation the ordinary way silently turns it into a
+    still. The 29 clips on the animation-challenge page are animated WebP, at
+    800px and 3.4MB for the set — already the size they are displayed at, and
+    loaded one screen at a time on a page of their own. So they are left alone.
+    """
+    try:
+        with Image.open(path) as img:
+            return getattr(img, "n_frames", 1) > 1
+    except Exception:
+        return False
+
+
 def rule_for(name):
     for pattern, side, quality in RULES:
         if Path(name).match(pattern):
@@ -86,9 +102,28 @@ def rule_for(name):
     return None
 
 
+def video_bitrate(path):
+    """Bits per second, or None if ffprobe cannot say."""
+    try:
+        out = subprocess.run(
+            ["ffprobe", "-v", "error", "-show_entries", "format=duration,size",
+             "-of", "default=noprint_wrappers=1:nokey=1", str(path)],
+            capture_output=True, text=True, check=True)
+        duration, size = out.stdout.split()
+        return float(size) * 8 / float(duration)
+    except Exception:
+        return None
+
+
 def shrink_video(path, max_width, size_before):
     """Re-encode with ffmpeg if it is installed; otherwise leave the file be."""
     if shutil.which("ffmpeg") is None:
+        return size_before
+
+    # Running this script twice must not cost a second generation of quality.
+    # Anything already under 600 kbps has been through here before.
+    rate = video_bitrate(path)
+    if rate is not None and rate < 600_000:
         return size_before
     tmp = path.with_suffix(".tmp.mp4")
     cmd = [
@@ -145,9 +180,19 @@ def main():
                 skipped += 1
             continue
 
+        if is_animated(path):
+            after += size_before
+            skipped += 1
+            continue
+
         # The favicon stays a PNG, just a much smaller one.
         if path.name in KEEP_AS_PNG:
             max_side, _ = KEEP_AS_PNG[path.name]
+            with Image.open(path) as probe:
+                if max(probe.size) <= max_side:
+                    after += size_before
+                    skipped += 1
+                    continue
             with Image.open(path) as img:
                 out = resized(img.convert("RGBA"), max_side)
                 out.save(path, "PNG", optimize=True)
@@ -165,6 +210,15 @@ def main():
 
         max_side, quality = rule
         target = path.with_suffix(".webp")
+
+        # Already a WebP no larger than the cap: this is this script's own
+        # output from a previous run, and re-encoding it would only soften it.
+        if path.suffix.lower() == ".webp":
+            with Image.open(path) as probe:
+                if max(probe.size) <= max_side:
+                    after += size_before
+                    skipped += 1
+                    continue
 
         with Image.open(path) as img:
             # Flatten transparency onto white only when the source has none to

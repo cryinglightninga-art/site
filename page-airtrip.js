@@ -24,7 +24,8 @@
         { heading: 'Исследование', text: 'Я провела качественное исследование, чтобы понять, как пользователи планируют путешествия: где ищут билеты, отели и места, как сохраняют варианты и собирают маршрут. На основе этого выделила ключевой сценарий и разбила сложный ввод данных на пошаговый wizard, чтобы снизить когнитивную нагрузку.' },
         { heading: 'Дизайн', text: 'Спроектировала основной task flow: ввод данных о поездке, настройку перелёта, выбор отеля, планирование маршрута и детальные страницы мест. Также собрала дизайн-систему, подготовила ключевые компоненты и прототип для проверки основного сценария. Визуально сервис получился лёгким и минималистичным: с природными цветами, чистой структурой, flat-графикой и 3D-акцентами.' }
       ],
-      galleryLabel: 'Галерея'
+      galleryLabel: 'Галерея',
+      failedLabel: 'не загрузилось'
     },
     en: {
       typeLabel: 'Project',
@@ -39,7 +40,8 @@
         { heading: 'Research', text: 'I conducted qualitative research to understand how users plan trips: where they search for flights, hotels, and places, how they save options, and how they build routes. Based on the findings, I defined the core scenario and turned the input-heavy setup stage into a step-by-step wizard to reduce cognitive load.' },
         { heading: 'Design', text: 'I designed the main task flow: trip setup, flight configuration, hotel selection, route planning, and detailed place pages. I also created a design system, prepared key components, and built a prototype to test the main scenario. The visual direction is light and minimal, combining natural colors, clean structure, flat graphics, and 3D accents.' }
       ],
-      galleryLabel: 'Gallery'
+      galleryLabel: 'Gallery',
+      failedLabel: 'failed to load'
     }
   };
 
@@ -48,13 +50,13 @@
 
   var content = document.querySelector('[data-content]');
 
-  function buildGallery() {
+  function buildGallery(failedLabel) {
     var frag = document.createDocumentFragment();
 
-    var video = el('video', 'gallery-video', {
-      autoplay: '', loop: '', muted: '', playsinline: '', src: WALKTHROUGH
+    var video = el('video', 'clip', {
+      autoplay: '', loop: '', muted: '', playsinline: '', preload: 'auto', src: WALKTHROUGH
     });
-    frag.appendChild(ui.autoplay(video));
+    frag.appendChild(ui.videoFrame(video, failedLabel, 'walkthrough'));
 
     var grid = el('div', 'gallery-grid');
     ['assets/airtrip-1.webp', 'assets/airtrip-2.webp'].forEach(function (src) {
@@ -79,7 +81,7 @@
     });
 
     content.appendChild(ui.sectionHeading(t.galleryLabel));
-    content.appendChild(buildGallery());
+    content.appendChild(buildGallery(t.failedLabel));
   }
 
   function init() {

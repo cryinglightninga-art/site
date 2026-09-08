@@ -184,7 +184,7 @@
     var t = PF.localize(COPY);
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/desk-hero.webp'));
+    content.appendChild(ui.hero('assets/desk-hero.webp', 'assets/desk-hero-mobile.webp'));
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta, 'cols-2'));

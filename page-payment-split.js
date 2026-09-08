@@ -54,27 +54,10 @@
   var content = document.querySelector('[data-content]');
 
   function buildClip(src, failedLabel) {
-    var wrap = el('div', 'clip-wrap');
-
-    var skeleton = el('div', 'skeleton');
-    wrap.appendChild(skeleton);
-
-    var failed = el('div', 'failed-label');
-    failed.textContent = failedLabel;
-    failed.hidden = true;
-    wrap.appendChild(failed);
-
     var video = el('video', 'clip', {
-      autoplay: '', loop: '', muted: '', playsinline: '', src: src
+      autoplay: '', loop: '', muted: '', playsinline: '', preload: 'auto', src: src
     });
-    video.addEventListener('loadeddata', function () { skeleton.remove(); });
-    video.addEventListener('error', function () {
-      skeleton.remove();
-      failed.hidden = false;
-    });
-    wrap.appendChild(ui.autoplay(video));
-
-    return wrap;
+    return ui.videoFrame(video, failedLabel, 'clip-wrap');
   }
 
   function render() {

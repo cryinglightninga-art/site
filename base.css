@@ -5,8 +5,8 @@
    Layout model:
      desktop (>= 900px) — fixed 374px author column, 6-column dense tile grid
      mobile  (<  900px) — single stacked column, tile reveal on scroll
-   Theme is explicit (light default, persisted in localStorage) — it does not
-   follow prefers-color-scheme, matching the prototype.
+   Theme follows prefers-color-scheme until the visitor uses the toggle; from
+   then on their choice is persisted in localStorage and wins.
    ========================================================================== */
 
 /* ── Theme tokens ─────────────────────────────────────────────────────────── */

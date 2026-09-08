@@ -9,6 +9,10 @@
   width: 100%;
   aspect-ratio: 4 / 3;
   background-color: var(--bg-secondary);
+  /* A page may supply a second, phone-only picture; the desktop block below
+     goes back to the wide one. Both arrive as custom properties from
+     PF.ui.hero(). */
+  background-image: var(--hero-mobile, var(--hero));
   background-size: cover;
   background-position: center;
   border: 1px solid var(--card-border);
@@ -143,14 +147,11 @@
 
 .gallery-grid.has-top-gap { margin-top: 12px; }
 
-.gallery-video {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-  display: block;
-  border-radius: 12px;
-  background: var(--bg-secondary);
-  border: 1px solid var(--card-border);
+/* The AirTrip walkthrough. Taller on a phone, where 16/9 across one column
+   left it too small to read; the desktop block puts 16/9 back. The ratio is
+   fixed either way, so the block never changes size as the file arrives. */
+.walkthrough {
+  aspect-ratio: 4 / 3;
   margin-bottom: 12px;
 }
 
@@ -213,15 +214,46 @@
 
 /* ── Video clips with load / failure states ───────────────────────────────── */
 
-.clip-wrap {
+/* The box a clip sits in: the video, the loading veil, the failure label. */
+.video-frame {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 9;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--card-border);
   background: var(--bg-secondary);
+}
+
+.clip-wrap {
+  aspect-ratio: 16 / 9;
   margin-bottom: 32px;
+}
+
+/* Dims the first frame and spins until the clip is genuinely moving. Without
+   it a paused clip is indistinguishable from a photo — these have no
+   controls. */
+.video-veil {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.42);
+  opacity: 1;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.video-veil.is-gone { opacity: 0; }
+
+.video-veil i {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-top-color: transparent;
+  animation: om-splash-spin 0.9s linear infinite;
 }
 
 .clip {
@@ -423,7 +455,12 @@ a.photo-cell { cursor: pointer; }
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
 
 @media (min-width: 900px) {
-  .hero { aspect-ratio: 21 / 8; }
+  .hero {
+    aspect-ratio: 21 / 8;
+    background-image: var(--hero);
+  }
+
+  .walkthrough { aspect-ratio: 16 / 9; }
 
   .page-title { font-size: 40px; line-height: 46px; }
   .page-title.is-compact { font-size: 36px; line-height: 42px; }
