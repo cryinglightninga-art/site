@@ -1,0 +1,5 @@
+# Internal notes and tooling — kept in the repository, not published to the web.
+README.md
+copy-assets.sh
+netlify.toml
+.gitignore
