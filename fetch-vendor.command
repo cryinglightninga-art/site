@@ -31,7 +31,7 @@ echo "  готово: lottie_light.min.js ($(du -h "$VENDOR/lottie_light.min.js"
 echo ""
 echo "  ── Шрифт Inter ────────────────────────────────────────────"
 curl -fsSL -A "$UA" \
-  "https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=swap" \
+  "https://fonts.googleapis.com/css2?family=Inter:wght@400..600&display=block" \
   -o "$VENDOR/inter.css" || fail "не скачалось описание шрифта"
 
 # Каждый файл шрифта, на который ссылается стилевой файл, кладём рядом.

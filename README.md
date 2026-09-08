@@ -99,6 +99,15 @@ visitors on networks where those hosts are unreachable would otherwise get the
 fallback typeface and a text wordmark instead of the animation — and it removes
 two connections from every first paint.
 
+The three subsets the site actually draws from — Latin, Cyrillic and
+Cyrillic-ext for the Kazakh tile title — are preloaded in every page's head, so
+they are the first three requests a browser makes, ahead of the stylesheet that
+references them. That is what lets `font-display: block` be the right setting
+here: text waits for Inter rather than being painted in the system font and
+re-painted a moment later, and the wait is a few tens of milliseconds because
+the files come off this same server. Switch back to `swap` if the site ever
+moves somewhere slow.
+
 `fetch-vendor.command` is what put them there, and re-running it refreshes
 them. It downloads the Inter variable font limited to the 400–600 range the
 stylesheets actually use, rewrites the stylesheet to point at the local copies,
@@ -198,7 +207,9 @@ the slideshow, and pins the avatars band.
 - **Three files do not come from the design bundle** and `copy-assets.sh`
   cannot regenerate them: `desk-hero-mobile.webp` (the phone-only desk photo),
   `wb-partners.svg` (the wordmark on the coming-soon tile, which replaced the
-  bundle's `wb.svg`) and `activities-13.webp`. They survive a rebuild — that
+  bundle's `wb.svg`), `activities-13.webp`, and `cover-egemen.webp` — the
+  bundle ships that one as a 178px thumbnail, far too small for the tile, so
+  `copy-assets.sh` no longer copies it. They survive a rebuild — that
   script only copies — but emptying `assets/` would lose them.
 - **Every `background-size: cover` needs `background-repeat: no-repeat`.**
   `cover` is rounded to whole pixels and on a fractional device pixel ratio can
