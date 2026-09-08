@@ -31,7 +31,9 @@ site/
   robots.txt     allows everything, points at the sitemap
   sitemap.xml    the seven public URLs
   vercel.json    clean URLs, no trailing slash
-  netlify.toml   publish directory + long cache on assets/
+  .vercelignore  files kept in the repo but not published
+  .gitignore     files not tracked at all (.DS_Store and friends)
+  netlify.toml   unused — kept in case the site ever moves to Netlify
 ```
 
 ## Running it
