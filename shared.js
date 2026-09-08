@@ -222,6 +222,7 @@ window.PF = (function () {
     var label = el('span', null, { 'data-back-label': '' });
     a.appendChild(arrow);
     a.appendChild(label);
+    bindBackLink(a);
     return a;
   }
 
@@ -432,6 +433,107 @@ window.PF = (function () {
     });
   }
 
+  /* ── Scroll memory ────────────────────────────────────────────────────── */
+
+  // Going back from a project should land where the tile was, not at the top
+  // of the page. A browser does that on its own when it can reuse the copy of
+  // the home page it kept — but a plain navigation (our own "Назад" link) and
+  // a back button on a page the browser has since dropped both rebuild the
+  // page from scratch, and a rebuilt page starts at zero. So the home page
+  // records where it was on the way out and puts it back on the way in.
+
+  var SCROLL_KEY = 'pf-home-scroll';
+  var RETURN_KEY = 'pf-home-return';
+
+  function sessionGet(key) {
+    try { return sessionStorage.getItem(key); } catch (e) { return null; }
+  }
+  function sessionSet(key, value) {
+    try { sessionStorage.setItem(key, value); } catch (e) {}
+  }
+  function sessionDel(key) {
+    try { sessionStorage.removeItem(key); } catch (e) {}
+  }
+
+  function navigationType() {
+    try {
+      var entries = performance.getEntriesByType('navigation');
+      if (entries && entries.length) return entries[0].type;
+    } catch (e) {}
+    return '';
+  }
+
+  function rememberScroll() {
+    sessionSet(SCROLL_KEY, String(Math.round(window.scrollY || window.pageYOffset || 0)));
+  }
+
+  // Home only: save the position on every exit, and flag the exits that should
+  // come back to it — the ones that follow one of our own links.
+  function watchHomeScroll() {
+    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+
+    document.addEventListener('click', function (e) {
+      var node = e.target;
+      var link = node && node.closest ? node.closest('a[href]') : null;
+      if (!link || link.target === '_blank') return;
+      if (link.origin && link.origin !== window.location.origin) return;
+      rememberScroll();
+      sessionSet(RETURN_KEY, '1');
+    }, true);
+
+    // `pagehide` rather than `beforeunload`: iOS Safari fires it reliably, and
+    // it also covers a back button pressed on the home page itself.
+    window.addEventListener('pagehide', rememberScroll);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden') rememberScroll();
+    });
+  }
+
+  // Home only, and only once the grid is on the page — the position cannot be
+  // restored while the document is still too short to hold it.
+  function restoreHomeScroll() {
+    var stored = sessionGet(SCROLL_KEY);
+    var returning = sessionGet(RETURN_KEY) === '1';
+    sessionDel(RETURN_KEY);
+
+    if (!stored) return;
+
+    var type = navigationType();
+    if (!returning && type !== 'back_forward' && type !== 'reload') return;
+
+    var y = parseInt(stored, 10);
+    if (!(y > 0)) return;
+
+    // Two frames: one for the grid to lay out, one for the page height to
+    // settle around it.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { window.scrollTo(0, y); });
+    });
+  }
+
+  // A sub-page reached from the home page goes back through history instead of
+  // navigating, so the browser can hand back the copy it kept — instantly, and
+  // at the exact position. Arriving any other way (a shared link, a new tab)
+  // leaves the link as an ordinary link to the home page.
+  function cameFromHome() {
+    if (!document.referrer || history.length <= 1) return false;
+    try {
+      var url = new URL(document.referrer);
+      if (url.origin !== window.location.origin) return false;
+      return url.pathname === '/' || url.pathname === '/index.html';
+    } catch (e) { return false; }
+  }
+
+  function bindBackLink(a) {
+    a.addEventListener('click', function (e) {
+      // Leave modified clicks alone — they open a tab or a window.
+      if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      if (!cameFromHome()) return;
+      e.preventDefault();
+      history.back();
+    });
+  }
+
   /* ── Viewport ─────────────────────────────────────────────────────────── */
 
   function watchResize() {
@@ -449,6 +551,7 @@ window.PF = (function () {
   // own markup and only needs the state machine.
   function init(kind) {
     if (kind === 'sub') buildSubPageChrome();
+    if (kind === 'home') watchHomeScroll();
     bindControls();
     renderContactsInto();
     applyTheme();
@@ -548,6 +651,7 @@ window.PF = (function () {
     applyTheme: applyTheme,
     applyLanguage: applyLanguage,
     watchResize: watchResize,
+    restoreHomeScroll: restoreHomeScroll,
     init: init
   };
 })();

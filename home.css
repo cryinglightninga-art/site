@@ -74,7 +74,7 @@
   aspect-ratio: 4 / 3;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--card-border);
+  border: none;
   cursor: pointer;
   background: var(--bg-secondary);
   grid-column: 1 / -1;
@@ -82,7 +82,6 @@
 }
 
 .tile.is-soon {
-  border: none;
   cursor: default;
   background: transparent;
 }
@@ -217,9 +216,11 @@
 .tile.hovered .fan-right  { transform: translate(0%, 2%) rotate(0deg) scale(0.84); }
 .tile.hovered .fan-center { transform: translate(28%, 30%) rotate(0deg) scale(0.84); }
 
+/* Narrower on phones: at full tile width the screens crowded the card. The
+   desktop width is restored in the >= 900px block. */
 .stack-img {
   position: absolute;
-  width: 82%;
+  width: 70%;
   border-radius: 8px;
   transform: translate(0, 0) scale(1);
   transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
@@ -522,6 +523,7 @@
 
   .cover.is-tilt { height: 84%; }
   .cert-img { width: 74%; }
+  .stack-img { width: 82%; }
 
   .avatars { aspect-ratio: 16 / 5; }
 

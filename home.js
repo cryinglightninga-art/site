@@ -501,6 +501,10 @@
     setupObserver();
     setupShotRotation();
     setupParallax();
+
+    // Last, with the grid in place: the page is now tall enough to scroll back
+    // to wherever it was when a tile was clicked.
+    PF.restoreHomeScroll();
   }
 
   if (document.readyState === 'loading') {

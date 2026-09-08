@@ -4,3 +4,4 @@ copy-assets.sh
 netlify.toml
 .gitignore
 optimize-assets.py
+preview.command
