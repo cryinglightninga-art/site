@@ -207,9 +207,20 @@ the slideshow, and pins the avatars band.
 - **Three files do not come from the design bundle** and `copy-assets.sh`
   cannot regenerate them: `desk-hero-mobile.webp` (the phone-only desk photo),
   `wb-partners.svg` (the wordmark on the coming-soon tile, which replaced the
-  bundle's `wb.svg`), `activities-13.webp`, and `cover-egemen.webp` — the
+  bundle's `wb.svg`), `activities-13.webp`, `favicon.png` and `cover-egemen.webp` — the
   bundle ships that one as a 178px thumbnail, far too small for the tile, so
-  `copy-assets.sh` no longer copies it. They survive a rebuild — that
+  `copy-assets.sh` no longer copies it.
+- **`favicon.png` is a round 100px avatar with transparent corners**, supplied
+  as a finished file — do not re-crop or re-compress it. iOS fills transparent
+  corners with black on a home-screen icon, so `apple-touch-icon` points at the
+  opaque square `avatar.png` instead, which is also what the header draws.
+- **`cover-egemen.webp` is the one image stored lossless.** It is a screenshot
+  of a page of text, and lossy compression is at its worst on small type — at
+  quality 82 the grey captions visibly mushed. Lossless WebP is the same pixels
+  as the PNG it came from at 263KB rather than 437KB. It is in `SKIP` in
+  `optimize-assets.py` so a rebuild cannot re-compress it, and the tile's drop
+  shadow is CSS (`.cover.is-tilt`), not baked into the file — so it stays crisp
+  at any size and deepens for the dark theme. They survive a rebuild — that
   script only copies — but emptying `assets/` would lose them.
 - **Every `background-size: cover` needs `background-repeat: no-repeat`.**
   `cover` is rounded to whole pixels and on a fractional device pixel ratio can

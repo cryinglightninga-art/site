@@ -70,8 +70,12 @@ RULES = [
 
 # Left alone: SVG, Lottie JSON, and the favicon (browsers want a real PNG
 # there, and at 128px it is already tiny).
-SKIP = {"wb.svg", "og.webp"}
-KEEP_AS_PNG = {"avatar.png": (128, 95)}
+# cover-egemen.webp is stored lossless on purpose: it is a screenshot of a
+# page of text, and lossy compression turns small type to mush.
+SKIP = {"wb.svg", "og.webp", "cover-egemen.webp"}
+# Browsers want a real bitmap for the tab icon, and the sidebar avatar is
+# drawn at 44px; neither is worth a WebP.
+KEEP_AS_PNG = {"avatar.png": (128, 95), "favicon.png": (100, 95)}
 
 # Videos, re-encoded with ffmpeg when it is available. The bundle's clips are
 # encoded very inefficiently — the home page one drops from 985K to 113K at a

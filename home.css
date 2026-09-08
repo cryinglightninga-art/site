@@ -294,6 +294,8 @@
 
 .tile.hovered .cover { transform: scale(1.04); }
 
+/* Reads as a printed flyer lying on the tile: a tight contact shadow where it
+   meets the surface, and a wide soft one for the height above it. */
 .cover.is-tilt {
   inset: auto;
   top: 50%;
@@ -301,11 +303,32 @@
   height: 70%;
   aspect-ratio: 166 / 227;
   transform: translate(-50%, -50%) scale(0.92) rotate(-4deg);
-  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.10),
+    0 10px 24px rgba(0, 0, 0, 0.16);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.55s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Picked up off the surface: the contact shadow softens, the far one spreads. */
 .tile.hovered .cover.is-tilt {
   transform: translate(-50%, -50%) scale(1.06) rotate(0deg);
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.10),
+    0 20px 40px rgba(0, 0, 0, 0.22);
+}
+
+/* On a dark tile the same shadow all but vanishes; deepen it to keep the lift. */
+[data-theme="dark"] .cover.is-tilt {
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 10px 24px rgba(0, 0, 0, 0.55);
+}
+
+[data-theme="dark"] .tile.hovered .cover.is-tilt {
+  box-shadow:
+    0 3px 6px rgba(0, 0, 0, 0.5),
+    0 20px 40px rgba(0, 0, 0, 0.65);
 }
 
 /* — Variant: certificate — */
