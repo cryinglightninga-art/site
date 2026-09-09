@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>«Современный город глазами студентов» — фирменный стиль · Аделина Уржанова</title>
+<meta name="description" content="Фирменный стиль I-го межвузовского конкурса студенческих проектов развития городской среды: знак, паттерн из городского плана, носители и мерч.">
+<link rel="canonical" href="https://urzhanovaa.com/city-identity">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Adelina Urzhanova">
+<meta property="og:title" content="«Современный город глазами студентов» — фирменный стиль">
+<meta property="og:description" content="Фирменный стиль межвузовского конкурса студенческих проектов развития городской среды.">
+<meta property="og:url" content="https://urzhanovaa.com/city-identity">
+<meta property="og:image" content="https://urzhanovaa.com/assets/og.webp">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#ffffff">
+<link rel="icon" href="assets/favicon.png">
+<link rel="apple-touch-icon" href="assets/avatar.png">
+<link rel="preload" as="image" href="assets/city-hero.webp" fetchpriority="high">
+
+<!-- Paint the correct background before first frame so a dark-theme reload never flashes white. -->
+<script>
+  (function () {
+    try {
+      var stored = localStorage.getItem('pf-theme');
+      var dark = stored
+        ? stored === 'dark'
+        : !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var bg = dark ? '#000000' : '#ffffff';
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+      document.documentElement.style.background = bg;
+      var s = document.createElement('style');
+      s.textContent = 'html,body{background:' + bg + ';}';
+      document.head.appendChild(s);
+      // Paints the strips the phone draws around the page: the clock at the
+      // top, the home bar at the bottom.
+      var meta = document.querySelector('meta[name="theme-color"]');
+      if (meta) meta.setAttribute('content', bg);
+    } catch (e) {}
+  })();
+</script>
+
+<!-- One-per-session splash spinner. -->
+<script>
+  (function () {
+    try {
+      if (sessionStorage.getItem('om-splash-seen')) return;
+      sessionStorage.setItem('om-splash-seen', '1');
+      var pref = localStorage.getItem('pf-theme');
+      var dark = pref
+        ? pref === 'dark'
+        : !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      var el = document.createElement('div');
+      el.id = 'om-splash';
+      el.style.background = dark ? '#000000' : '#ffffff';
+      el.style.color = dark ? '#f5f5f7' : '#1d1d1f';
+      el.innerHTML = '<i></i>';
+      var mount = function () { document.body.appendChild(el); };
+      if (document.body) mount(); else document.addEventListener('DOMContentLoaded', mount);
+      var hide = function () { el.classList.add('done'); setTimeout(function () { el.remove(); }, 650); };
+      // Reveal as soon as the markup is built. Waiting for `load` would hold
+      // the page back until every image and video had finished downloading.
+      var reveal = function () { setTimeout(hide, 200); };
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', reveal);
+      else reveal();
+      setTimeout(hide, 2500);
+    } catch (e) {}
+  })();
+</script>
+
+<!-- Inter, served from this folder — nothing here reaches out to another site. -->
+<link rel="preload" as="font" type="font/woff2" crossorigin href="vendor/fonts/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="vendor/fonts/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0ZL7W0Q5n-wU.woff2">
+<link rel="preload" as="font" type="font/woff2" crossorigin href="vendor/fonts/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5n-wU.woff2">
+<link rel="stylesheet" href="vendor/inter.css">
+<link rel="stylesheet" href="base.css">
+<link rel="stylesheet" href="article.css">
+<!-- The SVG-only build: these files carry no expressions, images or text layers. -->
+<script src="vendor/lottie_light.min.js" defer></script>
+<script src="shared.js" defer></script>
+<script src="page-city.js" defer></script>
+</head>
+
+<body>
+<div class="page">
+  <div class="layout">
+    <!-- shared.js fills the sidebar and both back-link rows. -->
+    <aside class="author" data-author></aside>
+
+    <main class="work">
+      <div class="topbar-row" data-topbar-row></div>
+      <!-- page-city.js renders the page content here. -->
+      <div data-content></div>
+    </main>
+  </div>
+</div>
+</body>
+</html>
