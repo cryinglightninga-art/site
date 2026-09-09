@@ -51,18 +51,17 @@
 html {
   background: var(--bg);
   color-scheme: light;
-  /* No rubber-band at the top: in an in-app browser (Telegram's sheet, for
-     one) the bounce exposes whatever sits above the pinned bar. */
-  overscroll-behavior-y: none;
 }
-
-body { background: var(--bg); }
 
 [data-theme="dark"] { color-scheme: dark; }
 
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  /* Belt and braces with the pre-paint script: anything exposed around the
+     page — a rubber-band bounce, an in-app browser's own window — is painted
+     in the theme's background rather than white. */
+  background: var(--bg);
 }
 
 /* Filtering hides cards with the `hidden` attribute — beat the display rules. */
@@ -184,25 +183,6 @@ a {
   margin-bottom: 16px;
   padding: 11px 16px;
   background: var(--bg);
-  /* Its own layer, so a fast flick can't leave the bar a frame behind and
-     flash the content it is meant to cover. */
-  transform: translateZ(0);
-  will-change: transform;
-}
-
-/* A tall block of background colour riding above the bar. Off-screen in a
-   normal browser; in an in-app sheet, where the window can sit lower than the
-   web page thinks it does, this is what fills the strip overhead instead of
-   letting the page show through. */
-.topbar::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-  height: 100vh;
-  background: var(--bg);
-  pointer-events: none;
 }
 
 /* The rule appears only once the bar is actually pinned, so at rest the header
