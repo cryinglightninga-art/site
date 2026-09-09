@@ -167,6 +167,30 @@
   border: 1px solid var(--card-border);
 }
 
+/* ── Playing cards: one wide photo, then the deck four across ─────────────── */
+
+.cards-wide { margin-bottom: 12px; }
+
+/* Four across on a phone, eight on desktop — the deck reads as a spread
+   rather than as a list. The gap shrinks with the cells so the row still
+   fits. */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.card-cell { display: block; }
+
+/* The files carry a small rounded corner of their own on transparency; this
+   clips past it, so the visible corner is as round as the radius set here. */
+.card-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 8px;
+}
+
 /* ── MUJO: auto-advancing slideshow and shot grid ─────────────────────────── */
 
 .slideshow {
@@ -491,6 +515,9 @@ a.photo-cell { cursor: pointer; }
   .meta-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 
   .quote { font-size: 26px; line-height: 36px; }
+
+  .cards-grid { grid-template-columns: repeat(8, 1fr); gap: 8px; }
+  .card-img { border-radius: 12px; }
 
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-row-start { grid-template-columns: 1.464fr 1fr; }

@@ -24,7 +24,8 @@
         'Активности: сертификаты, конкурсы и выступления',
         'Өнім дизайнері бәсекелі маманға айналды',
         'Атрибуты рабочего стола',
-        'Wildberries B2B'
+        'Wildberries B2B',
+        'Игральные карты по фильмам Тима Бёртона'
       ]
     },
     en: {
@@ -39,7 +40,8 @@
         'Activities: certificates, competitions, and talks',
         'Өнім дизайнері бәсекелі маманға айналды',
         'Desk Setup Essentials',
-        'Wildberries B2B'
+        'Wildberries B2B',
+        'Playing cards based on Tim Burton films'
       ]
     }
   };
@@ -61,7 +63,8 @@
     { type: 'article', c1: '#dad3c9', c2: '#c9c0af', shapeAlt: true, cert: true, href: 'activities.html' },
     { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
     { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
-    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', soon: true, logo: 'assets/wb-partners.svg' }
+    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', soon: true, logo: 'assets/wb-partners.svg' },
+    { type: 'project', c1: '#d8d2d4', c2: '#c0b6ba', shape: true, cover: 'assets/cover-cards.webp', href: 'cards.html' }
   ];
 
   var BOOKS = [
@@ -330,7 +333,7 @@
     [
       tileNodes[0], tileNodes[1], buildAvatars(),
       tileNodes[2], tileNodes[3], tileNodes[4], tileNodes[5], tileNodes[6],
-      buildBooks(), tileNodes[7]
+      buildBooks(), tileNodes[7], tileNodes[8]
     ].forEach(function (node) { dom.grid.appendChild(node); });
   }
 

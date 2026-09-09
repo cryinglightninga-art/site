@@ -41,7 +41,8 @@ RULES = [
     ("fan-*.png", 800, 82),
     ("shot-*.png", 800, 82),
     ("cert.png", 800, 82),
-    ("cover-*.png", 800, 82),
+    # Photo tile covers are shown near 500px wide, so 1000 keeps them retina.
+    ("cover-*.png", 1000, 82),
 
     # Bookshelf: rendered at 133x202 at the very largest.
     ("book-*.png", 420, 80),
