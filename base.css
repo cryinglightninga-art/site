@@ -68,8 +68,13 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  color: #0052a3;
+/* Hover states go behind `hover: hover` so a phone never applies them. A touch
+   screen has no pointer to leave, so :hover latches on after a tap and only
+   clears when something else is tapped — which is what made the theme button
+   look stuck. `:active` gives the press its feedback instead: it lasts exactly
+   as long as the finger is down. */
+@media (hover: hover) {
+  a:hover { color: #0052a3; }
 }
 
 .sr-only {
@@ -349,7 +354,14 @@ a:hover {
   display: inline-block;
 }
 
-.contact-link:hover {
+@media (hover: hover) {
+  .contact-link:hover {
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 999px var(--surface-strong);
+  }
+}
+
+.contact-link:active {
   color: var(--text-primary);
   box-shadow: inset 0 0 0 999px var(--surface-strong);
 }
@@ -402,9 +414,11 @@ a:hover {
   transition: background 0.15s ease, box-shadow 0.15s ease;
 }
 
-.theme-btn:hover {
-  box-shadow: inset 0 0 0 999px var(--surface-strong);
+@media (hover: hover) {
+  .theme-btn:hover { box-shadow: inset 0 0 0 999px var(--surface-strong); }
 }
+
+.theme-btn:active { box-shadow: inset 0 0 0 999px var(--surface-strong); }
 
 
 /* ── Sub-page chrome: back link + the row it sits in ──────────────────────── */
@@ -427,7 +441,14 @@ a:hover {
   transition: box-shadow 0.2s ease;
 }
 
-.back-link:hover {
+@media (hover: hover) {
+  .back-link:hover {
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 999px var(--surface-strong);
+  }
+}
+
+.back-link:active {
   color: var(--text-primary);
   box-shadow: inset 0 0 0 999px var(--surface-strong);
 }

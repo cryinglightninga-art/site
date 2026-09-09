@@ -93,24 +93,71 @@
     return cell;
   }
 
+  // A picture's height as a multiple of the column width, plus the gap that
+  // will sit under it — enough to compare columns before anything is drawn.
+  function cost(photo) {
+    return photo.h / photo.w + 0.04;
+  }
+
+  // CSS multi-column balances by guesswork and leaves one column visibly
+  // short. Every photo's real proportions are known, so the columns are filled
+  // by hand instead, tallest picture first: taking them in page order fills the
+  // columns evenly at the start and then has only tall ones left for the end,
+  // which is what leaves one column trailing. Reading order is restored inside
+  // each column once the assignment is settled.
+  function buildMasonry(t) {
+    var count = PF.state.isDesktop ? 3 : 2;
+    var wrap = el('div', 'masonry');
+    var cols = [];
+    var picked = [];
+    var heights = [];
+    var i;
+
+    for (i = 0; i < count; i++) {
+      var col = el('div', 'masonry-col');
+      cols.push(col);
+      picked.push([]);
+      heights.push(0);
+      wrap.appendChild(col);
+    }
+
+    var tallestFirst = PHOTOS.map(function (photo, index) { return index; })
+      .sort(function (a, b) { return cost(PHOTOS[b]) - cost(PHOTOS[a]); });
+
+    tallestFirst.forEach(function (index) {
+      var shortest = 0;
+      for (var k = 1; k < count; k++) {
+        if (heights[k] < heights[shortest]) shortest = k;
+      }
+      picked[shortest].push(index);
+      heights[shortest] += cost(PHOTOS[index]);
+    });
+
+    picked.forEach(function (list, k) {
+      list.sort(function (a, b) { return a - b; }).forEach(function (index) {
+        cols[k].appendChild(buildPhoto(PHOTOS[index], t.labels[index] || ''));
+      });
+    });
+
+    return wrap;
+  }
+
   function render() {
     var t = PF.localize(COPY);
 
     content.textContent = '';
     content.appendChild(ui.title(t.title, 'has-lead'));
     content.appendChild(ui.lead(t.lead));
-
-    var masonry = el('div', 'masonry');
-    PHOTOS.forEach(function (photo, i) {
-      masonry.appendChild(buildPhoto(photo, t.labels[i] || ''));
-    });
-    content.appendChild(masonry);
+    content.appendChild(buildMasonry(t));
   }
 
   function init() {
     PF.init('sub');
     render();
-    PF.onChange(function (reason) { if (reason === 'lang') render(); });
+    // A viewport flip changes the column count, so the wall is rebuilt too.
+    PF.onChange(function (reason) {
+      if (reason === 'lang' || reason === 'viewport') render();
+    });
   }
 
   if (document.readyState === 'loading') {

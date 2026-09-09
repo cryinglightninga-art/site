@@ -331,14 +331,23 @@
 
 /* ── Activities: masonry of certificates and photos ───────────────────────── */
 
+/* Real columns rather than CSS multi-column: the script fills them itself, so
+   they end level instead of one trailing the other. */
 .masonry {
-  column-count: 2;
-  column-gap: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.masonry-col {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .photo-cell {
-  break-inside: avoid;
-  margin-bottom: 12px;
   position: relative;
   border-radius: 12px;
   overflow: hidden;
@@ -435,7 +444,14 @@ a.photo-cell { cursor: pointer; }
   transition: box-shadow 0.2s ease;
 }
 
-.buy-link:hover {
+@media (hover: hover) {
+  .buy-link:hover {
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 999px var(--surface-strong);
+  }
+}
+
+.buy-link:active {
   color: var(--text-primary);
   box-shadow: inset 0 0 0 999px var(--surface-strong);
 }
@@ -478,8 +494,6 @@ a.photo-cell { cursor: pointer; }
 
   .gallery-grid { grid-template-columns: repeat(2, 1fr); }
   .gallery-row-start { grid-template-columns: 1.464fr 1fr; }
-
-  .masonry { column-count: 3; }
 
   .desk-photo { width: calc(50% - 6px); }
   .desk-triple { grid-template-columns: repeat(3, 1fr); }

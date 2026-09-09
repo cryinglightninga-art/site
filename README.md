@@ -175,7 +175,11 @@ walkthrough is 4/3 on a phone and 16/9 above 900px; the ratio is fixed either
 way so the block never resizes as the file arrives.
 
 **Activities** — a 3-column masonry (2 on mobile) preserving each image's
-natural ratio; captions fade in on hover, five cells link out. Every `<img>`
+natural ratio; captions fade in on hover, four cells link out. The columns are
+filled by script rather than by CSS multi-column, which balanced by guesswork
+and left one column 30-80px short: the pictures are placed tallest first, each
+into whichever column is shortest so far, and page order is restored inside
+each column afterwards. That brings both layouts to within about 20px. Every `<img>`
 carries its real pixel size as `width`/`height` attributes, so a cell is its
 full height from the first paint rather than a couple of pixels tall until the
 file lands. Adding a certificate means a new `assets/activities-N.webp`, a

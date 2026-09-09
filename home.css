@@ -42,9 +42,11 @@
   color: var(--accent-contrast);
 }
 
-.chip:hover {
-  box-shadow: inset 0 0 0 999px var(--surface-strong);
+@media (hover: hover) {
+  .chip:hover { box-shadow: inset 0 0 0 999px var(--surface-strong); }
 }
+
+.chip:active { box-shadow: inset 0 0 0 999px var(--surface-strong); }
 
 /* Language + theme live in the top bar on mobile, in the filter bar on desktop. */
 .filter-controls { display: none; }
@@ -440,7 +442,9 @@
   z-index: 1;
 }
 
-.book:hover { z-index: 10; }
+@media (hover: hover) {
+  .book:hover { z-index: 10; }
+}
 
 .book.size-s { width: 87px;  height: 132px; }
 .book.size-m { width: 110px; height: 166px; }
@@ -477,9 +481,11 @@
   box-shadow: none;
 }
 
-.book:hover .book-page {
-  opacity: 1;
-  box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.12);
+@media (hover: hover) {
+  .book:hover .book-page {
+    opacity: 1;
+    box-shadow: 4px 6px 18px rgba(0, 0, 0, 0.12);
+  }
 }
 
 .book-title {
@@ -520,9 +526,11 @@
   backface-visibility: hidden;
 }
 
-.book:hover .book-cover {
-  transform: perspective(700px) rotateY(-78deg);
-  box-shadow: 14px 8px 26px rgba(0, 0, 0, 0.18);
+@media (hover: hover) {
+  .book:hover .book-cover {
+    transform: perspective(700px) rotateY(-78deg);
+    box-shadow: 14px 8px 26px rgba(0, 0, 0, 0.18);
+  }
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
@@ -564,6 +572,9 @@
 
 /* ── Reduced motion ───────────────────────────────────────────────────────── */
 
+/* With Reduce Motion on, the covers used to snap while the labels still faded
+   — half animated, half not, which reads as broken rather than as calm. Either
+   everything moves or nothing does. */
 @media (prefers-reduced-motion: reduce) {
   .tile-svg,
   .tile-video,
@@ -571,7 +582,12 @@
   .stack-img,
   .soon-logo,
   .cover,
+  .cover.is-tilt,
   .cert-img,
+  .shot,
+  .tile-scrim,
+  .tile-badge,
+  .tile-title,
   .book-page,
   .book-cover {
     transition-duration: 0.01ms;
