@@ -18,7 +18,7 @@ window.PF = (function () {
     ru: {
       name: 'Аделина Уржанова',
       role: 'Product Designer',
-      bio: 'Продуктовый дизайнер, проектирую B2B/B2C-продукты с фокусом на AI-инструменты, продуктовую логику и понятные интерфейсы',
+      bio: 'Продуктовый дизайнер на стыке AI, e-commerce и fintech. Делаю сложное внутри понятным снаружи.',
       experienceLabel: 'Опыт',
       contactsLabel: 'Контакты',
       back: 'Назад',
@@ -32,7 +32,7 @@ window.PF = (function () {
     en: {
       name: 'Adelina Urzhanova',
       role: 'Product Designer',
-      bio: 'Product designer building B2B/B2C products with a focus on AI-powered tools, product logic, and intuitive interfaces',
+      bio: 'Product Designer at the intersection of AI, e-commerce, and fintech. Making complex products feel clear from the outside.',
       experienceLabel: 'Experience',
       contactsLabel: 'Contact',
       back: 'Back',
@@ -245,10 +245,12 @@ window.PF = (function () {
 
     var author = document.querySelector('[data-author]');
     if (author) {
+      // Into the layout, ahead of the author column — a sticky bar only stays
+      // put while its own parent is on screen, and the column ends early.
       var topbar = el('div', 'topbar');
       topbar.appendChild(backLinkMarkup());
       topbar.appendChild(controlsMarkup());
-      author.appendChild(topbar);
+      (author.parentNode || author).insertBefore(topbar, author);
 
       var body = el('div', 'sidebar-body');
 
@@ -584,6 +586,92 @@ window.PF = (function () {
     });
   }
 
+  /* ── Sticky header ────────────────────────────────────────────────────── */
+
+  // Below 900px the author column scrolls away with the page and takes the
+  // language and theme controls with it, so the bar is pinned to the top (CSS
+  // does that part). On the home page the wordmark then walks up into it: it
+  // holds its place in the flow until the bar catches up with it, rides along
+  // from there, and shrinks on the way, so that by the moment the two share a
+  // line it is exactly as tall as the controls beside it.
+  //
+  // Above 900px the author column is already fixed on screen, so none of this
+  // runs and the mark is left alone.
+  function setupStickyHeader() {
+    var topbar = document.querySelector('.topbar');
+    if (!topbar) return;
+
+    var slot = document.querySelector('[data-logo-slot]');
+    var dock = topbar.querySelector('[data-logo-dock]');
+    var logo = slot ? slot.querySelector('[data-logo]') : null;
+    var pinned = false;
+
+    function release() {
+      if (!pinned) return;
+      pinned = false;
+      logo.style.position = '';
+      logo.style.top = '';
+      logo.style.left = '';
+      logo.style.transform = '';
+      logo.style.transformOrigin = '';
+      logo.style.zIndex = '';
+      slot.appendChild(logo);
+    }
+
+    // A pinned element is positioned against the window — unless some ancestor
+    // carries a transform, and the author column does, left behind by its
+    // entrance animation. Parking the mark on <body> keeps the arithmetic
+    // honest wherever it came from.
+    function pin() {
+      if (pinned) return;
+      pinned = true;
+      document.body.appendChild(logo);
+    }
+
+    function update() {
+      topbar.classList.toggle('is-stuck', window.scrollY > 2);
+
+      if (!logo || !dock || state.isDesktop) { release(); return; }
+
+      var from = slot.getBoundingClientRect();   // the place it keeps in the flow
+      var to = dock.getBoundingClientRect();     // the place it is heading for
+      if (!from.height || !to.height) { release(); return; }
+
+      // How far it has come, as a fraction of the whole trip. `from.top` falls
+      // as the page scrolls; the trip ends when it meets the dock.
+      var total = from.top + window.scrollY - to.top;
+      var p = total > 0 ? 1 - (from.top - to.top) / total : 1;
+      p = p < 0 ? 0 : (p > 1 ? 1 : p);
+
+      // Untouched until the page actually moves, so it fades in with the
+      // column it belongs to.
+      if (p <= 0) { release(); return; }
+
+      var scale = 1 - (1 - to.height / from.height) * p;
+
+      pin();
+      logo.style.position = 'fixed';
+      // Never above the dock — that is where it comes to rest.
+      logo.style.top = Math.max(to.top, from.top) + 'px';
+      logo.style.left = (from.left + (to.left - from.left) * p) + 'px';
+      logo.style.transformOrigin = 'left top';
+      logo.style.transform = 'scale(' + scale + ')';
+      logo.style.zIndex = '60';
+    }
+
+    var queued = false;
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; update(); });
+    }
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule);
+    onChange(function (reason) { if (reason === 'viewport') schedule(); });
+    update();
+  }
+
   /* ── Viewport ─────────────────────────────────────────────────────────── */
 
   // Follow the system while no explicit choice is stored, so flipping the
@@ -623,6 +711,7 @@ window.PF = (function () {
     applyLanguage();
     watchResize();
     watchSystemTheme();
+    setupStickyHeader();
   }
 
   function renderContactsInto() {
