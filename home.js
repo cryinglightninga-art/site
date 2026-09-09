@@ -84,8 +84,14 @@
 
   /* ── Tile spans: rows of 2, 2, 3 across a 6-column grid ───────────────── */
 
-  function computeSpans(count) {
+  // A filtered view is one kind of thing all the way down, so it drops the
+  // mixed rhythm and runs an even three across.
+  function computeSpans(count, perRow) {
     var spans = [], i = 0, p = 0;
+    if (perRow) {
+      for (; i < count; i++) spans.push(Math.max(1, Math.floor(6 / perRow)));
+      return spans;
+    }
     while (i < count) {
       var groupSize = ROW_PATTERN[p % ROW_PATTERN.length];
       var take = Math.min(groupSize, count - i);
@@ -374,7 +380,7 @@
       if (isVisible) visible.push(tile);
     });
 
-    var spans = computeSpans(visible.length);
+    var spans = computeSpans(visible.length, filter === 'all' ? 0 : 3);
     visible.forEach(function (tile, pos) {
       tile.node.style.setProperty('--span', String(spans[pos]));
     });
