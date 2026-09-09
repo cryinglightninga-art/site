@@ -86,24 +86,27 @@
 <div class="page">
   <div class="layout">
 
-    <!-- ── Author column ───────────────────────────────────────────── -->
-    <aside class="author">
-      <!-- Mobile-only top bar: avatar on the left, language + theme on the right. -->
-      <div class="topbar">
-        <div class="topbar-left">
-          <div class="avatar-circle">
-            <img src="assets/avatar.png" alt="" width="44" height="44">
-          </div>
-        </div>
-        <div class="topbar-right">
-          <div class="lang-switch" data-lang-switch>
-            <button type="button" class="lang-btn" data-lang="en">EN</button>
-            <button type="button" class="lang-btn" data-lang="ru">RU</button>
-          </div>
-          <button type="button" class="theme-btn" data-theme-toggle aria-label="Toggle theme"></button>
+    <!-- Mobile-only top bar, pinned to the top of the window. A child of the
+         layout rather than of the author column: a sticky element only stays
+         put while its own parent is on screen, and the column ends long before
+         the page does. -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <div class="avatar-circle">
+          <img src="assets/avatar.png" alt="" width="44" height="44">
         </div>
       </div>
+      <div class="topbar-right">
+        <div class="lang-switch" data-lang-switch>
+          <button type="button" class="lang-btn" data-lang="en">EN</button>
+          <button type="button" class="lang-btn" data-lang="ru">RU</button>
+        </div>
+        <button type="button" class="theme-btn" data-theme-toggle aria-label="Toggle theme"></button>
+      </div>
+    </div>
 
+    <!-- ── Author column ───────────────────────────────────────────── -->
+    <aside class="author">
       <h1 class="sr-only" data-sr-heading></h1>
 
       <div class="logo" data-logo></div>

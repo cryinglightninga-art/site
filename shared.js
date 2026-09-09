@@ -245,10 +245,12 @@ window.PF = (function () {
 
     var author = document.querySelector('[data-author]');
     if (author) {
+      // Into the layout, ahead of the author column — a sticky bar only stays
+      // put while its own parent is on screen, and the column ends early.
       var topbar = el('div', 'topbar');
       topbar.appendChild(backLinkMarkup());
       topbar.appendChild(controlsMarkup());
-      author.appendChild(topbar);
+      (author.parentNode || author).insertBefore(topbar, author);
 
       var body = el('div', 'sidebar-body');
 
@@ -584,6 +586,32 @@ window.PF = (function () {
     });
   }
 
+  /* ── Sticky header ────────────────────────────────────────────────────── */
+
+  // Below 900px the author column scrolls away and would take the language and
+  // theme controls with it, so the bar is pinned — CSS does that part. All this
+  // adds is the class the stylesheet keys the pinned look off: the hairline
+  // under the bar, and the avatar settling to the height of the controls across
+  // from it. Above 900px the bar is not displayed at all.
+  function setupStickyHeader() {
+    var topbar = document.querySelector('.topbar');
+    if (!topbar) return;
+
+    function update() {
+      topbar.classList.toggle('is-stuck', window.scrollY > 2);
+    }
+
+    var queued = false;
+    function schedule() {
+      if (queued) return;
+      queued = true;
+      requestAnimationFrame(function () { queued = false; update(); });
+    }
+
+    window.addEventListener('scroll', schedule, { passive: true });
+    update();
+  }
+
   /* ── Viewport ─────────────────────────────────────────────────────────── */
 
   // Follow the system while no explicit choice is stored, so flipping the
@@ -623,6 +651,7 @@ window.PF = (function () {
     applyLanguage();
     watchResize();
     watchSystemTheme();
+    setupStickyHeader();
   }
 
   function renderContactsInto() {
