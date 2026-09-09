@@ -597,8 +597,25 @@ window.PF = (function () {
     var topbar = document.querySelector('.topbar');
     if (!topbar) return;
 
+    var vv = window.visualViewport || null;
+
+    // An in-app browser (Telegram's sheet is the one that shows it) can slide
+    // the window it actually draws away from the one the page lays out
+    // against. `sticky` pins to the page's idea of the top, so the bar ends up
+    // sitting a strip below the real top edge, with page content showing over
+    // it. visualViewport.offsetTop is exactly that difference — carry the bar
+    // by it, and it lands back on the true top edge.
+    function offset() {
+      if (!vv) return 0;
+      var top = vv.offsetTop || 0;
+      // Only ever pull the bar up: pushing it down would fight the page.
+      return top < 0 ? top : 0;
+    }
+
     function update() {
       topbar.classList.toggle('is-stuck', window.scrollY > 2);
+      var shift = offset();
+      topbar.style.transform = shift ? 'translate3d(0, ' + shift + 'px, 0)' : '';
     }
 
     var queued = false;
@@ -609,6 +626,10 @@ window.PF = (function () {
     }
 
     window.addEventListener('scroll', schedule, { passive: true });
+    if (vv) {
+      vv.addEventListener('scroll', schedule);
+      vv.addEventListener('resize', schedule);
+    }
     update();
   }
 
