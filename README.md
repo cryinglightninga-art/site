@@ -146,18 +146,6 @@ non-breaking-space pass; the fixed 374px sidebar at ≥900px collapsing to a
 stacked column below; the Lottie wordmark with a text fallback; a one-per-
 session splash spinner. Theme and language survive navigation between pages.
 
-Below 900px every page carries a pinned top bar — `.topbar`, a child of
-`.layout` rather than of `.author`, because a sticky element only stays put
-while its own parent is on screen and the author column ends long before the
-page does. On the home page it holds the controls and an empty `.logo-dock`;
-`setupStickyHeader()` walks the wordmark up into that dock as the page scrolls,
-shrinking it from 50px to the controls' 34px so the two land on one line. The
-mark is parked on `<body>` while pinned: the author column's entrance animation
-leaves a transform behind, and a transformed ancestor is what `position: fixed`
-measures against instead of the window. Sub-pages get the same bar with the
-back link in place of the wordmark. Above 900px none of it runs — the author
-column is already fixed on screen.
-
 **Home** — the 6-column dense tile grid with the prototype's 2 / 2 / 3 row
 pattern, recomputed when a filter narrows the set. Eight tile covers, each with
 its own hover choreography: stacked screens, autoplaying video, a 1.2s rotating

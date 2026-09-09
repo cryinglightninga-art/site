@@ -139,9 +139,8 @@ a:hover {
   flex-direction: column;
 }
 
-/* No top padding: the pinned bar above supplies it. */
 .author {
-  padding: 0 16px 32px;
+  padding: 16px 16px 32px;
   display: flex;
   flex-direction: column;
   animation: om-enter 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -159,31 +158,12 @@ a:hover {
 
 /* ── Author column ────────────────────────────────────────────────────────── */
 
-/* Below 900px the author column scrolls away and takes the controls with it,
-   so the bar is pinned. It is a child of .layout rather than of .author,
-   because a sticky element only stays put while its own parent is on screen. */
 .topbar {
-  position: sticky;
-  top: 0;
-  z-index: 50;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
-  min-height: 56px;
-  padding: 11px 16px;
-  background: var(--bg);
-}
-
-/* The rule only appears once the bar is actually pinned, so at rest the header
-   reads as part of the page rather than as a separate strip. */
-.topbar.is-stuck { box-shadow: 0 1px 0 var(--divider); }
-
-/* Where the wordmark comes to rest: empty, because the real element is pinned
-   on top of it — this only has to hold the space, at the controls' height. */
-.logo-dock {
-  width: 130px;
-  height: 34px;
+  margin-bottom: 16px;
 }
 
 .topbar-left {
@@ -199,16 +179,17 @@ a:hover {
   gap: 8px;
 }
 
-/* Not in the pinned bar — it scrolls away with the column, like everything
-   else above the fold. Hidden on desktop, where the sidebar carries identity. */
 .avatar-circle {
   width: 44px;
   height: 44px;
   border-radius: 50%;
   background: var(--bg-secondary);
+  border: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
-  margin-bottom: 16px;
 }
 
 .avatar-circle img {
@@ -218,22 +199,12 @@ a:hover {
   display: block;
 }
 
-/* Keeps the wordmark's place in the flow while the element itself is pinned,
-   so nothing below it moves as it travels up into the bar. */
-.logo-slot {
-  width: 190px;
-  height: 50px;
-  margin-bottom: 28px;
-}
-
 .logo {
   width: 190px;
   height: 50px;
   display: block;
   margin-bottom: 28px;
 }
-
-.logo-slot .logo { margin-bottom: 0; }
 
 /* Text stand-in used only if the Lottie wordmark fails to load. */
 .logo.is-fallback {
@@ -500,13 +471,11 @@ a:hover {
 
   /* Desktop restores the natural order and hides the mobile top bar. */
   .topbar { display: none; }
-  .avatar-circle { display: none; }
   .contacts-block { order: 0; margin-bottom: 0; padding-top: 24px; padding-bottom: 8px; flex-shrink: 0; }
   .exp-label,
   .exp-block { order: 0; }
 
-  .logo,
-  .logo-slot { margin-bottom: 20px; }
+  .logo { margin-bottom: 20px; }
 
   /* Must out-specify `.page-sub .sidebar-body { display: none }` above. */
   .page-sub .sidebar-body { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }

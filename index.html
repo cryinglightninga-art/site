@@ -86,38 +86,27 @@
 <div class="page">
   <div class="layout">
 
-    <!-- Mobile-only top bar. A child of the layout, not of the author column:
-         a sticky element only stays put while its own parent is on screen, and
-         the author column ends long before the page does. The wordmark below
-         walks up into the empty slot on its left — see setupStickyHeader(). -->
-    <div class="topbar">
-      <div class="topbar-left">
-        <div class="logo-dock" data-logo-dock></div>
-      </div>
-      <div class="topbar-right">
-        <div class="lang-switch" data-lang-switch>
-          <button type="button" class="lang-btn" data-lang="en">EN</button>
-          <button type="button" class="lang-btn" data-lang="ru">RU</button>
-        </div>
-        <button type="button" class="theme-btn" data-theme-toggle aria-label="Toggle theme"></button>
-      </div>
-    </div>
-
     <!-- ── Author column ───────────────────────────────────────────── -->
     <aside class="author">
+      <!-- Mobile-only top bar: avatar on the left, language + theme on the right. -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <div class="avatar-circle">
+            <img src="assets/avatar.png" alt="" width="44" height="44">
+          </div>
+        </div>
+        <div class="topbar-right">
+          <div class="lang-switch" data-lang-switch>
+            <button type="button" class="lang-btn" data-lang="en">EN</button>
+            <button type="button" class="lang-btn" data-lang="ru">RU</button>
+          </div>
+          <button type="button" class="theme-btn" data-theme-toggle aria-label="Toggle theme"></button>
+        </div>
+      </div>
+
       <h1 class="sr-only" data-sr-heading></h1>
 
-      <!-- Sits in the flow rather than in the pinned bar, so it simply scrolls
-           away with the rest of the column. Mobile only. -->
-      <div class="avatar-circle">
-        <img src="assets/avatar.png" alt="" width="44" height="44">
-      </div>
-
-      <!-- The slot holds the wordmark's place in the flow; the mark itself is
-           pinned and scaled by script once the page starts scrolling. -->
-      <div class="logo-slot" data-logo-slot>
-        <div class="logo" data-logo></div>
-      </div>
+      <div class="logo" data-logo></div>
 
       <p class="bio" data-bio></p>
 
