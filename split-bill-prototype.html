@@ -10,7 +10,6 @@
 <meta name="apple-mobile-web-app-title" content="Разделение счёта">
 <meta name="theme-color" content="#FFFFFF">
 <style>
-  /* базовый сброс — на артефакте его добавляла площадка, здесь он свой */
   :root{color-scheme:light}
   html,body{margin:0}
   img{max-width:100%}
@@ -233,10 +232,10 @@ body{
   max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
 }
 .av{
-  border-radius:50%;display:flex;align-items:center;justify-content:center;
-  color:#fff;font-weight:600;letter-spacing:0;flex:none;
-  background:#8b8b8b;overflow:hidden;
+  border-radius:50%;flex:none;overflow:hidden;
+  background:#DDE1E6;display:block;
 }
+.av svg{width:100%;height:100%;display:block}
 .av-wrap{position:relative;flex:none}
 .badge{
   position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-radius:50%;
@@ -468,7 +467,7 @@ body{
     <p><b>Что кликается:</b> «Разделить» → выбор участников (поле «Введите номер или имя» или аватар-подсказка) → вкладки «Поровну» / «Распределю сам» → в ручном режиме разрезы «По участникам» и «По позициям» → «Подтвердить и отправить».</p>
     <p><b>Суммы считаются вживую:</b> позиция делится поровну между теми, кто к ней привязан, и оба разреза показывают один и тот же расчёт. Кнопка отправки разблокируется, когда каждая позиция кому-то досталась.</p>
     <p><b>Расхождение в макете:</b> в списке покупок «Картофель фри» стоит 400 ₽, но в расчёте он делится как 320 ₽ (160 + 160), и итог 2 070 ₽ сходится только с 320 ₽. В прототипе везде 320 ₽ — стоит поправить экран 20.</p>
-    <p><b>Аватары</b> — инициалы: фотографии из Figma сюда не выгружаются. Подменяются одной строкой в коде.</p>
+    <p><b>Аватары</b> нарисованы вектором прямо в файле — ни одной внешней загрузки. Тон кожи, цвет волос, причёска и одежда у каждого человека задаются в массиве <code>CONTACTS</code>.</p>
   </div>
 </div>
 
@@ -477,18 +476,31 @@ body{
   "use strict";
 
   /* ---------- данные ---------- */
-  var ME = {id:'me', name:'Я', full:'Я', color:'#6E7BD6'};
+  /* Аватары рисуются вектором — см. avatarSVG().
+     skin — тон кожи, hair — цвет волос, cloth — одежда, bg — подложка кружка,
+     style — причёска, beard/glasses — необязательные детали. */
+  var ME = {id:'me', name:'Я', full:'Я',
+    skin:'#F0C8A0', hair:'#2E2A28', cloth:'#4E6E8E', bg:'#DDE5ED', style:'longWavy'};
 
   var CONTACTS = [
-    {id:'alexey',  name:'Алексей М',  full:'Алексей Морозов',   phone:'+7 701 234 56-78', color:'#C97B5A'},
-    {id:'andrey',  name:'Андрей Н',   full:'Андрей Новиков',    phone:'+7 702 345 67-89', color:'#4E9C8A'},
-    {id:'anna',    name:'Анна С',     full:'Анна Смирнова',     phone:'+7 703 456 78-90', color:'#B4638F'},
-    {id:'artem',   name:'Артём З',    full:'Артём Захаров',     phone:'+7 704 567 89-01', color:'#8A7BB8'},
-    {id:'victoria',name:'Виктория П', full:'Виктория Павлова',  phone:'+7 705 678 90-12', color:'#C4874A'},
-    {id:'dmitry',  name:'Дмитрий К',  full:'Дмитрий Кузнецов',  phone:'+7 706 789 01-23', color:'#5A8AC9'},
-    {id:'elena',   name:'Елена В',    full:'Елена Волкова',     phone:'+7 707 890 12-34', color:'#A0743F'},
-    {id:'ivan',    name:'Иван П',     full:'Иван Петров',       phone:'+7 708 901 23-45', color:'#3F8F6E'},
-    {id:'maria',   name:'Мария И',    full:'Мария Иванова',     phone:'+7 709 012 34-56', color:'#B0566A'}
+    {id:'alexey',  name:'Алексей М',  full:'Алексей Морозов',  phone:'+7 701 234 56-78',
+     skin:'#E8B588', hair:'#4A3728', cloth:'#A9614A', bg:'#F2E1D9', style:'short', beard:true},
+    {id:'andrey',  name:'Андрей Н',   full:'Андрей Новиков',   phone:'+7 702 345 67-89',
+     skin:'#F5D5B8', hair:'#C89B5A', cloth:'#3F7A6E', bg:'#D9E9E3', style:'short'},
+    {id:'anna',    name:'Анна С',     full:'Анна Смирнова',    phone:'+7 703 456 78-90',
+     skin:'#F0C8A0', hair:'#6B4A2F', cloth:'#8A5470', bg:'#F0DEE6', style:'bob'},
+    {id:'artem',   name:'Артём З',    full:'Артём Захаров',    phone:'+7 704 567 89-01',
+     skin:'#D69B6C', hair:'#2E2A28', cloth:'#5A6B7C', bg:'#E0E5EA', style:'curly'},
+    {id:'victoria',name:'Виктория П', full:'Виктория Павлова', phone:'+7 705 678 90-12',
+     skin:'#F5D5B8', hair:'#7A5230', cloth:'#7C6A9C', bg:'#E7E1F0', style:'longStraight'},
+    {id:'dmitry',  name:'Дмитрий К',  full:'Дмитрий Кузнецов', phone:'+7 706 789 01-23',
+     skin:'#E8B588', hair:'#4A3728', cloth:'#4E6E8E', bg:'#DDE5ED', style:'short', glasses:true},
+    {id:'elena',   name:'Елена В',    full:'Елена Волкова',    phone:'+7 707 890 12-34',
+     skin:'#F0C8A0', hair:'#1F1B19', cloth:'#6B7F4A', bg:'#E4E9DA', style:'bun'},
+    {id:'ivan',    name:'Иван П',     full:'Иван Петров',      phone:'+7 708 901 23-45',
+     skin:'#B87A50', hair:'#1F1B19', cloth:'#3F7A6E', bg:'#D9E9E3', style:'buzz'},
+    {id:'maria',   name:'Мария И',    full:'Мария Иванова',    phone:'+7 709 012 34-56',
+     skin:'#F5D5B8', hair:'#A87545', cloth:'#A9614A', bg:'#F2E1D9', style:'ponytail'}
   ];
 
   var ITEMS = [
@@ -563,14 +575,89 @@ body{
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
   }
-  function initials(p){
-    var parts = p.full.split(' ');
-    if(p.id==='me') return 'Я';
-    return (parts[0][0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  /* ---------- векторные аватары ----------
+     Всё строится из примитивов в системе координат 100×100.
+     Кружок обрезает CSS (.av { border-radius:50%; overflow:hidden }),
+     поэтому clipPath и уникальные id внутри SVG не нужны. */
+  function avatarSVG(p){
+    var H = p.hair, SK = p.skin, CL = p.cloth;
+    var back = '', cap = '', ears = '', extra = '';
+
+    // затылок и длинные пряди — под плечами
+    switch(p.style){
+      case 'longWavy':
+        back = '<rect x="27" y="26" width="46" height="58" rx="23" fill="'+H+'"/>'+
+               '<circle cx="29" cy="76" r="8.5" fill="'+H+'"/>'+
+               '<circle cx="71" cy="76" r="8.5" fill="'+H+'"/>';
+        break;
+      case 'longStraight':
+        back = '<rect x="28" y="26" width="44" height="60" rx="20" fill="'+H+'"/>';
+        break;
+      case 'bob':
+        back = '<rect x="28" y="28" width="44" height="40" rx="21" fill="'+H+'"/>';
+        break;
+      case 'bun':
+        back = '<circle cx="50" cy="17" r="10" fill="'+H+'"/>';
+        break;
+      case 'ponytail':
+        back = '<ellipse cx="75" cy="54" rx="9" ry="17" fill="'+H+'"/>'+
+               '<circle cx="72" cy="37" r="9" fill="'+H+'"/>';
+        break;
+    }
+
+    // шапка волос: рисуется до головы, поэтому видна только по краю лица
+    if(p.style === 'curly'){
+      cap = '<g fill="'+H+'">'+
+              '<circle cx="36" cy="29" r="10"/><circle cx="50" cy="24" r="11"/>'+
+              '<circle cx="64" cy="29" r="10"/><circle cx="30" cy="40" r="8"/>'+
+              '<circle cx="70" cy="40" r="8"/></g>';
+    } else if(p.style === 'buzz'){
+      cap = '<ellipse cx="50" cy="38" rx="18.5" ry="18.5" fill="'+H+'"/>';
+    } else {
+      cap = '<ellipse cx="50" cy="36" rx="19.5" ry="18" fill="'+H+'"/>';
+    }
+
+    // уши видно только у коротких стрижек
+    if(p.style === 'buzz' || p.style === 'short' || p.style === 'curly'){
+      ears = '<circle cx="32.5" cy="47" r="3.2" fill="'+SK+'"/>'+
+             '<circle cx="67.5" cy="47" r="3.2" fill="'+SK+'"/>';
+    }
+
+    if(p.beard){
+      extra += '<path d="M33 46c1 12 8 20 17 20s16-8 17-20c-3 8-9 11-17 11s-14-3-17-11z" fill="'+H+'"/>';
+    } else {
+      extra += '<path d="M45.5 53.5q4.5 3.6 9 0" stroke="#8A5A46" stroke-width="1.8" '+
+               'fill="none" stroke-linecap="round"/>';
+    }
+    if(p.glasses){
+      extra += '<g stroke="#33383D" stroke-width="1.6" fill="none">'+
+                 '<rect x="34" y="40" width="13" height="10.5" rx="4.5"/>'+
+                 '<rect x="53" y="40" width="13" height="10.5" rx="4.5"/>'+
+                 '<path d="M47 45.2h6" stroke-linecap="round"/></g>';
+    }
+
+    return '<svg viewBox="0 0 100 100" aria-hidden="true">'+
+      back +
+      // шея, притенённая воротником
+      '<path d="M42 51h16v18H42z" fill="'+SK+'"/>'+
+      '<path d="M42 51h16v18H42z" fill="rgba(0,0,0,.12)"/>'+
+      // плечи
+      '<path d="M50 63c-17 0-30 11-33 26-.6 3 0 5 3 5h60c3 0 3.6-2 3-5-3-15-16-26-33-26z" fill="'+CL+'"/>'+
+      cap +
+      '<ellipse cx="50" cy="44" rx="17.5" ry="20.5" fill="'+SK+'"/>'+
+      ears +
+      // брови и глаза
+      '<g stroke="'+H+'" stroke-width="1.8" fill="none" stroke-linecap="round">'+
+        '<path d="M39 39.5q3.6-2.2 7.2 0"/><path d="M53.8 39.5q3.6-2.2 7.2 0"/></g>'+
+      '<ellipse cx="42.6" cy="45.5" rx="1.9" ry="2.3" fill="#2B2320"/>'+
+      '<ellipse cx="57.4" cy="45.5" rx="1.9" ry="2.3" fill="#2B2320"/>'+
+      extra +
+    '</svg>';
   }
+
   function av(p,size){
-    var fs = Math.round(size*0.38);
-    return '<span class="av" style="width:'+size+'px;height:'+size+'px;background:'+p.color+';font-size:'+fs+'px">'+esc(initials(p))+'</span>';
+    return '<span class="av" style="width:'+size+'px;height:'+size+'px;background:'+p.bg+'">'+
+           avatarSVG(p)+'</span>';
   }
   var ICON_X = '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M1 1l9 9M10 1l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
   var ICON_CHECK = '<svg width="12" height="9" viewBox="0 0 12 9" fill="none" aria-hidden="true"><path d="M1 4.4L4.3 7.7 11 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
