@@ -560,30 +560,3 @@ a.photo-cell { cursor: pointer; }
   .desk-photo { width: calc(50% - 6px); }
   .desk-triple { grid-template-columns: repeat(3, 1fr); }
 }
-
-
-/* ── Ссылка на интерактивный прототип ─────────────────────────────────────── */
-
-.case-link-row { margin: -8px 0 32px; }
-
-.case-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 15px;
-  letter-spacing: -0.01em;
-  background: var(--surface);
-  color: var(--text-primary);
-  padding: 11px 20px;
-  border-radius: 980px;
-  text-decoration: none;
-  transition: box-shadow 0.2s ease;
-}
-
-.case-link svg { flex: none; }
-
-@media (hover: hover) {
-  .case-link:hover { box-shadow: inset 0 0 0 999px var(--surface-strong); }
-}
-
-.case-link:active { box-shadow: inset 0 0 0 999px var(--surface-strong); }

@@ -60,7 +60,7 @@
   var TILE_META = [
     { type: 'project', c1: '#dcd6cc', c2: '#c8c0b1', shapeAlt: true, stack: true, href: 'mujo.html' },
     { type: 'article', c1: '#e4e0d8', c2: '#d3cdc0', shapeAlt: true, video: 'assets/animation.mp4', href: 'animation-challenge.html' },
-    { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split.mp4', poster: 'assets/split-poster.webp', href: 'payment-split.html' },
+    { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split-cover.mp4', poster: 'assets/split-cover-poster.webp', href: 'payment-split.html' },
     { type: 'project', c1: '#d9d9dc', c2: '#bdbdc2', shape: true, fan: true, href: 'airtrip.html' },
     { type: 'article', c1: '#dad3c9', c2: '#c9c0af', shapeAlt: true, cert: true, href: 'activities.html' },
     { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
