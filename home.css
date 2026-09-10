@@ -176,7 +176,9 @@
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.tile.hovered .tile-video { transform: scale(1.06); }
+/* Desktop only. On a phone the `hovered` class is what a tile gets when it
+   scrolls into view, and a clip that swells as you pass it reads as a glitch
+   rather than as a response to anything; see the desktop block below. */
 
 /* — Variants: fanned + stacked screens (shared dark stage) — */
 
@@ -536,6 +538,8 @@
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
 
 @media (min-width: 900px) {
+  .tile.hovered .tile-video { transform: scale(1.06); }
+
   .filter-bar { justify-content: space-between; }
 
   .filter-controls {
