@@ -25,6 +25,7 @@
       contextText: 'Анна оплатила общий счёт за компанию из трёх человек. После оплаты чек автоматически загружается из ФНС, поэтому в приложении можно увидеть все позиции и распределить оплату между участниками.',
       designLabel: 'Дизайн',
       designEqual: 'В сценарии «Поровну» Анна выбирает участников, после чего система автоматически делит итоговую сумму на троих. В расчёте отображается список позиций, их стоимость и сумма к оплате для каждого участника. После подтверждения Андрей получает уведомление с запросом на оплату от Анны.',
+      protoLabel: 'Открыть интерактивный прототип',
       designManual: 'В сценарии «Вручную» Анна сама распределяет позиции между участниками. Это можно сделать двумя способами: по участникам — выбрать, какие позиции оплачивает каждый человек, или по позициям — добавить к каждой позиции тех, кто участвовал в покупке. После подтверждения участникам отправляются запросы на оплату.'
     },
     en: {
@@ -41,6 +42,7 @@
       contextText: 'Anna paid the full bill for a group of three. After payment, the receipt is automatically loaded from the tax service, so all purchased items can be viewed in the app and split between participants.',
       designLabel: 'Design',
       designEqual: 'In the “Equal split” scenario, Anna selects participants, and the system automatically divides the total amount between three people. The calculation shows the list of items, their prices, and the amount each participant needs to pay. After confirmation, Andrey receives a payment request from Anna.',
+      protoLabel: 'Open the interactive prototype',
       designManual: 'In the “Manual split” scenario, Anna distributes items between participants herself. This can be done in two ways: by participants — selecting which items each person pays for, or by items — adding people to each purchased item. After confirmation, payment requests are sent to the participants.'
     }
   };
@@ -52,6 +54,24 @@
   ];
 
   var content = document.querySelector('[data-content]');
+
+  // Прототип лежит рядом в этой же папке — открывается своей страницей,
+  // чтобы занять экран целиком и не спорить с раскладкой кейса.
+  function buildPrototypeLink(label) {
+    var row = el('div', 'case-link-row');
+    var a = el('a', 'case-link', {
+      href: 'split-bill-prototype',
+      target: '_blank',
+      rel: 'noopener'
+    });
+    a.appendChild(document.createTextNode(label));
+    a.insertAdjacentHTML('beforeend',
+      '<svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">' +
+      '<path d="M4.6 1h7.4v7.4M12 1L1 12" stroke="currentColor" stroke-width="1.5" ' +
+      'stroke-linecap="round" stroke-linejoin="round"/></svg>');
+    row.appendChild(a);
+    return row;
+  }
 
   function buildClip(src, failedLabel) {
     var video = el('video', 'clip', {
@@ -75,6 +95,7 @@
 
     content.appendChild(ui.block(null, t.designManual));
     content.appendChild(buildClip(CLIPS[1], t.failedLabel));
+    content.appendChild(buildPrototypeLink(t.protoLabel));
   }
 
   function init() {

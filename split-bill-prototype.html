@@ -1,0 +1,1036 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Кликабельный прототип сценария разделения счёта в банковском iOS-приложении.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Разделение счёта">
+<meta name="theme-color" content="#FFFFFF">
+<style>
+  /* базовый сброс — на артефакте его добавляла площадка, здесь он свой */
+  :root{color-scheme:light}
+  html,body{margin:0}
+  img{max-width:100%}
+  [hidden]{display:none !important}
+</style>
+<title>Разделение счёта</title>
+<style>
+/* ============ STAGE (вокруг телефона) ============ */
+:root{
+  --stage-bg:#E7EAEF;
+  --stage-panel:#FDFDFE;
+  --stage-ink:#1B2027;
+  --stage-muted:#5C6572;
+  --stage-faint:#8B93A0;
+  --stage-line:#D3D8E0;
+  --stage-bezel:#C6CBD4;
+  --stage-shadow:0 30px 70px -24px rgba(16,22,34,.42), 0 4px 14px rgba(16,22,34,.10);
+  --accent:#2289FF;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --stage-bg:#0F1319;
+    --stage-panel:#171C24;
+    --stage-ink:#E8ECF2;
+    --stage-muted:#98A2B0;
+    --stage-faint:#6E7887;
+    --stage-line:#252C36;
+    --stage-bezel:#2A313B;
+    --stage-shadow:0 30px 70px -24px rgba(0,0,0,.7), 0 4px 14px rgba(0,0,0,.4);
+  }
+}
+:root[data-theme="dark"]{
+  --stage-bg:#0F1319;
+  --stage-panel:#171C24;
+  --stage-ink:#E8ECF2;
+  --stage-muted:#98A2B0;
+  --stage-faint:#6E7887;
+  --stage-line:#252C36;
+  --stage-bezel:#2A313B;
+  --stage-shadow:0 30px 70px -24px rgba(0,0,0,.7), 0 4px 14px rgba(0,0,0,.4);
+}
+
+/* ============ APP (внутри телефона — всегда светлая тема макета) ============ */
+:root{
+  --blue:#2289FF;
+  --link:#007AFF;
+  --ink:#000000;
+  --ink-soft:#393939;
+  --gray:#878787;
+  --white:#FFFFFF;
+  --card:#F2F2F2;
+  --field:#E7E7E9;
+  --chip-off:#EFEFEF;
+  --chip-on:#131313;
+  --hairline:#E3E3E5;
+  --blue-dim:#8FC2FF;
+  --disabled:#8A8A8A;
+  --top-offset:98px;
+  --sf:-apple-system,"SF Pro Text","SF Pro Display","Helvetica Neue",Segoe UI,Roboto,system-ui,sans-serif;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--stage-bg);
+  color:var(--stage-ink);
+  font-family:var(--sf);
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{
+  min-height:100vh;
+  padding-block:40px 56px;
+  padding-left:16px;padding-right:16px;
+  display:flex;flex-direction:column;align-items:center;gap:24px;
+}
+
+/* --- заголовок сцены --- */
+.stage-head{
+  width:100%;max-width:760px;
+  display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 16px;
+}
+.stage-head h1{
+  margin:0;font-size:19px;font-weight:600;letter-spacing:-.01em;
+}
+.stage-head .sub{
+  font-size:13px;color:var(--stage-muted);
+}
+
+/* --- телефон --- */
+.device{
+  position:relative;
+  width:375px;max-width:100%;
+  height:812px;
+  border-radius:46px;
+  background:#000;
+  padding:6px;
+  box-shadow:var(--stage-shadow);
+  flex:none;
+}
+.screen{
+  position:relative;
+  width:100%;height:100%;
+  border-radius:40px;
+  overflow:hidden;
+  background:var(--white);
+  color:var(--ink);
+  font-size:17px;line-height:22px;letter-spacing:-.43px;
+}
+.notch{
+  position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:164px;height:30px;background:#000;
+  border-bottom-left-radius:18px;border-bottom-right-radius:18px;
+  z-index:60;pointer-events:none;
+}
+.home-ind{
+  position:absolute;bottom:8px;left:50%;transform:translateX(-50%);
+  width:134px;height:5px;border-radius:3px;background:#0d0d0d;opacity:.85;
+  z-index:60;pointer-events:none;
+}
+
+/* --- панель управления под телефоном --- */
+.rail{
+  width:375px;max-width:100%;
+  background:var(--stage-panel);
+  border:1px solid var(--stage-line);
+  border-radius:14px;
+  padding:14px 16px;
+  display:flex;align-items:center;gap:12px;
+  font-size:13px;
+}
+.rail .step{flex:1;min-width:0}
+.rail .step b{display:block;font-size:13px;font-weight:600;letter-spacing:-.01em}
+.rail .step span{display:block;color:var(--stage-faint);font-size:12px;margin-top:2px}
+.rail button{
+  font:inherit;font-weight:600;color:var(--accent);
+  background:none;border:0;padding:6px 8px;margin:-6px -8px;border-radius:8px;cursor:pointer;
+}
+.rail button:hover{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.notes{
+  width:100%;max-width:760px;
+  font-size:13px;line-height:1.65;color:var(--stage-muted);
+}
+.notes p{margin:0 0 8px}
+.notes b{color:var(--stage-ink);font-weight:600}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.fsbtn{display:none}   /* включается только в полноэкранной раскладке телефона */
+
+/* ============ элементы экранов ============ */
+.statusbar{
+  height:44px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 26px 0 32px;font-size:15px;font-weight:600;letter-spacing:-.2px;
+  position:relative;z-index:5;
+}
+.statusbar .time{padding-top:4px}
+.statusbar .ind{display:flex;align-items:center;gap:5px;padding-top:4px}
+
+.navbar{
+  height:54px;display:flex;align-items:center;justify-content:center;position:relative;
+  padding:0 16px;
+}
+.navbar .title{font-size:17px;font-weight:590;letter-spacing:-.43px}
+.navbar .lead{
+  position:absolute;left:16px;top:50%;transform:translateY(-50%);
+  color:var(--link);font-size:17px;letter-spacing:-.43px;
+  background:none;border:0;padding:0;font-family:inherit;cursor:pointer;
+}
+
+.body-scroll{
+  position:absolute;top:var(--top-offset,98px);left:0;right:0;bottom:0;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;
+  padding-bottom:110px;
+}
+
+.seg{
+  display:inline-flex;gap:8px;padding:0 16px;margin:8px 0 0;
+}
+.seg button{
+  font-family:inherit;font-size:15px;letter-spacing:-.23px;
+  border:0;cursor:pointer;border-radius:100px;padding:9px 16px;
+  background:var(--chip-off);color:var(--ink);
+  transition:background .18s,color .18s;
+}
+.seg button[aria-pressed="true"]{background:var(--chip-on);color:#fff;font-weight:500}
+
+.hint{
+  padding:14px 16px 0;font-size:15px;line-height:20px;letter-spacing:-.23px;color:var(--gray);
+}
+
+.card{
+  margin:16px 16px 0;background:var(--card);border-radius:16px;padding:16px;
+}
+.card-title{
+  font-size:20px;font-weight:700;letter-spacing:-.4px;line-height:24px;
+  display:flex;align-items:baseline;gap:8px;
+}
+.card-title em{font-style:normal;color:#B4B4B4;font-weight:600;font-size:17px}
+
+.fakefield{
+  margin-top:12px;height:44px;border-radius:12px;background:var(--field);
+  display:flex;align-items:center;padding:0 14px;color:var(--gray);
+  font-size:15px;letter-spacing:-.23px;cursor:pointer;width:100%;
+  border:0;font-family:inherit;text-align:left;
+}
+
+.people-row{
+  display:flex;gap:12px;
+  margin:14px -16px 0;           /* выпускаем ряд на всю ширину серой плашки */
+  padding:4px 16px 2px;          /* место под бейдж сверху + отступ первого/последнего */
+  overflow-x:auto;
+  scrollbar-width:none;
+  overscroll-behavior-x:contain;
+}
+.people-row::-webkit-scrollbar{display:none}
+.person{
+  flex:none;width:66px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:none;border:0;padding:0;font-family:inherit;cursor:pointer;
+}
+.person .name{
+  font-size:12px;line-height:16px;letter-spacing:-.05px;color:var(--ink);
+  max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.av{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-weight:600;letter-spacing:0;flex:none;
+  background:#8b8b8b;overflow:hidden;
+}
+.av-wrap{position:relative;flex:none}
+.badge{
+  position:absolute;top:-2px;right:-2px;width:20px;height:20px;border-radius:50%;
+  background:var(--blue);border:2px solid #fff;
+  display:flex;align-items:center;justify-content:center;
+}
+.badge.crown{background:var(--blue)}
+
+.section-h{
+  margin:18px 16px 10px;font-size:20px;font-weight:700;letter-spacing:-.4px;
+}
+
+.calc-row{
+  margin:0 16px 10px;background:var(--card);border-radius:14px;
+  padding:14px 16px;width:calc(100% - 32px);
+  display:block;text-align:left;font-family:inherit;border:0;cursor:pointer;
+}
+.calc-top{display:flex;align-items:center;gap:8px}
+.calc-top .who{font-size:17px;letter-spacing:-.43px;color:var(--ink)}
+.calc-top .spacer{flex:1}
+.calc-top .amt{font-size:17px;font-weight:590;letter-spacing:-.43px;font-variant-numeric:tabular-nums}
+.calc-top .pick{color:var(--link);font-size:17px;letter-spacing:-.43px}
+.calc-sub{margin-top:4px;font-size:16px;font-weight:590;letter-spacing:-.31px;color:var(--ink)}
+
+.item-row{
+  margin:0 16px 10px;background:var(--card);border-radius:14px;padding:14px 16px;
+}
+.item-row .nm{font-size:17px;letter-spacing:-.43px}
+.item-row .meta{display:flex;align-items:center;gap:8px;margin-top:8px}
+.item-row .price{font-size:16px;font-weight:590;letter-spacing:-.31px;font-variant-numeric:tabular-nums}
+.item-row .slash{color:#C4C4C4;font-size:16px}
+.item-row .cnt{font-size:16px;font-weight:590;font-variant-numeric:tabular-nums}
+.stack{display:flex;align-items:center;margin-left:2px}
+.stack .av{border:2px solid var(--card);margin-left:-8px}
+.stack .av:first-child{margin-left:0}
+.addppl{
+  width:26px;height:26px;border-radius:50%;background:var(--blue);border:2px solid var(--card);
+  margin-left:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;
+  flex:none;
+}
+.stack .av{margin-left:-7px}
+.item-row .share{margin-left:auto;font-size:17px;font-weight:590;font-variant-numeric:tabular-nums}
+.item-row .share.empty{color:var(--link);font-weight:400;cursor:pointer;background:none;border:0;font-family:inherit;font-size:17px}
+
+.cta-zone{
+  position:absolute;left:0;right:0;bottom:0;padding:0 16px 31px;
+  background:linear-gradient(to top,var(--white) 62%,rgba(255,255,255,0));
+  padding-top:18px;z-index:20;
+}
+.cta{
+  width:100%;height:57px;border-radius:14px;border:0;cursor:pointer;
+  background:var(--blue);color:#fff;font-family:inherit;
+  font-size:17px;font-weight:700;letter-spacing:0;
+  transition:background .18s;
+}
+.cta[disabled]{background:var(--blue-dim);cursor:default}
+.cta.gray[disabled]{background:var(--disabled)}
+
+/* --- шторки --- */
+.backdrop{
+  position:absolute;inset:0;background:rgba(0,0,0,.42);z-index:40;
+  border:0;padding:0;width:100%;cursor:pointer;
+  animation:fade .22s ease;
+}
+.sheet{
+  position:absolute;left:0;right:0;bottom:0;z-index:50;
+  background:var(--white);border-radius:12px 12px 0 0;
+  padding-bottom:34px;
+  animation:rise .28s cubic-bezier(.32,.72,0,1);
+  display:flex;flex-direction:column;
+  max-height:calc(100% - 105px);
+}
+.grabber{width:36px;height:5px;border-radius:3px;background:#D3D3D5;margin:8px auto 0;flex:none}
+.sheet-head{
+  display:flex;align-items:center;gap:10px;padding:14px 16px 0;flex:none;
+}
+.sheet-head h2{margin:0;font-size:20px;font-weight:700;letter-spacing:-.4px;flex:1}
+.xbtn{
+  width:30px;height:30px;border-radius:50%;background:#EDEDEF;border:0;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;flex:none;padding:0;
+}
+.sheet-body{overflow-y:auto;flex:1;min-height:0;padding-bottom:8px}
+.sheet-cta{padding:12px 16px 0;flex:none}
+
+.chk-row{
+  display:flex;align-items:center;gap:12px;width:100%;
+  padding:15px 0;margin:0 16px;width:calc(100% - 32px);
+  background:none;border:0;border-bottom:1px solid var(--hairline);
+  font-family:inherit;font-size:17px;letter-spacing:-.43px;color:var(--ink);
+  cursor:pointer;text-align:left;
+}
+.chk-row:last-child{border-bottom:0}
+.chk-row .lbl{flex:1;min-width:0}
+.chk-row .lbl small{display:block;font-size:13px;color:var(--gray);letter-spacing:-.08px;margin-top:1px}
+.radio{
+  width:22px;height:22px;border-radius:50%;border:1.5px solid #D0D0D3;flex:none;
+  display:flex;align-items:center;justify-content:center;transition:background .15s,border-color .15s;
+}
+.radio.on{background:var(--blue);border-color:var(--blue)}
+
+.search{
+  display:flex;gap:8px;padding:14px 16px 4px;flex:none;
+}
+.search .code{
+  height:44px;border-radius:12px;background:var(--field);display:flex;align-items:center;gap:6px;
+  padding:0 12px;font-size:17px;letter-spacing:-.43px;flex:none;
+}
+.search .inp{
+  flex:1;height:44px;border-radius:12px;background:var(--field);
+  border:0;padding:0 14px;font-family:inherit;font-size:17px;letter-spacing:-.43px;color:var(--ink);
+}
+.search .inp::placeholder{color:var(--gray)}
+.flag{width:22px;height:16px;border-radius:3px;overflow:hidden;flex:none;display:block}
+
+/* --- экран операции --- */
+.tx-dim{position:absolute;inset:0;background:#D6D6D6}
+.tx-sheet{
+  position:absolute;left:0;right:0;top:83px;bottom:0;background:var(--white);
+  border-radius:12px 12px 0 0;overflow:hidden;display:flex;flex-direction:column;
+}
+.tx-hero{background:#2C2724;height:123px;position:relative;flex:none}
+.tx-hero .grab{width:36px;height:5px;border-radius:3px;background:#5A544F;margin:9px auto 0}
+.tx-hero .date{
+  text-align:center;color:#fff;font-size:15px;letter-spacing:-.23px;margin-top:9px;opacity:.95;
+}
+.tx-hero .xbtn{position:absolute;right:16px;top:22px;background:#4A443F}
+.logo{
+  position:absolute;left:50%;transform:translateX(-50%);top:76px;
+  width:83px;height:83px;border-radius:50%;background:#fff;z-index:3;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 0 4px #fff;
+}
+.tx-body{flex:1;overflow-y:auto;padding-bottom:100px}
+.tx-amount{text-align:center;padding:56px 16px 0}
+.tx-amount .big{font-size:34px;font-weight:700;letter-spacing:-.6px;line-height:41px;font-variant-numeric:tabular-nums}
+.tx-amount .merch{font-size:20px;letter-spacing:-.45px;line-height:25px;margin-top:4px}
+.tx-amount .cat{font-size:17px;letter-spacing:-.43px;color:var(--gray);margin-top:4px}
+.rowhead{
+  display:flex;align-items:baseline;margin:26px 16px 8px;
+}
+.rowhead h3{margin:0;font-size:17px;font-weight:590;letter-spacing:-.43px;flex:1}
+.rowhead a{color:var(--link);font-size:17px;letter-spacing:-.43px;text-decoration:none;cursor:pointer}
+.plate{margin:0 16px;background:var(--card);border-radius:14px;overflow:hidden}
+.plate .line{
+  display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid #E6E6E6;
+}
+.plate .line:last-child{border-bottom:0}
+.plate .line .nm{flex:1;font-size:17px;letter-spacing:-.43px}
+.plate .line .val{font-size:17px;font-weight:590;letter-spacing:-.43px;font-variant-numeric:tabular-nums}
+.mc{width:34px;height:22px;flex:none}
+
+.done-ttl{font-size:22px;font-weight:700;letter-spacing:-.4px;margin:0}
+.done-sub{margin:6px 16px 0;font-size:15px;line-height:20px;letter-spacing:-.23px;color:var(--gray)}
+
+@keyframes rise{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+/* шторка уже открыта — перерисовка не должна проигрывать появление заново */
+.sheet.no-anim,.backdrop.no-anim{animation:none}
+@media (prefers-reduced-motion:reduce){
+  .sheet,.backdrop{animation:none}
+  *{transition-duration:.001s !important}
+}
+
+/* ============ ТЕЛЕФОН: макет на весь экран, без мокапа ============ */
+@media (max-width:560px){
+  html,body{height:100%;overflow:hidden;background:var(--white)}
+  .wrap{
+    height:100vh;height:100dvh;
+    padding:0;gap:0;display:block;
+  }
+  .stage-head,.rail,.notes{display:none}
+
+  .device{
+    width:100%;max-width:none;
+    height:100vh;height:100dvh;
+    border-radius:0;padding:0;background:var(--white);box-shadow:none;
+  }
+  .screen{border-radius:0;height:100%}
+  .notch,.home-ind{display:none}
+
+  /* реальная строка состояния телефона своя — нарисованную убираем */
+  .statusbar{display:none}
+  :root{--top-offset:54px}
+
+  /* нижние отступы уводим под системную полосу жестов */
+  .cta-zone{padding-bottom:max(20px,env(safe-area-inset-bottom))}
+  .sheet{padding-bottom:max(20px,env(safe-area-inset-bottom))}
+  .tx-body{padding-bottom:120px}
+
+  /* шторка операции: тянется на всю высоту экрана */
+  .tx-sheet{top:56px}
+
+  .fsbtn{
+    position:fixed;top:10px;right:10px;z-index:200;
+    width:34px;height:34px;border-radius:50%;padding:0;
+    background:rgba(18,20,24,.5);color:#fff;border:0;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+    -webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);
+  }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="stage-head">
+    <h1>Разделение счёта</h1>
+    <span class="sub">Кликабельный прототип · Экзамен в Mobile</span>
+  </div>
+
+  <div class="device">
+    <div class="notch"></div>
+    <div class="screen" id="screen"></div>
+    <div class="home-ind"></div>
+  </div>
+
+  <button class="fsbtn" id="fsbtn" type="button" hidden aria-label="Во весь экран">
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+      <path d="M5.2 1H1v4.2M8.8 1H13v4.2M13 8.8V13H8.8M1 8.8V13h4.2"
+            stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  </button>
+
+  <div class="rail">
+    <div class="step"><b id="stepName">Детали операции</b><span id="stepHint">Нажмите «Разделить»</span></div>
+    <button id="reset" type="button">Сначала</button>
+  </div>
+
+  <div class="notes">
+    <p><b>Что кликается:</b> «Разделить» → выбор участников (поле «Введите номер или имя» или аватар-подсказка) → вкладки «Поровну» / «Распределю сам» → в ручном режиме разрезы «По участникам» и «По позициям» → «Подтвердить и отправить».</p>
+    <p><b>Суммы считаются вживую:</b> позиция делится поровну между теми, кто к ней привязан, и оба разреза показывают один и тот же расчёт. Кнопка отправки разблокируется, когда каждая позиция кому-то досталась.</p>
+    <p><b>Расхождение в макете:</b> в списке покупок «Картофель фри» стоит 400 ₽, но в расчёте он делится как 320 ₽ (160 + 160), и итог 2 070 ₽ сходится только с 320 ₽. В прототипе везде 320 ₽ — стоит поправить экран 20.</p>
+    <p><b>Аватары</b> — инициалы: фотографии из Figma сюда не выгружаются. Подменяются одной строкой в коде.</p>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- данные ---------- */
+  var ME = {id:'me', name:'Я', full:'Я', color:'#6E7BD6'};
+
+  var CONTACTS = [
+    {id:'alexey',  name:'Алексей М',  full:'Алексей Морозов',   phone:'+7 701 234 56-78', color:'#C97B5A'},
+    {id:'andrey',  name:'Андрей Н',   full:'Андрей Новиков',    phone:'+7 702 345 67-89', color:'#4E9C8A'},
+    {id:'anna',    name:'Анна С',     full:'Анна Смирнова',     phone:'+7 703 456 78-90', color:'#B4638F'},
+    {id:'artem',   name:'Артём З',    full:'Артём Захаров',     phone:'+7 704 567 89-01', color:'#8A7BB8'},
+    {id:'victoria',name:'Виктория П', full:'Виктория Павлова',  phone:'+7 705 678 90-12', color:'#C4874A'},
+    {id:'dmitry',  name:'Дмитрий К',  full:'Дмитрий Кузнецов',  phone:'+7 706 789 01-23', color:'#5A8AC9'},
+    {id:'elena',   name:'Елена В',    full:'Елена Волкова',     phone:'+7 707 890 12-34', color:'#A0743F'},
+    {id:'ivan',    name:'Иван П',     full:'Иван Петров',       phone:'+7 708 901 23-45', color:'#3F8F6E'},
+    {id:'maria',   name:'Мария И',    full:'Мария Иванова',     phone:'+7 709 012 34-56', color:'#B0566A'}
+  ];
+
+  var ITEMS = [
+    {id:'pizza',    name:'Пицца',          acc:'Пиццу',          price:1350},
+    {id:'lemonade', name:'Лимонад',        acc:'Лимонад',        price:400},
+    {id:'fries',    name:'Картофель фри',  acc:'Картофель фри',  price:320}
+  ];
+
+  var TOTAL = ITEMS.reduce(function(s,i){return s+i.price;},0);
+
+  function person(id){
+    if(id==='me') return ME;
+    for(var i=0;i<CONTACTS.length;i++) if(CONTACTS[i].id===id) return CONTACTS[i];
+    return null;
+  }
+  function item(id){
+    for(var i=0;i<ITEMS.length;i++) if(ITEMS[i].id===id) return ITEMS[i];
+    return null;
+  }
+
+  /* ---------- состояние ---------- */
+  var S;
+  function initial(){
+    return {
+      screen:'tx',            // tx | split
+      tab:'equal',            // equal | manual
+      mode:'people',          // people | items
+      sheet:null,             // null | 'contacts' | 'person:<id>' | 'item:<id>' | 'done'
+      participants:['me'],
+      assign:{pizza:[], lemonade:[], fries:[]},
+      draft:null,
+      query:''
+    };
+  }
+  S = initial();
+
+  /* ---------- расчёт ---------- */
+  function shareOf(itemId){
+    var it = item(itemId);
+    var n = S.assign[itemId].length;
+    return n ? it.price/n : 0;
+  }
+  function totalFor(pid){
+    var sum=0;
+    for(var k=0;k<ITEMS.length;k++){
+      var id=ITEMS[k].id;
+      if(S.assign[id].indexOf(pid)>-1) sum += shareOf(id);
+    }
+    return sum;
+  }
+  function itemsFor(pid){
+    var names=[];
+    for(var k=0;k<ITEMS.length;k++){
+      if(S.assign[ITEMS[k].id].indexOf(pid)>-1) names.push(ITEMS[k].name);
+    }
+    return names;
+  }
+  function allAssigned(){
+    for(var k=0;k<ITEMS.length;k++){
+      if(S.assign[ITEMS[k].id].length===0) return false;
+    }
+    return true;
+  }
+  function money(n){
+    var r = Math.round(n);
+    return String(r).replace(/\B(?=(\d{3})+(?!\d))/g,' ') + ' ₽';
+  }
+
+  /* ---------- мелкие куски разметки ---------- */
+  function esc(s){
+    return String(s).replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function initials(p){
+    var parts = p.full.split(' ');
+    if(p.id==='me') return 'Я';
+    return (parts[0][0] + (parts[1]?parts[1][0]:'')).toUpperCase();
+  }
+  function av(p,size){
+    var fs = Math.round(size*0.38);
+    return '<span class="av" style="width:'+size+'px;height:'+size+'px;background:'+p.color+';font-size:'+fs+'px">'+esc(initials(p))+'</span>';
+  }
+  var ICON_X = '<svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true"><path d="M1 1l9 9M10 1l-9 9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  var ICON_CHECK = '<svg width="12" height="9" viewBox="0 0 12 9" fill="none" aria-hidden="true"><path d="M1 4.4L4.3 7.7 11 1" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  var ICON_CROWN = '<svg width="11" height="9" viewBox="0 0 11 9" aria-hidden="true"><path d="M.8 2.2l1.9 1.5L5.5.6l2.8 3.1 1.9-1.5-.8 5.3H1.6L.8 2.2z" fill="#fff"/></svg>';
+  var ICON_PLUS = '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true"><path d="M6 1.5v9M1.5 6h9" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>';
+
+  function statusbar(){
+    return '<div class="statusbar"><span class="time">9:41</span><span class="ind">'+
+      '<svg width="18" height="12" viewBox="0 0 18 12" aria-hidden="true"><rect x="0" y="8" width="3" height="4" rx="1" fill="#000"/><rect x="5" y="5.5" width="3" height="6.5" rx="1" fill="#000"/><rect x="10" y="3" width="3" height="9" rx="1" fill="#000"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#000"/></svg>'+
+      '<svg width="16" height="12" viewBox="0 0 16 12" aria-hidden="true"><path d="M8 10.6l1.9-2a2.7 2.7 0 00-3.8 0l1.9 2z" fill="#000"/><path d="M3.6 6.1a6.3 6.3 0 018.8 0" stroke="#000" stroke-width="1.6" fill="none" stroke-linecap="round"/><path d="M1 3.3a10.2 10.2 0 0114 0" stroke="#000" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>'+
+      '<svg width="26" height="13" viewBox="0 0 26 13" aria-hidden="true"><rect x=".6" y=".6" width="21" height="11.8" rx="3.4" stroke="#000" stroke-opacity=".35" fill="none"/><rect x="2.2" y="2.2" width="17.8" height="8.6" rx="2.2" fill="#000"/><path d="M23.2 4.4v4.2c.9-.3 1.5-1.1 1.5-2.1s-.6-1.8-1.5-2.1z" fill="#000" fill-opacity=".4"/></svg>'+
+      '</span></div>';
+  }
+
+  function navbar(title, lead){
+    return '<div class="navbar">'+
+      (lead?'<button class="lead" type="button" data-act="cancel">'+esc(lead)+'</button>':'')+
+      '<span class="title">'+esc(title)+'</span></div>';
+  }
+
+  /* ---------- экран 1: детали операции ---------- */
+  function viewTx(){
+    var rows = ITEMS.map(function(it){
+      return '<div class="line"><span class="nm">'+esc(it.name)+'</span><span class="val">'+money(it.price)+'</span></div>';
+    }).join('');
+
+    return '<div class="tx-dim"></div>'+
+    '<div class="tx-sheet">'+
+      '<div class="tx-hero">'+
+        '<div class="grab"></div>'+
+        '<div class="date">17 февраля 2023, 14:06</div>'+
+        '<button class="xbtn" type="button" style="color:#fff" data-act="noop" aria-label="Закрыть">'+ICON_X+'</button>'+
+        '<div class="logo">'+
+          '<svg width="60" height="60" viewBox="0 0 60 60" aria-hidden="true">'+
+            '<circle cx="30" cy="30" r="28" fill="none" stroke="#111" stroke-width="1.4"/>'+
+            '<path d="M14 30a16 9 0 0132 0" fill="none" stroke="#111" stroke-width="1.2"/>'+
+            '<path d="M30 20l5 9h-10l5-9z" fill="#111"/>'+
+            '<rect x="29.2" y="27" width="1.6" height="12" fill="#111"/>'+
+            '<text x="30" y="17" font-size="6.5" font-weight="700" text-anchor="middle" fill="#111" font-family="'+"Helvetica, Arial, sans-serif"+'">SURF</text>'+
+            '<text x="30" y="46" font-size="5.5" font-weight="700" text-anchor="middle" fill="#111" letter-spacing="1" font-family="'+"Helvetica, Arial, sans-serif"+'">COFFEE</text>'+
+          '</svg>'+
+        '</div>'+
+      '</div>'+
+      '<div class="tx-body">'+
+        '<div class="tx-amount">'+
+          '<div class="big">−'+money(TOTAL).replace(' ₽','')+' ₽</div>'+
+          '<div class="merch">«Surf coffee»</div>'+
+          '<div class="cat">Кафе и рестораны</div>'+
+        '</div>'+
+        '<div class="rowhead"><h3>Покупка с карты</h3><a data-act="noop">Справка</a></div>'+
+        '<div class="plate"><div class="line">'+
+          '<svg class="mc" viewBox="0 0 34 22" aria-hidden="true"><rect width="34" height="22" rx="4" fill="#1A1A1A"/><circle cx="14" cy="11" r="6.4" fill="#EB001B"/><circle cx="20" cy="11" r="6.4" fill="#F79E1B" fill-opacity=".9"/></svg>'+
+          '<span class="nm">Дебетовая карта *0000</span></div></div>'+
+        '<div class="rowhead"><h3>Список покупок</h3></div>'+
+        '<div class="plate">'+rows+'</div>'+
+      '</div>'+
+      '<div class="cta-zone"><button class="cta" type="button" data-act="toSplit">Разделить</button></div>'+
+    '</div>';
+  }
+
+  /* ---------- экран 2: разделение ---------- */
+  function participantChips(){
+    var html = '';
+    S.participants.forEach(function(pid){
+      var p = person(pid);
+      var badge = pid==='me'
+        ? '<span class="badge crown">'+ICON_CROWN+'</span>'
+        : '<span class="badge" style="color:#fff">'+ICON_X+'</span>';
+      html += '<button class="person" type="button" data-act="'+(pid==='me'?'noop':'remove')+'" data-id="'+pid+'"'+
+              (pid==='me'?'':' aria-label="Убрать '+esc(p.name)+'"')+'>'+
+              '<span class="av-wrap">'+av(p,66)+badge+'</span>'+
+              '<span class="name">'+esc(p.name)+'</span></button>';
+    });
+    var shown = 0;
+    CONTACTS.forEach(function(c){
+      if(S.participants.indexOf(c.id)>-1 || shown>=3) return;
+      shown++;
+      html += '<button class="person" type="button" data-act="quickAdd" data-id="'+c.id+'" aria-label="Добавить '+esc(c.name)+'">'+
+              '<span class="av-wrap">'+av(c,66)+'</span>'+
+              '<span class="name">'+esc(c.name)+'</span></button>';
+    });
+    return html;
+  }
+
+  function viewByPeople(){
+    if(S.participants.length<2){
+      return '<button class="calc-row" type="button" data-act="openContacts">'+
+        '<div class="calc-top"><span class="who" style="color:var(--gray)">Выберите участников</span>'+
+        '<span class="spacer"></span><span class="pick">Выбрать</span></div></button>';
+    }
+    return S.participants.map(function(pid){
+      var p = person(pid);
+      var names = itemsFor(pid);
+      var sum = totalFor(pid);
+      var right = names.length
+        ? '<span class="amt">'+money(sum)+'</span>'
+        : '<span class="pick">Выбрать</span>';
+      return '<button class="calc-row" type="button" data-act="openPerson" data-id="'+pid+'">'+
+        '<div class="calc-top"><span class="who">'+esc(p.name)+'</span>'+av(p,24)+
+        '<span class="spacer"></span>'+right+'</div>'+
+        (names.length?'<div class="calc-sub">'+esc(names.join(', '))+'</div>':'')+
+      '</button>';
+    }).join('');
+  }
+
+  function viewByItems(){
+    return ITEMS.map(function(it){
+      var ppl = S.assign[it.id];
+      var stack = ppl.map(function(pid){return av(person(pid),26);}).join('');
+      var share = ppl.length
+        ? '<span class="share">'+money(shareOf(it.id))+'</span>'
+        : '<button class="share empty" type="button" data-act="openItem" data-id="'+it.id+'">Выбрать</button>';
+      return '<div class="item-row">'+
+        '<div class="nm">'+esc(it.name)+'</div>'+
+        '<div class="meta">'+
+          '<span class="price">'+money(it.price)+'</span>'+
+          '<span class="slash">/</span>'+
+          '<span class="cnt">'+ppl.length+'</span>'+
+          '<span class="stack">'+stack+
+            '<button class="addppl" type="button" data-act="openItem" data-id="'+it.id+'" aria-label="Кто платит за: '+esc(it.name)+'">'+ICON_PLUS+'</button>'+
+          '</span>'+
+          share+
+        '</div></div>';
+    }).join('');
+  }
+
+  function viewSplit(){
+    var manual = S.tab==='manual';
+    var hint = manual
+      ? 'Вам необходимо самостоятельно распределить позиции между участниками'
+      : 'Счёт автоматически разделится поровну и будет отправлен участникам на оплату';
+
+    var calc = '';
+    if(manual){
+      calc = '<div class="section-h">Рассчёт</div>'+
+        '<div class="seg" style="margin-bottom:14px">'+
+          '<button type="button" data-act="mode" data-id="people" aria-pressed="'+(S.mode==='people')+'">По участникам</button>'+
+          '<button type="button" data-act="mode" data-id="items" aria-pressed="'+(S.mode==='items')+'">По позициям</button>'+
+        '</div>'+
+        (S.mode==='people'?viewByPeople():viewByItems());
+      if(S.participants.length>=2 && !allAssigned()){
+        var left = ITEMS.filter(function(it){return S.assign[it.id].length===0;}).map(function(it){return it.acc;});
+        if(left.length) calc += '<div class="hint" style="padding-top:6px">Распределите '+esc(left.join(', '))+'</div>';
+      }
+    } else {
+      calc = '<div class="section-h">Рассчёт</div>'+
+        (S.participants.length<2
+          ? '<button class="calc-row" type="button" data-act="openContacts"><div class="calc-top"><span class="who" style="color:var(--gray)">Выберите участников</span><span class="spacer"></span><span class="pick">Выбрать</span></div></button>'
+          : S.participants.map(function(pid){
+              var p=person(pid);
+              return '<div class="calc-row" style="cursor:default"><div class="calc-top"><span class="who">'+esc(p.name)+'</span>'+av(p,24)+
+                '<span class="spacer"></span><span class="amt">'+money(TOTAL/S.participants.length)+'</span></div></div>';
+            }).join(''));
+    }
+
+    var ready = S.participants.length>=2 && (manual ? allAssigned() : true);
+
+    return statusbar()+navbar('Разделение','Отменить')+
+    '<div class="body-scroll">'+
+      '<div class="seg">'+
+        '<button type="button" data-act="tab" data-id="equal" aria-pressed="'+(!manual)+'">Поровну</button>'+
+        '<button type="button" data-act="tab" data-id="manual" aria-pressed="'+manual+'">Распределю сам</button>'+
+      '</div>'+
+      '<div class="hint">'+esc(hint)+'</div>'+
+      '<div class="card">'+
+        '<div class="card-title">Участники <em>'+S.participants.length+'</em></div>'+
+        '<button class="fakefield" type="button" data-act="openContacts">Введите номер или имя</button>'+
+        '<div class="people-row">'+participantChips()+'</div>'+
+      '</div>'+
+      calc+
+    '</div>'+
+    '<div class="cta-zone"><button class="cta" type="button" data-act="send"'+(ready?'':' disabled')+'>Подтвердить и отправить</button></div>';
+  }
+
+  /* ---------- шторки ---------- */
+  function sheetContacts(){
+    var q = S.query.trim().toLowerCase();
+    var list = CONTACTS.filter(function(c){
+      if(!q) return true;
+      return c.full.toLowerCase().indexOf(q)>-1 || c.phone.replace(/\s/g,'').indexOf(q.replace(/\s/g,''))>-1;
+    });
+    var rows = list.map(function(c){
+      var on = S.draft.indexOf(c.id)>-1;
+      return '<button class="chk-row" type="button" data-act="draftPerson" data-id="'+c.id+'">'+
+        av(c,40)+
+        '<span class="lbl">'+esc(c.full)+'<small>'+esc(c.phone)+'</small></span>'+
+        '<span class="radio'+(on?' on':'')+'">'+(on?ICON_CHECK:'')+'</span></button>';
+    }).join('') || '<div class="hint" style="padding:24px 16px">Ничего не нашлось</div>';
+
+    var n = S.draft.length;
+    return '<button class="backdrop" type="button" data-act="closeSheet" aria-label="Закрыть"></button>'+
+    '<div class="sheet" style="max-height:calc(100% - 117px)" role="dialog" aria-label="Участники">'+
+      '<div class="grabber"></div>'+
+      '<div class="sheet-head"><h2>Участники <span style="color:#B4B4B4;font-size:17px;font-weight:600">'+(n+1)+'</span></h2>'+
+        '<button class="xbtn" type="button" data-act="closeSheet" aria-label="Закрыть">'+ICON_X+'</button></div>'+
+      '<div class="search">'+
+        '<span class="code">'+
+          '<svg class="flag" viewBox="0 0 22 16" aria-hidden="true"><rect width="22" height="5.34" fill="#fff"/><rect y="5.34" width="22" height="5.33" fill="#0039A6"/><rect y="10.67" width="22" height="5.33" fill="#D52B1E"/></svg>'+
+          '+7</span>'+
+        '<input class="inp" id="contactSearch" type="text" placeholder="Номер или имя" value="'+esc(S.query)+'" autocomplete="off">'+
+      '</div>'+
+      '<div class="sheet-body">'+rows+'</div>'+
+      '<div class="sheet-cta"><button class="cta gray" type="button" data-act="applyContacts"'+(n?'':' disabled')+'>Применить</button></div>'+
+    '</div>';
+  }
+
+  function sheetPerson(pid){
+    var p = person(pid);
+    var rows = ITEMS.map(function(it){
+      var on = S.draft.indexOf(it.id)>-1;
+      return '<button class="chk-row" type="button" data-act="draftItem" data-id="'+it.id+'">'+
+        '<span class="lbl">'+esc(it.name)+'</span>'+
+        '<span class="radio'+(on?' on':'')+'">'+(on?ICON_CHECK:'')+'</span></button>';
+    }).join('');
+    return '<button class="backdrop" type="button" data-act="closeSheet" aria-label="Закрыть"></button>'+
+    '<div class="sheet" role="dialog" aria-label="Позиции участника">'+
+      '<div class="grabber"></div>'+
+      '<div class="sheet-head"><h2>Участник: '+esc(p.name)+'</h2>'+
+        '<button class="xbtn" type="button" data-act="closeSheet" aria-label="Закрыть">'+ICON_X+'</button></div>'+
+      '<div class="sheet-body" style="padding-top:8px">'+rows+'</div>'+
+      '<div class="sheet-cta"><button class="cta gray" type="button" data-act="applyPerson" data-id="'+pid+'"'+(S.draft.length?'':' disabled')+'>Применить</button></div>'+
+    '</div>';
+  }
+
+  function sheetItem(iid){
+    var it = item(iid);
+    var rows = S.participants.map(function(pid){
+      var p = person(pid);
+      var on = S.draft.indexOf(pid)>-1;
+      return '<button class="chk-row" type="button" data-act="draftPerson2" data-id="'+pid+'">'+
+        av(p,32)+'<span class="lbl">'+esc(p.name)+'</span>'+
+        '<span class="radio'+(on?' on':'')+'">'+(on?ICON_CHECK:'')+'</span></button>';
+    }).join('');
+    var each = S.draft.length ? money(it.price/S.draft.length)+' с человека' : 'Никто не выбран';
+    return '<button class="backdrop" type="button" data-act="closeSheet" aria-label="Закрыть"></button>'+
+    '<div class="sheet" role="dialog" aria-label="Кто платит за позицию">'+
+      '<div class="grabber"></div>'+
+      '<div class="sheet-head"><h2>Позиция: '+esc(it.name)+'</h2>'+
+        '<button class="xbtn" type="button" data-act="closeSheet" aria-label="Закрыть">'+ICON_X+'</button></div>'+
+      '<div class="hint" style="padding:4px 16px 0">'+money(it.price)+' · '+esc(each)+'</div>'+
+      '<div class="sheet-body" style="padding-top:8px">'+rows+'</div>'+
+      '<div class="sheet-cta"><button class="cta gray" type="button" data-act="applyItem" data-id="'+iid+'"'+(S.draft.length?'':' disabled')+'>Применить</button></div>'+
+    '</div>';
+  }
+
+  function sheetDone(){
+    return '<button class="backdrop" type="button" data-act="restart" aria-label="Закрыть"></button>'+
+    '<div class="sheet" role="dialog" aria-label="Запрос отправлен">'+
+      '<div class="grabber"></div>'+
+      '<div class="sheet-head"><h2 class="done-ttl">Запрос отправлен</h2>'+
+        '<button class="xbtn" type="button" data-act="restart" aria-label="Закрыть">'+ICON_X+'</button></div>'+
+      '<div class="done-sub">В ближайшее время участники получат оповещение о счёте</div>'+
+      '<div class="sheet-cta" style="padding-top:22px"><button class="cta" type="button" data-act="restart">На главную</button></div>'+
+    '</div>';
+  }
+
+  /* ---------- подпись шага ---------- */
+  function stepLabel(){
+    if(S.sheet==='contacts') return ['Выбор участников','Отметьте людей и нажмите «Применить»'];
+    if(S.sheet==='done')     return ['Запрос отправлен','Финальный экран сценария'];
+    if(S.sheet && S.sheet.indexOf('person:')===0) return ['Позиции участника','Что берёт на себя этот человек'];
+    if(S.sheet && S.sheet.indexOf('item:')===0)   return ['Участники позиции','Кто скидывается на эту позицию'];
+    if(S.screen==='tx') return ['Детали операции','Нажмите «Разделить»'];
+    if(S.tab==='equal') return ['Разделение · Поровну','Добавьте участников'];
+    if(S.mode==='items')return ['Разделение · По позициям','Нажмите + на позиции'];
+    return ['Разделение · По участникам','Нажмите «Выбрать» у человека'];
+  }
+
+  /* ---------- рендер ---------- */
+  var root = document.getElementById('screen');
+  var lastSheet = null, lastScreen = null;
+
+  function render(){
+    /* запоминаем позиции прокрутки до перестроения разметки */
+    var elBody  = root.querySelector('.body-scroll');
+    var elRow   = root.querySelector('.people-row');
+    var elSheet = root.querySelector('.sheet-body');
+    var bodyTop = elBody  ? elBody.scrollTop   : 0;
+    var rowLeft = elRow   ? elRow.scrollLeft   : 0;
+    var sheetTop= elSheet ? elSheet.scrollTop  : 0;
+    var sameScreen = (lastScreen === S.screen);
+    var sameSheet  = (lastSheet  === S.sheet) && S.sheet !== null;
+
+    var html = S.screen==='tx' ? viewTx() : viewSplit();
+    if(S.sheet==='contacts') html += sheetContacts();
+    else if(S.sheet==='done') html += sheetDone();
+    else if(S.sheet && S.sheet.indexOf('person:')===0) html += sheetPerson(S.sheet.slice(7));
+    else if(S.sheet && S.sheet.indexOf('item:')===0) html += sheetItem(S.sheet.slice(5));
+    root.innerHTML = html;
+
+    /* возвращаем прокрутку и гасим повторную анимацию — до первой отрисовки кадра */
+    if(sameSheet){
+      var s = root.querySelector('.sheet');    if(s) s.classList.add('no-anim');
+      var b = root.querySelector('.backdrop'); if(b) b.classList.add('no-anim');
+    }
+    var nBody  = root.querySelector('.body-scroll');
+    var nRow   = root.querySelector('.people-row');
+    var nSheet = root.querySelector('.sheet-body');
+    if(nBody  && sameScreen) nBody.scrollTop  = bodyTop;
+    if(nRow   && sameScreen) nRow.scrollLeft  = rowLeft;
+    if(nSheet && sameSheet)  nSheet.scrollTop = sheetTop;
+    lastScreen = S.screen;
+    lastSheet  = S.sheet;
+
+    var lbl = stepLabel();
+    document.getElementById('stepName').textContent = lbl[0];
+    document.getElementById('stepHint').textContent = lbl[1];
+
+    var inp = document.getElementById('contactSearch');
+    if(inp){
+      inp.addEventListener('input', function(){
+        S.query = inp.value;
+        var pos = inp.selectionStart;
+        render();
+        var again = document.getElementById('contactSearch');
+        if(again){ again.focus(); try{ again.setSelectionRange(pos,pos); }catch(e){} }
+      });
+    }
+  }
+
+  function toggle(arr, id){
+    var i = arr.indexOf(id);
+    if(i>-1) arr.splice(i,1); else arr.push(id);
+  }
+
+  root.addEventListener('click', function(e){
+    var el = e.target.closest('[data-act]');
+    if(!el) return;
+    var act = el.getAttribute('data-act');
+    var id  = el.getAttribute('data-id');
+
+    switch(act){
+      case 'noop': return;
+
+      case 'toSplit':
+        S.screen='split'; break;
+
+      case 'cancel':
+        S.screen='tx'; S.sheet=null; break;
+
+      case 'tab':
+        S.tab=id; break;
+
+      case 'mode':
+        S.mode=id; break;
+
+      case 'openContacts':
+        S.draft = S.participants.filter(function(p){return p!=='me';});
+        S.query=''; S.sheet='contacts'; break;
+
+      case 'draftPerson':
+        toggle(S.draft,id); break;
+
+      case 'applyContacts':
+        S.participants = ['me'].concat(S.draft);
+        ITEMS.forEach(function(it){
+          S.assign[it.id] = S.assign[it.id].filter(function(p){return S.participants.indexOf(p)>-1;});
+        });
+        S.sheet=null; S.draft=null; break;
+
+      case 'quickAdd':
+        if(S.participants.indexOf(id)===-1) S.participants.push(id);
+        break;
+
+      case 'remove':
+        S.participants = S.participants.filter(function(p){return p!==id;});
+        ITEMS.forEach(function(it){
+          S.assign[it.id] = S.assign[it.id].filter(function(p){return p!==id;});
+        });
+        break;
+
+      case 'openPerson':
+        S.draft = itemsForIds(id); S.sheet='person:'+id; break;
+
+      case 'draftItem':
+        toggle(S.draft,id); break;
+
+      case 'applyPerson':
+        ITEMS.forEach(function(it){
+          var has = S.draft.indexOf(it.id)>-1;
+          var arr = S.assign[it.id];
+          var at = arr.indexOf(id);
+          if(has && at===-1) arr.push(id);
+          if(!has && at>-1) arr.splice(at,1);
+        });
+        S.sheet=null; S.draft=null; break;
+
+      case 'openItem':
+        if(S.participants.length<2){
+          S.draft = []; S.query=''; S.sheet='contacts';
+        } else {
+          S.draft = S.assign[id].slice(); S.sheet='item:'+id;
+        }
+        break;
+
+      case 'draftPerson2':
+        toggle(S.draft,id); break;
+
+      case 'applyItem':
+        S.assign[id] = S.draft.slice();
+        S.sheet=null; S.draft=null; break;
+
+      case 'send':
+        S.sheet='done'; break;
+
+      case 'closeSheet':
+        S.sheet=null; S.draft=null; break;
+
+      case 'restart':
+        S = initial(); break;
+    }
+    render();
+  });
+
+  function itemsForIds(pid){
+    var out=[];
+    ITEMS.forEach(function(it){ if(S.assign[it.id].indexOf(pid)>-1) out.push(it.id); });
+    return out;
+  }
+
+  document.getElementById('reset').addEventListener('click', function(){
+    S = initial(); render();
+  });
+
+  /* --- «Добавить на экран Домой» откроется без браузерной обвязки --- */
+  [['apple-mobile-web-app-capable','yes'],
+   ['mobile-web-app-capable','yes'],
+   ['apple-mobile-web-app-status-bar-style','default'],
+   ['apple-mobile-web-app-title','Разделение счёта'],
+   ['theme-color','#FFFFFF']].forEach(function(pair){
+    if(document.querySelector('meta[name="'+pair[0]+'"]')) return;
+    var m = document.createElement('meta');
+    m.name = pair[0]; m.content = pair[1];
+    document.head.appendChild(m);
+  });
+
+  /* --- кнопка «во весь экран»: только там, где браузер это умеет --- */
+  var fsBtn = document.getElementById('fsbtn');
+  var el = document.documentElement;
+  var req = el.requestFullscreen || el.webkitRequestFullscreen;
+  var standalone = window.matchMedia('(display-mode: standalone)').matches ||
+                   window.navigator.standalone === true;
+
+  function fsActive(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); }
+  function syncFs(){ fsBtn.hidden = !req || standalone || fsActive(); }
+
+  if(req && !standalone){
+    fsBtn.hidden = false;
+    fsBtn.addEventListener('click', function(){
+      var p;
+      try { p = req.call(el); } catch(e){ fsBtn.hidden = true; return; }
+      if(p && p.catch) p.catch(function(){ fsBtn.hidden = true; });
+    });
+    document.addEventListener('fullscreenchange', syncFs);
+    document.addEventListener('webkitfullscreenchange', syncFs);
+  }
+
+  render();
+})();
+</script>
+
+</body>
+</html>
