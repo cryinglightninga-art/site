@@ -14,11 +14,12 @@
       title: 'Активности',
       lead: 'Конкурсы, олимпиады и курсы — то, чем я занималась помимо работы',
       labels: [
+        'Google — Foundations of Project Management',
+        'Диплом бакалавра с отличием — МИЭТ, графический дизайн, 2018–2022',
         'Спикер курса для селлеров о создании и развитии СТМ',
         'Спикер мастер-класса о продвинутой работе с карточкой товара',
         'ВСО «Графический дизайн»',
         '1 место в конкурсе студенческих проектов',
-        'Google — Foundations of Project Management',
         'Фотошкола inFocus — основы цифровой фотографии',
         'Почётный диплом фестиваля «Заводной апельсин»',
         'Adobe InDesign — вёрстка и допечатная подготовка',
@@ -33,11 +34,12 @@
       title: 'Activities',
       lead: 'Competitions, olympiads, and courses — what I do beyond work',
       labels: [
+        'Google — Foundations of Project Management',
+        'Bachelor’s degree with honours — MIET, Graphic Design, 2018–2022',
         'Speaker at a seller course on private label product development',
         'Speaker at a masterclass on advanced product card tools',
         'Student Olympiad — Graphic Design',
         '1st place in the student project competition',
-        'Google — Foundations of Project Management',
         'inFocus Photo School — Basics of Digital Photography',
         'Honorary Diploma — “A Clockwork Orange” festival',
         'Adobe InDesign — Layout and Prepress',
@@ -58,11 +60,12 @@
   // picture arrives and then jumps to full height, which reshuffles the whole
   // wall; with them the browser knows the shape up front and holds the space.
   var PHOTOS = [
+    { src: 'assets/activities-5.webp', w: 800, h: 618, href: 'https://www.coursera.org/account/accomplishments/verify/QLV2VPCNZA7S' },
+    { src: 'assets/activities-14.webp', w: 800, h: 562 },
     { src: 'assets/activities-1.webp', w: 580, h: 800 },
     { src: 'assets/activities-2.webp', w: 800, h: 478 },
     { src: 'assets/activities-3.webp', w: 800, h: 566 },
     { src: 'assets/activities-4.webp', w: 566, h: 800, href: 'https://laenguild.org/workshop' },
-    { src: 'assets/activities-5.webp', w: 800, h: 618, href: 'https://www.coursera.org/account/accomplishments/verify/QLV2VPCNZA7S' },
     { src: 'assets/activities-6.webp', w: 558, h: 800 },
     { src: 'assets/activities-7.webp', w: 559, h: 800, href: 'https://staroekrukovo.ru/print.php?item=studenty-mieta-diplomanty-xxvi-mezhdunarodnogo-studencheskogo-konkursa-na-luchshiy-dizayn-upakovki-z' },
     { src: 'assets/activities-8.webp', w: 800, h: 574 },
@@ -121,7 +124,14 @@
       wrap.appendChild(col);
     }
 
+    // The first entry is pinned to the top of the left column: the balancing
+    // pass below is free to put any picture anywhere, which is fine for the
+    // wall as a whole but not for the one certificate that should open it.
+    picked[0].push(0);
+    heights[0] += cost(PHOTOS[0]);
+
     var tallestFirst = PHOTOS.map(function (photo, index) { return index; })
+      .slice(1)
       .sort(function (a, b) { return cost(PHOTOS[b]) - cost(PHOTOS[a]); });
 
     tallestFirst.forEach(function (index) {
