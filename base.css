@@ -58,6 +58,10 @@ html {
 body {
   margin: 0;
   -webkit-font-smoothing: antialiased;
+  /* On body rather than on .page: overlays are appended straight to the body,
+     outside the page wrapper, and without this they fall back to the
+     browser's default serif. */
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   /* Belt and braces with the pre-paint script: anything exposed around the
      page — a rubber-band bounce, an in-app browser's own window — is painted
      in the theme's background rather than white. */
@@ -96,7 +100,6 @@ a {
 .page {
   background: var(--bg);
   min-height: 100vh;
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--text-primary);
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -358,6 +361,36 @@ a {
   display: inline-block;
 }
 
+/* The email chip is a button, not a link: tapping it copies rather than
+   opening a mail client. These undo what a browser gives a <button>. */
+button.contact-link {
+  font-family: inherit;
+  font-size: 13px;
+  line-height: normal;
+  border: none;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.contact-link.is-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.copy-icon {
+  flex: none;
+  opacity: 0.55;
+  transition: opacity 0.2s ease;
+}
+
+@media (hover: hover) {
+  .contact-link.is-copy:hover .copy-icon { opacity: 1; }
+}
+
+.contact-link.is-copy:active .copy-icon { opacity: 1; }
+
 @media (hover: hover) {
   .contact-link:hover {
     color: var(--text-primary);
@@ -484,6 +517,43 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .om-shimmer { animation: none !important; }
   .avatar-circle { transition: none; }
+}
+
+/* ── Snackbar ─────────────────────────────────────────────────────────────── */
+
+/* Inverted against the page in both themes: --accent is near-black on light
+   and near-white on dark, with --accent-contrast the other way round. */
+.snackbar {
+  position: fixed;
+  left: 50%;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  z-index: 200;
+  max-width: calc(100vw - 32px);
+  padding: 12px 20px;
+  border-radius: 980px;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  font-size: 14px;
+  line-height: 18px;
+  letter-spacing: -0.002em;
+  white-space: nowrap;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 12px);
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.snackbar.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .snackbar {
+    transform: translate(-50%, 0);
+    transition: opacity 0.01s linear;
+  }
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */

@@ -22,6 +22,8 @@ window.PF = (function () {
       experienceLabel: 'Опыт',
       contactsLabel: 'Контакты',
       back: 'Назад',
+      copied: 'Почта скопирована',
+      copyFailed: 'Не удалось скопировать',
       exp: [
         { id: 'wildberries', company: 'Wildberries', role: 'Sr. Product Designer', dates: '2024 — н.в.' },
         { id: 'mujo', company: 'Mujo', role: 'Product Designer', dates: '2024 — 2025' },
@@ -36,6 +38,8 @@ window.PF = (function () {
       experienceLabel: 'Experience',
       contactsLabel: 'Contact',
       back: 'Back',
+      copied: 'Email copied',
+      copyFailed: 'Could not copy',
       exp: [
         { id: 'wildberries', company: 'Wildberries', role: 'Sr. Product Designer', dates: '2024 — now' },
         { id: 'mujo', company: 'Mujo', role: 'Product Designer', dates: '2024 — 2025' },
@@ -46,7 +50,7 @@ window.PF = (function () {
   };
 
   var CONTACT_LINKS = [
-    { label: 'adelina@urzhanovaa.com', href: 'mailto:adelina@urzhanovaa.com', target: '_self' },
+    { label: 'adelina@urzhanovaa.com', copy: 'adelina@urzhanovaa.com' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/urzhanovaa/', target: '_blank' },
     { label: 'Telegram', href: 'https://t.me/urzhanovaa', target: '_blank' },
     { label: 'Instagram', href: 'https://www.instagram.com/urzhanovaa/', target: '_blank' }
@@ -181,9 +185,77 @@ window.PF = (function () {
     });
   }
 
+  /* ── Snackbar ─────────────────────────────────────────────────────────── */
+
+  var snackNode = null;
+  var snackTimer = null;
+
+  function snack(message) {
+    if (!snackNode) {
+      snackNode = el('div', 'snackbar', { role: 'status', 'aria-live': 'polite' });
+      document.body.appendChild(snackNode);
+    }
+    snackNode.textContent = message;
+    // Two frames: the node has to be laid out in its hidden state before the
+    // class lands, or the browser skips straight to the end and nothing moves.
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { snackNode.classList.add('is-visible'); });
+    });
+    clearTimeout(snackTimer);
+    snackTimer = setTimeout(function () {
+      snackNode.classList.remove('is-visible');
+    }, 2400);
+  }
+
+  // navigator.clipboard needs a secure context; over plain http (the local
+  // preview, say) it is simply absent, so fall back to the old selection
+  // trick rather than failing silently.
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+    return new Promise(function (resolve, reject) {
+      var box = el('textarea');
+      box.value = text;
+      box.setAttribute('readonly', '');
+      box.style.position = 'fixed';
+      box.style.top = '-1000px';
+      document.body.appendChild(box);
+      box.select();
+      var ok = false;
+      try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(box);
+      ok ? resolve() : reject(new Error('copy failed'));
+    });
+  }
+
+  var COPY_ICON =
+    '<svg class="copy-icon" width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">' +
+    '<rect x="4.4" y="4.4" width="7.2" height="7.2" rx="1.8" stroke="currentColor" stroke-width="1.3"/>' +
+    '<path d="M9 3.1v-.3A1.8 1.8 0 0 0 7.2 1H3.2A1.8 1.8 0 0 0 1.4 2.8v4a1.8 1.8 0 0 0 1.8 1.8h.3" ' +
+    'stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
+  function buildCopyChip(contact) {
+    var btn = el('button', 'contact-link is-copy', { type: 'button' });
+    btn.appendChild(document.createTextNode(contact.label));
+    btn.insertAdjacentHTML('beforeend', COPY_ICON);
+    btn.addEventListener('click', function () {
+      var t = sidebarCopy();
+      copyText(contact.copy).then(
+        function () { snack(t.copied); },
+        function () { snack(t.copyFailed); }
+      );
+    });
+    return btn;
+  }
+
   function renderContacts(container) {
     container.textContent = '';
     CONTACT_LINKS.forEach(function (contact) {
+      if (contact.copy) {
+        container.appendChild(buildCopyChip(contact));
+        return;
+      }
       var a = el('a', 'contact-link', { href: contact.href, target: contact.target, rel: 'noopener' });
       a.textContent = contact.label;
       container.appendChild(a);
