@@ -16,15 +16,16 @@
       emptyLabel: 'Здесь пока ничего нет',
       filters: { all: 'Все', project: 'Проекты', article: 'Статьи' },
       typeLabels: { project: 'Проект', article: 'Статья' },
+      soonLabel: 'Скоро',
       tiles: [
         'MUJO AI — платформа для контента маркетплейсов',
         'Как я проходила челлендж по анимации?',
         'Флоу разделения онлайн-оплаты',
         'AirTrip — сервис для планирования путешествий',
         'Активности: сертификаты, конкурсы и выступления',
-        'Өнім дизайнері бәсекелі маманға айналды',
-        'Атрибуты рабочего стола',
         'Wildberries B2B',
+        'Атрибуты рабочего стола',
+        'Өнім дизайнері бәсекелі маманға айналды',
         '«Современный город глазами студентов» — фирменный стиль',
         'Игральные карты по фильмам Тима Бёртона'
       ]
@@ -33,15 +34,16 @@
       emptyLabel: 'Nothing here yet',
       filters: { all: 'All', project: 'Projects', article: 'Articles' },
       typeLabels: { project: 'Project', article: 'Article' },
+      soonLabel: 'Soon',
       tiles: [
         'MUJO AI — marketplace content platform',
         'How I completed an animation challenge',
         'Online payment splitting flow',
         'AirTrip — a travel planning service',
         'Activities: certificates, competitions, and talks',
-        'Өнім дизайнері бәсекелі маманға айналды',
-        'Desk Setup Essentials',
         'Wildberries B2B',
+        'Desk Setup Essentials',
+        'Өнім дизайнері бәсекелі маманға айналды',
         '“The Modern City Through Students’ Eyes” — identity',
         'Playing cards based on Tim Burton films'
       ]
@@ -63,9 +65,9 @@
     { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split-cover.mp4', poster: 'assets/split-cover-poster.webp', href: 'payment-split.html' },
     { type: 'project', c1: '#d9d9dc', c2: '#bdbdc2', shape: true, fan: true, href: 'airtrip.html' },
     { type: 'article', c1: '#dad3c9', c2: '#c9c0af', shapeAlt: true, cert: true, href: 'activities.html' },
-    { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
+    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb.webp', coverDark: 'assets/cover-wb-dark.webp', soon: true },
     { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
-    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', soon: true, logo: 'assets/wb-partners.svg' },
+    { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
     { type: 'project', c1: '#d4d8cc', c2: '#bcc2ae', shape: true, cover: 'assets/cover-city.webp', href: 'city-identity.html' },
     { type: 'project', c1: '#d8d2d4', c2: '#c0b6ba', shape: true, cover: 'assets/cover-cards.webp', href: 'cards.html' }
   ];
@@ -185,7 +187,7 @@
       media.appendChild(stackWrap);
     }
 
-    if (meta.soon) {
+    if (meta.soon && !meta.cover) {
       var soonWrap = el('div', 'soon-wrap');
       var soonLogo = el('div', 'soon-logo');
       soonLogo.style.backgroundImage = 'url("' + (meta.logo || '') + '")';
@@ -211,8 +213,12 @@
       coverBg.style.background = meta.bg || 'transparent';
       media.appendChild(coverBg);
 
-      var cover = el('div', 'cover' + (meta.tilt ? ' is-tilt' : ''));
-      cover.style.backgroundImage = 'url("' + meta.cover + '")';
+      var cover = el('div', 'cover' + (meta.tilt ? ' is-tilt' : '') + (meta.contain ? ' is-contain' : ''));
+      // Custom properties rather than an inline background-image: a card may
+      // carry a second, dark-theme drawing, and only a stylesheet rule can
+      // choose between them.
+      cover.style.setProperty('--cover', 'url("' + meta.cover + '")');
+      if (meta.coverDark) cover.style.setProperty('--cover-dark', 'url("' + meta.coverDark + '")');
       media.appendChild(cover);
     }
 
@@ -264,7 +270,7 @@
 
   function buildTile(meta, index) {
     // The "coming soon" card is deliberately not a link.
-    var node = el('a', 'tile' + (meta.soon ? ' is-soon' : ''));
+    var node = el('a', 'tile' + (meta.soon ? ' is-soon' : '') + (meta.soon && meta.cover ? ' has-cover' : ''));
     if (!meta.soon) {
       node.setAttribute('href', meta.href || (meta.type === 'project' ? 'airtrip.html' : 'animation-challenge.html'));
       node.setAttribute('target', meta.external ? '_blank' : '_self');
@@ -364,7 +370,11 @@
 
     tiles.forEach(function (tile) {
       tile.badge.textContent = t.typeLabels[tile.meta.type];
-      tile.title.textContent = t.tiles[tile.index];
+      // A card with no page behind it says so in its own title — there is
+      // nowhere else to put it now that the badge is gone.
+      tile.title.textContent = tile.meta.soon
+        ? t.soonLabel + ' | ' + t.tiles[tile.index]
+        : t.tiles[tile.index];
     });
 
     bookNodes.forEach(function (entry) {

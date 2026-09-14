@@ -109,6 +109,17 @@
   border-radius: 11px;
 }
 
+/* A soon card that carries a real cover is a normal picture card apart from
+   not being clickable: no dashed frame, no inset. */
+.tile.is-soon.has-cover {
+  background: var(--bg-secondary);
+}
+
+.tile.is-soon.has-cover .tile-scrim {
+  inset: 0;
+  border-radius: 12px;
+}
+
 .tile-badge {
   position: absolute;
   z-index: 5;
@@ -289,11 +300,24 @@
 .cover {
   position: absolute;
   inset: 0;
+  background-image: var(--cover);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   transform: scale(1);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* A card may ship a second drawing for the dark theme — a wordmark in black
+   ink has nothing to sit on once the tile goes dark. Falls through to the
+   single picture when there is only one. */
+[data-theme="dark"] .cover { background-image: var(--cover-dark, var(--cover)); }
+
+/* For artwork rather than a photograph: sits inside the tile with the tile's
+   own background around it instead of being cropped to fill. */
+.cover.is-contain {
+  background-size: contain;
+  background-position: center;
 }
 
 .tile.hovered .cover { transform: scale(1.04); }
