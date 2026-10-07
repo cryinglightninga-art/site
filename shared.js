@@ -100,9 +100,10 @@ window.PF = (function () {
     try { localStorage.setItem(key, val); } catch (e) {}
   }
 
-  // Until the visitor picks a side with the toggle, the site follows the phone
-  // or the laptop — which is also what keeps the strips above and below the
-  // page (the clock, the battery) from staying white on a dark phone.
+  // The theme is not a setting and is never stored: the site simply wears
+  // whatever the phone or the laptop is set to, and follows it when it
+  // changes. This is also what keeps the strips above and below the page
+  // (the clock, the battery) from staying white on a dark phone.
   function systemTheme() {
     try {
       return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
@@ -122,7 +123,7 @@ window.PF = (function () {
   /* ── State ────────────────────────────────────────────────────────────── */
 
   var state = {
-    theme: readPref('pf-theme', systemTheme()),
+    theme: systemTheme(),
     lang: readPref('pf-lang', 'en'),
     isDesktop: window.innerWidth >= DESKTOP_MIN
   };
@@ -271,13 +272,6 @@ window.PF = (function () {
       btn.dataset.pfBound = '1';
       btn.addEventListener('click', function () { setLang(btn.dataset.lang); });
     });
-    Array.prototype.forEach.call(scope.querySelectorAll('[data-theme-toggle]'), function (btn) {
-      if (btn.dataset.pfBound) return;
-      btn.dataset.pfBound = '1';
-      btn.addEventListener('click', function () {
-        setTheme(state.theme === 'dark' ? 'light' : 'dark');
-      });
-    });
   }
 
   function controlsMarkup() {
@@ -290,10 +284,7 @@ window.PF = (function () {
       langSwitch.appendChild(btn);
     });
 
-    var themeBtn = el('button', 'theme-btn', { type: 'button', 'data-theme-toggle': '', 'aria-label': 'Toggle theme' });
-
     wrap.appendChild(langSwitch);
-    wrap.appendChild(themeBtn);
     return wrap;
   }
 
@@ -370,11 +361,6 @@ window.PF = (function () {
     meta.setAttribute('content', state.theme === 'dark' ? '#000000' : '#ffffff');
     head.appendChild(meta);
 
-    var icon = state.theme === 'dark' ? '☀️' : '🌙';
-    Array.prototype.forEach.call(document.querySelectorAll('[data-theme-toggle]'), function (btn) {
-      btn.textContent = icon;
-    });
-
     loadLogo();
   }
 
@@ -404,13 +390,6 @@ window.PF = (function () {
     Array.prototype.forEach.call(document.querySelectorAll('[data-lang]'), function (btn) {
       btn.classList.toggle('is-active', btn.dataset.lang === state.lang);
     });
-  }
-
-  function setTheme(theme) {
-    state.theme = theme;
-    writePref('pf-theme', theme);
-    applyTheme();
-    emit('theme');
   }
 
   function setLang(lang) {
@@ -686,13 +665,12 @@ window.PF = (function () {
 
   /* ── Viewport ─────────────────────────────────────────────────────────── */
 
-  // Follow the system while no explicit choice is stored, so flipping the
-  // phone into dark mode repaints the page under the visitor.
+  // Flipping the phone into dark mode repaints the page under the visitor,
+  // with nothing to override it.
   function watchSystemTheme() {
     if (!window.matchMedia) return;
     var mq = window.matchMedia('(prefers-color-scheme: dark)');
     function follow() {
-      if (readPref('pf-theme', '')) return;
       state.theme = mq.matches ? 'dark' : 'light';
       applyTheme();
       emit('theme');
@@ -858,7 +836,6 @@ window.PF = (function () {
     renderContacts: renderContacts,
     bindControls: bindControls,
     onChange: onChange,
-    setTheme: setTheme,
     setLang: setLang,
     applyTheme: applyTheme,
     applyLanguage: applyLanguage,

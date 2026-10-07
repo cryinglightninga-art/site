@@ -14,10 +14,11 @@
 <script>
   (function () {
     try {
-      var stored = localStorage.getItem('pf-theme');
-      var dark = stored
-        ? stored === 'dark'
-        : !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      // There is no stored preference any more — the device decides. Clear
+      // the keys earlier versions left behind so nothing lingers.
+      localStorage.removeItem('pf-theme');
+      sessionStorage.removeItem('pf-theme');
+      var dark = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
       var bg = dark ? '#000000' : '#ffffff';
       if (dark) document.documentElement.setAttribute('data-theme', 'dark');
       document.documentElement.style.background = bg;
