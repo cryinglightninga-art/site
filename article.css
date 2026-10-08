@@ -673,8 +673,8 @@ a.photo-cell { cursor: pointer; }
 .shot-rail > :first-child { margin-left: 32px; }
 .shot-rail > :last-child { margin-right: 32px; }
 
-/* On a phone the box shows one shot and half of the next, which is what tells
-   the reader there is more to the right. */
+/* On a phone the strip shows two shots and the edge of a third, which is what
+   tells the reader there is more to the right. */
 .rail-shot {
   display: block;
   flex: none;
@@ -700,7 +700,7 @@ a.photo-cell { cursor: pointer; }
   .shot-rail > :first-child { margin-left: 16px; }
   .shot-rail > :last-child { margin-right: 16px; }
 
-  .rail-shot { width: calc((100% - 32px) / 1.5); }
+  .rail-shot { width: calc((100% - 48px) / 2.15); }
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
