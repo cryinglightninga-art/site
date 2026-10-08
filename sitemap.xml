@@ -36,13 +36,8 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://urzhanovaa.com/cards</loc>
-    <lastmod>2026-09-09</lastmod>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://urzhanovaa.com/city-identity</loc>
-    <lastmod>2026-09-09</lastmod>
+    <loc>https://urzhanovaa.com/contentlog</loc>
+    <lastmod>2026-10-08</lastmod>
     <priority>0.8</priority>
   </url>
 </urlset>

@@ -47,7 +47,29 @@
     return 'assets/mujo-slide-' + (i + 1) + '.webp';
   });
 
+  var SCREENS = [
+    'assets/mujo-screen-1.webp',
+    'assets/mujo-screen-2.webp',
+    'assets/mujo-screen-3.webp'
+  ];
+
   var content = document.querySelector('[data-content]');
+
+  // Three screens fanned on a dark stage instead of a flat picture, so they
+  // can rise into place when the page opens. The middle one is the editor and
+  // stands in front.
+  function buildStage() {
+    var hero = el('div', 'hero is-stage');
+    SCREENS.forEach(function (src, i) {
+      var img = el('img', 'stage-shot', {
+        src: src, alt: '', width: '1200', height: '750',
+        fetchpriority: i === 1 ? 'high' : 'auto'
+      });
+      img.style.setProperty('--i', String(i));
+      hero.appendChild(img);
+    });
+    return hero;
+  }
   var track = null;
   var slideIndex = 0;
 
@@ -130,7 +152,7 @@
     document.title = t.title + ' · ' + PF.sidebarCopy().name;
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/mujo-hero.webp'));
+    content.appendChild(buildStage());
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta));

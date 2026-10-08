@@ -15,37 +15,35 @@
     ru: {
       emptyLabel: 'Здесь пока ничего нет',
       filters: { all: 'Все', project: 'Проекты', article: 'Статьи' },
-      typeLabels: { project: 'Проект', article: 'Статья' },
+      typeLabels: { project: 'Проект', article: 'Статья', pet: 'Pet проект' },
       soonLabel: 'Скоро',
       tiles: [
+        'ContentLog — трекер съёмок для блога',
+        'Wildberries B2B',
         'MUJO AI — платформа для контента маркетплейсов',
         'Как я проходила челлендж по анимации?',
-        'Флоу разделения онлайн-оплаты',
         'AirTrip — сервис для планирования путешествий',
         'Активности: сертификаты, конкурсы и выступления',
-        'Wildberries B2B',
+        'Флоу разделения онлайн-оплаты',
         'Атрибуты рабочего стола',
-        'Өнім дизайнері бәсекелі маманға айналды',
-        '«Современный город глазами студентов» — фирменный стиль',
-        'Игральные карты по фильмам Тима Бёртона'
+        'Өнім дизайнері бәсекелі маманға айналды'
       ]
     },
     en: {
       emptyLabel: 'Nothing here yet',
       filters: { all: 'All', project: 'Projects', article: 'Articles' },
-      typeLabels: { project: 'Project', article: 'Article' },
+      typeLabels: { project: 'Project', article: 'Article', pet: 'Pet project' },
       soonLabel: 'Soon',
       tiles: [
+        'ContentLog — a shoot tracker for my blog',
+        'Wildberries B2B',
         'MUJO AI — marketplace content platform',
         'How I completed an animation challenge',
-        'Online payment splitting flow',
         'AirTrip — a travel planning service',
         'Activities: certificates, competitions, and talks',
-        'Wildberries B2B',
+        'Online payment splitting flow',
         'Desk Setup Essentials',
-        'Өнім дизайнері бәсекелі маманға айналды',
-        '“The Modern City Through Students’ Eyes” — identity',
-        'Playing cards based on Tim Burton films'
+        'Өнім дизайнері бәсекелі маманға айналды'
       ]
     }
   };
@@ -60,16 +58,18 @@
 
   // Cover treatment per tile. Order matches COPY[lang].tiles.
   var TILE_META = [
+    { type: 'project', badge: 'pet', c1: '#e6e6e6', c2: '#d2d2d6', video: 'assets/contentlog-promo.mp4', poster: 'assets/contentlog-poster.webp', href: 'contentlog.html' },
+    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb.webp', coverDark: 'assets/cover-wb-dark.webp', soon: true },
     { type: 'project', c1: '#dcd6cc', c2: '#c8c0b1', shapeAlt: true, stack: true, href: 'mujo.html' },
     { type: 'article', c1: '#e4e0d8', c2: '#d3cdc0', shapeAlt: true, video: 'assets/animation.mp4', href: 'animation-challenge.html' },
-    { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split-cover.mp4', poster: 'assets/split-cover-poster.webp', href: 'payment-split.html' },
     { type: 'project', c1: '#d9d9dc', c2: '#bdbdc2', shape: true, fan: true, href: 'airtrip.html' },
     { type: 'article', c1: '#dad3c9', c2: '#c9c0af', shapeAlt: true, cert: true, href: 'activities.html' },
-    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb.webp', coverDark: 'assets/cover-wb-dark.webp', soon: true },
+    { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split-cover.mp4', poster: 'assets/split-cover-poster.webp', href: 'payment-split.html' },
     { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
-    { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true },
-    { type: 'project', c1: '#d4d8cc', c2: '#bcc2ae', shape: true, cover: 'assets/cover-city.webp', href: 'city-identity.html' },
-    { type: 'project', c1: '#d8d2d4', c2: '#c0b6ba', shape: true, cover: 'assets/cover-cards.webp', href: 'cards.html' }
+    { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true }
+    // Hidden for now — the pages and their assets stay in the folder: the
+    // competition identity (city-identity.html) and the playing cards
+    // (cards.html).
   ];
 
   var BOOKS = [
@@ -78,7 +78,8 @@
     { size: 's', cover: 'assets/book-3.webp', href: 'https://www.litres.ru/book/rob-fitcpatrik/sprosi-mamu-kak-obschatsya-s-klientami-i-podtverdit-pravotu-23963007/chitat-onlayn/', ru: { title: 'Спроси маму', author: 'Роб Фитцпатрик' }, en: { title: 'The Mom Test', author: 'Rob Fitzpatrick' } },
     { size: 'l', cover: 'assets/book-4.webp', href: 'https://ozon.kz/product/patterny-dizayn-menedzhmenta-kak-kompanii-dostich-organizatsionnoy-zrelosti-i-uluchshit-1312155565/', ru: { title: 'Паттерны дизайн-менеджмента', author: 'Юрий Ветров' }, en: { title: 'Design Management Patterns', author: 'Yury Vetrov' } },
     { size: 'm', cover: 'assets/book-5.webp', href: 'https://www.labirint.ru/books/639546/', ru: { title: 'Непонятное искусство', author: 'Уилл Гомперц' }, en: { title: 'What Are You Looking At?', author: 'Will Gompertz' } },
-    { size: 's', cover: 'assets/book-6.webp', href: 'https://ozon.kz/product/mozgouskoriteli-kak-nauchitsya-effektivno-myslit-ispolzuya-priemy-iz-raznyh-nauk-nisbett-richard-1411242453/', ru: { title: 'Мозгоускорители', author: 'Ричард Нисбетт' }, en: { title: 'Mindware: Tools for Smart Thinking', author: 'Richard Nisbett' } }
+    { size: 's', cover: 'assets/book-6.webp', href: 'https://ozon.kz/product/mozgouskoriteli-kak-nauchitsya-effektivno-myslit-ispolzuya-priemy-iz-raznyh-nauk-nisbett-richard-1411242453/', ru: { title: 'Мозгоускорители', author: 'Ричард Нисбетт' }, en: { title: 'Mindware: Tools for Smart Thinking', author: 'Richard Nisbett' } },
+    { size: 'l', cover: 'assets/book-7.webp', href: 'https://www.ozon.ru/product/kafka-na-plyazhe-haruki-murakami-knigi-klassika-murakami-haruki-1757569256/', ru: { title: 'Кафка на пляже', author: 'Харуки Мураками' }, en: { title: 'Kafka on the Shore', author: 'Haruki Murakami' } }
   ];
 
   // Rows of 2, 2, 3, then 3 — the last three tiles share a row.
@@ -350,11 +351,14 @@
 
     var tileNodes = TILE_META.map(function (meta, i) { return buildTile(meta, i); });
 
-    [
-      tileNodes[0], tileNodes[1], buildAvatars(),
-      tileNodes[2], tileNodes[3], tileNodes[4], tileNodes[5], tileNodes[6],
-      buildBooks(), tileNodes[7], tileNodes[8], tileNodes[9]
-    ].forEach(function (node) { dom.grid.appendChild(node); });
+    // Two cards, the avatars band, the next five, the bookshelf, then
+    // whatever is left. Written as slices so a new card lands in the right
+    // place on its own.
+    []
+      .concat(tileNodes.slice(0, 2), [buildAvatars()])
+      .concat(tileNodes.slice(2, 7), [buildBooks()])
+      .concat(tileNodes.slice(7))
+      .forEach(function (node) { dom.grid.appendChild(node); });
   }
 
   /* ── Update passes ────────────────────────────────────────────────────── */
@@ -369,7 +373,7 @@
     });
 
     tiles.forEach(function (tile) {
-      tile.badge.textContent = t.typeLabels[tile.meta.type];
+      tile.badge.textContent = t.typeLabels[tile.meta.badge || tile.meta.type];
       // A card with no page behind it says so in its own title — there is
       // nowhere else to put it now that the badge is gone.
       tile.title.textContent = tile.meta.soon
