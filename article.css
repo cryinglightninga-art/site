@@ -694,13 +694,14 @@ a.photo-cell { cursor: pointer; }
     background: none;
     border: none;
     border-radius: 0;
+    gap: 10px;
     scroll-padding-left: 16px;
   }
 
   .shot-rail > :first-child { margin-left: 16px; }
   .shot-rail > :last-child { margin-right: 16px; }
 
-  .rail-shot { width: calc((100% - 48px) / 2.15); }
+  .rail-shot { width: calc((100% - 36px) / 2.15); }
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
