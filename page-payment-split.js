@@ -60,11 +60,37 @@
     return ui.videoFrame(video, failedLabel, 'clip-wrap');
   }
 
+  var SCREENS = [
+    'assets/split-screen-1.webp',
+    'assets/split-screen-2.webp',
+    'assets/split-screen-3.webp'
+  ];
+
+  // Three phone screens standing on the bank's blue, rising into place when
+  // the page opens — the same stage ContentLog uses. The split screen leads.
+  function buildScreens() {
+    var hero = el('div', 'hero is-screens');
+    hero.style.setProperty('--stage', '#00346f');
+    var row = el('div', 'screens');
+    SCREENS.forEach(function (src, i) {
+      var img = el('img', 'screen' + (i === 1 ? ' is-lead' : ''), {
+        src: src, alt: '', width: '450', height: '611',
+        fetchpriority: i === 1 ? 'high' : 'auto'
+      });
+      // Each one starts a beat after the last.
+      img.style.setProperty('--i', String(i));
+      img.style.setProperty('--mo', String(i + 1));
+      row.appendChild(img);
+    });
+    hero.appendChild(row);
+    return hero;
+  }
+
   function render() {
     var t = PF.localize(COPY);
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/payment-hero.webp'));
+    content.appendChild(buildScreens());
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta));

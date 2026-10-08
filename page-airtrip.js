@@ -71,11 +71,36 @@
     return frag;
   }
 
+  var SCREENS = [
+    'assets/airtrip-screen-1.webp',
+    'assets/airtrip-screen-2.webp',
+    'assets/airtrip-screen-3.webp'
+  ];
+
+  // Three screens in a row on the project's own blue, rising into place when
+  // the page opens — the same stage MUJO uses.
+  function buildStage() {
+    var hero = el('div', 'hero is-stage');
+    hero.style.setProperty('--stage', '#01b6cf');
+    SCREENS.forEach(function (src, i) {
+      // The opening screen is the one a phone can do without; the date picker
+      // and the hotel list carry the story there.
+      var img = el('img', 'stage-shot' + (i === 0 ? ' is-wide-only' : ''), {
+        src: src, alt: '', width: '984', height: '700',
+        fetchpriority: i === 1 ? 'high' : 'auto'
+      });
+      // Each one starts a beat after the last.
+      img.style.setProperty('--i', String(i));
+      hero.appendChild(img);
+    });
+    return hero;
+  }
+
   function render() {
     var t = PF.localize(COPY);
 
     content.textContent = '';
-    content.appendChild(ui.hero('assets/airtrip-hero.webp'));
+    content.appendChild(buildStage());
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta));

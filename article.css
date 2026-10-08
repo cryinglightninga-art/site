@@ -537,11 +537,13 @@ a.photo-cell { cursor: pointer; }
   gap: 12px;
 }
 
-/* ── ContentLog: three screens standing on the covers' grey ───────────────── */
+/* ── Phone screens standing on a plain stage (ContentLog, payment split) ──── */
 
+/* The covers' grey by default; a page can name its own colour in --stage. */
 .hero.is-screens {
-  background-color: var(--bg-secondary);
+  background-color: var(--stage, var(--bg-secondary));
   background-image: none;
+  border-color: var(--stage, var(--card-border));
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -583,12 +585,11 @@ a.photo-cell { cursor: pointer; }
   animation-delay: calc(0.09s * var(--i, 0) + 0.12s);
 }
 
-/* On a phone the first shot steps into the middle, where it stands tallest,
-   and the other two sit lower on either side of it. */
+/* On a phone one shot leads from the middle and the others stand lower on
+   either side. Each page says which one leads and in what order they go. */
 @media (max-width: 899px) {
-  .screen:nth-child(1) { order: 2; animation-delay: 0.12s; }
-  .screen:nth-child(2) { order: 1; height: 70%; animation-delay: 0.21s; }
-  .screen:nth-child(3) { order: 3; height: 70%; animation-delay: 0.30s; }
+  .screen { height: 70%; order: var(--mo, 0); }
+  .screen.is-lead { height: 84%; }
 }
 
 @keyframes om-rise {
@@ -604,10 +605,11 @@ a.photo-cell { cursor: pointer; }
   }
 }
 
-/* ── MUJO: three screens fanned on a dark stage ───────────────────────────── */
+/* ── A row of screens on a plain stage (MUJO, AirTrip) ────────────────────── */
 
+/* Pages set their own stage colour through --stage. */
 .hero.is-stage {
-  background-color: #1a1a1a;
+  background-color: var(--stage, #1a1a1a);
   background-image: none;
   border-color: rgba(255, 255, 255, 0.08);
   display: flex;
@@ -628,14 +630,15 @@ a.photo-cell { cursor: pointer; }
   width: auto;
   height: auto;
   border-radius: 6px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   opacity: 0;
   animation: om-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(0.09s * var(--i, 0) + 0.12s);
 }
 
+/* Three shots would be unreadable on a phone, so a page marks the one it can
+   do without there. */
 @media (max-width: 899px) {
-  .stage-shot:nth-child(3) { display: none; }
+  .stage-shot.is-wide-only { display: none; }
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */

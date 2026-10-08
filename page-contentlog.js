@@ -73,12 +73,14 @@
     var hero = el('div', 'hero is-screens');
     var row = el('div', 'screens');
     SCREENS.forEach(function (src, i) {
-      var img = el('img', 'screen', {
+      // On a phone the idea grid leads from the middle, the card stands left.
+      var img = el('img', 'screen' + (i === 0 ? ' is-lead' : ''), {
         src: src, alt: '', width: '450', height: '611',
-        fetchpriority: i === 1 ? 'high' : 'auto'
+        fetchpriority: i === 0 ? 'high' : 'auto'
       });
       // Each one starts a beat after the last.
       img.style.setProperty('--i', String(i));
+      img.style.setProperty('--mo', String([2, 1, 3][i]));
       row.appendChild(img);
     });
     hero.appendChild(row);
