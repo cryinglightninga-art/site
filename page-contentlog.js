@@ -32,7 +32,8 @@
       buildLabel: 'Как собрано',
       buildText: 'Макеты я сделала в Figma, а рабочее приложение собрала вместе с Claude: сначала прототипом, потом перенесла на свой хостинг — статика на Netlify, данные и фото в Supabase. Это PWA: ставится на телефон как обычное приложение и открывается прямо на съёмке.',
       buildText2: 'Сейчас я пользуюсь им каждый день, новая версия по свежим макетам в работе.',
-      galleryLabel: 'Интерфейс'
+      darkLabel: 'Тёмная тема',
+      lightLabel: 'Светлая тема'
     },
     en: {
       typeLabel: 'Pet project',
@@ -55,7 +56,8 @@
       buildLabel: 'How it was built',
       buildText: 'I designed the screens in Figma, then built the working app together with Claude: first as a prototype, then moved onto my own hosting — static files on Netlify, data and photos in Supabase. It’s a PWA, so it installs on the phone like a normal app and opens right there during a shoot.',
       buildText2: 'I use it every day now, and a new version based on the latest designs is in progress.',
-      galleryLabel: 'Interface'
+      darkLabel: 'Dark theme',
+      lightLabel: 'Light theme'
     }
   };
 
@@ -101,7 +103,8 @@
   // The screens, in order, as rails the reader can push sideways — the dark
   // set first, then the light one.
   function rail(theme) {
-    return [1, 2, 3, 4, 5, 6].map(function (n) {
+    // Newest screen first: the files run 1-6, the rail runs the other way.
+    return [6, 5, 4, 3, 2, 1].map(function (n) {
       return 'assets/contentlog-' + theme + '-' + n + '.webp';
     });
   }
@@ -139,8 +142,9 @@
     content.appendChild(ui.block(t.buildLabel, t.buildText));
     content.appendChild(ui.block(null, t.buildText2));
 
-    content.appendChild(ui.sectionHeading(t.galleryLabel));
+    content.appendChild(ui.sectionHeading(t.darkLabel));
     content.appendChild(buildRail(DARK_SHOTS));
+    content.appendChild(ui.sectionHeading(t.lightLabel));
     content.appendChild(buildRail(LIGHT_SHOTS));
     content.appendChild(buildPromo(t.failedLabel));
   }

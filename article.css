@@ -666,6 +666,10 @@ a.photo-cell { cursor: pointer; }
 
 .shot-rail::-webkit-scrollbar { display: none; }
 
+/* The promo gets the same air after the light rail as the headings put
+   between the two rails. */
+.shot-rail + .video-frame { margin-top: 48px; }
+
 .shot-rail > :first-child { margin-left: 32px; }
 .shot-rail > :last-child { margin-right: 32px; }
 
@@ -677,6 +681,26 @@ a.photo-cell { cursor: pointer; }
   width: calc((100% - 48px) / 1.5);
   height: auto;
   scroll-snap-align: start;
+}
+
+/* On a phone the strip runs free: no plate and no frame, and it reaches both
+   edges of the screen, so a shot is cut by the screen itself rather than by
+   the padding of a box. The first and last keep the text column's margin. */
+@media (max-width: 899px) {
+  .shot-rail {
+    margin-left: -16px;
+    margin-right: -16px;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: 0;
+    scroll-padding-left: 16px;
+  }
+
+  .shot-rail > :first-child { margin-left: 16px; }
+  .shot-rail > :last-child { margin-right: 16px; }
+
+  .rail-shot { width: calc((100% - 32px) / 1.5); }
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
