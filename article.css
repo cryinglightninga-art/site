@@ -641,6 +641,44 @@ a.photo-cell { cursor: pointer; }
   .stage-shot.is-wide-only { display: none; }
 }
 
+
+/* ── A strip of phone shots the reader pushes sideways ────────────────────── */
+
+/* Same grey and the same frame as the still gallery shots, so it reads as one
+   of them — only this one scrolls. The first and last shot carry their own
+   margins, so there is room at both ends of the scroll. */
+.shot-rail {
+  display: flex;
+  gap: 16px;
+  padding: 32px 0;
+  margin-bottom: 12px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+  scroll-padding-left: 32px;
+  scrollbar-width: none;
+}
+
+.shot-rail::-webkit-scrollbar { display: none; }
+
+.shot-rail > :first-child { margin-left: 32px; }
+.shot-rail > :last-child { margin-right: 32px; }
+
+/* On a phone the box shows one shot and half of the next, which is what tells
+   the reader there is more to the right. */
+.rail-shot {
+  display: block;
+  flex: none;
+  width: calc((100% - 48px) / 1.5);
+  height: auto;
+  scroll-snap-align: start;
+}
+
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
 
 @media (min-width: 900px) {
@@ -652,6 +690,7 @@ a.photo-cell { cursor: pointer; }
   .walkthrough { aspect-ratio: 16 / 9; }
 
   .hero.is-screens { padding: 0 3%; }
+  .rail-shot { width: auto; height: 528px; }
   .hero.is-stage { padding: 0 5%; }
   .stage-shot { border-radius: 8px; }
 

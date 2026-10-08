@@ -98,11 +98,25 @@
     return ui.videoFrame(video, failedLabel, 'promo-wrap');
   }
 
-  function shot(src, w, h) {
-    return el('img', 'gallery-img is-stacked', {
-      src: src, alt: '', loading: 'lazy',
-      width: String(w), height: String(h)
+  // The screens, in order, as rails the reader can push sideways — the dark
+  // set first, then the light one.
+  function rail(theme) {
+    return [1, 2, 3, 4, 5, 6].map(function (n) {
+      return 'assets/contentlog-' + theme + '-' + n + '.webp';
     });
+  }
+
+  var DARK_SHOTS = rail('dark');
+  var LIGHT_SHOTS = rail('light');
+
+  function buildRail(sources) {
+    var rail = el('div', 'shot-rail');
+    sources.forEach(function (src) {
+      rail.appendChild(el('img', 'rail-shot', {
+        src: src, alt: '', loading: 'lazy', width: '450', height: '920'
+      }));
+    });
+    return rail;
   }
 
   function render() {
@@ -126,8 +140,8 @@
     content.appendChild(ui.block(null, t.buildText2));
 
     content.appendChild(ui.sectionHeading(t.galleryLabel));
-    content.appendChild(shot('assets/contentlog-light.webp', 2000, 1009));
-    content.appendChild(shot('assets/contentlog-dark.webp', 2000, 1009));
+    content.appendChild(buildRail(DARK_SHOTS));
+    content.appendChild(buildRail(LIGHT_SHOTS));
     content.appendChild(buildPromo(t.failedLabel));
   }
 
