@@ -51,13 +51,18 @@ window.PF = (function () {
 
   var CONTACT_LINKS = [
     { label: 'adelina@urzhanovaa.com', copy: 'adelina@urzhanovaa.com' },
+    // One PDF, English page first, Russian second.
+    { label: 'CV', href: 'assets/cv.pdf', target: '_blank' },
     { label: 'LinkedIn', href: 'https://www.linkedin.com/in/urzhanovaa/', target: '_blank' },
     { label: 'Telegram', href: 'https://t.me/urzhanovaa', target: '_blank' },
     { label: 'Instagram', href: 'https://www.instagram.com/urzhanovaa/', target: '_blank' }
   ];
 
   var LOGO_SRC = {
-    wildberries: [{ src: 'assets/logo-wildberries.webp', zoom: '100% 100%' }],
+    wildberries: [
+      { src: 'assets/logo-wb-pink.webp', zoom: '100% 100%' },
+      { src: 'assets/logo-wildberries.webp', zoom: '100% 100%' }
+    ],
     mujo: [{ src: 'assets/logo-mujo.webp', zoom: '100% 100%' }],
     teamly: [{ src: 'assets/logo-teamly.webp', zoom: '100% 100%' }],
     other: ['assets/logo-au-1.webp', 'assets/logo-au-2.webp']
@@ -376,6 +381,9 @@ window.PF = (function () {
 
     var expList = document.querySelector('[data-exp-list]');
     if (expList) renderExperience(expList, t);
+
+    // The CV chip points at a different file per language, so the row is rebuilt.
+    renderContactsInto();
 
     var contactsLabel = document.querySelector('[data-contacts-label]');
     if (contactsLabel) contactsLabel.textContent = t.contactsLabel;

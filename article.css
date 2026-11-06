@@ -545,7 +545,7 @@ a.photo-cell { cursor: pointer; }
 .hero.is-screens {
   background-color: var(--stage, var(--bg-secondary));
   background-image: none;
-  border-color: var(--stage, var(--card-border));
+  border-color: var(--card-border);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -601,7 +601,8 @@ a.photo-cell { cursor: pointer; }
 
 @media (prefers-reduced-motion: reduce) {
   .screen,
-  .stage-shot {
+  .stage-shot,
+  .collage img {
     animation: none;
     opacity: 1;
   }
@@ -706,6 +707,145 @@ a.photo-cell { cursor: pointer; }
   .rail-shot { width: calc((100% - 36px) / 2.15); }
 }
 
+/* ── Tabs inside a project page ───────────────────────────────────────────── */
+
+/* Same pill as the filter chips on the home page; that stylesheet is not
+   loaded here, so the rule lives on its own. */
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 28px;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar { display: none; }
+
+.tab {
+  font-family: inherit;
+  border: none;
+  white-space: nowrap;
+  flex: none;
+  font-size: 13px;
+  font-weight: 400;
+  padding: 0 16px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 980px;
+  cursor: pointer;
+  background: var(--surface);
+  color: var(--text-primary);
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.tab.is-active {
+  background: var(--accent);
+  color: var(--accent-contrast);
+}
+
+@media (hover: hover) {
+  .tab:hover { box-shadow: inset 0 0 0 999px var(--surface-strong); }
+}
+
+.tab:active { box-shadow: inset 0 0 0 999px var(--surface-strong); }
+
+/* A bulleted run reads as one block, so it carries the same bottom margin. */
+.block-list {
+  margin: 0 0 32px;
+  padding-left: 22px;
+  font-size: 17px;
+  line-height: 26px;
+  letter-spacing: -0.004em;
+  color: var(--text-secondary);
+}
+
+.block-list li { margin-bottom: 6px; }
+.block-list li:last-child { margin-bottom: 0; }
+
+/* A gallery shot with a line under it. */
+.shot-figure { margin-bottom: 24px; }
+.shot-figure .gallery-img { margin-bottom: 8px; }
+
+.shot-caption {
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text-tertiary);
+}
+
+/* ── Wildberries: the cover collage, rebuilt from its own pieces ─────────── */
+
+/* The grey is the one the Figma frame was drawn on, so the rounded corners
+   baked into the pieces disappear into it in either theme. */
+.hero.is-collage {
+  background-color: #ebebeb;
+  background-image: none;
+  border-color: rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+/* The art is 1836×700 and keeps that ratio, centred, so a narrower box crops
+   the sides instead of squashing the picture. */
+.collage {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 100%;
+  aspect-ratio: 1836 / 700;
+}
+
+.collage img {
+  position: absolute;
+  display: block;
+  opacity: 0;
+  animation: om-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation-delay: calc(0.07s * var(--i, 0) + 0.1s);
+}
+
+/* ── Three numbers, no plot ──────────────────────────────────────────────── */
+
+/* The measures share no scale, so a bar behind them would compare things that
+   cannot be compared. The number is the visual. */
+.stat-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.stat {
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.stat-value {
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.stat-label {
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--text-secondary);
+}
+
+/* A before/after pair stands side by side: the comparison is the point. */
+.shot-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
 
 @media (min-width: 900px) {
@@ -720,6 +860,11 @@ a.photo-cell { cursor: pointer; }
   .hero.is-screens { padding: 0 3%; }
   .rail-shot { width: auto; height: 528px; }
   .hero.is-stage { padding: 0 5%; }
+
+  .stat-row { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .stat { padding: 24px; }
+  .stat-value { font-size: 40px; line-height: 46px; }
+  .shot-pair { gap: 16px; }
   .stage-shot { border-radius: 8px; }
 
   .page-title { font-size: 40px; line-height: 46px; }

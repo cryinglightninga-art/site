@@ -19,7 +19,7 @@
       soonLabel: 'Скоро',
       tiles: [
         'ContentLog — трекер съёмок для блога',
-        'Wildberries B2B',
+        'Wildberries',
         'MUJO AI — платформа для контента маркетплейсов',
         'Как я проходила челлендж по анимации?',
         'AirTrip — сервис для планирования путешествий',
@@ -36,7 +36,7 @@
       soonLabel: 'Soon',
       tiles: [
         'ContentLog — a shoot tracker for my blog',
-        'Wildberries B2B',
+        'Wildberries',
         'MUJO AI — marketplace content platform',
         'How I completed an animation challenge',
         'AirTrip — a travel planning service',
@@ -59,7 +59,7 @@
   // Cover treatment per tile. Order matches COPY[lang].tiles.
   var TILE_META = [
     { type: 'project', badge: 'pet', c1: '#e6e6e6', c2: '#d2d2d6', video: 'assets/contentlog-promo.mp4', poster: 'assets/contentlog-poster.webp', href: 'contentlog.html' },
-    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb.webp', coverDark: 'assets/cover-wb-dark.webp', soon: true },
+    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb.webp', coverDark: 'assets/cover-wb-dark.webp', href: 'wb.html' },
     { type: 'project', c1: '#dcd6cc', c2: '#c8c0b1', shapeAlt: true, stack: true, href: 'mujo.html' },
     { type: 'article', c1: '#e4e0d8', c2: '#d3cdc0', shapeAlt: true, video: 'assets/animation.mp4', href: 'animation-challenge.html' },
     { type: 'project', c1: '#d9d9dc', c2: '#bdbdc2', shape: true, fan: true, href: 'airtrip.html' },

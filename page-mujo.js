@@ -16,7 +16,7 @@
       title: 'MUJO AI',
       meta: [
         { label: 'Роль', value: 'Product Designer' },
-        { label: 'Год', value: '2023–2024' },
+        { label: 'Год', value: '2024–2025' },
         { label: 'Команда', value: '1 дизайнер, 3 разработчика' },
         { label: 'Задача', value: 'Упростить создание визуального контента для маркетплейсов' }
       ],
@@ -31,7 +31,7 @@
       title: 'MUJO AI',
       meta: [
         { label: 'Role', value: 'Product Designer' },
-        { label: 'Year', value: '2023–2024' },
+        { label: 'Year', value: '2024–2025' },
         { label: 'Team', value: '1 designer, 3 developers' },
         { label: 'Task', value: 'Simplify marketplace content creation' }
       ],
