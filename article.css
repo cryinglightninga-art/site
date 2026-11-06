@@ -839,10 +839,11 @@ a.photo-cell { cursor: pointer; }
   color: var(--text-secondary);
 }
 
-/* A before/after pair stands side by side: the comparison is the point. */
+/* A before/after pair stacks on phones so each shot keeps its detail,
+   and sits side by side from tablet up, where the comparison reads. */
 .shot-pair {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap: 12px;
 }
 
@@ -864,7 +865,7 @@ a.photo-cell { cursor: pointer; }
   .stat-row { grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .stat { padding: 24px; }
   .stat-value { font-size: 40px; line-height: 46px; }
-  .shot-pair { gap: 16px; }
+  .shot-pair { grid-template-columns: 1fr 1fr; gap: 16px; }
   .stage-shot { border-radius: 8px; }
 
   .page-title { font-size: 40px; line-height: 46px; }
