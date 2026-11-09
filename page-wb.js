@@ -10,6 +10,25 @@
   var el = PF.el;
   var ui = PF.ui;
 
+  /* Two AI Studio screens. The blur is baked into the exported files, not
+     applied in CSS: the work is under NDA, so no stylesheet or devtools
+     toggle can bring the pixels back. */
+  var AI_STUDIO_SHOTS = [
+    { src: 'assets/wb-ai-studio-1.webp', w: 1440, h: 1024 },
+    { src: 'assets/wb-ai-studio-2.webp', w: 1440, h: 1024 }
+  ];
+
+  var EDITOR_SHOTS = [
+    { src: 'assets/wb-editor-panels.webp', w: 1170, h: 1170 },
+    { src: 'assets/wb-editor-services.webp', w: 1800, h: 1280 },
+    { src: 'assets/wb-editor-service-card.webp', w: 1800, h: 1280 }
+  ];
+
+  var AB_SHOTS = [
+    { src: 'assets/wb-ab-1.webp', w: 1440, h: 1047 },
+    { src: 'assets/wb-ab-2.webp', w: 1440, h: 1047 }
+  ];
+
   /* The cover is one Figma frame, 1836×700, cut into the pieces it is made of
      so each can arrive on its own. Values are per cent of that frame. */
   var COLLAGE = [
@@ -78,24 +97,23 @@
         ],
         items: [
           {
+            heading: 'А/Б-тесты',
+            paras: [
+              'Раздел помогает проверить, какое главное фото в карточке работает лучше: два варианта показываются разным покупателям, а система считает, какой чаще доводит до заказа. Я отрисовала редизайн раздела и отдельно — маркетинговый лендинг, который объясняет, зачем запускать тест и что продавец получит на выходе.'
+            ],
+            shots: AB_SHOTS
+          },
+          {
             heading: 'AI Студия',
             paras: [
-              'Медиасервисы для карточек росли по отдельности: фоторедактор, фотостудия, видеообложки, отметки на фото. Для продавца это набор разных инструментов, и прежде чем что-то сделать, нужно самому догадаться, какой из них подойдёт под задачу.',
-              'Мы посмотрели на них вместе продуктовой командой и решили собрать всё в один продукт — AI Студию, где продавец начинает не с выбора инструмента, а с того, что ему нужно получить. Я собрала концепцию и прототип.'
-            ]
+              'Медиасервисы для карточек росли по отдельности: фоторедактор, фотостудия, видеообложки, отметки на фото — прежде чем что-то сделать, продавец должен сам догадаться, какой из них подойдёт под задачу. Вместе с продуктовой командой мы решили собрать всё в один продукт, AI Студию, где начинают не с выбора инструмента, а с того, что нужно получить. Я собрала концепцию и прототип.'
+            ],
+            shots: AI_STUDIO_SHOTS
           },
           {
             heading: 'Фотостудия',
             paras: [
-              'В исследованиях я увидела, что продавцы путаются при выборе типа генерации: «заменить лицо и фон» и «заменить одежду на человеке» выглядят как два разных продукта, хотя для человека это одна задача — получить нужное фото.',
-              'Я предложила свести фотостудии к одному входу: генерация начинается с запроса, а инструменты показываются под цель — вырезать фон, надеть одежду на человека, заменить окружение. Выбор сводится к тому, что нужно получить, а не к тому, как называется функция.'
-            ]
-          },
-          {
-            heading: 'А/Б-тесты',
-            paras: [
-              'Раздел помогает проверить, какое главное фото в карточке работает лучше: два варианта показываются разным покупателям, а система считает, какой из них чаще доводит до заказа.',
-              'Я отрисовала редизайн раздела и отдельно сделала маркетинговый лендинг — он объясняет, зачем запускать тест и что продавец получит на выходе.'
+              'В исследованиях я увидела, что продавцы путаются при выборе типа генерации: «заменить лицо и фон» и «заменить одежду на человеке» выглядят как два разных продукта, хотя для человека это одна задача — получить нужное фото. Я предложила свести фотостудии к одному входу: генерация начинается с запроса, а инструменты показываются под цель — вырезать фон, надеть одежду на человека, заменить окружение.'
             ]
           }
         ]
@@ -166,24 +184,23 @@
         ],
         items: [
           {
+            heading: 'A/B tests',
+            paras: [
+              'The section helps check which main photo on a card works better: two versions are shown to different shoppers, and the system counts which one leads to an order more often. I drew up a redesign of the section and, separately, a marketing landing page that explains why to run a test and what the seller gets out of it.'
+            ],
+            shots: AB_SHOTS
+          },
+          {
             heading: 'AI Studio',
             paras: [
-              'The media services around a product card had grown separately: the photo editor, the photo studio, video covers, photo tags. To a seller that is a set of different tools, and before doing anything you have to work out which one fits the task.',
-              'We looked at them together as a product team and decided to pull everything into one product — AI Studio, where a seller starts from what they need to get rather than from which tool to open. I put together the concept and the prototype.'
-            ]
+              'The media services around a product card had grown separately: the photo editor, the photo studio, video covers, photo tags — before doing anything, a seller has to work out which one fits the task. With the product team we decided to pull everything into one product, AI Studio, where you start from what you need to get rather than from which tool to open. I put together the concept and the prototype.'
+            ],
+            shots: AI_STUDIO_SHOTS
           },
           {
             heading: 'Photo studio',
             paras: [
-              'Research showed that sellers get lost choosing a generation type: "replace face and background" and "change the clothes on a person" read as two different products, while to a person it is one task — get the photo they need.',
-              'I proposed bringing the photo studios down to one entry point: generation starts from the request, and the tools are shown by goal — cut out the background, dress a person, replace the surroundings. The choice comes down to what you need to get, not to what the feature is called.'
-            ]
-          },
-          {
-            heading: 'A/B tests',
-            paras: [
-              'The section helps check which main photo on a card works better: two versions are shown to different shoppers, and the system counts which one leads to an order more often.',
-              'I drew up a redesign of the section and, separately, a marketing landing page — it explains why to run a test and what the seller gets out of it.'
+              'Research showed that sellers get lost choosing a generation type: "replace face and background" and "change the clothes on a person" read as two different products, while to a person it is one task — get the photo they need. I proposed bringing the photo studios down to one entry point: generation starts from the request, and the tools are shown by goal — cut out the background, dress a person, replace the surroundings.'
             ]
           }
         ]
@@ -257,15 +274,44 @@
     return row;
   }
 
+  // The caption sits above the shot: you read what you are about to look at.
   function figure(src, caption, w, h) {
     var wrap = el('div', 'shot-figure');
-    wrap.appendChild(el('img', 'gallery-img', {
-      src: src, alt: '', loading: 'lazy', width: String(w), height: String(h)
-    }));
     var cap = el('div', 'shot-caption');
     cap.textContent = caption;
     wrap.appendChild(cap);
+    wrap.appendChild(el('img', 'gallery-img', {
+      src: src, alt: '', loading: 'lazy', width: String(w), height: String(h)
+    }));
     return wrap;
+  }
+
+  var LOCK = '<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">'
+    + '<path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h12a2 2 0 0 0'
+    + ' 2-2v-8a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5zm0 2a3 3 0 0 1 3 3v3H9V7a3 3 0 0 1'
+    + ' 3-3zm0 10a2 2 0 0 1 1 3.73V19a1 1 0 0 1-2 0v-1.27A2 2 0 0 1 12 14z"/></svg>';
+
+  // The badge only says why the shot is unreadable; the blur itself lives in
+  // the file, so there is nothing here to switch off.
+  function ndaShot(shot) {
+    var wrap = el('div', 'nda-shot');
+    wrap.appendChild(el('img', 'gallery-img', {
+      src: shot.src, alt: 'NDA', loading: 'lazy',
+      width: String(shot.w), height: String(shot.h)
+    }));
+    var badge = el('div', 'nda-badge');
+    badge.innerHTML = LOCK;
+    var word = el('span');
+    word.textContent = 'NDA';
+    badge.appendChild(word);
+    wrap.appendChild(badge);
+    return wrap;
+  }
+
+  function ndaPair(shots) {
+    var pair = el('div', 'shot-pair');
+    shots.forEach(function (shot) { pair.appendChild(ndaShot(shot)); });
+    return pair;
   }
 
   /* ── Panels ───────────────────────────────────────────────────────────── */
@@ -289,19 +335,35 @@
     panel.appendChild(ui.sectionHeading(c.resultLabel));
     panel.appendChild(stats(c.stats));
 
-    var pair = el('div', 'shot-pair');
+    var pair = el('div', 'shot-pair is-grouped');
     pair.appendChild(figure('assets/wb-editor-before.webp', c.beforeCaption, 1440, 1024));
     pair.appendChild(figure('assets/wb-editor-after.webp', c.afterCaption, 1440, 1024));
     panel.appendChild(pair);
+
+    var trio = el('div', 'shot-trio');
+    EDITOR_SHOTS.forEach(function (shot) {
+      trio.appendChild(el('img', 'gallery-img', {
+        src: shot.src, alt: '', loading: 'lazy',
+        width: String(shot.w), height: String(shot.h)
+      }));
+    });
+    panel.appendChild(trio);
   }
 
   function fillOther(t) {
     panel.appendChild(ui.metaGrid(t.other.meta));
     t.other.items.forEach(function (item) {
-      panel.appendChild(ui.block(item.heading, item.paras[0]));
+      var blocks = [ui.block(item.heading, item.paras[0])];
       item.paras.slice(1).forEach(function (text) {
-        panel.appendChild(ui.block(null, text));
+        blocks.push(ui.block(null, text));
       });
+      blocks.forEach(function (node) { panel.appendChild(node); });
+      if (item.shots) {
+        // The shots belong to the project right above them, so the text keeps
+        // them close and the gap below separates one project from the next.
+        blocks[blocks.length - 1].classList.add('is-tight');
+        panel.appendChild(ndaPair(item.shots));
+      }
     });
   }
 

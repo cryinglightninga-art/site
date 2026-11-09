@@ -767,7 +767,7 @@ a.photo-cell { cursor: pointer; }
 
 /* A gallery shot with a line under it. */
 .shot-figure { margin-bottom: 24px; }
-.shot-figure .gallery-img { margin-bottom: 8px; }
+.shot-figure .shot-caption { margin-bottom: 8px; }
 
 .shot-caption {
   font-size: 13px;
@@ -844,7 +844,62 @@ a.photo-cell { cursor: pointer; }
 .shot-pair {
   display: grid;
   grid-template-columns: 1fr;
+  /* 12px is the gallery gap used across the site; shot rows follow it. */
   gap: 12px;
+  /* Nothing above — the text block right before them sets that gap — and a
+     wide one below, which is what separates one project from the next. The
+     gap below stays clearly wider, so the grouping still reads. */
+  margin: 0 0 56px;
+}
+
+/* A pair that another row of shots follows: one gallery, one gap. */
+.shot-pair.is-grouped { margin-bottom: 12px; }
+
+/* A text block the shots belong to: it gives up its usual 32px so they stay
+   with it. */
+.block.is-tight { margin-bottom: 20px; }
+
+/* Shots that cannot be shown: the blur is baked into the exported file, so the
+   badge below is a label, not the thing doing the hiding. */
+.nda-shot {
+  position: relative;
+  display: block;
+}
+
+.nda-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: rgba(16, 16, 18, 0.74);
+  color: #fff;
+  font-size: 13px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  pointer-events: none;
+}
+
+.nda-badge svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  flex: none;
+}
+
+/* Three shots across. Each keeps its own proportions, so the columns are sized
+   by them (1 : 1.40625 : 1.40625) — the heights come out equal and the row
+   fills the width with nothing cropped. */
+.shot-trio {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+  margin-bottom: 48px;
 }
 
 /* ── Desktop (>= 900px) ───────────────────────────────────────────────────── */
@@ -865,7 +920,8 @@ a.photo-cell { cursor: pointer; }
   .stat-row { grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .stat { padding: 24px; }
   .stat-value { font-size: 40px; line-height: 46px; }
-  .shot-pair { grid-template-columns: 1fr 1fr; gap: 16px; }
+  .shot-pair { grid-template-columns: 1fr 1fr; }
+  .shot-trio { grid-template-columns: 1fr 1.40625fr 1.40625fr; }
   .stage-shot { border-radius: 8px; }
 
   .page-title { font-size: 40px; line-height: 46px; }
