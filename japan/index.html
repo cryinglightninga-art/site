@@ -345,6 +345,16 @@ a.note:active{transform:scale(.97)}
 .sheet__head{position:relative;display:flex;justify-content:space-between;align-items:center;padding:10px 16px 0;pointer-events:auto}
 .sheet__body{flex:1;overflow-y:auto;overscroll-behavior-y:contain;padding:75px 16px calc(40px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:24px;scrollbar-width:none}
 .sheet__body::-webkit-scrollbar{display:none}
+.sheet__foot{position:absolute;z-index:4;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px))}
+.sheet__foot[hidden]{display:none}
+.sheet__add{display:flex;align-items:center;justify-content:center;width:100%;height:52px;border-radius:1000px;background:#fff;color:#000;font-weight:600;font-size:16px;
+  box-shadow:0 6px 24px rgba(0,0,0,.14),0 0 0 .5px rgba(0,0,0,.06);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.sheet__add:active{transform:scale(.96)}
+.sheet.has-foot .sheet__body{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+.doc-del{flex:none;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--secondary);margin-right:-4px}
+.doc-del svg{width:20px;height:20px}
+.doc-del:active{background:rgba(120,120,128,.16)}
+.alert__btn--danger{background:var(--danger)!important}
 .sheet__map .gm{height:22px}
 .sheet__body > *{flex:none}
 .stack{display:flex;flex-direction:column;gap:8px}
@@ -488,6 +498,7 @@ a.note:active{transform:scale(.97)}
       </div>
     </div>
     <div class="sheet__body" id="sheetBody"></div>
+    <div class="sheet__foot" id="sheetFoot" hidden><button class="sheet__add" id="docAdd">＋ Добавить документ</button></div>
   </section>
 
   <div class="qrv" id="qrv" aria-hidden="true">
@@ -496,6 +507,7 @@ a.note:active{transform:scale(.97)}
     <a class="primary" href="https://www.vjw.digital.go.jp/main/#/vjwpti006" target="_blank" rel="noopener">Открыть Visit Japan Web</a>
   </div>
 
+  <input type="file" id="docFile" accept="application/pdf,image/*" hidden>
   <div class="alert-ov" id="alertOv"></div>
   <form class="alert lg" id="alert" role="dialog" autocomplete="off"></form>
   <div class="toast" id="toast"></div>
@@ -984,6 +996,7 @@ function bindChecks(root, store, key, after){
 /* ================= шторка ================= */
 function openSheet(html, mapUrl){
   var body = $("sheetBody"); body.innerHTML = html; body.scrollTop = 0;
+  $("sheetFoot").hidden = true; $("sheet").classList.remove("has-foot");
   var m = $("sheetMap"); m.hidden = !mapUrl;
   if (mapUrl){ m.href = mapUrl; m.innerHTML = MAPS_IMG; }
   body.classList.remove("stagger"); void body.offsetWidth; body.classList.add("stagger");
@@ -1061,17 +1074,113 @@ function openTickets(){
   openSheet('<div class="sh-head"><p class="sh-kicker">Все файлы поездки</p><h2 class="sh-title">Документы</h2></div>'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Visit Japan Web</p>'+
       '<button class="att" data-qr><span class="att__thumb"><img src="'+QR_SRC+'" alt=""></span><span class="att__tx">QR для иммиграции и таможни<small>KAIPPAYEVA ADELINA</small></span><span class="att__go">'+CHEV+'</span></button></div>'+
+    '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Universal Studios Japan</p>'+
+      '<button class="att'+(open?'':' is-locked')+'" data-usj><span class="att__thumb">🎟️</span><span class="att__tx">2 билета на 24 ноября<small>'+(open?'PDF':'только для попутчиков')+'</small></span><span class="att__go">'+(open?CHEV:'🔒')+'</span></button></div>'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Перелёты</p>'+fl+'</div>'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Страховка</p>'+
       '<div class="hotel"><div class="hotel__top"><div><span class="chip chip--sm c-all" style="display:inline-flex;margin-bottom:8px">Полис TVL-1380635945</span>'+
       '<p class="hotel__name">ADELINA KAIPPAEVA</p><p class="hotel__addr">Т-Страхование, годовой полис, весь мир</p><p class="hotel__addr">Действует до 1 ноября 2027</p></div></div>'+
       '<button class="btn-route" data-pdf="ins">📄 Полис, PDF</button>'+
       '<a class="btn-route" href="tel:+79959005500">📞 Страховой случай: +7 995 900-55-00</a></div></div>'+
-    '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Universal Studios Japan</p>'+
-      '<button class="att'+(open?'':' is-locked')+'" data-usj><span class="att__thumb">🎟️</span><span class="att__tx">2 билета на 24 ноября<small>'+(open?'PDF':'только для попутчиков')+'</small></span><span class="att__go">'+(open?CHEV:'🔒')+'</span></button></div>');
+    '<div style="display:flex;flex-direction:column;gap:8px" id="docsBox"></div>');
   $("sheetBody").querySelectorAll("[data-pdf]").forEach(function(b){ b.onclick = function(){ openPdf(PDFS[b.getAttribute("data-pdf")]); }; });
   bindAtt($("sheetBody"));
+  $("sheetFoot").hidden = false; $("sheet").classList.add("has-foot");
+  docsLoad();
 }
+
+/* ================= свои документы (Supabase, только попутчики) ================= */
+var docs = {list: load("japan.docs.cache", [])};
+function docSize(n){ return n > 1048576 ? (n/1048576).toFixed(1).replace(".", ",")+" МБ" : Math.max(1, Math.round(n/1024))+" КБ"; }
+function docsRender(){
+  var box = $("docsBox"); if (!box) return;
+  if (!docs.list.length){ box.innerHTML = ""; return; }
+  box.innerHTML = '<p class="label" style="margin-bottom:0">Добавленные</p>'+docs.list.map(function(d){
+    var img = d.mime.indexOf("image/") === 0, dt = new Date(d.created_at);
+    return '<div class="att" data-doc="'+d.id+'"><span class="att__thumb">'+(img?'🖼️':'📄')+'</span><span class="att__tx">'+esc(d.title)+
+      '<small>'+(img?'Фото':'PDF')+' · '+docSize(d.size)+' · '+dt.getDate()+' '+MONTHS[dt.getMonth()]+'</small></span>'+
+      '<button class="doc-del" data-docdel="'+d.id+'" aria-label="Удалить"><svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4.5h4V6M6 6l.7 9.5h6.6L14 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>';
+  }).join("");
+  box.querySelectorAll("[data-doc]").forEach(function(el){ el.onclick = function(){ docOpen(el.getAttribute("data-doc")); }; });
+  box.querySelectorAll("[data-docdel]").forEach(function(b){ b.onclick = function(e){ e.stopPropagation();
+    var d = docs.list.filter(function(x){ return x.id === b.getAttribute("data-docdel"); })[0]; if (d) docAskDelete(d); }; });
+}
+function docsLoad(){
+  docsRender();
+  if (!money.pass) return;
+  rpc("trip_docs_list", {p_trip:TRIP, p_pass:money.pass}).then(function(rows){
+    rows = rows || []; if (JSON.stringify(rows) === JSON.stringify(docs.list)) return;
+    docs.list = rows; save("japan.docs.cache", rows); docsRender();
+  }).catch(function(){});
+}
+function docOpen(id){
+  var w = null; try{ w = window.open("", "_blank"); }catch(e){}
+  toast("Открываю…");
+  rpc("trip_doc_get", {p_trip:TRIP, p_pass:money.pass, p_id:id}).then(function(r){
+    r = r && r[0]; if (!r) throw new Error("no");
+    var bin = atob(r.data), arr = new Uint8Array(bin.length);
+    for (var i=0; i<bin.length; i++) arr[i] = bin.charCodeAt(i);
+    var url = URL.createObjectURL(new Blob([arr], {type:r.mime}));
+    if (w && !w.closed) w.location.href = url;
+    else { var a = document.createElement("a"); a.href = url; a.target = "_blank"; a.rel = "noopener"; document.body.appendChild(a); a.click(); a.remove(); }
+  }).catch(function(){ if (w && !w.closed) w.close(); toast("Не удалось открыть — нужен интернет"); });
+}
+function alertOpen(html){
+  var a = $("alert"); a.dataset.lock = ""; a.innerHTML = html;
+  a.className = "alert lg"; a.style.display = "flex"; $("alertOv").classList.add("is-open");
+  void a.offsetWidth; a.classList.add("is-open"); return a;
+}
+function docAskDelete(d){
+  var a = alertOpen('<div class="alert__title">Удалить «'+esc(d.title)+'»?</div><p class="alert__text">Документ пропадёт и у Насти</p>'+
+    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="dNo">Отменить</button><button class="alert__btn alert__btn--ok alert__btn--danger" type="button" id="dYes">Удалить</button></div>');
+  a.onsubmit = function(e){ e.preventDefault(); };
+  $("dNo").onclick = closePass;
+  $("dYes").onclick = function(){ closePass();
+    rpc("trip_doc_delete", {p_trip:TRIP, p_pass:money.pass, p_id:d.id}).then(function(){
+      docs.list = docs.list.filter(function(x){ return x.id !== d.id; }); save("japan.docs.cache", docs.list); docsRender(); toast("Удалено");
+    }).catch(function(){ toast("Не удалось удалить — нет связи"); });
+  };
+}
+/* фото ужимаем до 2000 px, PDF — как есть, до 5 МБ */
+function docPrepare(file){
+  return new Promise(function(res, rej){
+    if (file.type.indexOf("image/") === 0){
+      var img = new Image(), u = URL.createObjectURL(file);
+      img.onload = function(){
+        var k = Math.min(1, 2000 / Math.max(img.width, img.height)), c = document.createElement("canvas");
+        c.width = Math.round(img.width*k); c.height = Math.round(img.height*k);
+        var g = c.getContext("2d"); g.fillStyle = "#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(img, 0, 0, c.width, c.height);
+        URL.revokeObjectURL(u);
+        res({mime:"image/jpeg", data:c.toDataURL("image/jpeg", .85).split(",")[1]});
+      };
+      img.onerror = function(){ rej(new Error("img")); }; img.src = u;
+    } else {
+      if (file.size > 5*1024*1024){ rej(new Error("big")); return; }
+      var fr = new FileReader(); fr.onload = function(){ res({mime:file.type || "application/pdf", data:String(fr.result).split(",")[1]}); };
+      fr.onerror = function(){ rej(new Error("read")); }; fr.readAsDataURL(file);
+    }
+  });
+}
+$("docAdd").onclick = function(){ $("docFile").value = ""; $("docFile").click(); };
+$("docFile").onchange = function(){
+  var f = this.files && this.files[0]; if (!f) return;
+  var name = f.name.replace(/\.[^.]+$/, "");
+  var a = alertOpen('<div class="alert__title">Название документа</div><p class="alert__text" id="dErr">Как он будет называться в списке</p>'+
+    '<div class="alert__fields"><div class="alert__row"><input class="alert__in" id="dName" value="'+esc(name)+'" placeholder="Например, бронь Shibuya Sky" autocomplete="off" enterkeyhint="done"></div></div>'+
+    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="dCancel">Отменить</button><button class="alert__btn alert__btn--ok" type="submit" id="dOk">Добавить</button></div>');
+  setTimeout(function(){ $("dName").focus(); $("dName").select(); }, 60);
+  $("dCancel").onclick = closePass;
+  a.onsubmit = function(e){
+    e.preventDefault(); var title = $("dName").value.trim() || name;
+    $("dOk").disabled = true; $("dErr").textContent = "Загружаю…"; $("dErr").style.color = "";
+    docPrepare(f).then(function(p){
+      if (p.data.length > 5*1024*1024*4/3) throw new Error("big");
+      return rpc("trip_doc_save", {p_trip:TRIP, p_pass:money.pass, p_title:title, p_mime:p.mime, p_data:p.data});
+    }).then(function(){ closePass(); toast("Документ добавлен"); docsLoad(); })
+    .catch(function(err){ $("dOk").disabled = false; $("dErr").style.color = "var(--danger)";
+      $("dErr").textContent = err && err.message === "big" ? "Файл больше 5 МБ" : "Не получилось загрузить — проверь интернет"; });
+  };
+};
 
 /* ================= поделиться ================= */
 $("btnShare").onclick = function(){
