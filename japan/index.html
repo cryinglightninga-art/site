@@ -247,7 +247,22 @@ a.note:active{transform:scale(.97)}
 .mcustom .fld{flex:1}
 .mcustom[hidden]{display:none}
 .mdel{color:var(--danger);font-weight:500;font-size:16px;padding:6px;align-self:center}
-.mbal{align-items:flex-start}
+.mbal{flex-direction:column;align-items:stretch;gap:0}
+.mbal{position:relative}
+.mcur{display:flex;align-items:center;gap:6px;width:100%;padding:0 0 14px;margin-bottom:12px;border-bottom:1px dashed rgba(120,120,128,.28);font-size:16px;line-height:21px;text-align:left;color:var(--label)}
+.mcur__l{flex:1;color:var(--secondary)}
+.mcur__v{font-weight:600}
+.mcur svg{width:14px;height:14px;flex:none;color:var(--secondary);transition:transform .25s}
+.mcur.is-open svg{transform:rotate(180deg)}
+.mmenu{position:absolute;z-index:6;right:12px;top:52px;min-width:200px;padding:6px;border-radius:24px;display:flex;flex-direction:column;transform-origin:top right}
+.mmenu[hidden]{display:none}
+.mmenu button{display:flex;align-items:center;gap:12px;height:44px;padding:0 14px;border-radius:18px;font-size:16px;text-align:left;color:var(--mtext,var(--label))}
+.mmenu button span{flex:1}
+.mmenu button i{font-style:normal;color:var(--blue);visibility:hidden}
+.mmenu button.is-on i{visibility:visible}
+.mmenu button:active{background:rgba(120,120,128,.16)}
+.mbal__res .mbal__row:first-child{margin-top:0}
+.days--money{padding-top:20px}
 .mbal__row{display:flex;justify-content:space-between;gap:12px;font-size:16px;line-height:21px;margin-top:6px}
 .mbal__row b{font-weight:600;font-variant-numeric:tabular-nums}
 .mbtns{display:flex;gap:8px}
@@ -911,7 +926,8 @@ function renderPrep(){
   html += '<div class="checks check" id="checkList">'+PREP[ui.prep].items.map(checkItem).join("")+'</div>';
   $("view").innerHTML = html;
   scrollChips($("prepChips"), prev, prev != null, "prep");
-  $("view").querySelectorAll("[data-prep]").forEach(function(b){ b.onclick = function(){ ui.prep = b.getAttribute("data-prep"); render(); }; });
+  $("view").querySelectorAll("[data-prep]").forEach(function(b){ b.onclick = function(){ if (ui.prep === b.getAttribute("data-prep")) return; ui.prep = b.getAttribute("data-prep"); render();
+    anim($("checkList"), [{opacity:0, transform:"translate3d(0,60px,0) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, easing:SPRING, fill:"backwards"}); }; });
   $("view").querySelectorAll("[data-folder]").forEach(function(b){ b.onclick = function(){ var f = b.getAttribute("data-folder"); if (f==="visa") openVisa(); else if (f==="hotels") openHotels(); else openTickets(); }; });
   bindChecks($("checkList"), checks, "japan.checks", function(){ var c = prepCounts(); $("subtitle").textContent = "Готово "+c.done+" из "+c.all; $("ctSub").textContent = $("subtitle").textContent; });
 }
@@ -1078,8 +1094,10 @@ function moneyLoad(){
   if (!money.pass) return;
   money.loading = true; money.error = "";
   rpc("trip_list", {p_trip:TRIP, p_pass:money.pass}).then(function(rows){
-    money.rows = rows || []; save("japan.money.cache", money.rows); money.loading = false;
-    if (ui.tab === "money") render();
+    rows = rows || []; money.loading = false;
+    var same = JSON.stringify(rows) === JSON.stringify(money.rows), wasEmpty = !money.rows.length;
+    money.rows = rows; save("japan.money.cache", rows);
+    if (ui.tab === "money" && !same){ render(); if (wasEmpty) enterView(); }
   }).catch(function(e){
     money.loading = false;
     if (e.code === "28000"){ money.pass = ""; save("japan.money.pass", ""); syncAcc(); money.error = ""; if (ui.tab === "money") setTimeout(askPass, 250); }
@@ -1094,7 +1112,7 @@ function moneyRates(){
     if (!j || !j.rates) return;
     money.rates = {at:Date.now(), day:j.time_last_update_unix*1000, r:{USD:1, JPY:j.rates.JPY, KZT:j.rates.KZT, RUB:j.rates.RUB}};
     save("japan.money.rates", money.rates);
-    if (ui.tab === "money") render();
+    if (ui.tab === "money" && money.view !== "orig") render();
   }).catch(function(){});
 }
 function fmt(n, cur){
@@ -1124,7 +1142,7 @@ function debtLine(net, cur){
 
 function renderMoney(){
   $("title").textContent = "Деньги";
-  var prev = rowLeft("#chipsSlot .chips");
+  $("chipsSlot").innerHTML = "";
   if (!money.pass){
     $("subtitle").textContent = "Общие траты Аделины и Насти";
     $("chipsSlot").innerHTML = "";
@@ -1143,18 +1161,20 @@ function renderMoney(){
     else lines = null;
   }
   $("subtitle").textContent = lines === null ? "Нет курса валют" : (lines.length ? lines[0].from+" должна "+lines[0].to+" "+lines[0].sum+(lines.length>1?" и ещё "+(lines.length-1):"") : "Всё ровно");
-  $("chipsSlot").innerHTML = '<div class="chips">'+chip("c-all","Как платили",null,money.view==="orig",'data-mview="orig"')+
-    CUR_ORDER.map(function(c){ return chip("c-all", CUR[c].sym+" "+CUR[c].label, null, money.view===c, 'data-mview="'+c+'"'); }).join("")+'</div>';
-  $("chipsSlot").querySelectorAll("[data-mview]").forEach(function(x){ x.onclick = function(){ money.view = x.getAttribute("data-mview"); save("japan.money.view", money.view); render(); }; });
-  scrollChips($("chipsSlot").querySelector(".chips"), prev, prev != null, "money");
 
-  var html = '<div class="days">';
-  html += '<div class="stay mbal"><div class="stay__tx" style="flex:1"><p class="stay__hotel">Кто кому должен</p>'+
+  var html = '<div class="days days--money">';
+  html += '<div class="mbtns"><button class="btn-route mbtn--main" id="mAdd">＋ Трата</button><button class="btn-route" id="mBack">＋ Возврат</button></div>';
+  var curLabel = money.view === "orig" ? "Как платили" : CUR[money.view].sym+" "+CUR[money.view].label;
+  html += '<p class="mday">Кто кому должен</p><div class="stay mbal">'+
+    '<button class="mcur" id="mCur" aria-haspopup="true"><span class="mcur__l">Валюта</span><span class="mcur__v">'+curLabel+'</span>'+
+    '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
+    '<div class="mmenu lg" id="mMenu" hidden>'+[["orig","Как платили"]].concat(CUR_ORDER.map(function(c){ return [c, CUR[c].sym+" "+CUR[c].label]; })).map(function(o){
+      return '<button type="button" data-mview="'+o[0]+'"'+(money.view===o[0]?' class="is-on"':'')+'><span>'+o[1]+'</span><i>✓</i></button>'; }).join("")+'</div>'+
+    '<div class="stay__tx mbal__res">'+
     (lines === null ? '<p class="stay__meta">Курс не загрузился — выбери «Как платили»</p>' :
      lines.length ? lines.map(function(l){ return '<p class="mbal__row"><span>'+l.from+' должна '+l.to+'</span><b>'+l.sum+'</b></p>'; }).join("") : '<p class="stay__meta">Всё ровно</p>')+
     (money.view !== "orig" && money.rates ? '<p class="stay__meta" style="margin-top:6px">По курсу на '+new Date(money.rates.day).toLocaleDateString("ru-RU",{day:"numeric",month:"long"})+'</p>' : '')+
     '</div></div>';
-  html += '<div class="mbtns"><button class="btn-route mbtn--main" id="mAdd">＋ Трата</button><button class="btn-route" id="mBack">Возврат долга</button></div>';
   if (money.error) html += '<p class="hint" style="padding:0 4px">'+esc(money.error)+'</p>';
   if (!money.rows.length && !money.loading) html += '<p class="hint" style="padding:8px 4px">Пока нет трат</p>';
   var byDay = {};
@@ -1164,6 +1184,9 @@ function renderMoney(){
     html += '<p class="mday">'+dt.getDate()+' '+MONTHS[dt.getMonth()]+'</p><div class="check mlist">'+byDay[day].map(rowHtml).join("")+'</div>';
   });
   $("view").innerHTML = html + '</div>';
+  $("mCur").onclick = function(e){ e.stopPropagation(); var mm = $("mMenu"); mm.hidden = !mm.hidden; $("mCur").classList.toggle("is-open", !mm.hidden);
+    if (!mm.hidden) anim(mm, [{opacity:0, transform:"scale(.92) translateY(-6px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); };
+  $("mMenu").querySelectorAll("[data-mview]").forEach(function(x){ x.onclick = function(e){ e.stopPropagation(); money.view = x.getAttribute("data-mview"); save("japan.money.view", money.view); render(); }; });
   $("mAdd").onclick = function(){ openMoneyForm(null, "expense"); };
   $("mBack").onclick = function(){ openMoneyForm(null, "transfer"); };
   $("view").querySelectorAll("[data-mid]").forEach(function(el){ el.onclick = function(){
@@ -1184,6 +1207,19 @@ function rowHtml(r){
     '<span class="mrow__sum">'+fmt(Number(r.amount), r.currency)+'</span></button>';
 }
 
+/* деление на тысячи прямо в поле: 1 000, 12 500,5 */
+function groupNum(v){
+  v = String(v).replace(/[^\d.,]/g, "").replace(".", ",");
+  var i = v.indexOf(","), int = i < 0 ? v : v.slice(0, i), dec = i < 0 ? "" : "," + v.slice(i + 1).replace(/,/g, "");
+  int = int.replace(/^0+(?=\d)/, "");
+  return int.replace(/\B(?=(\d{3})+(?!\d))/g, "\u202F") + dec;
+}
+function groupInput(el){
+  var pos = el.selectionStart || 0, before = el.value.slice(0, pos).replace(/[^\d.,]/g, "").length;
+  el.value = groupNum(el.value);
+  var n = 0, p = 0; while (p < el.value.length && n < before){ if (/[\d,]/.test(el.value[p])) n++; p++; }
+  try{ el.setSelectionRange(p, p); }catch(e){}
+}
 function segHtml(name, opts, val){
   return '<div class="seg" data-seg="'+name+'">'+opts.map(function(o){ return '<button type="button" class="chip c-all'+(o[0]===val?' is-active':'')+'" data-v="'+o[0]+'"><span class="chip__label">'+esc(o[1])+'</span></button>'; }).join("")+'</div>';
 }
@@ -1238,7 +1274,7 @@ function openMoneyForm(r, kind){
       hint();
     }; });
   });
-  ["fAmount","fSa","fSn"].forEach(function(id){ if ($(id)) $(id).oninput = hint; });
+  ["fAmount","fSa","fSn"].forEach(function(id){ var el = $(id); if (!el) return; el.value = groupNum(el.value); el.oninput = function(){ groupInput(el); hint(); }; });
   hint();
   form.onsubmit = function(e){
     e.preventDefault();
@@ -1295,6 +1331,7 @@ function closePass(){
   if (document.activeElement && a.contains(document.activeElement)) document.activeElement.blur();
   setTimeout(function(){ if (a.classList.contains("is-closing")){ a.style.display = "none"; a.className = "alert lg"; a.innerHTML = ""; } }, 210);
 }
+document.addEventListener("click", function(){ var mm = $("mMenu"); if (mm && !mm.hidden){ mm.hidden = true; $("mCur").classList.remove("is-open"); } });
 $("alertOv").onclick = function(){ if (!$("alert").dataset.lock) closePass(); };
 
 /* вход: гость или попутчик. Гость — без вкладки «Деньги», выбор живёт до закрытия вкладки браузера */
@@ -1310,7 +1347,7 @@ function askLogout(){
   var a = $("alert");
   a.dataset.lock = "";
   a.innerHTML = '<div class="alert__title">Вы вошли как попутчик</div><p class="alert__text">Если выйти, вкладка «Деньги» скроется. Траты останутся сохранены, вернуться можно по паролю</p>'+
-    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="lStay">Отменить</button><button class="alert__btn alert__btn--ok" type="button" id="lOut">Стать гостем</button></div>';
+    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="lStay">Отменить</button><button class="alert__btn alert__btn--ok" type="button" id="lOut">Выйти</button></div>';
   a.className = "alert lg"; a.style.display = "flex"; $("alertOv").classList.add("is-open");
   void a.offsetWidth; a.classList.add("is-open");
   a.onsubmit = function(e){ e.preventDefault(); };
@@ -1353,12 +1390,9 @@ $("scroll").addEventListener("scroll", function(){
 }, {passive:true});
 
 function enterView(){
-  document.querySelectorAll("#view .day, #view .stay").forEach(function(el, i){
-    anim(el, [{opacity:0, transform:"translateY(40px) scale(.94)"},{opacity:1, transform:"none"}], {duration:700, delay:Math.min(i,8)*55, easing:SPRING, fill:"backwards"});
-  });
-  /* ряд папок листается по горизонтали — анимируем его целиком и без пружины, иначе карточки дёргаются */
-  document.querySelectorAll("#view .sets, #view #prepChips, #view .checks").forEach(function(el, i){
-    anim(el, [{opacity:0},{opacity:1}], {duration:300, delay:i*40, easing:"ease-out", fill:"backwards"});
+  /* как при открытии страницы: блоки по очереди выезжают снизу вверх */
+  document.querySelectorAll("#view .day, #view .stay, #view .mbtns, #view .mday, #view .mlist, #view .sets, #view #prepChips, #view .checks").forEach(function(el, i){
+    anim(el, [{opacity:0, transform:"translate3d(0,60px,0) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, delay:Math.min(i,8)*80, easing:SPRING, fill:"backwards"});
   });
 }
 function intro(){
@@ -1369,7 +1403,7 @@ function intro(){
   document.querySelectorAll("#chipsSlot .chip").forEach(function(el, i){
     anim(el, [{opacity:0, transform:"translateX(40px) scale(.7)"},{opacity:1, transform:"none"}], {duration:750, delay:260+i*55, easing:SPRING, fill:"backwards"});
   });
-  document.querySelectorAll("#view .day, #view .stay").forEach(function(el, i){
+  document.querySelectorAll("#view .day, #view .stay, #view .mbtns, #view .mday, #view .mlist, #view .sets, #view #prepChips, #view .checks").forEach(function(el, i){
     if (i > 4) return;
     anim(el, [{opacity:0, transform:"translateY(60px) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, delay:380+i*80, easing:SPRING, fill:"backwards"});
   });
