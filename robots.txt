@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /japan
 
 Sitemap: https://urzhanovaa.com/sitemap.xml
