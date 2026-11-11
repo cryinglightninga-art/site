@@ -142,7 +142,7 @@ a{color:inherit;text-decoration:none}
 .stay__tx{min-width:0}
 .stay__city{font-weight:700;font-size:22px;line-height:28px;letter-spacing:-.26px;transform:skewX(-1.31deg)}
 .stay__hotel{font-weight:600;font-size:16px;line-height:21px;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.stay__meta{font-weight:500;font-size:15px;line-height:20px;color:var(--secondary)}
+.stay__meta{font-weight:400;font-size:14px;line-height:19px;color:var(--secondary);margin-top:1px}
 .stay__map{width:48px;height:48px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;background:var(--surface);box-shadow:0 4px 14px rgba(0,0,0,.06);transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 .stay__map:active{transform:scale(.88)}
 .gm{display:block;width:auto;height:22px}
@@ -283,9 +283,7 @@ a.note:active{transform:scale(.97)}
 .sheet__head{position:relative;display:flex;justify-content:space-between;align-items:center;padding:10px 16px 0;pointer-events:auto}
 .sheet__body{flex:1;overflow-y:auto;overscroll-behavior-y:contain;padding:75px 16px calc(40px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:24px;scrollbar-width:none}
 .sheet__body::-webkit-scrollbar{display:none}
-.sheet.has-foot .sheet__body{padding-bottom:calc(104px + env(safe-area-inset-bottom,0px))}
-.sheet__foot{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:24px 16px calc(20px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--surface) 62%,transparent)}
-.sheet__foot .btn-route{background:var(--set-bg);box-shadow:0 8px 24px rgba(0,0,0,.1)}
+.sheet__map .gm{height:22px}
 .sheet__body > *{flex:none}
 .stack{display:flex;flex-direction:column;gap:8px}
 .sh-kicker{font-weight:500;font-size:15px;line-height:20px;color:var(--secondary);margin-bottom:4px}
@@ -420,10 +418,10 @@ a.note:active{transform:scale(.97)}
       <div class="sheet__grabber"></div>
       <div class="sheet__head">
         <button class="glass lg round" id="sheetClose" aria-label="Закрыть"><svg viewBox="0 0 18 18" style="width:18px;height:18px"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+        <a class="glass lg round sheet__map" id="sheetMap" target="_blank" rel="noopener" aria-label="Маршрут дня в Google Maps" hidden></a>
       </div>
     </div>
     <div class="sheet__body" id="sheetBody"></div>
-    <div class="sheet__foot" id="sheetFoot" hidden></div>
   </section>
 
   <div class="qrv" id="qrv" aria-hidden="true">
@@ -812,7 +810,7 @@ function attHtml(d){
     h += '<button class="att'+(open?'':' is-locked')+'" data-usj><span class="att__thumb">🎟️</span><span class="att__tx">Билеты Universal Studios<small>'+(open?'2 билета, PDF':'откроются 24 ноября')+'</small></span><span class="att__go">'+(open?CHEV:'🔒')+'</span></button>'; }
   return h;
 }
-function routeBtn(d){ var u = mapsUrl(d); return u ? '<a class="btn-route" href="'+u+'" target="_blank" rel="noopener" data-stop>'+MAPS_IMG+'Открыть маршрут</a>' : ''; }
+function routeBtn(d){ var u = mapsUrl(d); return u ? '<a class="btn-route" href="'+u+'" target="_blank" rel="noopener" data-stop>'+MAPS_IMG+'Маршрут дня</a>' : ''; }
 
 function dayCard(d, isToday){
   return '<article class="day'+(isToday?' is-today':'')+'" role="button" tabindex="0" data-day="'+d.i+'">'+
@@ -889,10 +887,10 @@ function bindChecks(root, store, key, after){
 }
 
 /* ================= шторка ================= */
-function openSheet(html, foot){
+function openSheet(html, mapUrl){
   var body = $("sheetBody"); body.innerHTML = html; body.scrollTop = 0;
-  var f = $("sheetFoot"); f.innerHTML = foot || ""; f.hidden = !foot; $("sheet").classList.toggle("has-foot", !!foot);
-  f.querySelectorAll("[data-stop]").forEach(function(a){ a.addEventListener("click", function(e){ e.stopPropagation(); }); });
+  var m = $("sheetMap"); m.hidden = !mapUrl;
+  if (mapUrl){ m.href = mapUrl; m.innerHTML = MAPS_IMG; }
   body.classList.remove("stagger"); void body.offsetWidth; body.classList.add("stagger");
   $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open");
 }
@@ -919,8 +917,8 @@ function openDay(i){
   var html =
     '<div class="sh-head"><p class="sh-kicker">'+d.wdFull+'</p><h2 class="sh-title">'+d.d+' '+MONTHS[d.m]+'</h2><div class="wrap">'+cityChips(d)+'</div></div>'+
     (hasExtra ? '<div class="sh-extra" style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Не забыть</p>'+tasksHtml(d.tasks)+attHtml(d)+'</div>' : '')+
-    '<div><p class="label">Маршрут дня</p>'+stops+'</div>';
-  openSheet(html, routeBtn(d));
+    '<div><p class="label">Места по порядку</p>'+stops+'</div>';
+  openSheet(html, mapsUrl(d));
   bindAtt($("sheetBody"));
 }
 function stopRow(home, name, sub, q, num, time){
