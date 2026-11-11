@@ -287,6 +287,7 @@ a.note:active{transform:scale(.97)}
 .sheet__foot{position:absolute;z-index:3;left:0;right:0;bottom:0;padding:24px 16px calc(20px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--surface) 62%,transparent)}
 .sheet__foot .btn-route{background:var(--set-bg);box-shadow:0 8px 24px rgba(0,0,0,.1)}
 .sheet__body > *{flex:none}
+.stack{display:flex;flex-direction:column;gap:8px}
 .sh-kicker{font-weight:500;font-size:15px;line-height:20px;color:var(--secondary);margin-bottom:4px}
 .sh-title{font-weight:700;font-size:28px;line-height:34px;letter-spacing:-.4px}
 .sh-head .wrap{margin-top:12px}
@@ -944,13 +945,13 @@ function openVisa(){
 
 function openHotels(){
   openSheet('<div class="sh-head"><p class="sh-kicker">11 ночей</p><h2 class="sh-title">Отели</h2></div>'+
-    ["osaka","kyoto","tokyo"].map(function(k){
+    '<div class="stack">'+["osaka","kyoto","tokyo"].map(function(k){
       var h = HOTELS[k];
       return '<div class="hotel"><div class="hotel__top"><div><span class="chip chip--sm '+CITIES[k].cls+'" style="display:inline-flex;margin-bottom:8px">'+CITIES[k].label+' · '+h.nights+' '+plural(h.nights,"ночь","ночи","ночей")+'</span>'+
         '<p class="hotel__name">'+esc(h.name)+'</p>'+(h.addr?'<p class="hotel__addr">'+esc(h.addr)+'</p>':'<p class="hotel__addr">Ищется в картах по названию</p>')+'</div>'+
         '<a class="stay__map" href="'+placeUrl(h.q)+'" target="_blank" rel="noopener" aria-label="'+esc(h.name)+' в Google Maps">'+MAPS_IMG+'</a></div>'+
         '<div class="hotel__dates"><div>Заезд<b>'+h.inD+'</b>'+h.inT+'</div><div>Выезд<b>'+h.outD+'</b>'+h.outT+'</div></div></div>';
-    }).join("")+
+    }).join("")+'</div>'+
     '<p class="hint">Время — планируемое по маршруту, а не официальные часы заселения и выселения</p>');
 }
 
