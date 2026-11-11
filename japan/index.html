@@ -46,6 +46,10 @@
     box-shadow:0 12px 26px -8px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3),inset 1.5px 1.5px 1px rgba(255,255,255,.18),inset -1px -1px 1px rgba(255,255,255,.08),inset 0 0 0 .5px rgba(255,255,255,.16)!important}
   #alert .alert__fields,#alert .alert__btn--cancel{background-color:rgba(120,120,128,.3)!important;box-shadow:inset 1px 1px 1px rgba(255,255,255,.12)!important}
   .status svg path,.status svg rect{fill:#fff;stroke:#fff}
+  /* плашки внутри карточек и шторок — на ступень светлее контейнера, иначе сливаются */
+  .sheet{--set-bg:#2c2c2e}
+  .day,.stay{--surface:#2c2c2e}
+  .sheet .hotel{--surface:#3a3a3c}
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
@@ -209,6 +213,9 @@ a.note:active{transform:scale(.97)}
 .att__go svg{display:block;width:8px;height:13px}
 .sheet .att{background:var(--set-bg)}
 /* кнопка маршрута */
+.callout{display:flex;gap:10px;padding:12px 14px;border-radius:20px;background:var(--surface);font-size:14px;line-height:19px}
+.callout__ic{font:400 16px/19px var(--emoji);flex:none}
+.sheet .callout{background:var(--set-bg)}
 .btn-route{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:1000px;background:var(--surface);color:var(--label);box-shadow:0 4px 14px rgba(0,0,0,.05);font-weight:600;font-size:16px;line-height:20px;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 .btn-route:active{transform:scale(.96)}
 .btn-route .gm{height:20px}
@@ -299,6 +306,8 @@ a.note:active{transform:scale(.97)}
 .stop__n.is-home{font:400 13px/1 var(--emoji);border-color:transparent;background:none}
 .stop__tx{flex:1;min-width:0;font-size:16px;line-height:21px}
 .stop__tx small{display:block;font-size:14px;line-height:19px;color:var(--secondary)}
+.stop__off{color:#c26a00!important;margin-top:2px}
+@media (prefers-color-scheme: dark){.stop__off{color:#ffb35c!important}}
 .stop__go{color:var(--tertiary);flex:none}
 .stop__go svg{display:block;width:8px;height:13px}
 .stop.is-home .stop__tx{color:var(--secondary)}
@@ -389,7 +398,7 @@ a.note:active{transform:scale(.97)}
       <div class="toolbar__controls">
         <div class="ctitle" aria-hidden="true"><b id="ctTitle"></b><span id="ctSub"></span></div>
         <div class="toolbar__trailing">
-          <div class="glass lg btn-group btn-group--1"><button class="sym" id="btnShare" aria-label="Поделиться"><svg viewBox="0 0 36 36" aria-hidden="true" fill="none"><path d="M18 20.5V8.5M13.5 12.5L18 8l4.5 4.5" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/><path d="M14.5 15.5h-2a2.5 2.5 0 0 0-2.5 2.5v7.5a2.5 2.5 0 0 0 2.5 2.5h11a2.5 2.5 0 0 0 2.5-2.5V18a2.5 2.5 0 0 0-2.5-2.5h-2" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg></button></div>
+          <div class="glass lg btn-group btn-group--1"><button class="sym" id="btnShare" aria-label="Поделиться"><svg viewBox="0 0 36 36" aria-hidden="true"><g transform="translate(8 8.05) scale(.95)"><path d="M10.4773 6.35376L9.17847 7.67212C10.4675 7.77954 11.3074 8.1604 11.9421 8.79517C13.6511 10.5042 13.6414 12.926 11.9519 14.6155L8.75855 17.7991C7.05933 19.4983 4.65698 19.5081 2.948 17.8088C1.23902 16.0901 1.24878 13.6877 2.948 11.9885L4.86206 10.0745C4.58862 9.45923 4.52027 8.72681 4.62769 8.09204L1.75659 10.9534C-0.577391 13.2971-0.596922 16.6174 1.76636 18.9807C4.13941 21.3538 7.45972 21.3342 9.7937 19.0002L13.1335 15.6506C15.4773 13.3069 15.4968 9.98657 13.1238 7.62329C12.5085 7.00806 11.7273 6.56861 10.4773 6.35376ZM10.2332 14.4006L11.532 13.0823C10.2429 12.9846 9.40308 12.594 8.76831 11.9592C7.05933 10.2502 7.06909 7.82837 8.75855 6.13892L11.9421 2.95532C13.6511 1.25611 16.0535 1.24634 17.7625 2.95532C19.4714 4.66431 19.4519 7.07642 17.7625 8.76587L15.8484 10.6799C16.1218 11.3049 16.1804 12.0276 16.0828 12.6624L18.9539 9.80103C21.2878 7.45728 21.3074 4.14673 18.9441 1.77368C16.571-0.599363 13.2507-0.579832 10.907 1.76392L7.57691 5.10376C5.23316 7.44751 5.21362 10.7678 7.58667 13.1311C8.20191 13.7463 8.98316 14.1858 10.2332 14.4006Z" fill="currentColor"/></g></svg></button></div>
         </div>
       </div>
     </div>
@@ -407,8 +416,8 @@ a.note:active{transform:scale(.97)}
     <div class="tabbar__buttons">
       <span class="glass lg tabbar__bg"></span>
       <span class="tab-pill" id="tabPill"></span>
-      <button class="tab" data-tab="days" aria-label="Дни"><svg viewBox="0 0 95 54" aria-hidden="true" fill="none"><rect x="34" y="15.5" width="27" height="24" rx="6" stroke="currentColor" stroke-width="2.2"/><path d="M34 22.5h27M41 12.5v5M54 12.5v5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="41.5" cy="28.5" r="1.6" fill="currentColor"/><circle cx="47.5" cy="28.5" r="1.6" fill="currentColor"/><circle cx="53.5" cy="28.5" r="1.6" fill="currentColor"/><circle cx="41.5" cy="34" r="1.6" fill="currentColor"/><circle cx="47.5" cy="34" r="1.6" fill="currentColor"/></svg></button>
-      <button class="tab" data-tab="prep" aria-label="Подготовка"><svg viewBox="0 0 95 54" aria-hidden="true" fill="none"><path d="M34.5 19l2.6 2.6 4.4-5M34.5 30l2.6 2.6 4.4-5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><path d="M46 18.8h15M46 29.8h15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M46 38h9" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" opacity=".45"/></svg></button>
+      <button class="tab" data-tab="days" aria-label="Дни"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(35.1 15.75) scale(1.25)"><path d="M3.06641 17.998L16.4062 17.998C18.4473 17.998 19.4629 16.9824 19.4629 14.9707L19.4629 3.04688C19.4629 1.03516 18.4473 0.0195312 16.4062 0.0195312L3.06641 0.0195312C1.02539 0.0195312 0 1.02539 0 3.04688L0 14.9707C0 16.9922 1.02539 17.998 3.06641 17.998ZM2.91992 16.4258C2.05078 16.4258 1.57227 15.9668 1.57227 15.0586L1.57227 5.84961C1.57227 4.95117 2.05078 4.48242 2.91992 4.48242L16.5332 4.48242C17.4023 4.48242 17.8906 4.95117 17.8906 5.84961L17.8906 15.0586C17.8906 15.9668 17.4023 16.4258 16.5332 16.4258ZM7.83203 7.98828L8.4082 7.98828C8.75 7.98828 8.85742 7.89062 8.85742 7.54883L8.85742 6.97266C8.85742 6.63086 8.75 6.52344 8.4082 6.52344L7.83203 6.52344C7.49023 6.52344 7.37305 6.63086 7.37305 6.97266L7.37305 7.54883C7.37305 7.89062 7.49023 7.98828 7.83203 7.98828ZM11.0742 7.98828L11.6504 7.98828C11.9922 7.98828 12.1094 7.89062 12.1094 7.54883L12.1094 6.97266C12.1094 6.63086 11.9922 6.52344 11.6504 6.52344L11.0742 6.52344C10.7324 6.52344 10.6152 6.63086 10.6152 6.97266L10.6152 7.54883C10.6152 7.89062 10.7324 7.98828 11.0742 7.98828ZM14.3164 7.98828L14.8926 7.98828C15.2344 7.98828 15.3516 7.89062 15.3516 7.54883L15.3516 6.97266C15.3516 6.63086 15.2344 6.52344 14.8926 6.52344L14.3164 6.52344C13.9746 6.52344 13.8672 6.63086 13.8672 6.97266L13.8672 7.54883C13.8672 7.89062 13.9746 7.98828 14.3164 7.98828ZM4.58984 11.1816L5.15625 11.1816C5.50781 11.1816 5.61523 11.084 5.61523 10.7422L5.61523 10.166C5.61523 9.82422 5.50781 9.72656 5.15625 9.72656L4.58984 9.72656C4.23828 9.72656 4.13086 9.82422 4.13086 10.166L4.13086 10.7422C4.13086 11.084 4.23828 11.1816 4.58984 11.1816ZM7.83203 11.1816L8.4082 11.1816C8.75 11.1816 8.85742 11.084 8.85742 10.7422L8.85742 10.166C8.85742 9.82422 8.75 9.72656 8.4082 9.72656L7.83203 9.72656C7.49023 9.72656 7.37305 9.82422 7.37305 10.166L7.37305 10.7422C7.37305 11.084 7.49023 11.1816 7.83203 11.1816ZM11.0742 11.1816L11.6504 11.1816C11.9922 11.1816 12.1094 11.084 12.1094 10.7422L12.1094 10.166C12.1094 9.82422 11.9922 9.72656 11.6504 9.72656L11.0742 9.72656C10.7324 9.72656 10.6152 9.82422 10.6152 10.166L10.6152 10.7422C10.6152 11.084 10.7324 11.1816 11.0742 11.1816ZM14.3164 11.1816L14.8926 11.1816C15.2344 11.1816 15.3516 11.084 15.3516 10.7422L15.3516 10.166C15.3516 9.82422 15.2344 9.72656 14.8926 9.72656L14.3164 9.72656C13.9746 9.72656 13.8672 9.82422 13.8672 10.166L13.8672 10.7422C13.8672 11.084 13.9746 11.1816 14.3164 11.1816ZM4.58984 14.3848L5.15625 14.3848C5.50781 14.3848 5.61523 14.2773 5.61523 13.9355L5.61523 13.3594C5.61523 13.0176 5.50781 12.9199 5.15625 12.9199L4.58984 12.9199C4.23828 12.9199 4.13086 13.0176 4.13086 13.3594L4.13086 13.9355C4.13086 14.2773 4.23828 14.3848 4.58984 14.3848ZM7.83203 14.3848L8.4082 14.3848C8.75 14.3848 8.85742 14.2773 8.85742 13.9355L8.85742 13.3594C8.85742 13.0176 8.75 12.9199 8.4082 12.9199L7.83203 12.9199C7.49023 12.9199 7.37305 13.0176 7.37305 13.3594L7.37305 13.9355C7.37305 14.2773 7.49023 14.3848 7.83203 14.3848ZM11.0742 14.3848L11.6504 14.3848C11.9922 14.3848 12.1094 14.2773 12.1094 13.9355L12.1094 13.3594C12.1094 13.0176 11.9922 12.9199 11.6504 12.9199L11.0742 12.9199C10.7324 12.9199 10.6152 13.0176 10.6152 13.3594L10.6152 13.9355C10.6152 14.2773 10.7324 14.3848 11.0742 14.3848Z" fill="currentColor"/></g></svg></button>
+      <button class="tab" data-tab="prep" aria-label="Подготовка"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(34.7 15.6) scale(1.15)"><path d="M11.3867 16.3281L21.0938 16.3281C21.5332 16.3281 21.8945 15.9863 21.8945 15.5469C21.8945 15.0977 21.5332 14.7559 21.0938 14.7559L11.3867 14.7559C10.9375 14.7559 10.5957 15.0977 10.5957 15.5469C10.5957 15.9863 10.9375 16.3281 11.3867 16.3281Z" fill="currentColor"/><path d="M4.20898 19.7559C6.50391 19.7559 8.41797 17.8418 8.41797 15.5469C8.41797 13.2324 6.50391 11.3281 4.20898 11.3281C1.9043 11.3281 0 13.2422 0 15.5469C0 17.8418 1.91406 19.7559 4.20898 19.7559ZM4.20898 18.3301C2.69531 18.3301 1.42578 17.0508 1.42578 15.5469C1.42578 14.0332 2.70508 12.7539 4.20898 12.7539C5.71289 12.7539 6.99219 14.0332 6.99219 15.5469C6.99219 17.0508 5.71289 18.3301 4.20898 18.3301Z" fill="currentColor"/><path d="M11.3867 5.03906L21.0938 5.03906C21.5332 5.03906 21.8945 4.6875 21.8945 4.24805C21.8945 3.80859 21.5332 3.4668 21.0938 3.4668L11.3867 3.4668C10.9375 3.4668 10.5957 3.80859 10.5957 4.24805C10.5957 4.6875 10.9375 5.03906 11.3867 5.03906Z" fill="currentColor"/><path d="M4.20898 8.45703C6.50391 8.45703 8.41797 6.5332 8.41797 4.23828C8.41797 1.93359 6.50391 0.0292969 4.20898 0.0292969C1.9043 0.0292969 0 1.93359 0 4.23828C0 6.5332 1.91406 8.45703 4.20898 8.45703ZM3.71094 6.50391C3.50586 6.50391 3.36914 6.39648 3.22266 6.23047L2.12891 4.91211C2.04102 4.79492 2.00195 4.6875 2.00195 4.53125C2.00195 4.24805 2.2168 4.02344 2.48047 4.02344C2.66602 4.02344 2.80273 4.10156 2.92969 4.26758L3.69141 5.23438L5.42969 2.44141C5.54688 2.26562 5.69336 2.16797 5.86914 2.16797C6.14258 2.16797 6.37695 2.38281 6.37695 2.62695C6.37695 2.76367 6.33789 2.88086 6.25 3.02734L4.20898 6.23047C4.10156 6.40625 3.92578 6.50391 3.71094 6.50391Z" fill="currentColor"/></g></svg></button>
     </div>
   </nav>
 
@@ -467,9 +476,9 @@ var CITIES = {
 var HOTELS = {
   osaka:{name:"Апартаменты", q:"3-11-34 Tenjinbashi, Kita-ku, Osaka, 530-0041, Japan", addr:"3-11-34 Tenjinbashi, Kita-ku, Osaka",
     inD:"22 ноября", inT:"~21:00", outD:"24 ноября", outT:"~08:30", nights:2},
-  kyoto:{name:"Excellence Inn Nishihonganji", q:"Excellence Inn Nishihonganji Kyoto", addr:"",
+  kyoto:{name:"Excellence Inn Nishihonganji", q:"Excellence Inn Nishihonganji Kyoto", addr:"96 Sakaimachi, Nishinakasuji-dori Hanayacho-sagaru, Shimogyo-ku, Kyoto, 600-8349",
     inD:"24 ноября", inT:"~17:00–18:00", outD:"27 ноября", outT:"~08:00", nights:3},
-  tokyo:{name:"APA Hotel Mita Ekimae", q:"APA Hotel Mita Ekimae, 4-4-8 Shiba, Minato City, Tokyo", addr:"4-4-8 Shiba, Minato-ku, Tokyo",
+  tokyo:{name:"The B Akasaka Mitsuke", q:"The B Akasaka Mitsuke, 3-21-7 Akasaka, Minato City, Tokyo", addr:"3-21-7 Akasaka, Minato-ku, Tokyo, 107-0052",
     inD:"27 ноября", inT:"~20:00–21:00", outD:"3 декабря", outT:"~06:45", nights:6}
 };
 
@@ -478,115 +487,115 @@ var HOTELS = {
 var DAYS = [
   {d:22, m:10, stay:"osaka", cities:["osaka"],
     from:{label:"Аэропорт Кансай", q:"Kansai International Airport"},
-    p:[{k:"move", n:"Прилёт в Кансай", s:"паспортный контроль, багаж", q:"Kansai International Airport", t:"18:00", ic:"✈️", lab:"Прилёт", sub:"Аэропорт Кансай T1 → апартаменты"},
+    p:[{k:"move", n:"Kansai International Airport", s:"прилёт, паспортный контроль, багаж", q:"Kansai International Airport", t:"18:00", ic:"✈️", lab:"Прилёт", sub:"Аэропорт Кансай T1 → апартаменты"},
        {k:"home", n:"Апартаменты", s:"заселение", q:"@hotel"},
-       {k:"shop", n:"Don Quijote Umeda Honten", s:"плойка на 100–240 В", q:"Don Quijote Umeda Honten Osaka", a:"Умеда"}],
+       {k:"shop", n:"Don Quijote Umeda Honten", s:"покупка плойки", q:"Don Quijote Umeda Honten Osaka", a:"Умеда"}],
     tasks:[{id:"kiosk", t:"<b>Паспорт и QR-код</b> — в зоне иммиграции найти терминалы Integrated Kiosks, отсканировать паспорт и QR из Visit Japan Web"},
            {id:"cash", t:"<b>Наличные</b> — обменять"},
            {id:"curler", t:"<b>Плойка</b> — купить в Don Quijote, на 100–240 В"}],
     qr:true},
   {d:23, m:10, stay:"osaka", cities:["osaka"],
-    p:[{k:"see", n:"Замок Осаки", s:"Osaka Castle Park", q:"Osaka Castle", a:"замок Осаки"},
-       {k:"food", n:"SHOGUN BURGER", s:"обед, Синсайбаси", q:"SHOGUN BURGER Shinsaibashi"},
-       {k:"see", n:"Дотонбори", s:"прогулка и фотографии", q:"Dotonbori Osaka", a:"Дотонбори"},
-       {k:"see", n:"Umeda Sky Building", q:"Umeda Sky Building", a:"Умеда"},
-       {k:"shop", n:"Kiddy Land", s:"Smiski", q:"Kiddy Land Umeda Osaka", a:"Умеда"},
-       {k:"shop", n:"Umeda Loft", q:"Umeda Loft", a:"Умеда"},
-       {k:"food", n:"Unagi Kushiyaki Izumo", s:"ужин, LUCUA Osaka", q:"Unagi Kushiyaki Izumo LUCUA Osaka"}]},
+    p:[{k:"see", n:"Osaka Castle", s:"Замок Осаки, погулять по Osaka Castle Park", q:"Osaka Castle", a:"замок Осаки"},
+       {k:"food", n:"SHOGUN BURGER Shinsaibashi", s:"обед", q:"SHOGUN BURGER Shinsaibashi"},
+       {k:"see", n:"Dotonbori", s:"прогулка и фотографии", q:"Dotonbori Osaka", a:"Дотонбори"},
+       {k:"food", n:"Rikuro's Namba", s:"японские чизкейки", q:"Rikuro's Namba Main Store"},
+       {k:"see", n:"Umeda Sky Building", s:"смотровая площадка", q:"Umeda Sky Building", a:"Умеда"},
+       {k:"shop", n:"Kiddy Land Osaka Umeda", s:"Smiski", q:"Kiddy Land Umeda Osaka", a:"Умеда"},
+       {k:"food", n:"Unagi Kushiyaki Izumo", s:"ужин, LUCUA 1100, B2F", q:"Unagi Kushiyaki Izumo LUCUA Osaka"}]},
   {d:24, m:10, stay:"kyoto", cities:["osaka","kyoto"], from:"osaka",
     p:[{k:"home", n:"Апартаменты", s:"выселение", q:"@hotel:osaka"},
-       {k:"move", n:"Crosta Osaka", s:"сдать три чемодана · бронь Te-Os-001", q:"Crosta Osaka Station"},
-       {k:"see", n:"Universal Studios Japan", q:"Universal Studios Japan", t:"10:00", ic:"🎢"},
-       {k:"move", n:"Забрать чемоданы из Crosta", s:"Osaka Station, Crosta работает до 20:00", q:"Osaka Station"},
-       {k:"move", n:"Поезд в Киото", q:"", t:"16:00", ic:"🚆", lab:"Поезд", sub:"Станция Осака → станция Киото"},
+       {k:"move", n:"Crosta Osaka", s:"сдать три чемодана · бронь Te-Os-001 · North Central 1F, за турникетами", q:"Crosta Osaka"},
+       {k:"see", n:"Universal Studios Japan", s:"Wizarding World of Harry Potter, Hogwarts Castle, Forbidden Journey; по желанию — Super Nintendo World, Minion Park", q:"Universal Studios Japan", t:"10:00", ic:"🎢", sub:"Гарри Поттер; по желанию Super Nintendo World и Minion Park"},
+       {k:"move", n:"Crosta Osaka", s:"забрать чемоданы, работает до 20:00", q:"Crosta Osaka"},
+       {k:"move", n:"Osaka Station → Kyoto Station", s:"поезд JR", q:"Osaka Station", t:"16:00", ic:"🚆", lab:"Поезд", sub:"Osaka Station → Kyoto Station, JR"},
+       {k:"move", n:"Kyoto Station", s:"прибытие", q:"Kyoto Station"},
        {k:"home", n:"Excellence Inn Nishihonganji", s:"заселение", q:"@hotel"}],
     tasks:[{id:"crostaIn", t:"<b>Сдать три чемодана в Crosta Osaka</b> — бронь Te-Os-001"},
            {id:"crostaOut", t:"<b>Забрать чемоданы</b> — Crosta работает до 20:00"}],
     ticket:true},
   {d:25, m:10, stay:"kyoto", cities:["kyoto"],
-    p:[{k:"see", n:"Kiyomizu-dera", q:"Kiyomizu-dera", a:"Хигасияма"},
-       {k:"see", n:"Sannenzaka и Ninenzaka", q:"Ninenzaka Kyoto", a:"Хигасияма"},
+    p:[{k:"see", n:"Kiyomizu-dera", s:"храм Киёмидзу-дэра", q:"Kiyomizu-dera", a:"Киёмидзу"},
+       {k:"food", n:"GOKAGO", s:"матча", q:"GOKAGO Kyoto"},
+       {k:"food", n:"Mochi Mochi", s:"моти", q:"Mochi mochi Kiyomizu Kyoto"},
+       {k:"food", n:"Saryo Kiraku (茶寮 器楽)", s:"кафе, по желанию · Asahido Honten 2F", q:"Saryo Kiraku Kyoto"},
+       {k:"see", n:"Sannenzaka", s:"улица Саннэндзака", q:"Sannenzaka Kyoto", a:"Саннэндзака"},
+       {k:"see", n:"Ninenzaka", s:"улица Нинэндзака", q:"Ninenzaka Kyoto", a:"Нинэндзака"},
        {k:"food", n:"Starbucks Ninenzaka Yasaka Chaya", q:"Starbucks Kyoto Ninenzaka Yasaka Chaya"},
-       {k:"food", n:"GOKAGO", s:"моти", q:"GOKAGO Kyoto"},
-       {k:"see", n:"Kodai-ji", q:"Kodai-ji", a:"Хигасияма"},
-       {k:"food", n:"Kiraku", s:"обед", q:"Kiraku Kyoto Higashiyama"},
-       {k:"see", n:"Yasaka-jinja", q:"Yasaka Shrine", a:"Гион"},
-       {k:"see", n:"Гион и Хигасияма", s:"прогулка, фотографии; вечером свободное время", q:"Gion Kyoto", a:"Гион"}],
+       {k:"see", n:"Kodai-ji", s:"храм Кодай-дзи, погулять по Хигасияме", q:"Kodai-ji", a:"Хигасияма"},
+       {k:"see", n:"Yasaka-jinja", s:"святилище Ясака, погулять по Гиону", q:"Yasaka Shrine", a:"Гион"}],
     tasks:[{id:"fujiSee", t:'<b>Фудзи</b> — посмотреть <a href="'+FUJI_SITE+'" target="_blank" rel="noopener">видимость</a> на 1 декабря'},
            {id:"fujiBus", t:'<b>Купить билеты на автобус</b> Синдзюку → Кавагутико — <a href="'+FUJI_BUS+'" target="_blank" rel="noopener">сайт</a>'}]},
   {d:26, m:10, stay:"kyoto", cities:["kyoto"],
-    p:[{k:"see", n:"Fushimi Inari Taisha", s:"Senbon Torii", q:"Fushimi Inari Taisha", a:"Фусими"},
-       {k:"see", n:"Arashiyama Bamboo Grove", q:"Arashiyama Bamboo Grove", a:"Арасияма"},
-       {k:"see", n:"Tenryu-ji", q:"Tenryu-ji", a:"Арасияма"},
-       {k:"see", n:"Мост Togetsukyo", q:"Togetsukyo Bridge", a:"Арасияма"},
-       {k:"see", n:"Ryoan-ji", q:"Ryoan-ji", a:"Рёан-дзи"},
+    p:[{k:"see", n:"Fushimi Inari Taisha", s:"ворота Senbon Torii", q:"Fushimi Inari Taisha", a:"Фусими"},
+       {k:"see", n:"Tenryu-ji", s:"храм Тэнрю-дзи", q:"Tenryu-ji", a:"Арасияма"},
+       {k:"see", n:"Arashiyama Bamboo Grove", s:"бамбуковая роща, прогулка по Арасияме", q:"Arashiyama Bamboo Grove", a:"Арасияма"},
+       {k:"see", n:"Ryoan-ji", s:"храм Рёан-дзи", q:"Ryoan-ji", a:"Рёан-дзи"},
        {k:"see", n:"Kinkaku-ji", s:"Золотой павильон", q:"Kinkaku-ji", a:"Кинкаку-дзи"},
-       {k:"food", n:"Hikiniku to Come или Gion Ishi", s:"ужин в Гионе", q:"Hikiniku to Come Kyoto"}]},
+       {k:"food", n:"Hikiniku to Come Kyoto", s:"ужин, только по предварительной регистрации", q:"Hikiniku to Come Kyoto"}],
+    tasks:[{id:"hikiniku", t:"<b>Зарегистрироваться в Hikiniku to Come</b> — без регистрации не попасть"}]},
   {d:27, m:10, stay:"tokyo", cities:["kyoto","nara","tokyo"], from:"kyoto",
     p:[{k:"home", n:"Excellence Inn Nishihonganji", s:"выселение", q:"@hotel:kyoto"},
-       {k:"move", n:"Станция Киото", s:"оставить чемоданы", q:"Kyoto Station"},
-       {k:"move", n:"Кинтэцу-Нара", s:"поезд из Киото", q:"Kintetsu-Nara Station", t:"09:00", ic:"🚆", lab:"Поезд", sub:"Станция Киото → Кинтэцу-Нара"},
-       {k:"see", n:"Парк Нары", s:"олени", q:"Nara Park", a:"Нара"},
+       {k:"move", n:"Kyoto Station", s:"оставить чемоданы на хранение", q:"Kyoto Station"},
+       {k:"move", n:"Kintetsu-Nara Station", s:"прибытие в Нару", q:"Kintetsu-Nara Station", t:"09:00", ic:"🚆", lab:"Поезд", sub:"Kyoto Station → Kintetsu-Nara"},
+       {k:"see", n:"Nara Park", s:"парк Нары, олени", q:"Nara Park", a:"Нара"},
        {k:"see", n:"Todai-ji", s:"Большой Будда", q:"Todai-ji", a:"Нара"},
-       {k:"see", n:"Kasuga Taisha", q:"Kasuga Taisha", a:"Нара"},
-       {k:"move", n:"Aoniyoshi Нара → Киото", s:"от станции Кинтэцу-Нара", q:"Kintetsu-Nara Station", t:"15:55", ic:"🚆", lab:"Aoniyoshi", sub:"Кинтэцу-Нара → станция Киото"},
-       {k:"move", n:"Синкансэн Киото → Токио", s:"сначала забрать чемоданы на станции Киото", q:"Kyoto Station", t:"17:30", ic:"🚄", lab:"Синкансэн", sub:"Станция Киото → Токио"},
-       {k:"home", n:"APA Hotel Mita Ekimae", s:"заселение", q:"@hotel"}],
+       {k:"see", n:"Kasuga Taisha", s:"святилище и прогулка по окрестностям", q:"Kasuga Taisha", a:"Нара"},
+       {k:"move", n:"Kintetsu-Nara Station", s:"поезд Aoniyoshi, нужна бронь", q:"Kintetsu-Nara Station", t:"15:55", ic:"🚆", lab:"Aoniyoshi", sub:"Kintetsu-Nara → Kyoto Station"},
+       {k:"move", n:"Kyoto Station", s:"забрать чемоданы, синкансэн до Токио", q:"Kyoto Station", t:"17:30", ic:"🚄", lab:"Синкансэн", sub:"Kyoto Station → Токио"},
+       {k:"home", n:"The B Akasaka Mitsuke", s:"заселение", q:"@hotel"}],
     tasks:[{id:"luggageKyoto", t:"<b>Оставить чемоданы</b> на станции Киото и забрать перед синкансэном"},
-           {id:"nara", t:"<b>Купить билеты</b> на Aoniyoshi Нара → Киото, 15:55"},
+           {id:"nara", t:"<b>Забронировать</b> Aoniyoshi Нара → Киото, 15:55"},
            {id:"shk", t:'<b>Купить билеты</b> на синкансэн Киото → Токио в <a href="https://smart-ex.jp/en/" target="_blank" rel="noopener">Smart EX</a>'}]},
   {d:28, m:10, stay:"tokyo", cities:["tokyo"],
-    p:[{k:"see", n:"Shinjuku Gyoen", q:"Shinjuku Gyoen National Garden", a:"Синдзюку"},
-       {k:"see", n:"Meiji Jingu", q:"Meiji Jingu", a:"Харадзюку"},
-       {k:"see", n:"HARRY HARAJUKU KAWAii ZOO", q:"HARRY HARAJUKU KAWAii ZOO", a:"Харадзюку"},
-       {k:"see", n:"Takeshita-dori", q:"Takeshita Street", a:"Харадзюку"},
-       {k:"food", n:"CHERMSIDE SANDWICH", s:"обед", q:""},
+    p:[{k:"see", n:"Shinjuku Gyoen", s:"сад Синдзюку-гёэн", q:"Shinjuku Gyoen National Garden", a:"Синдзюку"},
+       {k:"see", n:"Meiji Jingu", s:"храм Мэйдзи", q:"Meiji Jingu", a:"Харадзюку"},
+       {k:"see", n:"Takeshita-dori", s:"улица Такэсита, прогулка по Харадзюку", q:"Takeshita Street", a:"Харадзюку"},
        {k:"shop", n:"atmos Harajuku", q:"atmos Harajuku", a:"Харадзюку"},
-       {k:"shop", n:"KICKS LAB.", q:"", a:"Харадзюку"},
-       {k:"shop", n:"cas", q:"", a:"Харадзюку"},
-       {k:"shop", n:"HIETA", s:"Omokado", q:"", a:"Омотэсандо"},
-       {k:"shop", n:"AMORE Vintage AOYAMA", q:"AMORE Vintage Aoyama", a:"Аояма"},
-       {k:"shop", n:"QOO", q:"", a:"Аояма"},
-       {k:"food", n:"Torikatsu Chicken", s:"ужин, Сибуя", q:"Torikatsu Chicken Shibuya"}]},
+       {k:"shop", n:"cas:pace Tokyo", s:"Kuwahara Building 1F", q:"cas:pace Harajuku", a:"Харадзюку", r:0, rn:"atmos Harajuku"},
+       {k:"shop", n:"KICKS LAB. Harajuku", s:"Sun M Building 1F", q:"KICKS LAB. Harajuku Sun M Building", a:"Харадзюку", r:0, rn:"Omokado"},
+       {k:"shop", n:"MixTHINKS Harajuku", s:"Q Plaza Harajuku, 1F–2F", q:"MixTHINKS Harajuku Store", a:"Харадзюку"},
+       {k:"shop", n:"Brandy Melville", s:"3-29-5 Jingumae", q:"Brandy Melville Japan", a:"Харадзюку", r:0, rn:"atmos Harajuku"},
+       {k:"shop", n:"HIETA", s:"THE HYUNDAI, сумки · Tokyu Plaza Omokado, 3F", q:"hieta Jingumae Tokyo", a:"Омотэсандо"},
+       {k:"shop", n:"AMORE Vintage Aoyama", q:"AMORE Vintage Aoyama", a:"Аояма"},
+       {k:"food", n:"Torikatsu Chicken", s:"необязательный ужин в Сибуе, успеть до 20:00", q:"Torikatsu Chicken Shibuya"},
+       {k:"food", n:"Ramen HISUI", s:"ужин рядом с отелем, в субботу 18:00–20:00 · закрыт в вс и пн", q:"Ramen HISUI Akasaka", r:0, rn:"отелем"}]},
   {d:29, m:10, stay:"tokyo", cities:["tokyo"],
-    p:[{k:"food", n:"Starbucks Reserve Roastery", q:"Starbucks Reserve Roastery Tokyo"},
-       {k:"see", n:"Река Мэгуро", q:"Meguro River Nakameguro", a:"Накамэгуро"},
-       {k:"shop", n:"HIVE PRELOVED", q:"", a:"Накамэгуро"},
+    p:[{k:"food", n:"Starbucks Reserve Roastery Tokyo", q:"Starbucks Reserve Roastery Tokyo"},
+       {k:"shop", n:"HIVE PRELOVED", s:"нужна предварительная запись", q:"HIVE PRELOVED Aobadai Tokyo", a:"Накамэгуро"},
        {k:"shop", n:"Hedy Daikanyama", q:"Hedy Daikanyama", a:"Дайканъяма"},
-       {k:"see", n:"Хатико и перекрёсток Сибуя", q:"Hachiko Statue", a:"Сибуя"},
+       {k:"see", n:"Hachiko Statue", s:"памятник Хатико", q:"Hachiko Statue", a:"Сибуя"},
+       {k:"see", n:"Shibuya Crossing", s:"перекрёсток Сибуя", q:"Shibuya Scramble Crossing", a:"Сибуя", r:0, rn:"Хатико"},
        {k:"shop", n:"Shibuya 109", q:"Shibuya 109", a:"Сибуя"},
-       {k:"see", n:"Shibuya Sky", q:"Shibuya Sky", t:"15:30", ic:"🏙️"},
+       {k:"see", n:"Shibuya Sky", s:"смотровая площадка, Shibuya Scramble Square", q:"Shibuya Sky", t:"15:30", ic:"🏙️", sub:"смотровая площадка"},
        {k:"shop", n:"RAGTAG Shibuya", q:"RAGTAG Shibuya", a:"Сибуя"},
-       {k:"shop", n:"Shibuya PARCO", s:"Vivienne Westwood, OSOI", q:"Shibuya PARCO", a:"Сибуя"},
-       {k:"shop", n:"MEGA Don Quijote", s:"ужин по ситуации", q:"MEGA Don Quijote Shibuya", a:"Сибуя"}],
-    tasks:[{id:"sky", t:"<b>Купить билеты</b> на Shibuya Sky — 15 ноября"}]},
-  {d:30, m:10, stay:"tokyo", cities:["tokyo"],
-    p:[{k:"see", n:"Kaminarimon", q:"Kaminarimon", a:"Асакуса"},
-       {k:"see", n:"Senso-ji и Nakamise-dori", s:"прогулка по Асакусе", q:"Senso-ji", a:"Асакуса"},
-       {k:"see", n:"Парк Inokashira", q:"Inokashira Park", a:"Китидзёдзи"},
-       {k:"shop", n:"JAM VINTAGE&SELECT", q:"JAM VINTAGE Kichijoji", a:"Китидзёдзи"},
-       {k:"shop", n:"iti vintage", q:"", a:"Китидзёдзи"},
-       {k:"shop", n:"Nakamichi-dori", q:"Nakamichi Street Kichijoji", a:"Китидзёдзи"},
-       {k:"food", n:"Harmonica Yokocho", s:"ужин по ситуации", q:"Harmonica Yokocho"}],
-    tasks:[{id:"fujiRe", t:'<b>Фудзи</b> — перепроверить <a href="'+FUJI_SITE+'" target="_blank" rel="noopener">видимость</a> на завтра'}]},
+       {k:"shop", n:"Shibuya PARCO", s:"Vivienne Westwood Accessories, OSOI", q:"Shibuya PARCO", a:"Сибуя"},
+       {k:"shop", n:"MEGA Don Quijote Shibuya Honten", q:"MEGA Don Quijote Shibuya", a:"Сибуя"},
+       {k:"shop", n:"ABC-MART Shibuya", s:"обувь, Shibuya T Building", q:"ABC-MART Shibuya Store", a:"Сибуя", r:0, rn:"MEGA Don Quijote"}],
+    tasks:[{id:"sky", t:"<b>Купить билеты</b> на Shibuya Sky — 15 ноября"},
+           {id:"hive", t:"<b>Записаться в HIVE PRELOVED</b> — без записи не принимают"}]},
+  {d:30, m:10, stay:"tokyo", cities:["tokyo"], free:"Свободный день — спланируем позже",
+    p:[],
+    tasks:[{id:"fujiRe", t:'<b>Фудзи</b> — перепроверить <a href="'+FUJI_SITE+'" target="_blank" rel="noopener">видимость</a> на завтра. Если не видно — меняем 1 и 2 декабря местами'}]},
   {d:1, m:11, stay:"tokyo", cities:["fuji"],
-    p:[{k:"move", n:"Автобус до Кавагутико", s:"Shinjuku Expressway Bus Terminal", q:"Shinjuku Expressway Bus Terminal", t:"07:00", ic:"🚌", lab:"Автобус", sub:"Shinjuku Expressway Bus Terminal → Кавагутико"},
-       {k:"see", n:"Озеро Кавагутико", q:"Lake Kawaguchi", a:"Кавагутико"},
-       {k:"see", n:"Oishi Park", s:"фотографии Фудзи", q:"Oishi Park", a:"Кавагутико"},
-       {k:"see", n:"Прогулка у озера", s:"обед по ситуации", q:"", a:"Кавагутико"},
-       {k:"move", n:"Автобус обратно в Токио", q:"Shinjuku Expressway Bus Terminal", t:"16:00", ic:"🚌", lab:"Автобус обратно", sub:"Кавагутико → Синдзюку"}],
+    p:[{k:"move", n:"Shinjuku Expressway Bus Terminal", s:"отправление автобуса, 4F", q:"Shinjuku Expressway Bus Terminal", t:"07:00", ic:"🚌", lab:"Автобус", sub:"Shinjuku Expressway Bus Terminal → Kawaguchiko Station"},
+       {k:"move", n:"Kawaguchiko Station", s:"прибытие", q:"Kawaguchiko Station"},
+       {k:"see", n:"Oishi Park", s:"озеро Кавагутико, фотографии Фудзи", q:"Oishi Park", a:"Кавагутико"},
+       {k:"move", n:"Kawaguchiko Station", s:"обратный автобус в Токио", q:"Kawaguchiko Station", t:"16:00", ic:"🚌", lab:"Автобус обратно", sub:"Kawaguchiko Station → Синдзюку"}],
+    alert:"Если Фудзи не будет видно — перенести поездку на 2 декабря, а программу 2 декабря сделать сегодня",
     tasks:[{id:"fujiToday", t:'<b>Фудзи</b> — проверить <a href="'+FUJI_SITE+'" target="_blank" rel="noopener">видимость</a> утром'}]},
   {d:2, m:11, stay:"tokyo", cities:["tokyo"],
-    p:[{k:"see", n:"Восточные сады Императорского дворца", q:"East Gardens of the Imperial Palace", a:"Императорский дворец"},
+    p:[{k:"see", n:"Imperial Palace East Gardens", s:"Восточные сады Императорского дворца", q:"East Gardens of the Imperial Palace", a:"Императорский дворец"},
+       {k:"food", n:"Ginza Hachigou", s:"рамен, нужна бронь или живая очередь", q:"Ginza Hachigou"},
        {k:"shop", n:"Gentle Monster Ginza", q:"Gentle Monster Ginza", a:"Гиндза"},
-       {k:"shop", n:"Uniqlo Ginza", q:"Uniqlo Ginza", a:"Гиндза"},
-       {k:"food", n:"Ginza Hachigou или Sanshuya Ginza", s:"Hachigou — при наличии брони", q:"Sanshuya Ginza"},
-       {k:"food", n:"Nakamura Tokichi", s:"GINZA SIX", q:"GINZA SIX"},
-       {k:"see", n:"Токийская башня", s:"фотографии; вечером ужин по ситуации", q:"Tokyo Tower", a:"Токийская башня"}]},
+       {k:"shop", n:"UNIQLO Ginza Flagship Store", q:"Uniqlo Ginza", a:"Гиндза"},
+       {k:"food", n:"Nakamura Tokichi Ginza", s:"матча, десерты · GINZA SIX, 4F", q:"Nakamura Tokichi Ginza"},
+       {k:"see", n:"Tokyo Tower", s:"Токийская башня", q:"Tokyo Tower", a:"Токийская башня"}],
+    alert:"Запасной день для Фудзи: если 1 декабря горы не видно, едем в Кавагутико сегодня",
+    tasks:[{id:"hachigou", t:"<b>Ginza Hachigou</b> — забронировать или прийти в живую очередь"}]},
   {d:3, m:11, stay:"tokyo", cities:["tokyo"],
-    to:{label:"Ханэда", q:"Haneda Airport"},
-    p:[{k:"home", n:"APA Hotel Mita Ekimae", s:"выезд", q:"@hotel", t:"06:45", ic:"🏨", lab:"Выезд из отеля"},
-       {k:"move", n:"Вылет из Ханэды", s:"терминал 3, CZ3086 в Гуанчжоу", q:"Haneda Airport", t:"10:45", ic:"✈️", lab:"Вылет", sub:"Ханэда T3 · CZ3086 в Гуанчжоу"}]}
+    to:{label:"Ханэда", q:"Haneda Airport Terminal 3"},
+    p:[{k:"home", n:"The B Akasaka Mitsuke", s:"выселение", q:"@hotel", t:"06:45", ic:"🏨", lab:"Выезд из отеля"},
+       {k:"move", n:"Haneda Airport", s:"терминал 3, CZ3086 в Гуанчжоу", q:"Haneda Airport Terminal 3", t:"10:45", ic:"✈️", lab:"Вылет", sub:"Ханэда T3 · CZ3086 в Гуанчжоу"}]}
 ];
 var KINDS = [
   {k:"see", label:"Достопримечательности", ic:"⛩️"},
@@ -694,17 +703,23 @@ function endPoint(day){ return day.to ? day.to : {label:HOTELS[day.stay].name, q
 function routeStops(day){
   var pts = [], s = startPoint(day).q, e = endPoint(day).q;
   if (s) pts.push(s);
-  day.p.forEach(function(p){ var q = resolve(p.q, day); if (q && pts[pts.length-1] !== q) pts.push(q); });
+  /* r:0 — точка рядом с соседней: в линию маршрута не идёт (у Google Maps максимум 9 промежуточных точек), но своя ссылка у неё есть */
+  day.p.forEach(function(p){ if (p.r === 0) return; var q = resolve(p.q, day); if (q && pts[pts.length-1] !== q) pts.push(q); });
   if (e && pts[pts.length-1] !== e) pts.push(e);
   return pts;
 }
 function mapsUrl(day){
   var pts = routeStops(day); if (pts.length < 2) return null;
   var way = pts.slice(1, -1).slice(0, 9);
-  var u = "https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(pts[0])+"&destination="+encodeURIComponent(pts[pts.length-1]);
-  return u + (way.length ? "&waypoints="+way.map(encodeURIComponent).join("%7C") : "&travelmode=transit");
+  var o = pts[0], d = pts[pts.length-1];
+  var u = "https://www.google.com/maps/dir/?api=1&origin="+encodeURIComponent(o)+"&origin_place_id="+(PIDS[o]||"")+
+    "&destination="+encodeURIComponent(d)+"&destination_place_id="+(PIDS[d]||"");
+  if (!way.length) return u + "&travelmode=transit";
+  return u + "&waypoints="+way.map(encodeURIComponent).join("%7C")+"&waypoint_place_ids="+way.map(function(w){ return PIDS[w]||""; }).join("%7C");
 }
-function placeUrl(q){ return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q); }
+/* ID мест в Google Maps: с ними ссылка и маршрут открывают ровно нужную точку, а не результат поиска */
+var PIDS = {"cas:pace Harajuku": "ChIJT0_cyG2NGGARygJmNXs3imI", "Todai-ji": "ChIJ3XYIepA5AWARjzzVnT-skPg", "Hedy Daikanyama": "ChIJCTtzgk-LGGAR3AoWem58VbQ", "Brandy Melville Japan": "ChIJe1SE-emNGGARvfPabpFuGMg", "Rikuro's Namba Main Store": "ChIJK2A0qGznAGARxPHcddHFYYA", "Meiji Jingu": "ChIJ5SZMmreMGGARcz8QSTiJyo8", "Shibuya PARCO": "ChIJcyH-4qiMGGARGzk4lZCx2xo", "Nakamura Tokichi Ginza": "ChIJo_1xReaLGGAR6Yv1OW2Gn4o", "Shinjuku Expressway Bus Terminal": "ChIJQ6yrc9CMGGARH6diq4aOJwo", "Mochi mochi Kiyomizu Kyoto": "ChIJjSNGQwAJAWARSCncEUJghlA", "East Gardens of the Imperial Palace": "ChIJPfFaQhOMGGAR-QPbNQoAG6M", "The B Akasaka Mitsuke, 3-21-7 Akasaka, Minato City, Tokyo": "ChIJvVqm3X6MGGAR9B64EtnSiik", "RAGTAG Shibuya": "ChIJ___TwKiMGGARTKkCox8Bubo", "SHOGUN BURGER Shinsaibashi": "ChIJkbnLS7bnAGARnvLbsEH_3dU", "Kinkaku-ji": "ChIJvUbrwCCoAWARX2QiHCsn5A4", "Kawaguchiko Station": "ChIJV3dIuoJgGWAR7bQ0vq8DlE0", "Tokyo Tower": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "Dotonbori Osaka": "ChIJg2DcJhXnAGARCbeAHoZrPeQ", "Ryoan-ji": "ChIJp7ocMCqoAWARQoXXRj4Xq-E", "Shibuya 109": "ChIJhxxszamMGGARcuAXpFunolU", "Kyoto Station": "ChIJ7wKLka4IAWARCByidG5EGrY", "Uniqlo Ginza": "ChIJb9MHbuaLGGAR0xi-noU25UU", "HIVE PRELOVED Aobadai Tokyo": "ChIJa4N5YTqxZYcRTRbjAzgaVIE", "Tenryu-ji": "ChIJk54PuAGqAWARwEgz_9o-nM0", "Ramen HISUI Akasaka": "ChIJw39xUQCLGGARxnxP4jHukFY", "Osaka Castle": "ChIJ_TooXM3gAGARQR6hXH3QAQ8", "Excellence Inn Nishihonganji Kyoto": "ChIJQ3g7a68JAWAR3Mx_9Ro-sl4", "Ginza Hachigou": "ChIJX05jZOaLGGAR2rUy9EXaYLk", "Gentle Monster Ginza": "ChIJ8VuMWYSLGGARKLqHGhV1Hyo", "MEGA Don Quijote Shibuya": "ChIJr4J6pKmMGGARdQLOgrzToH4", "GOKAGO Kyoto": "ChIJ-4VTWJMJAWAR1pcQCnmxtoo", "Kasuga Taisha": "ChIJ1Wqwa8A5AWARlpXjgoPnl0w", "Starbucks Reserve Roastery Tokyo": "ChIJq_fYt4iLGGARrOojmQ4IMyE", "Oishi Park": "ChIJlSsLjKZfGWARBCllOgtTLqI", "Kansai International Airport": "ChIJ9_rNIxO5AGARiI-QjZ-ncfE", "Universal Studios Japan": "ChIJXeLVg9DgAGARqlIyMCX-BTY", "KICKS LAB. Harajuku Sun M Building": "ChIJj903QuqNGGARZvRBRG3ocyc", "Kiyomizu-dera": "ChIJB_vchdMIAWARujTEUIZlr2I", "Osaka Station": "ChIJC6fjlY3mAGARSshZ6CLIrhs", "Hikiniku to Come Kyoto": "ChIJY28nVm4JAWARwfSwGp7gxk0", "MixTHINKS Harajuku Store": "ChIJd5DukxmNGGAR0dK6sam4DIs", "hieta Jingumae Tokyo": "ChIJsSL72vGNGGAR0zfTuXE7yVM", "Kodai-ji": "ChIJuU17z9oIAWARgMhsX3kqUSQ", "Unagi Kushiyaki Izumo LUCUA Osaka": "ChIJBWK101HnAGAR8wZ-TxPSNOs", "Crosta Osaka": "ChIJk3AiZVDnAGAR-ae6kRvRVFU", "Umeda Sky Building": "ChIJbyd0kIjmAGAR_crecCbjwlc", "Kintetsu-Nara Station": "ChIJISbd0Sk6AWARRPN0GBhCDVQ", "atmos Harajuku": "ChIJ-7BtZqOMGGARep7pCXT1Nlc", "Kiddy Land Umeda Osaka": "ChIJ5TGNv5HmAGAR4zDsDK8Egr8", "Don Quijote Umeda Honten Osaka": "ChIJjcj6Z5PmAGARU90PonEJIls", "Hachiko Statue": "ChIJx1e971eLGGARum8w_tnpFwI", "Shibuya Sky": "ChIJ4Rr2JWiLGGARcyRSHuZ-9G8", "Shibuya Scramble Crossing": "ChIJK9EM68qLGGARacmu4KJj5SA", "Nara Park": "ChIJYWCMvZY5AWARVnREV_OsbPk", "AMORE Vintage Aoyama": "ChIJp_-ltKGMGGARmK5OwD06Mb4", "Starbucks Kyoto Ninenzaka Yasaka Chaya": "ChIJcUdzdsUIAWAReZobO79fguQ", "Ninenzaka Kyoto": "ChIJlwyrGNAIAWARNb5hUHdZruY", "Fushimi Inari Taisha": "ChIJIW0uPRUPAWAR6eI6dRzKGns", "Torikatsu Chicken Shibuya": "ChIJGYe076mMGGAR84AFfRUUGhw", "Yasaka Shrine": "ChIJqewQoHkIAWAR6RokWp3Iesc", "ABC-MART Shibuya Store": "ChIJUWpetKmMGGARmrGFvI1axEg", "Arashiyama Bamboo Grove": "ChIJrYtcv-urAWAR3XzWvXv8n_s", "Saryo Kiraku Kyoto": "ChIJbVrSK9IIAWARMeqQYJjHmRE", "Haneda Airport Terminal 3": "ChIJ01PIBVRhGGARR1RZERfkuvo", "3-11-34 Tenjinbashi, Kita-ku, Osaka, 530-0041, Japan": "ChIJb616ncbmAGARtySdZBcS0zo", "Takeshita Street": "ChIJlVne8bqMGGARtX5O6ojMvsI", "Shinjuku Gyoen National Garden": "ChIJPyOTG8KMGGARh_IXobWxHmo", "Sannenzaka Kyoto": "ChIJr_gZonkIAWARB1xyACZNUKM"};
+function placeUrl(q){ return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)+(PIDS[q] ? "&query_place_id="+PIDS[q] : ""); }
 
 /* ================= билеты USJ: открываются только в день посещения ================= */
 var USJ_DAY = "2026-11-24";
@@ -793,10 +808,12 @@ function summaryHtml(d){
   if (food.length) counts.push({w:food.length*.5, rows:[{ic:"🍜", b:food.length+" "+plural(food.length,"место","места","мест")+" поесть", t:""}]});
   counts.sort(function(a, b){ return b.w - a.w; });
   var rows = lead; counts.forEach(function(c){ rows = rows.concat(c.rows); });
+  if (d.free) rows.unshift({ic:"🌤️", b:d.free, t:""});
   return '<div class="sum">'+rows.map(function(r){
     return '<div class="sum__row"><span class="sum__ic">'+r.ic+'</span><span class="sum__tx"><span class="sum__head"><b>'+esc(r.b)+'</b>'+'</span>'+(r.t?'<small>'+esc(r.t)+'</small>':'')+'</span></div>';
   }).join("")+'</div>';
 }
+function alertHtml(d){ return d.alert ? '<div class="callout"><span class="callout__ic">🗻</span><span>'+esc(d.alert)+'</span></div>' : ''; }
 function tasksHtml(list){
   if (!list || !list.length) return "";
   return '<div class="check tasks" data-tasks>'+list.map(function(it){
@@ -816,7 +833,7 @@ function routeBtn(d){ var u = mapsUrl(d); return u ? '<a class="btn-route" href=
 function dayCard(d, isToday){
   return '<article class="day'+(isToday?' is-today':'')+'" role="button" tabindex="0" data-day="'+d.i+'">'+
     '<div class="day__top"><div class="day__date"><b>'+d.d+'</b><span>'+(isToday?'<span class="today">Сегодня</span> · ':'')+MON_SH[d.m]+', '+d.wd+'</span></div><div class="day__cities">'+cityChips(d)+'</div></div>'+
-    summaryHtml(d)+ tasksHtml(d.tasks)+ attHtml(d)+ routeBtn(d)+
+    summaryHtml(d)+ alertHtml(d)+ tasksHtml(d.tasks)+ attHtml(d)+ routeBtn(d)+
   '</article>';
 }
 
@@ -908,24 +925,25 @@ function openDay(i){
   var d = DAYS[i], n = 0;
   var stops = '<div class="stops">';
   var s = startPoint(d);
-  if (!isHome(d.p[0]) && s.hotel) stops += stopRow(true, s.label, "старт", s.q);
-  if (!s.hotel && d.p[0].q !== s.q) stops += stopRow(false, s.label, "", s.q, ++n);
-  d.p.forEach(function(p){ var home = isHome(p); stops += stopRow(home, p.n, p.s, resolve(p.q, d), home ? null : ++n, p.t); });
+  if (d.p.length && !isHome(d.p[0]) && s.hotel) stops += stopRow(true, s.label, "старт", s.q);
+  if (d.p.length && !s.hotel && d.p[0].q !== s.q) stops += stopRow(false, s.label, "", s.q, ++n);
+  d.p.forEach(function(p){ var home = isHome(p); stops += stopRow(home, p.n, p.s, resolve(p.q, d), home ? null : ++n, p.t, p.r === 0 ? (p.rn || "соседней точкой") : ""); });
   var e = endPoint(d);
-  if (e.hotel && !isHome(d.p[d.p.length-1])) stops += stopRow(true, e.label, "финиш", e.q);
+  if (d.p.length && e.hotel && !isHome(d.p[d.p.length-1])) stops += stopRow(true, e.label, "финиш", e.q);
   stops += '</div>';
-  var hasExtra = (d.tasks && d.tasks.length) || d.qr || d.ticket;
+  var hasExtra = (d.tasks && d.tasks.length) || d.qr || d.ticket || d.alert;
   var html =
     '<div class="sh-head"><p class="sh-kicker">'+d.wdFull+'</p><h2 class="sh-title">'+d.d+' '+MONTHS[d.m]+'</h2><div class="wrap">'+cityChips(d)+'</div></div>'+
-    (hasExtra ? '<div class="sh-extra" style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Не забыть</p>'+tasksHtml(d.tasks)+attHtml(d)+'</div>' : '')+
-    '<div><p class="label">Места по порядку</p>'+stops+'</div>';
+    (hasExtra ? '<div class="sh-extra" style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Не забыть</p>'+alertHtml(d)+tasksHtml(d.tasks)+attHtml(d)+'</div>' : '')+
+    (d.free ? '<div class="callout"><span class="callout__ic">🌤️</span><span>'+esc(d.free)+'</span></div>' : '<div><p class="label">Места по порядку</p>'+stops+
+      (d.p.some(function(p){ return p.r === 0; }) ? '<p class="hint" style="margin-top:8px">Google Карты строят маршрут максимум через 9 точек, поэтому соседние места не вошли в линию маршрута — их ссылки работают отдельно</p>' : '')+'</div>');
   openSheet(html, mapsUrl(d));
   bindAtt($("sheetBody"));
 }
-function stopRow(home, name, sub, q, num, time){
+function stopRow(home, name, sub, q, num, time, off){
   var tag = q ? 'a href="'+placeUrl(q)+'" target="_blank" rel="noopener"' : 'div', end = q ? 'a' : 'div';
   return '<'+tag+' class="stop'+(home?' is-home':'')+'"><span class="stop__n'+(home?' is-home':'')+'">'+(home?'🏨':num)+'</span>'+
-    '<span class="stop__tx">'+esc(name)+(sub||time?'<small>'+(time?'<b style="color:var(--label);font-weight:600">'+esc(time)+'</b>'+(sub?' · ':''):'')+esc(sub||"")+'</small>':'')+'</span>'+(q?'<span class="stop__go">'+CHEV+'</span>':'')+'</'+end+'>';
+    '<span class="stop__tx">'+esc(name)+(sub||time?'<small>'+(time?'<b style="color:var(--label);font-weight:600">'+esc(time)+'</b>'+(sub?' · ':''):'')+esc(sub||"")+'</small>':'')+(off?'<small class="stop__off">Не в маршруте дня: рядом с '+esc(off)+'</small>':'')+'</span>'+(q?'<span class="stop__go">'+CHEV+'</span>':'')+'</'+end+'>';
 }
 
 function openVisa(){
