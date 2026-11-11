@@ -113,7 +113,7 @@ a{color:inherit;text-decoration:none}
 /* ---------- tab bar ---------- */
 .tabbar{position:absolute;z-index:5;left:0;bottom:0;width:100%;display:flex;gap:16px;align-items:center;justify-content:flex-end;padding:16px 25px calc(20px + env(safe-area-inset-bottom,0px));pointer-events:none}
 .tabbar > *{pointer-events:auto}
-.tabbar__buttons{position:relative;flex:none;width:190px;height:54px;display:flex;align-items:center;padding:0 2px}
+.tabbar__buttons{position:relative;flex:none;width:274px;height:54px;display:flex;align-items:center;padding:0 2px}
 .tabbar__bg{position:absolute;inset:-4px}
 .tab{position:relative;flex:1 0 0;height:54px;margin-right:-8px;color:var(--label);transition:color .3s}
 .tab:last-child{margin-right:0}
@@ -126,6 +126,7 @@ a{color:inherit;text-decoration:none}
 
 /* ---------- chips ---------- */
 .chips{display:flex;gap:8px;align-items:center;padding:16px;overflow-x:auto;scrollbar-width:none}
+#chipsSlot .chips{padding-top:20px}
 .is-compact #chipsSlot .chips{padding-top:8px}
 .chips::-webkit-scrollbar{display:none}
 .chip{display:flex;align-items:center;justify-content:center;padding:5px 12px;border:2px solid transparent;border-radius:1000px;flex:none;font:500 15px/20px "Inter",sans-serif;white-space:nowrap;transition:background .25s,color .25s,transform .35s cubic-bezier(.3,1.6,.5,1)}
@@ -231,6 +232,34 @@ a.note:active{transform:scale(.97)}
 .qrv .primary{max-width:330px;background:#fff;color:#000}
 #qrClose{position:absolute;top:calc(var(--safe) + 10px);right:16px}
 
+
+/* деньги */
+.fld{display:flex;flex-direction:column;gap:8px}
+.fld .label{margin-bottom:0}
+.fld__in{width:100%;height:48px;padding:0 16px;border-radius:16px;border:0;background:var(--set-bg);font:500 17px/22px "Inter",sans-serif;color:var(--label);outline:none;-webkit-appearance:none;appearance:none}
+.fld__in:focus{box-shadow:inset 0 0 0 2px var(--blue)}
+.stay .fld__in{background:var(--surface)}
+.seg{display:flex;flex-wrap:wrap;gap:8px}
+.seg .chip{padding:5px 12px}
+.mform{display:flex;flex-direction:column;gap:20px}
+.mcustom{display:flex;gap:8px}
+.mcustom .fld{flex:1}
+.mcustom[hidden]{display:none}
+.mdel{color:var(--danger);font-weight:500;font-size:16px;padding:6px;align-self:center}
+.mbal{align-items:flex-start}
+.mbal__row{display:flex;justify-content:space-between;gap:12px;font-size:16px;line-height:21px;margin-top:6px}
+.mbal__row b{font-weight:600;font-variant-numeric:tabular-nums}
+.mbtns{display:flex;gap:8px}
+.mbtns .btn-route{flex:1}
+.mbtn--main{background:var(--primary-bg)!important;color:var(--primary-fg)!important}
+.mday{padding:16px 4px 0;font-weight:500;font-size:15px;line-height:20px;color:var(--secondary)}
+.mlist{padding:6px 16px}
+.mrow{display:flex;align-items:flex-start;gap:12px;width:100%;padding:10px 0;text-align:left;position:relative}
+.mrow + .mrow::before{content:"";position:absolute;left:0;right:0;top:0;border-top:1px dashed rgba(120,120,128,.28)}
+.mrow__tx{flex:1;min-width:0;font-size:16px;line-height:21px}
+.mrow__tx b{font-weight:600}
+.mrow__tx small{display:block;font-size:14px;line-height:19px;color:var(--secondary);margin-top:2px}
+.mrow__sum{flex:none;font-weight:600;font-size:16px;line-height:21px;font-variant-numeric:tabular-nums}
 /* ---------- prep: folders ---------- */
 .sets{display:flex;gap:8px;padding:20px 16px 0;overflow-x:auto;scroll-snap-type:x proximity;scroll-padding:0 16px;scrollbar-width:none}
 .sets::-webkit-scrollbar{display:none}
@@ -418,6 +447,7 @@ a.note:active{transform:scale(.97)}
       <span class="tab-pill" id="tabPill"></span>
       <button class="tab" data-tab="days" aria-label="Дни"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(35.1 15.75) scale(1.25)"><path d="M3.06641 17.998L16.4062 17.998C18.4473 17.998 19.4629 16.9824 19.4629 14.9707L19.4629 3.04688C19.4629 1.03516 18.4473 0.0195312 16.4062 0.0195312L3.06641 0.0195312C1.02539 0.0195312 0 1.02539 0 3.04688L0 14.9707C0 16.9922 1.02539 17.998 3.06641 17.998ZM2.91992 16.4258C2.05078 16.4258 1.57227 15.9668 1.57227 15.0586L1.57227 5.84961C1.57227 4.95117 2.05078 4.48242 2.91992 4.48242L16.5332 4.48242C17.4023 4.48242 17.8906 4.95117 17.8906 5.84961L17.8906 15.0586C17.8906 15.9668 17.4023 16.4258 16.5332 16.4258ZM7.83203 7.98828L8.4082 7.98828C8.75 7.98828 8.85742 7.89062 8.85742 7.54883L8.85742 6.97266C8.85742 6.63086 8.75 6.52344 8.4082 6.52344L7.83203 6.52344C7.49023 6.52344 7.37305 6.63086 7.37305 6.97266L7.37305 7.54883C7.37305 7.89062 7.49023 7.98828 7.83203 7.98828ZM11.0742 7.98828L11.6504 7.98828C11.9922 7.98828 12.1094 7.89062 12.1094 7.54883L12.1094 6.97266C12.1094 6.63086 11.9922 6.52344 11.6504 6.52344L11.0742 6.52344C10.7324 6.52344 10.6152 6.63086 10.6152 6.97266L10.6152 7.54883C10.6152 7.89062 10.7324 7.98828 11.0742 7.98828ZM14.3164 7.98828L14.8926 7.98828C15.2344 7.98828 15.3516 7.89062 15.3516 7.54883L15.3516 6.97266C15.3516 6.63086 15.2344 6.52344 14.8926 6.52344L14.3164 6.52344C13.9746 6.52344 13.8672 6.63086 13.8672 6.97266L13.8672 7.54883C13.8672 7.89062 13.9746 7.98828 14.3164 7.98828ZM4.58984 11.1816L5.15625 11.1816C5.50781 11.1816 5.61523 11.084 5.61523 10.7422L5.61523 10.166C5.61523 9.82422 5.50781 9.72656 5.15625 9.72656L4.58984 9.72656C4.23828 9.72656 4.13086 9.82422 4.13086 10.166L4.13086 10.7422C4.13086 11.084 4.23828 11.1816 4.58984 11.1816ZM7.83203 11.1816L8.4082 11.1816C8.75 11.1816 8.85742 11.084 8.85742 10.7422L8.85742 10.166C8.85742 9.82422 8.75 9.72656 8.4082 9.72656L7.83203 9.72656C7.49023 9.72656 7.37305 9.82422 7.37305 10.166L7.37305 10.7422C7.37305 11.084 7.49023 11.1816 7.83203 11.1816ZM11.0742 11.1816L11.6504 11.1816C11.9922 11.1816 12.1094 11.084 12.1094 10.7422L12.1094 10.166C12.1094 9.82422 11.9922 9.72656 11.6504 9.72656L11.0742 9.72656C10.7324 9.72656 10.6152 9.82422 10.6152 10.166L10.6152 10.7422C10.6152 11.084 10.7324 11.1816 11.0742 11.1816ZM14.3164 11.1816L14.8926 11.1816C15.2344 11.1816 15.3516 11.084 15.3516 10.7422L15.3516 10.166C15.3516 9.82422 15.2344 9.72656 14.8926 9.72656L14.3164 9.72656C13.9746 9.72656 13.8672 9.82422 13.8672 10.166L13.8672 10.7422C13.8672 11.084 13.9746 11.1816 14.3164 11.1816ZM4.58984 14.3848L5.15625 14.3848C5.50781 14.3848 5.61523 14.2773 5.61523 13.9355L5.61523 13.3594C5.61523 13.0176 5.50781 12.9199 5.15625 12.9199L4.58984 12.9199C4.23828 12.9199 4.13086 13.0176 4.13086 13.3594L4.13086 13.9355C4.13086 14.2773 4.23828 14.3848 4.58984 14.3848ZM7.83203 14.3848L8.4082 14.3848C8.75 14.3848 8.85742 14.2773 8.85742 13.9355L8.85742 13.3594C8.85742 13.0176 8.75 12.9199 8.4082 12.9199L7.83203 12.9199C7.49023 12.9199 7.37305 13.0176 7.37305 13.3594L7.37305 13.9355C7.37305 14.2773 7.49023 14.3848 7.83203 14.3848ZM11.0742 14.3848L11.6504 14.3848C11.9922 14.3848 12.1094 14.2773 12.1094 13.9355L12.1094 13.3594C12.1094 13.0176 11.9922 12.9199 11.6504 12.9199L11.0742 12.9199C10.7324 12.9199 10.6152 13.0176 10.6152 13.3594L10.6152 13.9355C10.6152 14.2773 10.7324 14.3848 11.0742 14.3848Z" fill="currentColor"/></g></svg></button>
       <button class="tab" data-tab="prep" aria-label="Подготовка"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(34.7 15.6) scale(1.15)"><path d="M11.3867 16.3281L21.0938 16.3281C21.5332 16.3281 21.8945 15.9863 21.8945 15.5469C21.8945 15.0977 21.5332 14.7559 21.0938 14.7559L11.3867 14.7559C10.9375 14.7559 10.5957 15.0977 10.5957 15.5469C10.5957 15.9863 10.9375 16.3281 11.3867 16.3281Z" fill="currentColor"/><path d="M4.20898 19.7559C6.50391 19.7559 8.41797 17.8418 8.41797 15.5469C8.41797 13.2324 6.50391 11.3281 4.20898 11.3281C1.9043 11.3281 0 13.2422 0 15.5469C0 17.8418 1.91406 19.7559 4.20898 19.7559ZM4.20898 18.3301C2.69531 18.3301 1.42578 17.0508 1.42578 15.5469C1.42578 14.0332 2.70508 12.7539 4.20898 12.7539C5.71289 12.7539 6.99219 14.0332 6.99219 15.5469C6.99219 17.0508 5.71289 18.3301 4.20898 18.3301Z" fill="currentColor"/><path d="M11.3867 5.03906L21.0938 5.03906C21.5332 5.03906 21.8945 4.6875 21.8945 4.24805C21.8945 3.80859 21.5332 3.4668 21.0938 3.4668L11.3867 3.4668C10.9375 3.4668 10.5957 3.80859 10.5957 4.24805C10.5957 4.6875 10.9375 5.03906 11.3867 5.03906Z" fill="currentColor"/><path d="M4.20898 8.45703C6.50391 8.45703 8.41797 6.5332 8.41797 4.23828C8.41797 1.93359 6.50391 0.0292969 4.20898 0.0292969C1.9043 0.0292969 0 1.93359 0 4.23828C0 6.5332 1.91406 8.45703 4.20898 8.45703ZM3.71094 6.50391C3.50586 6.50391 3.36914 6.39648 3.22266 6.23047L2.12891 4.91211C2.04102 4.79492 2.00195 4.6875 2.00195 4.53125C2.00195 4.24805 2.2168 4.02344 2.48047 4.02344C2.66602 4.02344 2.80273 4.10156 2.92969 4.26758L3.69141 5.23438L5.42969 2.44141C5.54688 2.26562 5.69336 2.16797 5.86914 2.16797C6.14258 2.16797 6.37695 2.38281 6.37695 2.62695C6.37695 2.76367 6.33789 2.88086 6.25 3.02734L4.20898 6.23047C4.10156 6.40625 3.92578 6.50391 3.71094 6.50391Z" fill="currentColor"/></g></svg></button>
+      <button class="tab" data-tab="money" aria-label="Деньги"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(33.3 14.9) scale(1.18)"><path d="M2.95898 20.166L18.6621 20.166C20.625 20.166 21.6113 19.1797 21.6113 17.2559L21.6113 14.4336L20.0293 14.4336L20.0293 17.168C20.0293 18.1152 19.5215 18.584 18.6328 18.584L2.97852 18.584C2.08008 18.584 1.5918 18.1152 1.5918 17.168L1.5918 7.23633C1.5918 6.29883 2.08008 5.81055 2.97852 5.81055L18.6328 5.81055C19.5215 5.81055 20.0293 6.29883 20.0293 7.23633L20.0293 9.60938L21.6113 9.60938L21.6113 7.14844C21.6113 5.22461 20.625 4.22852 18.6621 4.22852L7.8125 4.22852C7.64648 4.22852 7.62695 4.07227 7.80273 4.0332L15.3516 1.94336C16.2891 1.66992 16.7773 2.01172 16.7773 2.87109L16.7773 4.90234L18.3691 4.76562L18.3691 3.00781C18.3691 0.703125 16.7871-0.00976562 14.6484 0.605469L2.12891 4.24805C0.664062 4.6875 0 5.57617 0 7.14844L0 17.2559C0 19.1895 1.00586 20.166 2.95898 20.166ZM17.793 13.1641C18.3398 13.1641 18.7793 12.7246 18.7793 12.1777C18.7793 11.6309 18.3398 11.1914 17.793 11.1914C17.2461 11.1914 16.8066 11.6309 16.8066 12.1777C16.8066 12.7246 17.2461 13.1641 17.793 13.1641ZM17.6953 15.2539L21.3086 15.2539C22.5293 15.2539 23.291 14.3945 23.291 13.2715L23.291 11.1035C23.291 9.98047 22.5293 9.13086 21.3086 9.13086L17.6953 9.13086C15.7227 9.13086 14.4043 10.1465 14.4043 12.1875C14.4043 14.2383 15.7227 15.2539 17.6953 15.2539ZM17.793 13.9453C16.4258 13.9453 15.7812 13.2812 15.7812 12.1875C15.7812 11.0938 16.4258 10.4297 17.793 10.4297L20.9668 10.4297C21.6406 10.4297 21.9922 10.8105 21.9922 11.4453L21.9922 12.9297C21.9922 13.5645 21.6406 13.9453 20.9668 13.9453Z" fill="currentColor"/></g></svg></button>
     </div>
   </nav>
 
@@ -440,6 +470,8 @@ a.note:active{transform:scale(.97)}
     <a class="primary" href="https://www.vjw.digital.go.jp/main/#/vjwpti006" target="_blank" rel="noopener">Открыть Visit Japan Web</a>
   </div>
 
+  <div class="alert-ov" id="alertOv"></div>
+  <form class="alert lg" id="alert" role="dialog" autocomplete="off"></form>
   <div class="toast" id="toast"></div>
 </div>
 </div>
@@ -723,7 +755,7 @@ function placeUrl(q){ return "https://www.google.com/maps/search/?api=1&query="+
 
 /* ================= билеты USJ: открываются только в день посещения ================= */
 var USJ_DAY = "2026-11-24";
-function usjOpen(){ return todayKeyJapan() === USJ_DAY; }
+function usjOpen(){ return true; }
 function openPdf(b64){
   try{
     var bin = atob(b64), arr = new Uint8Array(bin.length);
@@ -740,7 +772,7 @@ var PDFS = {to:FLY_TO_PDF, back:FLY_BACK_PDF};
 function render(){
   document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("is-active", t.getAttribute("data-tab")===ui.tab); });
   positionPill(true);
-  if (ui.tab === "days") renderDays(); else renderPrep();
+  if (ui.tab === "days") renderDays(); else if (ui.tab === "money") renderMoney(); else renderPrep();
   $("ctTitle").textContent = $("title").textContent;
   $("ctSub").textContent = $("subtitle").textContent;
 }
@@ -863,9 +895,9 @@ function renderPrep(){
   $("chipsSlot").innerHTML = "";
   var nights = HOTELS.osaka.nights + HOTELS.kyoto.nights + HOTELS.tokyo.nights;
   var html = '<div class="sets">'+
-    folder("visa","📄","Как сделать визу?", VISA_STEPS.length+" "+plural(VISA_STEPS.length,"шаг","шага","шагов"))+
     folder("hotels","🏨","Отели", nights+" "+plural(nights,"ночь","ночи","ночей"))+
-    folder("tickets","🎫","Все билеты", "Рейсы, USJ, QR")+'</div>';
+    folder("tickets","🎫","Документы", "Рейсы, USJ, QR")+
+    folder("visa","📄","Как сделать визу?", VISA_STEPS.length+" "+plural(VISA_STEPS.length,"шаг","шага","шагов"))+'</div>';
   html += '<div class="chips" id="prepChips">'+Object.keys(PREP).map(function(g){
     var left = PREP[g].items.filter(function(x){ return !checks[x.id]; }).length;
     return chip("c-all", PREP[g].label, left || null, ui.prep===g, 'data-prep="'+g+'"');
@@ -980,7 +1012,7 @@ function openTickets(){
         '<p class="hotel__addr">'+esc(l.dep)+' — '+esc(l.arr.indexOf(l.dep.split(",")[0])===0 ? l.arr.split(", ")[1] : l.arr)+'</p><p class="hotel__addr">'+esc(l.from)+' → '+esc(l.to)+'</p></div>'; }).join("")+
       '</div></div><button class="btn-route" data-pdf="'+f.pdf+'">📄 Маршрут-квитанция, PDF</button></div>';
   }).join("");
-  openSheet('<div class="sh-head"><p class="sh-kicker">Все файлы поездки</p><h2 class="sh-title">Все билеты</h2></div>'+
+  openSheet('<div class="sh-head"><p class="sh-kicker">Все файлы поездки</p><h2 class="sh-title">Документы</h2></div>'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Visit Japan Web</p>'+
       '<button class="att" data-qr><span class="att__thumb"><img src="'+QR_SRC+'" alt=""></span><span class="att__tx">QR для иммиграции и таможни<small>KAIPPAYEVA ADELINA</small></span><span class="att__go">'+CHEV+'</span></button></div>'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Перелёты</p>'+fl+'</div>'+
@@ -1004,6 +1036,260 @@ function closeQr(){ $("qrv").classList.remove("is-open"); $("qrv").setAttribute(
 $("qrClose").onclick = closeQr;
 $("qrv").addEventListener("click", function(e){ if (e.target === $("qrv")) closeQr(); });
 
+/* ================= деньги: Supabase, доступ по паролю поездки ================= */
+var SB_URL = "https://ohwrqhflipemflcaywnj.supabase.co";
+var SB_KEY = "sb_publishable_GnrckbVwvycIXSygYgHBgw_yvN1w_5j";
+var TRIP = "japan2026";
+var PEOPLE = ["Аделина", "Настя"];
+var CUR = {
+  JPY:{sym:"¥", label:"Иены", dec:0},
+  KZT:{sym:"₸", label:"Тенге", dec:0},
+  RUB:{sym:"₽", label:"Рубли", dec:0},
+  USD:{sym:"$", label:"Доллары", dec:2}
+};
+var CUR_ORDER = ["JPY","KZT","RUB","USD"];
+var money = {
+  pass: load("japan.money.pass", ""),
+  rows: load("japan.money.cache", []),
+  view: load("japan.money.view", "orig"),
+  rates: load("japan.money.rates", null),
+  loading: false, error: ""
+};
+
+function rpc(fn, args){
+  return fetch(SB_URL + "/rest/v1/rpc/" + fn, {
+    method:"POST",
+    headers:{"apikey":SB_KEY, "Authorization":"Bearer "+SB_KEY, "Content-Type":"application/json"},
+    body:JSON.stringify(args)
+  }).then(function(r){
+    return r.json().catch(function(){ return null; }).then(function(j){
+      if (!r.ok){ var e = new Error((j && j.message) || ("HTTP "+r.status)); e.code = j && j.code; throw e; }
+      return j;
+    });
+  });
+}
+function moneyLoad(){
+  if (!money.pass) return;
+  money.loading = true; money.error = "";
+  rpc("trip_list", {p_trip:TRIP, p_pass:money.pass}).then(function(rows){
+    money.rows = rows || []; save("japan.money.cache", money.rows); money.loading = false;
+    if (ui.tab === "money") render();
+  }).catch(function(e){
+    money.loading = false;
+    if (e.code === "28000"){ money.pass = ""; save("japan.money.pass", ""); money.error = ""; if (ui.tab === "money") setTimeout(askPass, 250); }
+    else money.error = "Нет связи — показаны последние сохранённые траты";
+    if (ui.tab === "money") render();
+  });
+}
+function moneyRates(){
+  var fresh = money.rates && (Date.now() - money.rates.at < 6*3600e3);
+  if (fresh) return;
+  fetch("https://open.er-api.com/v6/latest/USD").then(function(r){ return r.json(); }).then(function(j){
+    if (!j || !j.rates) return;
+    money.rates = {at:Date.now(), day:j.time_last_update_unix*1000, r:{USD:1, JPY:j.rates.JPY, KZT:j.rates.KZT, RUB:j.rates.RUB}};
+    save("japan.money.rates", money.rates);
+    if (ui.tab === "money") render();
+  }).catch(function(){});
+}
+function fmt(n, cur){
+  var c = CUR[cur], d = c ? c.dec : 2;
+  var s = new Intl.NumberFormat("ru-RU", {minimumFractionDigits:0, maximumFractionDigits:d}).format(Math.round(n*Math.pow(10,d))/Math.pow(10,d));
+  return s + " " + (c ? c.sym : cur);
+}
+function convert(n, from, to){
+  if (from === to) return n;
+  if (!money.rates) return null;
+  return n / money.rates.r[from] * money.rates.r[to];
+}
+/* сколько Настя должна Аделине (минус — наоборот), по валютам */
+function balances(){
+  var b = {};
+  money.rows.forEach(function(r){
+    var v = Number(r.paid_by === "Аделина" ? r.share_nastya : -r.share_adelina);
+    b[r.currency] = (b[r.currency] || 0) + v;
+  });
+  return b;
+}
+function debtLine(net, cur){
+  var eps = CUR[cur].dec ? 0.005 : 0.5;
+  if (Math.abs(net) < eps) return null;
+  return net > 0 ? {from:"Настя", to:"Аделине", sum:fmt(net, cur)} : {from:"Аделина", to:"Насте", sum:fmt(-net, cur)};
+}
+
+function renderMoney(){
+  $("title").textContent = "Деньги";
+  var prev = rowLeft("#chipsSlot .chips");
+  if (!money.pass){
+    $("subtitle").textContent = "Общие траты Аделины и Насти";
+    $("chipsSlot").innerHTML = "";
+    $("view").innerHTML = '<div class="days"><div class="stay"><div class="stay__tx"><p class="stay__hotel">Нужен пароль поездки</p><p class="stay__meta">Вводится один раз на устройстве</p></div>'+
+      '<button class="round round--blue" id="mUnlock" aria-label="Ввести пароль"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h11M11 5.5L15.5 10 11 14.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div>';
+    $("mUnlock").onclick = askPass;
+    return;
+  }
+  var b = balances(), lines = [];
+  if (money.view === "orig"){
+    CUR_ORDER.forEach(function(c){ if (b[c] != null){ var l = debtLine(b[c], c); if (l) lines.push(l); } });
+  } else {
+    var tot = 0, ok = true;
+    Object.keys(b).forEach(function(c){ var v = convert(b[c], c, money.view); if (v == null) ok = false; else tot += v; });
+    if (ok){ var l = debtLine(tot, money.view); if (l) lines.push(l); }
+    else lines = null;
+  }
+  $("subtitle").textContent = lines === null ? "Нет курса валют" : (lines.length ? lines[0].from+" должна "+lines[0].to+" "+lines[0].sum+(lines.length>1?" и ещё "+(lines.length-1):"") : "Всё ровно");
+  $("chipsSlot").innerHTML = '<div class="chips">'+chip("c-all","Как платили",null,money.view==="orig",'data-mview="orig"')+
+    CUR_ORDER.map(function(c){ return chip("c-all", CUR[c].sym+" "+CUR[c].label, null, money.view===c, 'data-mview="'+c+'"'); }).join("")+'</div>';
+  $("chipsSlot").querySelectorAll("[data-mview]").forEach(function(x){ x.onclick = function(){ money.view = x.getAttribute("data-mview"); save("japan.money.view", money.view); render(); }; });
+  scrollChips($("chipsSlot").querySelector(".chips"), prev, prev != null, "money");
+
+  var html = '<div class="days">';
+  html += '<div class="stay mbal"><div class="stay__tx" style="flex:1"><p class="stay__hotel">Кто кому должен</p>'+
+    (lines === null ? '<p class="stay__meta">Курс не загрузился — выбери «Как платили»</p>' :
+     lines.length ? lines.map(function(l){ return '<p class="mbal__row"><span>'+l.from+' должна '+l.to+'</span><b>'+l.sum+'</b></p>'; }).join("") : '<p class="stay__meta">Всё ровно</p>')+
+    (money.view !== "orig" && money.rates ? '<p class="stay__meta" style="margin-top:6px">По курсу на '+new Date(money.rates.day).toLocaleDateString("ru-RU",{day:"numeric",month:"long"})+'</p>' : '')+
+    '</div></div>';
+  html += '<div class="mbtns"><button class="btn-route mbtn--main" id="mAdd">＋ Трата</button><button class="btn-route" id="mBack">Возврат долга</button></div>';
+  if (money.error) html += '<p class="hint" style="padding:0 4px">'+esc(money.error)+'</p>';
+  if (!money.rows.length && !money.loading) html += '<p class="hint" style="padding:8px 4px">Пока нет трат</p>';
+  var byDay = {};
+  money.rows.forEach(function(r){ (byDay[r.spent_on] = byDay[r.spent_on] || []).push(r); });
+  Object.keys(byDay).sort().reverse().forEach(function(day){
+    var dt = new Date(day+"T00:00:00");
+    html += '<p class="mday">'+dt.getDate()+' '+MONTHS[dt.getMonth()]+'</p><div class="check mlist">'+byDay[day].map(rowHtml).join("")+'</div>';
+  });
+  $("view").innerHTML = html + '</div>';
+  $("mAdd").onclick = function(){ openMoneyForm(null, "expense"); };
+  $("mBack").onclick = function(){ openMoneyForm(null, "transfer"); };
+  $("view").querySelectorAll("[data-mid]").forEach(function(el){ el.onclick = function(){
+    var r = money.rows.filter(function(x){ return x.id === el.getAttribute("data-mid"); })[0]; if (r) openMoneyForm(r, r.kind);
+  }; });
+}
+function splitText(r){
+  var a = Number(r.share_adelina), n = Number(r.share_nastya), amt = Number(r.amount);
+  if (r.kind === "transfer") return (r.paid_by === "Настя" ? "Настя вернула Аделине" : "Аделина вернула Насте");
+  var who = "Платила " + r.paid_by;
+  if (Math.abs(a - n) < 0.01 && Math.abs(a + n - amt) < 0.01) return who + " · пополам, по " + fmt(a, r.currency);
+  if (a === 0 && Math.abs(n - amt) < 0.01) return who + " · целиком за Настю";
+  if (n === 0 && Math.abs(a - amt) < 0.01) return who + " · целиком за Аделину";
+  return who + " · Аделина " + fmt(a, r.currency) + ", Настя " + fmt(n, r.currency);
+}
+function rowHtml(r){
+  return '<button class="mrow" data-mid="'+r.id+'"><span class="mrow__tx"><b>'+esc(r.kind === "transfer" ? "Возврат долга" : (r.title || "Без названия"))+'</b><small>'+esc(splitText(r))+'</small></span>'+
+    '<span class="mrow__sum">'+fmt(Number(r.amount), r.currency)+'</span></button>';
+}
+
+function segHtml(name, opts, val){
+  return '<div class="seg" data-seg="'+name+'">'+opts.map(function(o){ return '<button type="button" class="chip c-all'+(o[0]===val?' is-active':'')+'" data-v="'+o[0]+'"><span class="chip__label">'+esc(o[1])+'</span></button>'; }).join("")+'</div>';
+}
+function todayIso(){ return todayKeyJapan(); }
+function openMoneyForm(r, kind){
+  var isT = kind === "transfer";
+  var st = {
+    id: r ? r.id : null, kind: kind,
+    title: r ? r.title : "", amount: r ? String(Number(r.amount)) : "",
+    currency: r ? r.currency : load("japan.money.lastCur", "JPY"),
+    paid_by: r ? r.paid_by : load("japan.money.lastPayer", "Аделина"),
+    split: "half", sa: "", sn: "", date: r ? r.spent_on : todayIso()
+  };
+  if (r && !isT){
+    var a = Number(r.share_adelina), n = Number(r.share_nastya), amt = Number(r.amount);
+    if (Math.abs(a-n) < 0.01) st.split = "half";
+    else if (a === 0 && Math.abs(n-amt) < 0.01) st.split = "nastya";
+    else if (n === 0 && Math.abs(a-amt) < 0.01) st.split = "adelina";
+    else { st.split = "custom"; st.sa = String(a); st.sn = String(n); }
+  }
+  var html = '<div class="sh-head"><p class="sh-kicker">'+(r ? "Изменить" : "Новая запись")+'</p><h2 class="sh-title">'+(isT ? "Возврат долга" : "Трата")+'</h2></div>'+
+    '<form class="mform" id="mForm">'+
+    (isT ? '' : '<label class="fld"><span class="label">За что</span><input class="fld__in" id="fTitle" value="'+esc(st.title)+'" placeholder="Например, ужин в Kiraku" autocomplete="off"></label>')+
+    '<label class="fld"><span class="label">Сумма</span><input class="fld__in" id="fAmount" inputmode="decimal" value="'+esc(st.amount)+'" placeholder="0" autocomplete="off"></label>'+
+    '<div class="fld"><span class="label">Валюта</span>'+segHtml("currency", CUR_ORDER.map(function(c){ return [c, CUR[c].sym+" "+CUR[c].label]; }), st.currency)+'</div>'+
+    '<div class="fld"><span class="label">'+(isT ? "Кто вернул" : "Кто платил")+'</span>'+segHtml("paid_by", PEOPLE.map(function(p){ return [p,p]; }), st.paid_by)+'</div>'+
+    (isT ? '' : '<div class="fld"><span class="label">Как делим</span>'+segHtml("split", [["half","Пополам"],["adelina","Только Аделина"],["nastya","Только Настя"],["custom","Свои доли"]], st.split)+
+      '<div class="mcustom" id="fCustom"'+(st.split==="custom"?'':' hidden')+'><label class="fld"><span class="label">Доля Аделины</span><input class="fld__in" id="fSa" inputmode="decimal" value="'+esc(st.sa)+'"></label>'+
+      '<label class="fld"><span class="label">Доля Насти</span><input class="fld__in" id="fSn" inputmode="decimal" value="'+esc(st.sn)+'"></label></div>'+
+      '<p class="hint" id="fSplitHint"></p></div>')+
+    '<label class="fld"><span class="label">Дата</span><input class="fld__in" id="fDate" type="date" value="'+esc(st.date)+'"></label>'+
+    '<p class="hint" id="fErr" style="color:var(--danger)"></p>'+
+    '<button class="primary" type="submit" id="fSave">Сохранить</button>'+
+    (r ? '<button class="mdel" type="button" id="fDel">Удалить запись</button>' : '')+
+    '</form>';
+  openSheet(html, null);
+  var form = $("mForm");
+  function num(v){ return parseFloat(String(v).replace(/\s/g,"").replace(",", ".")); }
+  function hint(){
+    var h = $("fSplitHint"); if (!h) return;
+    var amt = num($("fAmount").value);
+    if (st.split === "half" && amt > 0) h.textContent = "Полный счёт " + fmt(amt, st.currency) + " · по " + fmt(amt/2, st.currency) + " каждой";
+    else if (st.split === "custom" && amt > 0){ var s = (num($("fSa").value)||0) + (num($("fSn").value)||0); h.textContent = "Полный счёт " + fmt(amt, st.currency) + (Math.abs(s-amt) > 0.01 ? " · сумма долей " + fmt(s, st.currency) : ""); }
+    else h.textContent = amt > 0 ? "Полный счёт " + fmt(amt, st.currency) : "";
+  }
+  form.querySelectorAll("[data-seg]").forEach(function(seg){
+    var name = seg.getAttribute("data-seg");
+    seg.querySelectorAll("[data-v]").forEach(function(b){ b.onclick = function(){
+      st[name] = b.getAttribute("data-v");
+      seg.querySelectorAll("[data-v]").forEach(function(x){ x.classList.toggle("is-active", x === b); });
+      if (name === "split") $("fCustom").hidden = st.split !== "custom";
+      hint();
+    }; });
+  });
+  ["fAmount","fSa","fSn"].forEach(function(id){ if ($(id)) $(id).oninput = hint; });
+  hint();
+  form.onsubmit = function(e){
+    e.preventDefault();
+    var amt = num($("fAmount").value), err = "";
+    if (!(amt > 0)) err = "Укажи сумму";
+    var sa = 0, sn = 0;
+    if (isT){ if (st.paid_by === "Настя") sa = amt; else sn = amt; }
+    else if (st.split === "half"){ sa = Math.round(amt*50)/100; sn = Math.round((amt - sa)*100)/100; }
+    else if (st.split === "adelina") sa = amt;
+    else if (st.split === "nastya") sn = amt;
+    else { sa = num($("fSa").value)||0; sn = num($("fSn").value)||0; if (Math.abs(sa+sn-amt) > 0.01) err = "Доли должны давать в сумме " + fmt(amt, st.currency); }
+    if (err){ $("fErr").textContent = err; return; }
+    var rec = {id:st.id, kind:st.kind, title: isT ? "Возврат долга" : $("fTitle").value.trim(), amount:amt, currency:st.currency,
+      paid_by:st.paid_by, share_adelina:sa, share_nastya:sn, spent_on:$("fDate").value || todayIso()};
+    if (!rec.id) delete rec.id;
+    $("fSave").disabled = true; $("fSave").textContent = "Сохраняю…";
+    rpc("trip_save", {p_trip:TRIP, p_pass:money.pass, e:rec}).then(function(){
+      save("japan.money.lastCur", st.currency); save("japan.money.lastPayer", st.paid_by);
+      closeSheet(); toast("Сохранено"); moneyLoad();
+    }).catch(function(){ $("fSave").disabled = false; $("fSave").textContent = "Сохранить"; $("fErr").textContent = "Не сохранилось — проверь интернет и попробуй ещё раз"; });
+  };
+  if ($("fDel")) $("fDel").onclick = function(){
+    if (!confirmDel.armed){ confirmDel.armed = true; $("fDel").textContent = "Точно удалить? Нажми ещё раз"; setTimeout(function(){ confirmDel.armed = false; if ($("fDel")) $("fDel").textContent = "Удалить запись"; }, 3000); return; }
+    confirmDel.armed = false;
+    rpc("trip_delete", {p_trip:TRIP, p_pass:money.pass, p_id:st.id}).then(function(){ closeSheet(); toast("Удалено"); moneyLoad(); })
+      .catch(function(){ $("fErr").textContent = "Не удалилось — проверь интернет"; });
+  };
+}
+var confirmDel = {armed:false};
+
+/* пароль поездки — поп-ап при входе на вкладку */
+function askPass(){
+  var a = $("alert");
+  a.innerHTML = '<div class="alert__title">Пароль поездки</div><p class="alert__text" id="pErr">Вводится один раз на этом устройстве</p>'+
+    '<div class="alert__fields"><div class="alert__row"><input class="alert__in" id="pIn" type="password" placeholder="Пароль" autocomplete="current-password" enterkeyhint="done"></div></div>'+
+    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="pCancel">Отменить</button><button class="alert__btn alert__btn--ok" type="submit" id="pOk">Открыть</button></div>';
+  a.className = "alert lg"; a.style.display = "flex"; $("alertOv").classList.add("is-open");
+  void a.offsetWidth; a.classList.add("is-open");
+  setTimeout(function(){ $("pIn").focus(); }, 60);
+  $("pCancel").onclick = closePass;
+  a.onsubmit = function(e){
+    e.preventDefault(); var v = $("pIn").value.trim(); if (!v){ $("pIn").focus(); return; }
+    $("pOk").disabled = true;
+    rpc("trip_check", {p_trip:TRIP, p_pass:v}).then(function(ok){
+      $("pOk").disabled = false;
+      if (ok){ money.pass = v; save("japan.money.pass", v); money.error = ""; closePass(); moneyLoad(); render(); }
+      else { $("pErr").textContent = "Неверный пароль"; $("pErr").style.color = "var(--danger)"; $("pIn").select(); }
+    }).catch(function(){ $("pOk").disabled = false; $("pErr").textContent = "Нет связи, попробуй ещё раз"; $("pErr").style.color = "var(--danger)"; });
+  };
+}
+function closePass(){
+  var a = $("alert"); a.classList.remove("is-open"); a.classList.add("is-closing"); $("alertOv").classList.remove("is-open");
+  if (document.activeElement && a.contains(document.activeElement)) document.activeElement.blur();
+  setTimeout(function(){ if (a.classList.contains("is-closing")){ a.style.display = "none"; a.className = "alert lg"; a.innerHTML = ""; } }, 210);
+}
+$("alertOv").onclick = closePass;
+
 /* ================= таббар ================= */
 function positionPill(animate){
   var act = document.querySelector(".tab.is-active"), pill = $("tabPill");
@@ -1015,7 +1301,7 @@ function positionPill(animate){
 }
 window.addEventListener("resize", function(){ positionPill(false); });
 document.querySelectorAll(".tab").forEach(function(t){
-  t.onclick = function(){ var k = t.getAttribute("data-tab"); if (k===ui.tab){ $("scroll").scrollTo({top:0, behavior:"smooth"}); return; } ui.tab = k; $("scroll").scrollTop = 0; render(); enterView(); };
+  t.onclick = function(){ var k = t.getAttribute("data-tab"); if (k===ui.tab){ $("scroll").scrollTo({top:0, behavior:"smooth"}); return; } ui.tab = k; $("scroll").scrollTop = 0; if (k === "money"){ moneyLoad(); moneyRates(); } render(); enterView(); if (k === "money" && !money.pass) setTimeout(askPass, 250); };
 });
 $("scroll").addEventListener("scroll", function(){
   var y = this.scrollTop;
