@@ -225,16 +225,16 @@ a.note:active{transform:scale(.97)}
 #qrClose{position:absolute;top:calc(var(--safe) + 10px);right:16px}
 
 /* ---------- prep: folders ---------- */
-.sets{display:flex;gap:8px;padding:8px 16px 0;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none}
+.sets{display:flex;gap:8px;padding:20px 16px 0;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding:0 16px;scrollbar-width:none}
 .sets::-webkit-scrollbar{display:none}
 .sets .set{flex:0 0 calc((100% - 8px) / 2.15);scroll-snap-align:start}
 .set{position:relative;height:179px;border-radius:32px;background:var(--set-bg);overflow:hidden;padding:24px 20px 20px;display:flex;flex-direction:column;gap:10px;text-align:left;transition:transform .5s cubic-bezier(.25,1.5,.4,1)}
 .set:active{transform:scale(.96)}
 .folder{position:relative;width:55px;height:46px;flex:none;filter:drop-shadow(0 8px 7px rgba(0,0,0,.08));transition:transform .6s cubic-bezier(.25,1.6,.4,1)}
-.folder__back{position:absolute;left:3px;top:9.49px;width:49px;height:36.51px}
-.folder__front{position:absolute;left:0;top:.53px;width:55px;height:42.47px;transform-origin:50% 100%;transition:transform .55s cubic-bezier(.25,1.5,.4,1)}
+.folder__back{position:absolute;z-index:0;left:3px;top:9.49px;width:49px;height:36.51px}
+.folder__front{position:absolute;z-index:1;left:0;top:.53px;width:55px;height:42.47px;transform-origin:50% 100%;transition:transform .55s cubic-bezier(.25,1.5,.4,1)}
 .folder__back svg,.folder__front svg{display:block;width:100%;height:100%;overflow:visible}
-.folder__flag{position:absolute;left:-6.03px;top:7.47px;width:26.05px;height:31.06px;display:flex;align-items:center;justify-content:center}
+.folder__flag{position:absolute;z-index:2;left:-6.03px;top:7.47px;width:26.05px;height:31.06px;display:flex;align-items:center;justify-content:center}
 .folder__flag span{display:block;transform:rotate(-8.87deg);font:400 22px/28px var(--emoji)}
 .set__body{flex:1 0 0;min-height:0;display:flex;flex-direction:column;gap:6px;justify-content:flex-end}
 .set__title p{transform:skewX(-1.31deg);font-weight:700;font-size:19px;line-height:24px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -244,6 +244,7 @@ a.note:active{transform:scale(.97)}
   .set:hover .folder__front{transform:perspective(160px) rotateX(-32deg)}
   .set:hover .folder{transform:translateY(-3px) rotate(-3deg)}
 }
+#prepChips{padding-top:20px}
 .sec{padding:24px 20px 8px;font-weight:500;font-size:15px;line-height:20px;color:var(--secondary)}
 
 /* ---------- checklist ---------- */
@@ -1005,8 +1006,12 @@ $("scroll").addEventListener("scroll", function(){
 }, {passive:true});
 
 function enterView(){
-  document.querySelectorAll("#view .day, #view .set, #view .stay").forEach(function(el, i){
+  document.querySelectorAll("#view .day, #view .stay").forEach(function(el, i){
     anim(el, [{opacity:0, transform:"translateY(40px) scale(.94)"},{opacity:1, transform:"none"}], {duration:700, delay:Math.min(i,8)*55, easing:SPRING, fill:"backwards"});
+  });
+  /* ряд папок листается по горизонтали — анимируем его целиком и без пружины, иначе карточки дёргаются */
+  document.querySelectorAll("#view .sets, #view #prepChips, #view .checks").forEach(function(el, i){
+    anim(el, [{opacity:0, transform:"translateY(16px)"},{opacity:1, transform:"none"}], {duration:450, delay:i*50, easing:SMOOTH, fill:"backwards"});
   });
 }
 function intro(){
