@@ -869,7 +869,7 @@ function summaryHtml(d){
 function alertHtml(d){ return d.alert ? '<div class="callout"><span class="callout__ic">🗻</span><span>'+esc(d.alert)+'</span></div>' : ''; }
 function tasksHtml(list){
   if (!list || !list.length) return "";
-  return '<div class="check tasks" data-tasks>'+list.map(function(it){
+  return '<div class="check tasks" data-tasks>'+doneLast(list).map(function(it){
     var on = !!checks[it.id];
     return '<div class="check__item" role="checkbox" aria-checked="'+on+'" tabindex="0" data-check="'+it.id+'"><span class="check__box'+(on?' is-done':'')+'">'+(on?TICK:'')+'</span><span class="check__text'+(on?' is-done':'')+'">'+it.t+'</span></div>';
   }).join("")+'</div>';
@@ -923,7 +923,7 @@ function renderPrep(){
     var left = PREP[g].items.filter(function(x){ return !checks[x.id]; }).length;
     return chip("c-all", PREP[g].label, left || null, ui.prep===g, 'data-prep="'+g+'"');
   }).join("")+'</div>';
-  html += '<div class="checks check" id="checkList">'+PREP[ui.prep].items.map(checkItem).join("")+'</div>';
+  html += '<div class="checks check" id="checkList">'+doneLast(PREP[ui.prep].items).map(checkItem).join("")+'</div>';
   $("view").innerHTML = html;
   scrollChips($("prepChips"), prev, prev != null, "prep");
   $("view").querySelectorAll("[data-prep]").forEach(function(b){ b.onclick = function(){ if (ui.prep === b.getAttribute("data-prep")) return; ui.prep = b.getAttribute("data-prep"); render();
@@ -934,6 +934,19 @@ function renderPrep(){
 function folder(id, emoji, title, sub){
   return '<button class="set" data-folder="'+id+'"><div class="folder"><span class="folder__back">'+FBACK+'</span><span class="folder__front">'+FFRONT+'</span><span class="folder__flag"><span>'+emoji+'</span></span></div>'+
     '<div class="set__body"><div class="set__title"><p>'+esc(title)+'</p></div><p class="set__count">'+esc(sub)+'</p></div></button>';
+}
+/* невыполненные сверху, выполненные опускаются вниз */
+function doneLast(list){ return list.map(function(it, i){ return [it, i]; }).sort(function(a, b){ return (!!checks[a[0].id] - !!checks[b[0].id]) || (a[1] - b[1]); }).map(function(x){ return x[0]; }); }
+function settleCheck(el){
+  var box = el.parentNode; if (!box) return;
+  var items = [].filter.call(box.children, function(x){ return x.hasAttribute("data-check"); });
+  var before = items.map(function(x){ return x.getBoundingClientRect().top; });
+  var done = el.getAttribute("aria-checked") === "true";
+  var others = items.filter(function(x){ return x !== el; });
+  var firstDone = others.filter(function(x){ return x.getAttribute("aria-checked") === "true"; })[0];
+  if (done){ var last = others[others.length - 1]; if (last && last.nextSibling !== el) box.insertBefore(el, last.nextSibling); else if (!last) return; }
+  else if (firstDone){ box.insertBefore(el, firstDone); } else return;
+  items.forEach(function(x, i){ var dy = before[i] - x.getBoundingClientRect().top; if (Math.abs(dy) > 1) anim(x, [{transform:"translateY("+dy+"px)"},{transform:"none"}], {duration:520, easing:SPRING}); });
 }
 function checkItem(it){
   var on = !!checks[it.id];
@@ -953,6 +966,7 @@ function bindChecks(root, store, key, after){
       });
       var box = el.querySelector(".check__box"); box.classList.remove("pop"); void box.offsetWidth; box.classList.add("pop");
       if (after) after();
+      setTimeout(function(){ document.querySelectorAll('[data-check="'+id+'"]').forEach(settleCheck); }, 380);
     };
     el.onclick = toggle; el.onkeydown = function(e){ if (e.key===" "||e.key==="Enter"){ e.preventDefault(); toggle(e); } };
   });
@@ -1027,6 +1041,7 @@ function openHotels(){
 }
 
 function openTickets(){
+  if (isGuest()){ toast("Документы доступны только попутчикам"); return; }
   var open = usjOpen();
   var fl = FLIGHTS.map(function(f){
     return '<div class="hotel"><div class="hotel__top"><div><span class="chip chip--sm c-all" style="display:inline-flex;margin-bottom:8px">'+f.dir+' · бронь '+f.pnr+'</span>'+
@@ -1053,7 +1068,7 @@ $("btnShare").onclick = function(){
 };
 
 /* ================= QR во весь экран ================= */
-function openQr(){ $("qrImg").src = QR_SRC; $("qrv").classList.add("is-open"); $("qrv").setAttribute("aria-hidden","false"); }
+function openQr(){ if (isGuest()){ toast("QR-код доступен только попутчикам"); return; } $("qrImg").src = QR_SRC; $("qrv").classList.add("is-open"); $("qrv").setAttribute("aria-hidden","false"); }
 function closeQr(){ $("qrv").classList.remove("is-open"); $("qrv").setAttribute("aria-hidden","true"); }
 $("qrClose").onclick = closeQr;
 $("qrv").addEventListener("click", function(e){ if (e.target === $("qrv")) closeQr(); });
