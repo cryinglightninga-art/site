@@ -53,6 +53,7 @@
   .sheet{--set-bg:#2c2c2e}
   .day,.stay{--surface:#2c2c2e}
   .sheet .hotel{--surface:#3a3a3c}
+  .pg .hotel,.pg .steps,.pg .check{--surface:#2c2c2e}
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;overscroll-behavior:none}
@@ -105,6 +106,36 @@ a{color:inherit;text-decoration:none}
 .is-compact .ctitle{opacity:1;transform:none}
 .toolbar__controls{display:flex;justify-content:space-between;align-items:center;padding:0 16px;height:44px;position:relative;z-index:1}
 .toolbar__trailing{display:flex;gap:10px;align-items:center}
+#phone .pg-back,#phone .ptitle,#phone .pg-add{display:none}
+#phone.is-page .pg-back{display:flex}
+#phone.is-page .ptitle{display:flex}
+#phone.is-page .toolbar{display:none}
+#phone.is-page .toolbar__trailing .glass{display:none}
+#phone.is-page.has-add .toolbar__trailing .pg-add{display:flex}
+#phone.is-guest .toolbar__trailing .pg-add{display:none}
+.ptitle{position:absolute;left:72px;right:72px;top:0;height:44px;align-items:center;justify-content:center;pointer-events:none}
+#phone.is-page .ctitle{display:block;visibility:hidden;flex:1 0 0}
+#phone.is-page .tabbar{transform:translateY(150%);opacity:0;pointer-events:none}
+.tabbar{transition:transform .5s cubic-bezier(.3,1.25,.5,1),opacity .3s}
+#phone .pg-add{background:rgba(0,136,255,.86);box-shadow:0 8px 24px rgba(0,136,255,.28),inset 1.5px 1.5px 1px rgba(255,255,255,.55),inset -1px -1px 1px rgba(255,255,255,.25)}
+#phone .pg-add .sym{color:#fff}
+#phone.is-page #chipsSlot .chips{padding-top:12px}
+#phone .ptitle__ic{display:none}
+.ptitle__ic{width:32px;height:32px;border-radius:9px;background:var(--set-bg);display:flex;align-items:center;justify-content:center;font:400 18px/1 var(--emoji);flex:none}
+.ptitle b{font:600 17px/22px var(--sf);letter-spacing:-.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pg{display:flex;flex-direction:column;gap:20px;padding:16px 16px 0}
+.sets.sets--grid{display:grid;grid-template-columns:1fr 1fr;overflow:visible}
+.sets.sets--grid .set{flex:none}
+.set.is-locked{opacity:.4}
+/* свайп влево — удалить */
+.pg .check,#docsBox{overflow:hidden}
+.pg .check__item,#docsBox .att{touch-action:pan-y;will-change:transform}
+.sw-del{position:absolute;top:50%;right:-80px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center}
+#docsBox .att{position:relative;overflow:visible}
+#docsBox .att .sw-del{right:-76px}
+.sw-del svg{width:20px;height:20px}
+.addmenu{position:absolute;z-index:40;right:16px;top:calc(var(--safe) + 52px);left:auto}
+.addmenu button i{display:none}
 .acc-mate{display:none}.is-mate .acc-mate{display:inline}.is-mate .acc-guest{display:none}
 .btn-group{height:44px;display:flex;gap:20px;align-items:center}
 .btn-group--1{width:44px;padding:0 4px}
@@ -117,7 +148,7 @@ a{color:inherit;text-decoration:none}
 /* ---------- tab bar ---------- */
 .tabbar{position:absolute;z-index:5;left:0;bottom:0;width:100%;display:flex;gap:16px;align-items:center;justify-content:flex-end;padding:16px 25px calc(20px + env(safe-area-inset-bottom,0px));pointer-events:none}
 .tabbar > *{pointer-events:auto}
-.tabbar__buttons{position:relative;flex:none;width:274px;height:54px;display:flex;align-items:center;padding:0 2px}
+.tabbar__buttons{position:relative;flex:none;width:184px;height:54px;display:flex;align-items:center;padding:0 2px}
 .tabbar__bg{position:absolute;inset:-4px}
 .tab{position:relative;flex:1 0 0;height:54px;margin-right:-8px;color:var(--label);transition:color .3s}
 .tab:last-child{margin-right:0}
@@ -226,7 +257,7 @@ a.note:active{transform:scale(.97)}
 .btn-route .gm{height:20px}
 .sheet .btn-route{background:var(--set-bg);box-shadow:none}
 /* просмотр QR во весь экран */
-.qrv{position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;visibility:hidden;opacity:0;transition:opacity .25s,visibility 0s .25s}
+.qrv{position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;visibility:hidden;opacity:0;transition:opacity .25s,visibility 0s .25s}
 .qrv.is-open{visibility:visible;opacity:1;transition:opacity .25s}
 .qrv__card{background:#fff;border-radius:32px;padding:22px 22px 18px;width:100%;max-width:330px;display:flex;flex-direction:column;align-items:center;gap:12px;color:#000;transform:scale(.9);transition:transform .45s cubic-bezier(.3,1.35,.5,1)}
 .qrv.is-open .qrv__card{transform:none}
@@ -308,6 +339,7 @@ a.note:active{transform:scale(.97)}
 /* ---------- checklist ---------- */
 .check{display:flex;flex-direction:column;padding:14px 16px 14px 18px;border-radius:24px;background:var(--set-bg)}
 .checks{margin:0 16px}
+.pg .checks{margin:0}
 .check__item{display:flex;align-items:flex-start;gap:12px;min-height:30px;padding:5px 0;text-align:left;width:100%}
 .check__item{position:relative}
 .check__item + .check__item{margin-top:5px;padding-top:10px}
@@ -460,8 +492,11 @@ a.note:active{transform:scale(.97)}
     <div class="safe-spacer"></div>
     <div class="bar" id="bar">
       <div class="toolbar__controls">
+        <button class="glass lg round pg-back" id="pgBack" aria-label="Назад"><svg viewBox="0 0 20 20" fill="none"><path d="M12.5 4L6.5 10l6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <div class="ptitle" id="pTitle"><span class="ptitle__ic" id="pIc"></span><b id="pName"></b></div>
         <div class="ctitle" aria-hidden="true"><b id="ctTitle"></b><span id="ctSub"></span></div>
         <div class="toolbar__trailing">
+          <div class="glass lg btn-group btn-group--1 pg-add"><button class="sym" id="pgAdd" aria-label="Добавить"><svg viewBox="0 0 36 36" aria-hidden="true"><path d="M18 10.5v15M10.5 18h15" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg></button></div>
           <div class="glass lg btn-group btn-group--1"><button class="sym" id="btnShare" aria-label="Поделиться"><svg viewBox="0 0 36 36" aria-hidden="true"><g transform="translate(8 8.05) scale(.95)"><path d="M10.4773 6.35376L9.17847 7.67212C10.4675 7.77954 11.3074 8.1604 11.9421 8.79517C13.6511 10.5042 13.6414 12.926 11.9519 14.6155L8.75855 17.7991C7.05933 19.4983 4.65698 19.5081 2.948 17.8088C1.23902 16.0901 1.24878 13.6877 2.948 11.9885L4.86206 10.0745C4.58862 9.45923 4.52027 8.72681 4.62769 8.09204L1.75659 10.9534C-0.577391 13.2971-0.596922 16.6174 1.76636 18.9807C4.13941 21.3538 7.45972 21.3342 9.7937 19.0002L13.1335 15.6506C15.4773 13.3069 15.4968 9.98657 13.1238 7.62329C12.5085 7.00806 11.7273 6.56861 10.4773 6.35376ZM10.2332 14.4006L11.532 13.0823C10.2429 12.9846 9.40308 12.594 8.76831 11.9592C7.05933 10.2502 7.06909 7.82837 8.75855 6.13892L11.9421 2.95532C13.6511 1.25611 16.0535 1.24634 17.7625 2.95532C19.4714 4.66431 19.4519 7.07642 17.7625 8.76587L15.8484 10.6799C16.1218 11.3049 16.1804 12.0276 16.0828 12.6624L18.9539 9.80103C21.2878 7.45728 21.3074 4.14673 18.9441 1.77368C16.571-0.599363 13.2507-0.579832 10.907 1.76392L7.57691 5.10376C5.23316 7.44751 5.21362 10.7678 7.58667 13.1311C8.20191 13.7463 8.98316 14.1858 10.2332 14.4006Z" fill="currentColor"/></g></svg></button></div>
           <div class="glass lg btn-group btn-group--1"><button class="sym" id="btnAcc" aria-label="Аккаунт"><svg viewBox="0 0 36 36" aria-hidden="true"><g class="acc-guest" transform="translate(8.2 8.2) scale(.98)"><path d="M9.96094 19.9219C15.459 19.9219 19.9219 15.459 19.9219 9.96094C19.9219 4.46289 15.459 0 9.96094 0C4.46289 0 0 4.46289 0 9.96094C0 15.459 4.46289 19.9219 9.96094 19.9219ZM9.96094 18.2617C5.37109 18.2617 1.66016 14.5508 1.66016 9.96094C1.66016 5.37109 5.37109 1.66016 9.96094 1.66016C14.5508 1.66016 18.2617 5.37109 18.2617 9.96094C18.2617 14.5508 14.5508 18.2617 9.96094 18.2617ZM16.6406 16.3965L16.6113 16.2891C16.1328 14.8535 13.5547 13.2812 9.96094 13.2812C6.37695 13.2812 3.79883 14.8535 3.31055 16.2793L3.28125 16.3965C5.03906 18.1348 8.05664 19.1504 9.96094 19.1504C11.875 19.1504 14.8633 18.1445 16.6406 16.3965ZM9.96094 11.6211C11.8457 11.6406 13.3105 10.0391 13.3105 7.93945C13.3105 5.9668 11.8359 4.33594 9.96094 4.33594C8.08594 4.33594 6.60156 5.9668 6.61133 7.93945C6.62109 10.0391 8.08594 11.6016 9.96094 11.6211Z" fill="currentColor"/></g><g class="acc-mate" transform="translate(3.3 6.83) scale(.98)"><path d="M24.9609 11.3965C24.9609 16.8945 20.498 21.3574 15 21.3574C13.6104 21.3574 12.287 21.0723 11.086 20.5558C12.0261 19.4567 12.5977 18.0377 12.5977 16.5039C12.5977 15.9898 12.5348 15.4892 12.4095 15.0123C13.1892 14.825 14.06 14.7168 15 14.7168C17.933 14.7168 20.1896 15.7641 21.1791 16.9297C22.5015 15.4676 23.3008 13.5267 23.3008 11.3965C23.3008 6.80664 19.5898 3.0957 15 3.0957C10.8072 3.0957 7.34774 6.19246 6.79024 10.2302C6.62899 10.2116 6.46462 10.2051 6.29883 10.2051C5.88883 10.2051 5.48727 10.2453 5.09877 10.3246C5.63187 5.32952 9.86434 1.43555 15 1.43555C20.498 1.43555 24.9609 5.89844 24.9609 11.3965ZM18.3496 9.375C18.3496 11.4746 16.8848 13.0762 15 13.0566C13.125 13.0371 11.6602 11.4746 11.6504 9.375C11.6406 7.40234 13.125 5.77148 15 5.77148C16.875 5.77148 18.3496 7.40234 18.3496 9.375Z" fill="currentColor"/><path d="M11.2598 16.5039C11.2598 19.2188 8.98438 21.4648 6.29883 21.4648C3.58398 21.4648 1.33789 19.2383 1.33789 16.5039C1.33789 13.7891 3.58398 11.543 6.29883 11.543C9.02344 11.543 11.2598 13.7793 11.2598 16.5039ZM7.85156 14.3066L5.47852 17.6074L4.27734 16.3086C4.16992 16.2012 4.01367 16.1035 3.80859 16.1035C3.4668 16.1035 3.19336 16.3672 3.19336 16.7188C3.19336 16.8555 3.24219 17.0312 3.35938 17.1582L5.00977 18.9746C5.13672 19.1113 5.3418 19.1797 5.49805 19.1797C5.71289 19.1797 5.9082 19.0918 6.01562 18.9453L8.84766 15.0098C8.93555 14.8828 8.98438 14.7461 8.98438 14.6387C8.98438 14.2969 8.70117 14.0332 8.36914 14.0332C8.14453 14.0332 7.96875 14.1406 7.85156 14.3066Z" fill="currentColor"/></g></svg></button></div>
         </div>
@@ -483,7 +518,6 @@ a.note:active{transform:scale(.97)}
       <span class="tab-pill" id="tabPill"></span>
       <button class="tab" data-tab="days" aria-label="Дни"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(35.1 15.75) scale(1.25)"><path d="M3.06641 17.998L16.4062 17.998C18.4473 17.998 19.4629 16.9824 19.4629 14.9707L19.4629 3.04688C19.4629 1.03516 18.4473 0.0195312 16.4062 0.0195312L3.06641 0.0195312C1.02539 0.0195312 0 1.02539 0 3.04688L0 14.9707C0 16.9922 1.02539 17.998 3.06641 17.998ZM2.91992 16.4258C2.05078 16.4258 1.57227 15.9668 1.57227 15.0586L1.57227 5.84961C1.57227 4.95117 2.05078 4.48242 2.91992 4.48242L16.5332 4.48242C17.4023 4.48242 17.8906 4.95117 17.8906 5.84961L17.8906 15.0586C17.8906 15.9668 17.4023 16.4258 16.5332 16.4258ZM7.83203 7.98828L8.4082 7.98828C8.75 7.98828 8.85742 7.89062 8.85742 7.54883L8.85742 6.97266C8.85742 6.63086 8.75 6.52344 8.4082 6.52344L7.83203 6.52344C7.49023 6.52344 7.37305 6.63086 7.37305 6.97266L7.37305 7.54883C7.37305 7.89062 7.49023 7.98828 7.83203 7.98828ZM11.0742 7.98828L11.6504 7.98828C11.9922 7.98828 12.1094 7.89062 12.1094 7.54883L12.1094 6.97266C12.1094 6.63086 11.9922 6.52344 11.6504 6.52344L11.0742 6.52344C10.7324 6.52344 10.6152 6.63086 10.6152 6.97266L10.6152 7.54883C10.6152 7.89062 10.7324 7.98828 11.0742 7.98828ZM14.3164 7.98828L14.8926 7.98828C15.2344 7.98828 15.3516 7.89062 15.3516 7.54883L15.3516 6.97266C15.3516 6.63086 15.2344 6.52344 14.8926 6.52344L14.3164 6.52344C13.9746 6.52344 13.8672 6.63086 13.8672 6.97266L13.8672 7.54883C13.8672 7.89062 13.9746 7.98828 14.3164 7.98828ZM4.58984 11.1816L5.15625 11.1816C5.50781 11.1816 5.61523 11.084 5.61523 10.7422L5.61523 10.166C5.61523 9.82422 5.50781 9.72656 5.15625 9.72656L4.58984 9.72656C4.23828 9.72656 4.13086 9.82422 4.13086 10.166L4.13086 10.7422C4.13086 11.084 4.23828 11.1816 4.58984 11.1816ZM7.83203 11.1816L8.4082 11.1816C8.75 11.1816 8.85742 11.084 8.85742 10.7422L8.85742 10.166C8.85742 9.82422 8.75 9.72656 8.4082 9.72656L7.83203 9.72656C7.49023 9.72656 7.37305 9.82422 7.37305 10.166L7.37305 10.7422C7.37305 11.084 7.49023 11.1816 7.83203 11.1816ZM11.0742 11.1816L11.6504 11.1816C11.9922 11.1816 12.1094 11.084 12.1094 10.7422L12.1094 10.166C12.1094 9.82422 11.9922 9.72656 11.6504 9.72656L11.0742 9.72656C10.7324 9.72656 10.6152 9.82422 10.6152 10.166L10.6152 10.7422C10.6152 11.084 10.7324 11.1816 11.0742 11.1816ZM14.3164 11.1816L14.8926 11.1816C15.2344 11.1816 15.3516 11.084 15.3516 10.7422L15.3516 10.166C15.3516 9.82422 15.2344 9.72656 14.8926 9.72656L14.3164 9.72656C13.9746 9.72656 13.8672 9.82422 13.8672 10.166L13.8672 10.7422C13.8672 11.084 13.9746 11.1816 14.3164 11.1816ZM4.58984 14.3848L5.15625 14.3848C5.50781 14.3848 5.61523 14.2773 5.61523 13.9355L5.61523 13.3594C5.61523 13.0176 5.50781 12.9199 5.15625 12.9199L4.58984 12.9199C4.23828 12.9199 4.13086 13.0176 4.13086 13.3594L4.13086 13.9355C4.13086 14.2773 4.23828 14.3848 4.58984 14.3848ZM7.83203 14.3848L8.4082 14.3848C8.75 14.3848 8.85742 14.2773 8.85742 13.9355L8.85742 13.3594C8.85742 13.0176 8.75 12.9199 8.4082 12.9199L7.83203 12.9199C7.49023 12.9199 7.37305 13.0176 7.37305 13.3594L7.37305 13.9355C7.37305 14.2773 7.49023 14.3848 7.83203 14.3848ZM11.0742 14.3848L11.6504 14.3848C11.9922 14.3848 12.1094 14.2773 12.1094 13.9355L12.1094 13.3594C12.1094 13.0176 11.9922 12.9199 11.6504 12.9199L11.0742 12.9199C10.7324 12.9199 10.6152 13.0176 10.6152 13.3594L10.6152 13.9355C10.6152 14.2773 10.7324 14.3848 11.0742 14.3848Z" fill="currentColor"/></g></svg></button>
       <button class="tab" data-tab="prep" aria-label="Подготовка"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(34.7 15.6) scale(1.15)"><path d="M11.3867 16.3281L21.0938 16.3281C21.5332 16.3281 21.8945 15.9863 21.8945 15.5469C21.8945 15.0977 21.5332 14.7559 21.0938 14.7559L11.3867 14.7559C10.9375 14.7559 10.5957 15.0977 10.5957 15.5469C10.5957 15.9863 10.9375 16.3281 11.3867 16.3281Z" fill="currentColor"/><path d="M4.20898 19.7559C6.50391 19.7559 8.41797 17.8418 8.41797 15.5469C8.41797 13.2324 6.50391 11.3281 4.20898 11.3281C1.9043 11.3281 0 13.2422 0 15.5469C0 17.8418 1.91406 19.7559 4.20898 19.7559ZM4.20898 18.3301C2.69531 18.3301 1.42578 17.0508 1.42578 15.5469C1.42578 14.0332 2.70508 12.7539 4.20898 12.7539C5.71289 12.7539 6.99219 14.0332 6.99219 15.5469C6.99219 17.0508 5.71289 18.3301 4.20898 18.3301Z" fill="currentColor"/><path d="M11.3867 5.03906L21.0938 5.03906C21.5332 5.03906 21.8945 4.6875 21.8945 4.24805C21.8945 3.80859 21.5332 3.4668 21.0938 3.4668L11.3867 3.4668C10.9375 3.4668 10.5957 3.80859 10.5957 4.24805C10.5957 4.6875 10.9375 5.03906 11.3867 5.03906Z" fill="currentColor"/><path d="M4.20898 8.45703C6.50391 8.45703 8.41797 6.5332 8.41797 4.23828C8.41797 1.93359 6.50391 0.0292969 4.20898 0.0292969C1.9043 0.0292969 0 1.93359 0 4.23828C0 6.5332 1.91406 8.45703 4.20898 8.45703ZM3.71094 6.50391C3.50586 6.50391 3.36914 6.39648 3.22266 6.23047L2.12891 4.91211C2.04102 4.79492 2.00195 4.6875 2.00195 4.53125C2.00195 4.24805 2.2168 4.02344 2.48047 4.02344C2.66602 4.02344 2.80273 4.10156 2.92969 4.26758L3.69141 5.23438L5.42969 2.44141C5.54688 2.26562 5.69336 2.16797 5.86914 2.16797C6.14258 2.16797 6.37695 2.38281 6.37695 2.62695C6.37695 2.76367 6.33789 2.88086 6.25 3.02734L4.20898 6.23047C4.10156 6.40625 3.92578 6.50391 3.71094 6.50391Z" fill="currentColor"/></g></svg></button>
-      <button class="tab" data-tab="money" aria-label="Деньги"><svg viewBox="0 0 95 54" aria-hidden="true"><g transform="translate(33.3 14.9) scale(1.18)"><path d="M2.95898 20.166L18.6621 20.166C20.625 20.166 21.6113 19.1797 21.6113 17.2559L21.6113 14.4336L20.0293 14.4336L20.0293 17.168C20.0293 18.1152 19.5215 18.584 18.6328 18.584L2.97852 18.584C2.08008 18.584 1.5918 18.1152 1.5918 17.168L1.5918 7.23633C1.5918 6.29883 2.08008 5.81055 2.97852 5.81055L18.6328 5.81055C19.5215 5.81055 20.0293 6.29883 20.0293 7.23633L20.0293 9.60938L21.6113 9.60938L21.6113 7.14844C21.6113 5.22461 20.625 4.22852 18.6621 4.22852L7.8125 4.22852C7.64648 4.22852 7.62695 4.07227 7.80273 4.0332L15.3516 1.94336C16.2891 1.66992 16.7773 2.01172 16.7773 2.87109L16.7773 4.90234L18.3691 4.76562L18.3691 3.00781C18.3691 0.703125 16.7871-0.00976562 14.6484 0.605469L2.12891 4.24805C0.664062 4.6875 0 5.57617 0 7.14844L0 17.2559C0 19.1895 1.00586 20.166 2.95898 20.166ZM17.793 13.1641C18.3398 13.1641 18.7793 12.7246 18.7793 12.1777C18.7793 11.6309 18.3398 11.1914 17.793 11.1914C17.2461 11.1914 16.8066 11.6309 16.8066 12.1777C16.8066 12.7246 17.2461 13.1641 17.793 13.1641ZM17.6953 15.2539L21.3086 15.2539C22.5293 15.2539 23.291 14.3945 23.291 13.2715L23.291 11.1035C23.291 9.98047 22.5293 9.13086 21.3086 9.13086L17.6953 9.13086C15.7227 9.13086 14.4043 10.1465 14.4043 12.1875C14.4043 14.2383 15.7227 15.2539 17.6953 15.2539ZM17.793 13.9453C16.4258 13.9453 15.7812 13.2812 15.7812 12.1875C15.7812 11.0938 16.4258 10.4297 17.793 10.4297L20.9668 10.4297C21.6406 10.4297 21.9922 10.8105 21.9922 11.4453L21.9922 12.9297C21.9922 13.5645 21.6406 13.9453 20.9668 13.9453Z" fill="currentColor"/></g></svg></button>
     </div>
   </nav>
 
@@ -507,6 +541,7 @@ a.note:active{transform:scale(.97)}
     <a class="primary" href="https://www.vjw.digital.go.jp/main/#/vjwpti006" target="_blank" rel="noopener">Открыть Visit Japan Web</a>
   </div>
 
+  <div class="mmenu lg addmenu" id="addMenu" hidden><button type="button" data-add="expense"><span>Добавить трату</span></button><button type="button" data-add="transfer"><span>Добавить возврат</span></button></div>
   <input type="file" id="docFile" accept="application/pdf,image/*" hidden>
   <div class="alert-ov" id="alertOv"></div>
   <form class="alert lg" id="alert" role="dialog" autocomplete="off"></form>
@@ -571,6 +606,7 @@ var DAYS = [
        {k:"food", n:"Rikuro's Namba", s:"японские чизкейки", q:"Rikuro's Namba Main Store"},
        {k:"see", n:"Umeda Sky Building", s:"смотровая площадка", q:"Umeda Sky Building", a:"Умеда"},
        {k:"shop", n:"Kiddy Land Osaka Umeda", s:"Smiski", q:"Kiddy Land Umeda Osaka", a:"Умеда"},
+       {k:"shop", n:"WHO'S WHO gallery", s:"HEP FIVE, до 21:00", q:"WHO'S WHO gallery HEP FIVE Osaka", a:"Умеда"},
        {k:"food", n:"Unagi Kushiyaki Izumo", s:"ужин, LUCUA 1100, B2F", q:"Unagi Kushiyaki Izumo LUCUA Osaka"}]},
   {d:24, m:10, stay:"kyoto", cities:["osaka","kyoto"], from:"osaka",
     p:[{k:"home", n:"Апартаменты", s:"выселение", q:"@hotel:osaka"},
@@ -618,6 +654,7 @@ var DAYS = [
            {id:"shk", t:'<b>Купить билеты</b> на синкансэн Киото → Токио в <a href="https://smart-ex.jp/en/" target="_blank" rel="noopener">Smart EX</a>'}]},
   {d:28, m:10, stay:"tokyo", cities:["tokyo"],
     p:[{k:"see", n:"Shinjuku Gyoen", s:"сад Синдзюку-гёэн", q:"Shinjuku Gyoen National Garden", a:"Синдзюку"},
+       {k:"shop", n:"BLUE ELEPHANT Shinjuku", s:"очки, под 3D-котом у восточного выхода, 10:00–22:00", q:"BLUE ELEPHANT Shinjuku", a:"Синдзюку"},
        {k:"see", n:"Meiji Jingu", s:"храм Мэйдзи", q:"Meiji Jingu", a:"Харадзюку"},
        {k:"see", n:"Takeshita-dori", s:"улица Такэсита, прогулка по Харадзюку", q:"Takeshita Street", a:"Харадзюку"},
        {k:"shop", n:"atmos Harajuku", q:"atmos Harajuku", a:"Харадзюку"},
@@ -789,7 +826,7 @@ function mapsUrl(day){
   return u + "&waypoints="+way.map(encodeURIComponent).join("%7C")+"&waypoint_place_ids="+way.map(function(w){ return PIDS[w]||""; }).join("%7C");
 }
 /* ID мест в Google Maps: с ними ссылка и маршрут открывают ровно нужную точку, а не результат поиска */
-var PIDS = {"cas:pace Harajuku": "ChIJT0_cyG2NGGARygJmNXs3imI", "Todai-ji": "ChIJ3XYIepA5AWARjzzVnT-skPg", "Hedy Daikanyama": "ChIJCTtzgk-LGGAR3AoWem58VbQ", "Brandy Melville Japan": "ChIJe1SE-emNGGARvfPabpFuGMg", "Rikuro's Namba Main Store": "ChIJK2A0qGznAGARxPHcddHFYYA", "Meiji Jingu": "ChIJ5SZMmreMGGARcz8QSTiJyo8", "Shibuya PARCO": "ChIJcyH-4qiMGGARGzk4lZCx2xo", "Nakamura Tokichi Ginza": "ChIJo_1xReaLGGAR6Yv1OW2Gn4o", "Shinjuku Expressway Bus Terminal": "ChIJQ6yrc9CMGGARH6diq4aOJwo", "Mochi mochi Kiyomizu Kyoto": "ChIJjSNGQwAJAWARSCncEUJghlA", "East Gardens of the Imperial Palace": "ChIJPfFaQhOMGGAR-QPbNQoAG6M", "The B Akasaka Mitsuke, 3-21-7 Akasaka, Minato City, Tokyo": "ChIJvVqm3X6MGGAR9B64EtnSiik", "RAGTAG Shibuya": "ChIJ___TwKiMGGARTKkCox8Bubo", "SHOGUN BURGER Shinsaibashi": "ChIJkbnLS7bnAGARnvLbsEH_3dU", "Kinkaku-ji": "ChIJvUbrwCCoAWARX2QiHCsn5A4", "Kawaguchiko Station": "ChIJV3dIuoJgGWAR7bQ0vq8DlE0", "Tokyo Tower": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "Dotonbori Osaka": "ChIJg2DcJhXnAGARCbeAHoZrPeQ", "Ryoan-ji": "ChIJp7ocMCqoAWARQoXXRj4Xq-E", "Shibuya 109": "ChIJhxxszamMGGARcuAXpFunolU", "Kyoto Station": "ChIJ7wKLka4IAWARCByidG5EGrY", "Uniqlo Ginza": "ChIJb9MHbuaLGGAR0xi-noU25UU", "HIVE PRELOVED Aobadai Tokyo": "ChIJa4N5YTqxZYcRTRbjAzgaVIE", "Tenryu-ji": "ChIJk54PuAGqAWARwEgz_9o-nM0", "Ramen HISUI Akasaka": "ChIJw39xUQCLGGARxnxP4jHukFY", "Osaka Castle": "ChIJ_TooXM3gAGARQR6hXH3QAQ8", "Excellence Inn Nishihonganji Kyoto": "ChIJQ3g7a68JAWAR3Mx_9Ro-sl4", "Ginza Hachigou": "ChIJX05jZOaLGGAR2rUy9EXaYLk", "Gentle Monster Ginza": "ChIJ8VuMWYSLGGARKLqHGhV1Hyo", "MEGA Don Quijote Shibuya": "ChIJr4J6pKmMGGARdQLOgrzToH4", "GOKAGO Kyoto": "ChIJ-4VTWJMJAWAR1pcQCnmxtoo", "Kasuga Taisha": "ChIJ1Wqwa8A5AWARlpXjgoPnl0w", "Starbucks Reserve Roastery Tokyo": "ChIJq_fYt4iLGGARrOojmQ4IMyE", "Oishi Park": "ChIJlSsLjKZfGWARBCllOgtTLqI", "Kansai International Airport": "ChIJ9_rNIxO5AGARiI-QjZ-ncfE", "Universal Studios Japan": "ChIJXeLVg9DgAGARqlIyMCX-BTY", "KICKS LAB. Harajuku Sun M Building": "ChIJj903QuqNGGARZvRBRG3ocyc", "Kiyomizu-dera": "ChIJB_vchdMIAWARujTEUIZlr2I", "Osaka Station": "ChIJC6fjlY3mAGARSshZ6CLIrhs", "Hikiniku to Come Kyoto": "ChIJY28nVm4JAWARwfSwGp7gxk0", "MixTHINKS Harajuku Store": "ChIJd5DukxmNGGAR0dK6sam4DIs", "hieta Jingumae Tokyo": "ChIJsSL72vGNGGAR0zfTuXE7yVM", "Kodai-ji": "ChIJuU17z9oIAWARgMhsX3kqUSQ", "Unagi Kushiyaki Izumo LUCUA Osaka": "ChIJBWK101HnAGAR8wZ-TxPSNOs", "Crosta Osaka": "ChIJk3AiZVDnAGAR-ae6kRvRVFU", "Umeda Sky Building": "ChIJbyd0kIjmAGAR_crecCbjwlc", "Kintetsu-Nara Station": "ChIJISbd0Sk6AWARRPN0GBhCDVQ", "atmos Harajuku": "ChIJ-7BtZqOMGGARep7pCXT1Nlc", "Kiddy Land Umeda Osaka": "ChIJ5TGNv5HmAGAR4zDsDK8Egr8", "Don Quijote Umeda Honten Osaka": "ChIJjcj6Z5PmAGARU90PonEJIls", "Hachiko Statue": "ChIJx1e971eLGGARum8w_tnpFwI", "Shibuya Sky": "ChIJ4Rr2JWiLGGARcyRSHuZ-9G8", "Shibuya Scramble Crossing": "ChIJK9EM68qLGGARacmu4KJj5SA", "Nara Park": "ChIJYWCMvZY5AWARVnREV_OsbPk", "AMORE Vintage Aoyama": "ChIJp_-ltKGMGGARmK5OwD06Mb4", "Starbucks Kyoto Ninenzaka Yasaka Chaya": "ChIJcUdzdsUIAWAReZobO79fguQ", "Ninenzaka Kyoto": "ChIJlwyrGNAIAWARNb5hUHdZruY", "Fushimi Inari Taisha": "ChIJIW0uPRUPAWAR6eI6dRzKGns", "Torikatsu Chicken Shibuya": "ChIJGYe076mMGGAR84AFfRUUGhw", "Yasaka Shrine": "ChIJqewQoHkIAWAR6RokWp3Iesc", "ABC-MART Shibuya Store": "ChIJUWpetKmMGGARmrGFvI1axEg", "Arashiyama Bamboo Grove": "ChIJrYtcv-urAWAR3XzWvXv8n_s", "Saryo Kiraku Kyoto": "ChIJbVrSK9IIAWARMeqQYJjHmRE", "Haneda Airport Terminal 3": "ChIJ01PIBVRhGGARR1RZERfkuvo", "3-11-34 Tenjinbashi, Kita-ku, Osaka, 530-0041, Japan": "ChIJb616ncbmAGARtySdZBcS0zo", "Takeshita Street": "ChIJlVne8bqMGGARtX5O6ojMvsI", "Shinjuku Gyoen National Garden": "ChIJPyOTG8KMGGARh_IXobWxHmo", "Sannenzaka Kyoto": "ChIJr_gZonkIAWARB1xyACZNUKM"};
+var PIDS = {"WHO'S WHO gallery HEP FIVE Osaka": "ChIJbQ5moZPmAGAR2zwC3Is3xWk", "BLUE ELEPHANT Shinjuku": "ChIJ2yYTLACNGGARhVs8q9qHIJQ", "cas:pace Harajuku": "ChIJT0_cyG2NGGARygJmNXs3imI", "Todai-ji": "ChIJ3XYIepA5AWARjzzVnT-skPg", "Hedy Daikanyama": "ChIJCTtzgk-LGGAR3AoWem58VbQ", "Brandy Melville Japan": "ChIJe1SE-emNGGARvfPabpFuGMg", "Rikuro's Namba Main Store": "ChIJK2A0qGznAGARxPHcddHFYYA", "Meiji Jingu": "ChIJ5SZMmreMGGARcz8QSTiJyo8", "Shibuya PARCO": "ChIJcyH-4qiMGGARGzk4lZCx2xo", "Nakamura Tokichi Ginza": "ChIJo_1xReaLGGAR6Yv1OW2Gn4o", "Shinjuku Expressway Bus Terminal": "ChIJQ6yrc9CMGGARH6diq4aOJwo", "Mochi mochi Kiyomizu Kyoto": "ChIJjSNGQwAJAWARSCncEUJghlA", "East Gardens of the Imperial Palace": "ChIJPfFaQhOMGGAR-QPbNQoAG6M", "The B Akasaka Mitsuke, 3-21-7 Akasaka, Minato City, Tokyo": "ChIJvVqm3X6MGGAR9B64EtnSiik", "RAGTAG Shibuya": "ChIJ___TwKiMGGARTKkCox8Bubo", "SHOGUN BURGER Shinsaibashi": "ChIJkbnLS7bnAGARnvLbsEH_3dU", "Kinkaku-ji": "ChIJvUbrwCCoAWARX2QiHCsn5A4", "Kawaguchiko Station": "ChIJV3dIuoJgGWAR7bQ0vq8DlE0", "Tokyo Tower": "ChIJCewJkL2LGGAR3Qmk0vCTGkg", "Dotonbori Osaka": "ChIJg2DcJhXnAGARCbeAHoZrPeQ", "Ryoan-ji": "ChIJp7ocMCqoAWARQoXXRj4Xq-E", "Shibuya 109": "ChIJhxxszamMGGARcuAXpFunolU", "Kyoto Station": "ChIJ7wKLka4IAWARCByidG5EGrY", "Uniqlo Ginza": "ChIJb9MHbuaLGGAR0xi-noU25UU", "HIVE PRELOVED Aobadai Tokyo": "ChIJa4N5YTqxZYcRTRbjAzgaVIE", "Tenryu-ji": "ChIJk54PuAGqAWARwEgz_9o-nM0", "Ramen HISUI Akasaka": "ChIJw39xUQCLGGARxnxP4jHukFY", "Osaka Castle": "ChIJ_TooXM3gAGARQR6hXH3QAQ8", "Excellence Inn Nishihonganji Kyoto": "ChIJQ3g7a68JAWAR3Mx_9Ro-sl4", "Ginza Hachigou": "ChIJX05jZOaLGGAR2rUy9EXaYLk", "Gentle Monster Ginza": "ChIJ8VuMWYSLGGARKLqHGhV1Hyo", "MEGA Don Quijote Shibuya": "ChIJr4J6pKmMGGARdQLOgrzToH4", "GOKAGO Kyoto": "ChIJ-4VTWJMJAWAR1pcQCnmxtoo", "Kasuga Taisha": "ChIJ1Wqwa8A5AWARlpXjgoPnl0w", "Starbucks Reserve Roastery Tokyo": "ChIJq_fYt4iLGGARrOojmQ4IMyE", "Oishi Park": "ChIJlSsLjKZfGWARBCllOgtTLqI", "Kansai International Airport": "ChIJ9_rNIxO5AGARiI-QjZ-ncfE", "Universal Studios Japan": "ChIJXeLVg9DgAGARqlIyMCX-BTY", "KICKS LAB. Harajuku Sun M Building": "ChIJj903QuqNGGARZvRBRG3ocyc", "Kiyomizu-dera": "ChIJB_vchdMIAWARujTEUIZlr2I", "Osaka Station": "ChIJC6fjlY3mAGARSshZ6CLIrhs", "Hikiniku to Come Kyoto": "ChIJY28nVm4JAWARwfSwGp7gxk0", "MixTHINKS Harajuku Store": "ChIJd5DukxmNGGAR0dK6sam4DIs", "hieta Jingumae Tokyo": "ChIJsSL72vGNGGAR0zfTuXE7yVM", "Kodai-ji": "ChIJuU17z9oIAWARgMhsX3kqUSQ", "Unagi Kushiyaki Izumo LUCUA Osaka": "ChIJBWK101HnAGAR8wZ-TxPSNOs", "Crosta Osaka": "ChIJk3AiZVDnAGAR-ae6kRvRVFU", "Umeda Sky Building": "ChIJbyd0kIjmAGAR_crecCbjwlc", "Kintetsu-Nara Station": "ChIJISbd0Sk6AWARRPN0GBhCDVQ", "atmos Harajuku": "ChIJ-7BtZqOMGGARep7pCXT1Nlc", "Kiddy Land Umeda Osaka": "ChIJ5TGNv5HmAGAR4zDsDK8Egr8", "Don Quijote Umeda Honten Osaka": "ChIJjcj6Z5PmAGARU90PonEJIls", "Hachiko Statue": "ChIJx1e971eLGGARum8w_tnpFwI", "Shibuya Sky": "ChIJ4Rr2JWiLGGARcyRSHuZ-9G8", "Shibuya Scramble Crossing": "ChIJK9EM68qLGGARacmu4KJj5SA", "Nara Park": "ChIJYWCMvZY5AWARVnREV_OsbPk", "AMORE Vintage Aoyama": "ChIJp_-ltKGMGGARmK5OwD06Mb4", "Starbucks Kyoto Ninenzaka Yasaka Chaya": "ChIJcUdzdsUIAWAReZobO79fguQ", "Ninenzaka Kyoto": "ChIJlwyrGNAIAWARNb5hUHdZruY", "Fushimi Inari Taisha": "ChIJIW0uPRUPAWAR6eI6dRzKGns", "Torikatsu Chicken Shibuya": "ChIJGYe076mMGGAR84AFfRUUGhw", "Yasaka Shrine": "ChIJqewQoHkIAWAR6RokWp3Iesc", "ABC-MART Shibuya Store": "ChIJUWpetKmMGGARmrGFvI1axEg", "Arashiyama Bamboo Grove": "ChIJrYtcv-urAWAR3XzWvXv8n_s", "Saryo Kiraku Kyoto": "ChIJbVrSK9IIAWARMeqQYJjHmRE", "Haneda Airport Terminal 3": "ChIJ01PIBVRhGGARR1RZERfkuvo", "3-11-34 Tenjinbashi, Kita-ku, Osaka, 530-0041, Japan": "ChIJb616ncbmAGARtySdZBcS0zo", "Takeshita Street": "ChIJlVne8bqMGGARtX5O6ojMvsI", "Shinjuku Gyoen National Garden": "ChIJPyOTG8KMGGARh_IXobWxHmo", "Sannenzaka Kyoto": "ChIJr_gZonkIAWARB1xyACZNUKM"};
 function placeUrl(q){ return "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q)+(PIDS[q] ? "&query_place_id="+PIDS[q] : ""); }
 
 /* ================= билеты USJ: открываются только в день посещения ================= */
@@ -812,7 +849,10 @@ var PDFS = {to:FLY_TO_PDF, back:FLY_BACK_PDF, ins:INS_PDF};
 function render(){
   document.querySelectorAll(".tab").forEach(function(t){ t.classList.toggle("is-active", t.getAttribute("data-tab")===ui.tab); });
   positionPill(true);
-  if (ui.tab === "days") renderDays(); else if (ui.tab === "money") renderMoney(); else renderPrep();
+  var pg = ui.tab === "prep" && ui.page ? PAGES[ui.page] : null;
+  $("phone").classList.toggle("is-page", !!pg); $("phone").classList.toggle("has-add", !!(pg && pg.add));
+  if (pg){ $("pIc").textContent = pg.ic; $("pName").textContent = pg.t; }
+  if (ui.tab === "days") renderDays(); else if (pg) renderPage(); else renderPrep();
   $("ctTitle").textContent = $("title").textContent;
   $("ctSub").textContent = $("subtitle").textContent;
 }
@@ -930,29 +970,125 @@ function prepCounts(){
   return {all:all, done:done};
 }
 function renderPrep(){
-  var c = prepCounts(), prev = rowLeft("#prepChips");
-  $("title").textContent = "Подготовка";
-  $("subtitle").textContent = "Готово "+c.done+" из "+c.all;
+  var c = prepCounts(), g = isGuest();
+  $("title").textContent = "Мои папки";
+  $("subtitle").textContent = "";
   $("chipsSlot").innerHTML = "";
-  var nights = HOTELS.osaka.nights + HOTELS.kyoto.nights + HOTELS.tokyo.nights;
-  var html = '<div class="sets">'+
+  var nights = HOTELS.osaka.nights + HOTELS.kyoto.nights + HOTELS.tokyo.nights, n = money.rows.length;
+  $("view").innerHTML = '<div class="sets sets--grid">'+
     folder("hotels","🏨","Отели", nights+" "+plural(nights,"ночь","ночи","ночей"))+
-    folder("tickets","🎫","Документы", "Рейсы, полис, USJ")+
+    folder("tickets","🎫","Документы", "Рейсы, полис, USJ", g)+
+    folder("money","💴","Деньги", n ? n+" "+plural(n,"запись","записи","записей") : "Общие траты", g)+
+    folder("checklist","✅","Чек-лист", "Готово "+c.done+" из "+c.all)+
     folder("visa","📄","Как сделать визу?", VISA_STEPS.length+" "+plural(VISA_STEPS.length,"шаг","шага","шагов"))+'</div>';
-  html += '<div class="chips" id="prepChips">'+Object.keys(PREP).map(function(g){
+  $("view").querySelectorAll("[data-folder]").forEach(function(b){ b.onclick = function(){ openFolder(b.getAttribute("data-folder")); }; });
+}
+var PAGES = {
+  hotels:{ic:"🏨", t:"Отели"}, tickets:{ic:"🎫", t:"Документы", add:true}, money:{ic:"💴", t:"Деньги", add:true},
+  checklist:{ic:"✅", t:"Чек-лист", add:true}, visa:{ic:"📄", t:"Как сделать визу?"}
+};
+function openFolder(f){
+  if ((f === "tickets" || f === "money") && isGuest()){ toast(f === "money" ? "Деньги доступны только попутчикам" : "Документы доступны только попутчикам"); return; }
+  ui.page = f; $("scroll").scrollTop = 0;
+  if (f === "money"){ moneyLoad(); moneyRates(); }
+  render(); slideView(1);
+}
+function closePage(){ ui.page = null; closeAddMenu(); $("scroll").scrollTop = 0; render(); slideView(-1); }
+function slideView(dir){
+  if (REDUCE) return;
+  anim($("view"), [{opacity:0, transform:"translate3d("+(dir*48)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING});
+  if (dir > 0) anim($("pTitle"), [{opacity:0, transform:"translateX(24px)"},{opacity:1, transform:"none"}], {duration:480, easing:SPRING});
+}
+function renderPage(){
+  $("chipsSlot").innerHTML = "";
+  if (ui.page === "hotels") pageHotels();
+  else if (ui.page === "visa") pageVisa();
+  else if (ui.page === "tickets") pageTickets();
+  else if (ui.page === "money") renderMoney();
+  else pageChecklist();
+}
+function pageChecklist(){
+  var prev = rowLeft("#chipsSlot .chips");
+  $("chipsSlot").innerHTML = '<div class="chips">'+Object.keys(PREP).map(function(g){
     var left = PREP[g].items.filter(function(x){ return !checks[x.id]; }).length;
     return chip("c-all", PREP[g].label, left || null, ui.prep===g, 'data-prep="'+g+'"');
   }).join("")+'</div>';
-  html += '<div class="checks check" id="checkList">'+doneLast(PREP[ui.prep].items).map(checkItem).join("")+'</div>';
-  $("view").innerHTML = html;
-  scrollChips($("prepChips"), prev, prev != null, "prep");
-  $("view").querySelectorAll("[data-prep]").forEach(function(b){ b.onclick = function(){ if (ui.prep === b.getAttribute("data-prep")) return; ui.prep = b.getAttribute("data-prep"); render();
+  scrollChips($("chipsSlot").querySelector(".chips"), prev, prev != null, "prep");
+  $("view").innerHTML = '<div class="pg"><div class="checks check" id="checkList">'+doneLast(PREP[ui.prep].items).map(checkItem).join("")+'</div></div>';
+  $("chipsSlot").querySelectorAll("[data-prep]").forEach(function(b){ b.onclick = function(){ if (ui.prep === b.getAttribute("data-prep")) return; ui.prep = b.getAttribute("data-prep"); render();
     anim($("checkList"), [{opacity:0, transform:"translate3d(0,60px,0) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, easing:SPRING, fill:"backwards"}); }; });
-  $("view").querySelectorAll("[data-folder]").forEach(function(b){ b.onclick = function(){ var f = b.getAttribute("data-folder"); if (f==="visa") openVisa(); else if (f==="hotels") openHotels(); else openTickets(); }; });
-  bindChecks($("checkList"), checks, "japan.checks", function(){ var c = prepCounts(); $("subtitle").textContent = "Готово "+c.done+" из "+c.all; $("ctSub").textContent = $("subtitle").textContent; });
+  bindSwipe($("checkList"), "[data-check]", function(el){ deleteTask(el.getAttribute("data-check")); });
+  bindChecks($("checkList"), checks, "japan.checks", function(){ var cs = $("chipsSlot").querySelectorAll("[data-prep]");
+    cs.forEach(function(b){ var g = b.getAttribute("data-prep"), left = PREP[g].items.filter(function(x){ return !checks[x.id]; }).length, n = b.querySelector(".chip__n");
+      if (left && n) n.textContent = left; else if (left) b.insertAdjacentHTML("beforeend", '<span class="chip__n">'+left+'</span>'); else if (n) n.remove(); }); });
 }
-function folder(id, emoji, title, sub){
-  return '<button class="set" data-folder="'+id+'"><div class="folder"><span class="folder__back">'+FBACK+'</span><span class="folder__front">'+FFRONT+'</span><span class="folder__flag"><span>'+emoji+'</span></span></div>'+
+/* свои пункты чек-листа: хранятся на этом устройстве, как и отметки */
+var CUSTOM = load("japan.customTasks", {});
+Object.keys(CUSTOM).forEach(function(g){ if (PREP[g]) CUSTOM[g].forEach(function(x){ PREP[g].items.push({id:x.id, t:"<b>"+esc(x.t)+"</b>"}); }); });
+function askNewTask(){
+  var a = alertOpen('<div class="alert__title">Новая задача</div><p class="alert__text">В список «'+esc(PREP[ui.prep].label)+'»</p>'+
+    '<div class="alert__fields"><div class="alert__row"><input class="alert__in" id="tName" placeholder="Например, купить eSIM" autocomplete="off" enterkeyhint="done"></div></div>'+
+    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="tCancel">Отменить</button><button class="alert__btn alert__btn--ok" type="submit">Добавить</button></div>');
+  setTimeout(function(){ $("tName").focus(); }, 60);
+  $("tCancel").onclick = closePass;
+  a.onsubmit = function(e){ e.preventDefault(); var v = $("tName").value.trim(); if (!v){ $("tName").focus(); return; }
+    var it = {id:"c"+Date.now().toString(36), t:v};
+    (CUSTOM[ui.prep] = CUSTOM[ui.prep] || []).push(it); save("japan.customTasks", CUSTOM);
+    PREP[ui.prep].items.push({id:it.id, t:"<b>"+esc(v)+"</b>"});
+    closePass(); render(); toast("Задача добавлена"); };
+}
+var TRASH = '<svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4.5h4V6M6 6l.7 9.5h6.6L14 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var swOpen = null;
+function swSet(el, open){
+  el._open = open; el.style.transition = "transform .4s cubic-bezier(.3,1.25,.5,1)"; el.style.transform = open ? "translateX(-80px)" : "";
+  if (open){ if (swOpen && swOpen !== el) swSet(swOpen, false); swOpen = el; } else if (swOpen === el) swOpen = null;
+}
+document.addEventListener("pointerdown", function(e){ if (swOpen && !swOpen.contains(e.target)) swSet(swOpen, false); }, true);
+function bindSwipe(root, sel, onDel){
+  root.querySelectorAll(sel).forEach(function(el){
+    if (!el.querySelector(".sw-del")) el.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить">'+TRASH+'</span>');
+    var sx = null, sy = 0, drag = null, base = 0, dx = 0;
+    el.addEventListener("pointerdown", function(e){ if (isGuest()) return; sx = e.clientX; sy = e.clientY; drag = null; base = el._open ? -80 : 0; dx = base; });
+    el.addEventListener("pointermove", function(e){
+      if (sx == null) return;
+      var x = e.clientX - sx, y = e.clientY - sy;
+      if (drag === null){
+        if (Math.abs(x) > 8 && Math.abs(x) > Math.abs(y)){ drag = true; try{ el.setPointerCapture(e.pointerId); }catch(_){} }
+        else if (Math.abs(y) > 8){ sx = null; return; }
+      }
+      if (drag){ dx = Math.max(-104, Math.min(0, base + x)); el.style.transition = "none"; el.style.transform = "translateX("+dx+"px)"; }
+    });
+    var end = function(){ if (drag){ el._swiped = true; setTimeout(function(){ el._swiped = false; }, 60); swSet(el, dx < -40); } sx = null; drag = null; };
+    el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
+    el.querySelector(".sw-del").addEventListener("click", function(e){ e.stopPropagation(); swSet(el, false); onDel(el); });
+  });
+}
+/* удалить пункт чек-листа: свои — совсем, встроенные — скрыть на этом устройстве */
+var HIDDEN = load("japan.hiddenTasks", []);
+Object.keys(PREP).forEach(function(g){ PREP[g].items = PREP[g].items.filter(function(x){ return HIDDEN.indexOf(x.id) < 0; }); });
+function deleteTask(id){
+  Object.keys(PREP).forEach(function(g){ PREP[g].items = PREP[g].items.filter(function(x){ return x.id !== id; }); });
+  var custom = false;
+  Object.keys(CUSTOM).forEach(function(g){ var n = CUSTOM[g].length; CUSTOM[g] = CUSTOM[g].filter(function(x){ return x.id !== id; }); if (CUSTOM[g].length !== n) custom = true; });
+  if (custom) save("japan.customTasks", CUSTOM); else { HIDDEN.push(id); save("japan.hiddenTasks", HIDDEN); }
+  delete checks[id]; save("japan.checks", checks);
+  var el = document.querySelector('#checkList [data-check="'+id+'"]');
+  if (el && !REDUCE){ var h = el.offsetHeight; el.style.overflow = "hidden";
+    anim(el, [{opacity:1, height:h+"px"},{opacity:0, height:"0px", paddingTop:"0px", paddingBottom:"0px"}], {duration:280, easing:"ease-in"}).onfinish = function(){ render(); };
+  } else render();
+}
+function closeAddMenu(){ $("addMenu").hidden = true; }
+$("pgBack").onclick = closePage;
+$("pgAdd").onclick = function(e){
+  e.stopPropagation();
+  if (ui.page === "tickets") $("docAdd").onclick();
+  else if (ui.page === "checklist") askNewTask();
+  else if (ui.page === "money"){ var m = $("addMenu"); m.hidden = !m.hidden;
+    if (!m.hidden) anim(m, [{opacity:0, transform:"scale(.9) translateY(-8px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); }
+};
+$("addMenu").querySelectorAll("[data-add]").forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); closeAddMenu(); openMoneyForm(null, b.getAttribute("data-add")); }; });
+function folder(id, emoji, title, sub, locked){
+  return '<button class="set'+(locked?' is-locked':'')+'" data-folder="'+id+'"><div class="folder"><span class="folder__back">'+FBACK+'</span><span class="folder__front">'+FFRONT+'</span><span class="folder__flag"><span>'+emoji+'</span></span></div>'+
     '<div class="set__body"><div class="set__title"><p>'+esc(title)+'</p></div><p class="set__count">'+esc(sub)+'</p></div></button>';
 }
 /* невыполненные сверху, выполненные опускаются вниз */
@@ -977,6 +1113,8 @@ function bindChecks(root, store, key, after){
   root.querySelectorAll("[data-check]").forEach(function(el){
     var toggle = function(e){
       e.stopPropagation();
+      if (el._swiped) return;
+      if (el._open){ swSet(el, false); return; }
       if (e.target.closest("a")) return;
       if (isGuest()){ toast("Отмечать могут только попутчики"); return; }
       var id = el.getAttribute("data-check"); store[id] = !store[id]; save(key, store);
@@ -1036,34 +1174,31 @@ function stopRow(home, name, sub, q, num, time, off){
     '<span class="stop__tx">'+esc(name)+(sub||time?'<small>'+(time?'<b style="color:var(--label);font-weight:600">'+esc(time)+'</b>'+(sub?' · ':''):'')+esc(sub||"")+'</small>':'')+(off?'<small class="stop__off">Не в маршруте дня: рядом с '+esc(off)+'</small>':'')+'</span>'+(q?'<span class="stop__go">'+CHEV+'</span>':'')+'</'+end+'>';
 }
 
-function openVisa(){
+function pageVisa(){
   var docs = '<div class="check" id="docList">'+VISA_DOCS.map(function(t, i){
     var id = "doc"+i, on = !!docChecks[id];
     return '<div class="check__item" role="checkbox" aria-checked="'+on+'" tabindex="0" data-check="'+id+'"><span class="check__box'+(on?' is-done':'')+'">'+(on?TICK:'')+'</span><span class="check__text'+(on?' is-done':'')+'"><b style="font-weight:400">'+esc(t)+'</b></span></div>';
   }).join("")+'</div>';
-  openSheet(
-    '<div class="sh-head"><p class="sh-kicker">'+VISA_DOCS.length+' документов на человека</p><h2 class="sh-title">Как сделать визу?</h2></div>'+
+  $("view").innerHTML = '<div class="pg">'+
     '<div><p class="label">Шаги</p><div class="steps">'+VISA_STEPS.map(function(s){ return '<div class="step"><div>'+s+'</div></div>'; }).join("")+'</div>'+
       '<p class="hint" style="margin-top:8px">Документы подавать в том же порядке, что и в списке ниже, файлы убрать</p></div>'+
     '<div><p class="label">Итого документов на 1 человека</p>'+docs+
-      '<p class="hint" style="margin-top:8px">Если паспорт иностранный — + нотариальный перевод паспорта, право нахождения в России (миграционка или ВНЖ) и их копия. Если в браке — свидетельство о браке + копия</p></div>');
+      '<p class="hint" style="margin-top:8px">Если паспорт иностранный — + нотариальный перевод паспорта, право нахождения в России (миграционка или ВНЖ) и их копия. Если в браке — свидетельство о браке + копия</p></div></div>';
   bindChecks($("docList"), docChecks, "japan.visa");
 }
 
-function openHotels(){
-  openSheet('<div class="sh-head"><p class="sh-kicker">11 ночей</p><h2 class="sh-title">Отели</h2></div>'+
-    '<div class="stack">'+["osaka","kyoto","tokyo"].map(function(k){
+function pageHotels(){
+  $("view").innerHTML = '<div class="pg"><div class="stack">'+["osaka","kyoto","tokyo"].map(function(k){
       var h = HOTELS[k];
       return '<div class="hotel"><div class="hotel__top"><div><span class="chip chip--sm '+CITIES[k].cls+'" style="display:inline-flex;margin-bottom:8px">'+CITIES[k].label+' · '+h.nights+' '+plural(h.nights,"ночь","ночи","ночей")+'</span>'+
         '<p class="hotel__name">'+esc(h.name)+'</p>'+(h.addr?'<p class="hotel__addr">'+esc(h.addr)+'</p>':'<p class="hotel__addr">Ищется в картах по названию</p>')+'</div>'+
         '<a class="stay__map" href="'+placeUrl(h.q)+'" target="_blank" rel="noopener" aria-label="'+esc(h.name)+' в Google Maps">'+MAPS_IMG+'</a></div>'+
         '<div class="hotel__dates"><div>Заезд<b>'+h.inD+'</b>'+h.inT+'</div><div>Выезд<b>'+h.outD+'</b>'+h.outT+'</div></div></div>';
     }).join("")+'</div>'+
-    '<p class="hint">Время — планируемое по маршруту, а не официальные часы заселения и выселения</p>');
+    '<p class="hint">Время — планируемое по маршруту, а не официальные часы заселения и выселения</p></div>';
 }
 
-function openTickets(){
-  if (isGuest()){ toast("Документы доступны только попутчикам"); return; }
+function pageTickets(){
   var open = usjOpen();
   var fl = FLIGHTS.map(function(f){
     return '<div class="hotel"><div class="hotel__top"><div><span class="chip chip--sm c-all" style="display:inline-flex;margin-bottom:8px">'+f.dir+' · бронь '+f.pnr+'</span>'+
@@ -1071,7 +1206,7 @@ function openTickets(){
         '<p class="hotel__addr">'+esc(l.dep)+' — '+esc(l.arr.indexOf(l.dep.split(",")[0])===0 ? l.arr.split(", ")[1] : l.arr)+'</p><p class="hotel__addr">'+esc(l.from)+' → '+esc(l.to)+'</p></div>'; }).join("")+
       '</div></div><button class="btn-route" data-pdf="'+f.pdf+'">📄 Маршрут-квитанция, PDF</button></div>';
   }).join("");
-  openSheet('<div class="sh-head"><p class="sh-kicker">Все файлы поездки</p><h2 class="sh-title">Документы</h2></div>'+
+  $("view").innerHTML = '<div class="pg">'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Visit Japan Web</p>'+
       '<button class="att" data-qr><span class="att__thumb"><img src="'+QR_SRC+'" alt=""></span><span class="att__tx">QR для иммиграции и таможни<small>KAIPPAYEVA ADELINA</small></span><span class="att__go">'+CHEV+'</span></button></div>'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Universal Studios Japan</p>'+
@@ -1082,10 +1217,9 @@ function openTickets(){
       '<p class="hotel__name">ADELINA KAIPPAYEVA</p><p class="hotel__addr">Т-Страхование, годовой полис, весь мир</p><p class="hotel__addr">Действует до 1 ноября 2027</p></div></div>'+
       '<button class="btn-route" data-pdf="ins">📄 Полис, PDF</button>'+
       '<a class="btn-route" href="tel:+79959005500">📞 Страховой случай: +7 995 900-55-00</a></div></div>'+
-    '<div style="display:flex;flex-direction:column;gap:8px" id="docsBox"></div>');
-  $("sheetBody").querySelectorAll("[data-pdf]").forEach(function(b){ b.onclick = function(){ openPdf(PDFS[b.getAttribute("data-pdf")]); }; });
-  bindAtt($("sheetBody"));
-  $("sheetFoot").hidden = false; $("sheet").classList.add("has-foot");
+    '<div style="display:flex;flex-direction:column;gap:8px" id="docsBox"></div></div>';
+  $("view").querySelectorAll("[data-pdf]").forEach(function(b){ b.onclick = function(){ openPdf(PDFS[b.getAttribute("data-pdf")]); }; });
+  bindAtt($("view"));
   docsLoad();
 }
 
@@ -1099,11 +1233,10 @@ function docsRender(){
     var img = d.mime.indexOf("image/") === 0, dt = new Date(d.created_at);
     return '<div class="att" data-doc="'+d.id+'"><span class="att__thumb">'+(img?'🖼️':'📄')+'</span><span class="att__tx">'+esc(d.title)+
       '<small>'+(img?'Фото':'PDF')+' · '+docSize(d.size)+' · '+dt.getDate()+' '+MONTHS[dt.getMonth()]+'</small></span>'+
-      '<button class="doc-del" data-docdel="'+d.id+'" aria-label="Удалить"><svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4.5h4V6M6 6l.7 9.5h6.6L14 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>';
+      '<span class="att__go">'+CHEV+'</span></div>';
   }).join("");
-  box.querySelectorAll("[data-doc]").forEach(function(el){ el.onclick = function(){ docOpen(el.getAttribute("data-doc")); }; });
-  box.querySelectorAll("[data-docdel]").forEach(function(b){ b.onclick = function(e){ e.stopPropagation();
-    var d = docs.list.filter(function(x){ return x.id === b.getAttribute("data-docdel"); })[0]; if (d) docAskDelete(d); }; });
+  box.querySelectorAll("[data-doc]").forEach(function(el){ el.onclick = function(){ if (el._swiped) return; if (el._open){ swSet(el, false); return; } docOpen(el.getAttribute("data-doc")); }; });
+  bindSwipe(box, "[data-doc]", function(el){ var d = docs.list.filter(function(x){ return x.id === el.getAttribute("data-doc"); })[0]; if (d) docAskDelete(d); });
 }
 function docsLoad(){
   docsRender();
@@ -1235,12 +1368,12 @@ function moneyLoad(){
     rows = rows || []; money.loading = false;
     var same = JSON.stringify(rows) === JSON.stringify(money.rows), wasEmpty = !money.rows.length;
     money.rows = rows; save("japan.money.cache", rows);
-    if (ui.tab === "money" && !same){ render(); if (wasEmpty) enterView(); }
+    if (ui.tab === "prep" && (ui.page === "money" || !ui.page) && !same){ render(); if (wasEmpty && ui.page) enterView(); }
   }).catch(function(e){
     money.loading = false;
-    if (e.code === "28000"){ money.pass = ""; save("japan.money.pass", ""); syncAcc(); money.error = ""; if (ui.tab === "money") setTimeout(askPass, 250); }
+    if (e.code === "28000"){ money.pass = ""; save("japan.money.pass", ""); syncAcc(); money.error = ""; if (ui.page === "money") setTimeout(askPass, 250); }
     else money.error = "Нет связи — показаны последние сохранённые траты";
-    if (ui.tab === "money") render();
+    if (ui.page === "money") render();
   });
 }
 function moneyRates(){
@@ -1250,7 +1383,7 @@ function moneyRates(){
     if (!j || !j.rates) return;
     money.rates = {at:Date.now(), day:j.time_last_update_unix*1000, r:{USD:1, JPY:j.rates.JPY, KZT:j.rates.KZT, RUB:j.rates.RUB}};
     save("japan.money.rates", money.rates);
-    if (ui.tab === "money" && money.view !== "orig") render();
+    if (ui.page === "money" && money.view !== "orig") render();
   }).catch(function(){});
 }
 function fmt(n, cur){
@@ -1301,9 +1434,8 @@ function renderMoney(){
   $("subtitle").textContent = lines === null ? "Нет курса валют" : (lines.length ? lines[0].from+" должна "+lines[0].to+" "+lines[0].sum+(lines.length>1?" и ещё "+(lines.length-1):"") : "Всё ровно");
 
   var html = '<div class="days days--money">';
-  html += '<div class="mbtns"><button class="btn-route mbtn--main" id="mAdd">＋ Трата</button><button class="btn-route" id="mBack">＋ Возврат</button></div>';
   var curLabel = money.view === "orig" ? "Как платили" : CUR[money.view].sym+" "+CUR[money.view].label;
-  html += '<p class="mday">Кто кому должен</p><div class="stay mbal">'+
+  html += '<p class="mday" style="padding-top:0">Кто кому должен</p><div class="stay mbal">'+
     '<button class="mcur" id="mCur" aria-haspopup="true"><span class="mcur__l">Валюта</span><span class="mcur__v">'+curLabel+'</span>'+
     '<svg viewBox="0 0 14 14" aria-hidden="true"><path d="M3 5.2l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>'+
     '<div class="mmenu lg" id="mMenu" hidden>'+[["orig","Как платили"]].concat(CUR_ORDER.map(function(c){ return [c, CUR[c].sym+" "+CUR[c].label]; })).map(function(o){
@@ -1325,8 +1457,6 @@ function renderMoney(){
   $("mCur").onclick = function(e){ e.stopPropagation(); var mm = $("mMenu"); mm.hidden = !mm.hidden; $("mCur").classList.toggle("is-open", !mm.hidden);
     if (!mm.hidden) anim(mm, [{opacity:0, transform:"scale(.92) translateY(-6px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); };
   $("mMenu").querySelectorAll("[data-mview]").forEach(function(x){ x.onclick = function(e){ e.stopPropagation(); money.view = x.getAttribute("data-mview"); save("japan.money.view", money.view); render(); }; });
-  $("mAdd").onclick = function(){ openMoneyForm(null, "expense"); };
-  $("mBack").onclick = function(){ openMoneyForm(null, "transfer"); };
   $("view").querySelectorAll("[data-mid]").forEach(function(el){ el.onclick = function(){
     var r = money.rows.filter(function(x){ return x.id === el.getAttribute("data-mid"); })[0]; if (r) openMoneyForm(r, r.kind);
   }; });
@@ -1469,7 +1599,7 @@ function closePass(){
   if (document.activeElement && a.contains(document.activeElement)) document.activeElement.blur();
   setTimeout(function(){ if (a.classList.contains("is-closing")){ a.style.display = "none"; a.className = "alert lg"; a.innerHTML = ""; } }, 210);
 }
-document.addEventListener("click", function(){ var mm = $("mMenu"); if (mm && !mm.hidden){ mm.hidden = true; $("mCur").classList.remove("is-open"); } });
+document.addEventListener("click", function(){ closeAddMenu(); var mm = $("mMenu"); if (mm && !mm.hidden){ mm.hidden = true; $("mCur").classList.remove("is-open"); } });
 $("alertOv").onclick = function(){ if (!$("alert").dataset.lock) closePass(); };
 
 /* вход: гость или попутчик. Гость — без вкладки «Деньги», выбор живёт до закрытия вкладки браузера */
@@ -1477,7 +1607,7 @@ function syncAcc(){ $("phone").classList.toggle("is-mate", !!money.pass); }
 function setGuest(on){
   $("phone").classList.toggle("is-guest", on); syncAcc();
   try{ on ? sessionStorage.setItem("japan.guest","1") : sessionStorage.removeItem("japan.guest"); }catch(e){}
-  if (on && ui.tab === "money") ui.tab = "days";
+  if (on && (ui.page === "money" || ui.page === "tickets")) ui.page = null;
   render();
   positionPill(false);
 }
@@ -1519,7 +1649,9 @@ function positionPill(animate){
 }
 window.addEventListener("resize", function(){ positionPill(false); });
 document.querySelectorAll(".tab").forEach(function(t){
-  t.onclick = function(){ var k = t.getAttribute("data-tab"); if (k===ui.tab){ $("scroll").scrollTo({top:0, behavior:"smooth"}); return; } ui.tab = k; $("scroll").scrollTop = 0; if (k === "money"){ moneyLoad(); moneyRates(); } render(); enterView(); if (k === "money" && !money.pass) setTimeout(askPass, 250); };
+  t.onclick = function(){ var k = t.getAttribute("data-tab"); closeAddMenu();
+    if (k===ui.tab){ if (ui.page){ closePage(); return; } $("scroll").scrollTo({top:0, behavior:"smooth"}); return; }
+    ui.tab = k; ui.page = null; $("scroll").scrollTop = 0; render(); enterView(); };
 });
 $("scroll").addEventListener("scroll", function(){
   var y = this.scrollTop;
@@ -1529,7 +1661,7 @@ $("scroll").addEventListener("scroll", function(){
 
 function enterView(){
   /* как при открытии страницы: блоки по очереди выезжают снизу вверх */
-  document.querySelectorAll("#view .day, #view .stay, #view .mbtns, #view .mday, #view .mlist, #view .sets, #view #prepChips, #view .checks").forEach(function(el, i){
+  document.querySelectorAll("#view .day, #view .stay, #view .mday, #view .mlist, #view .sets, #view .pg > *").forEach(function(el, i){
     anim(el, [{opacity:0, transform:"translate3d(0,60px,0) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, delay:Math.min(i,8)*80, easing:SPRING, fill:"backwards"});
   });
 }
@@ -1541,7 +1673,7 @@ function intro(){
   document.querySelectorAll("#chipsSlot .chip").forEach(function(el, i){
     anim(el, [{opacity:0, transform:"translateX(40px) scale(.7)"},{opacity:1, transform:"none"}], {duration:750, delay:260+i*55, easing:SPRING, fill:"backwards"});
   });
-  document.querySelectorAll("#view .day, #view .stay, #view .mbtns, #view .mday, #view .mlist, #view .sets, #view #prepChips, #view .checks").forEach(function(el, i){
+  document.querySelectorAll("#view .day, #view .stay, #view .mday, #view .mlist, #view .sets, #view .pg > *").forEach(function(el, i){
     if (i > 4) return;
     anim(el, [{opacity:0, transform:"translateY(60px) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, delay:380+i*80, easing:SPRING, fill:"backwards"});
   });
@@ -1557,6 +1689,7 @@ render();
 positionPill(false);
 intro();
 if (!money.pass && !wasGuest) setTimeout(askRole, 700);
+if (money.pass) moneyLoad();
 })();
 
 </script>
