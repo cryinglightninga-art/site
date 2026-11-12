@@ -619,6 +619,7 @@ a.note:active{transform:scale(.97)}
 .mrow--back b,.mrow--back .mrow__sum{color:var(--green)}
 .mday{padding:8px 4px 0}
 #mMenu{top:56px}
+.btn-ic{width:22px;height:22px;object-fit:contain;flex:none}
 
 /* карточка дня v26: дата над карточкой, бейдж города висит сверху справа, белые плашки через 8 */
 .days--home{gap:24px;padding-top:16px}
@@ -1185,14 +1186,14 @@ function renderPrep(){
   var nights = HOTELS.osaka.nights + HOTELS.kyoto.nights + HOTELS.tokyo.nights;
   $("view").innerHTML = '<div class="sets sets--grid">'+
     folder("hotels","hotel","Отели", nights+" "+plural(nights,"ночь","ночи","ночей"))+
-    folder("tickets","doc","Документы", g ? "Только попутчикам" : "Рейсы, полис, USJ", g)+
+    folder("tickets","docs","Документы", g ? "Только попутчикам" : "Рейсы, полис, USJ", g)+
     folder("money","money","Деньги", g ? "Только попутчикам" : debtSummary(), g)+
     folder("checklist","checklist","Чек-лист", "Готово "+c.done+" из "+c.all)+
     folder("visa","visa","Все про визу", VISA_STEPS.length+" "+plural(VISA_STEPS.length,"шаг","шага","шагов"))+'</div>';
   $("view").querySelectorAll("[data-folder]").forEach(function(b){ b.onclick = function(){ openFolder(b.getAttribute("data-folder")); }; });
 }
 var PAGES = {
-  hotels:{ill:"hotel", t:"Отели"}, tickets:{ill:"doc", t:"Документы", add:true}, money:{ill:"money", t:"Деньги", add:true},
+  hotels:{ill:"hotel", t:"Отели"}, tickets:{ill:"docs", t:"Документы", add:true}, money:{ill:"money", t:"Деньги", add:true},
   checklist:{ill:"checklist", t:"Чек-лист", add:true}, visa:{ill:"visa", t:"Все про визу"}
 };
 /* подпись папки «Деньги»: кто кому должен в валютах трат */
@@ -1452,7 +1453,7 @@ function pageTickets(){
     return '<div class="hotel"><div class="hotel__top"><div><span class="tag" style="margin-bottom:12px">'+f.dir+' · бронь '+f.pnr+'</span>'+
       f.legs.map(function(l){ return '<div class="leg"><p class="hotel__name">'+esc(l.from.split(",")[0])+' → '+esc(l.to.split(",")[0])+' <span class="leg__no">'+l.no+'</span></p>'+
         '<p class="hotel__addr">'+esc(l.dep)+' — '+esc(l.arr.indexOf(l.dep.split(",")[0])===0 ? l.arr.split(", ")[1] : l.arr)+'</p><p class="hotel__addr">'+esc(l.from)+' → '+esc(l.to)+'</p></div>'; }).join("")+
-      '</div></div><button class="btn-route" data-pdf="'+f.pdf+'">📄 Маршрут-квитанция, PDF</button></div>';
+      '</div></div><button class="btn-route" data-pdf="'+f.pdf+'">'+ill("doc","btn-ic")+'Маршрут-квитанция, PDF</button></div>';
   }).join("");
   $("view").innerHTML = '<div class="pg">'+
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Visit Japan Web</p>'+
@@ -1463,7 +1464,7 @@ function pageTickets(){
     '<div style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Страховка</p>'+
       '<div class="hotel"><div class="hotel__top"><div><span class="tag" style="margin-bottom:12px">Полис TVL-1380635945</span>'+
       '<p class="hotel__name">ADELINA KAIPPAYEVA</p><p class="hotel__addr">Т-Страхование, годовой полис, весь мир</p><p class="hotel__addr">Действует до 1 ноября 2027</p></div></div>'+
-      '<button class="btn-route" data-pdf="ins">📄 Полис, PDF</button>'+
+      '<button class="btn-route" data-pdf="ins">'+ill("doc","btn-ic")+'Полис, PDF</button>'+
       '<a class="btn-route" href="tel:+79959005500">📞 Страховой случай: +7 995 900-55-00</a></div></div>'+
     '<div style="display:flex;flex-direction:column;gap:8px" id="docsBox"></div></div>';
   $("view").querySelectorAll("[data-pdf]").forEach(function(b){ b.onclick = function(){ openPdf(PDFS[b.getAttribute("data-pdf")]); }; });
@@ -1903,7 +1904,8 @@ document.querySelectorAll(".tab").forEach(function(t){
 $("scroll").addEventListener("scroll", function(){
   var y = this.scrollTop;
   $("phone").classList.toggle("is-compact", y > 46);
-  if (!REDUCE) document.querySelector(".toolbar__title").style.opacity = 1 - Math.max(0, Math.min(1, y/46));
+  /* большой заголовок гаснет быстрее, чем уезжает под шапку, — сквозь шапку его не видно */
+  if (!REDUCE) document.querySelector(".toolbar__title").style.opacity = 1 - Math.max(0, Math.min(1, y/20));
 }, {passive:true});
 
 function enterView(){
