@@ -104,7 +104,7 @@ a{color:inherit;text-decoration:none}
 /* ---------- toolbar ---------- */
 .topfade{position:absolute;left:0;right:0;top:0;z-index:3;background:var(--white);height:var(--safe);pointer-events:none}
 .bar{position:sticky;top:var(--safe);z-index:5;padding-bottom:10px;flex:none;border-bottom:.5px solid transparent;transition:border-color .2s;background:var(--white);transform:translateZ(0)}
-.toolbar{position:relative;z-index:6;flex:none}
+.toolbar{position:relative;z-index:1;flex:none}
 .chips-slot{position:sticky;top:calc(var(--safe) + 54px);z-index:4;flex:none;background:var(--white);border-bottom:.5px solid transparent;transition:border-color .2s;transform:translateZ(0)}
 .chips-slot:empty{display:none}
 .is-compact .bar{border-bottom-color:var(--sep)}
@@ -621,7 +621,7 @@ a.note:active{transform:scale(.97)}
 #mMenu{top:56px}
 
 /* карточка дня v26: дата над карточкой, бейдж города висит сверху справа, белые плашки через 8 */
-.days--home{gap:16px;padding-top:16px}
+.days--home{gap:24px;padding-top:16px}
 .dayw{display:flex;flex-direction:column;gap:8px}
 .day__lbl{font-weight:500;font-size:15px;line-height:20px;color:var(--secondary)}
 .day__lbl.is-today{color:var(--green)}
@@ -632,6 +632,7 @@ a.note:active{transform:scale(.97)}
 .sheet .callout,.pg .callout{background:var(--set-bg)}
 .callout .li{padding:10px 16px;align-items:flex-start}
 .li__lead--22{width:22px;height:21px}
+.li__lead--22 img{width:22px;height:22px}
 .li__lead--22 .emo{font:400 18px/21px var(--emoji)}
 
 /* шапка в компактном виде: заголовок и подзаголовок друг под другом, отступ от «назад» */
@@ -984,7 +985,7 @@ var ILL = "/japan/ill/";
 function ill(n, cls){ return '<img class="'+(cls||'')+'" src="'+ILL+n+'.webp" alt="">'; }
 var QR_ICON = '<svg viewBox="0 0 19 18" fill="none"><path d="M1.86523 8.20312H6.31836C7.55859 8.20312 8.18359 7.57812 8.18359 6.28906V1.92383C8.18359 0.634766 7.55859 0.0195312 6.31836 0.0195312H1.86523C0.625 0.0195312 0 0.634766 0 1.92383V6.28906C0 7.57812 0.625 8.20312 1.86523 8.20312ZM1.88477 6.82617C1.54297 6.82617 1.37695 6.65039 1.37695 6.28906V1.92383C1.37695 1.57227 1.54297 1.39648 1.88477 1.39648H6.28906C6.63086 1.39648 6.80664 1.57227 6.80664 1.92383V6.28906C6.80664 6.65039 6.63086 6.82617 6.28906 6.82617H1.88477ZM3.25195 5.13672H4.92188C5.05859 5.13672 5.11719 5.07812 5.11719 4.91211V3.29102C5.11719 3.13477 5.05859 3.07617 4.92188 3.07617H3.25195C3.10547 3.07617 3.05664 3.13477 3.05664 3.29102V4.91211C3.05664 5.07812 3.10547 5.13672 3.25195 5.13672ZM11.6699 8.20312H16.1133C17.3535 8.20312 17.9785 7.57812 17.9785 6.28906V1.92383C17.9785 0.634766 17.3535 0.0195312 16.1133 0.0195312H11.6699C10.4199 0.0195312 9.79492 0.634766 9.79492 1.92383V6.28906C9.79492 7.57812 10.4199 8.20312 11.6699 8.20312ZM11.6895 6.82617C11.3379 6.82617 11.1719 6.65039 11.1719 6.28906V1.92383C11.1719 1.57227 11.3379 1.39648 11.6895 1.39648H16.0938C16.4355 1.39648 16.6016 1.57227 16.6016 1.92383V6.28906C16.6016 6.65039 16.4355 6.82617 16.0938 6.82617H11.6895ZM13.1055 5.13672H14.7754C14.9219 5.13672 14.9805 5.07812 14.9805 4.91211V3.29102C14.9805 3.13477 14.9219 3.07617 14.7754 3.07617H13.1055C12.9688 3.07617 12.9199 3.13477 12.9199 3.29102V4.91211C12.9199 5.07812 12.9688 5.13672 13.1055 5.13672ZM1.86523 17.998H6.31836C7.55859 17.998 8.18359 17.3828 8.18359 16.0938V11.7188C8.18359 10.4395 7.55859 9.81445 6.31836 9.81445H1.86523C0.625 9.81445 0 10.4395 0 11.7188V16.0938C0 17.3828 0.625 17.998 1.86523 17.998ZM1.88477 16.6211C1.54297 16.6211 1.37695 16.4453 1.37695 16.0938V11.7285C1.37695 11.3672 1.54297 11.1914 1.88477 11.1914H6.28906C6.63086 11.1914 6.80664 11.3672 6.80664 11.7285V16.0938C6.80664 16.4453 6.63086 16.6211 6.28906 16.6211H1.88477ZM3.25195 14.9414H4.92188C5.05859 14.9414 5.11719 14.8828 5.11719 14.707V13.0957C5.11719 12.9395 5.05859 12.8809 4.92188 12.8809H3.25195C3.10547 12.8809 3.05664 12.9395 3.05664 13.0957V14.707C3.05664 14.8828 3.10547 14.9414 3.25195 14.9414ZM10.459 12.3438H12.1289C12.2656 12.3438 12.3242 12.2852 12.3242 12.1191V10.498C12.3242 10.3418 12.2656 10.2832 12.1289 10.2832H10.459C10.3125 10.2832 10.2637 10.3418 10.2637 10.498V12.1191C10.2637 12.2852 10.3125 12.3438 10.459 12.3438ZM15.6445 12.3438H17.3145C17.4512 12.3438 17.5098 12.2852 17.5098 12.1191V10.498C17.5098 10.3418 17.4512 10.2832 17.3145 10.2832H15.6445C15.498 10.2832 15.4492 10.3418 15.4492 10.498V12.1191C15.4492 12.2852 15.498 12.3438 15.6445 12.3438ZM13.0762 14.9414H14.7461C14.8828 14.9414 14.9414 14.8828 14.9414 14.707V13.0957C14.9414 12.9395 14.8828 12.8809 14.7461 12.8809H13.0762C12.9297 12.8809 12.8809 12.9395 12.8809 13.0957V14.707C12.8809 14.8828 12.9297 14.9414 13.0762 14.9414ZM10.459 17.5293H12.1289C12.2656 17.5293 12.3242 17.4707 12.3242 17.3047V15.6836C12.3242 15.5273 12.2656 15.4688 12.1289 15.4688H10.459C10.3125 15.4688 10.2637 15.5273 10.2637 15.6836V17.3047C10.2637 17.4707 10.3125 17.5293 10.459 17.5293ZM15.6445 17.5293H17.3145C17.4512 17.5293 17.5098 17.4707 17.5098 17.3047V15.6836C17.5098 15.5273 17.4512 15.4688 17.3145 15.4688H15.6445C15.498 15.4688 15.4492 15.5273 15.4492 15.6836V17.3047C15.4492 17.4707 15.498 17.5293 15.6445 17.5293Z" fill="currentColor"/></svg>';
 /* эмодзи из данных → 3D-иллюстрация, если такая нарисована */
-var EMO_ILL = {"✈️":"airplane","🛍️":"bag","🎢":"ticket","🏨":"hotel","🌤️":"sun"};
+var EMO_ILL = {"✈️":"airplane","🛍️":"bag","🎢":"universal","🏨":"hotel","🌤️":"sun","🚆":"train","🚄":"train","🚌":"bus","⛩️":"sightseeing","🍜":"food","🏙️":"skyseeker","🗻":"fuji"};
 function leadHtml(ic){ return EMO_ILL[ic] ? ill(EMO_ILL[ic]) : '<span class="emo">'+ic+'</span>'; }
 function badge(label){ return '<span class="badge">'+esc(label)+'</span>'; }
 /* «<b>Заголовок</b> — подпись» → заголовок и подпись строкой ниже */
@@ -1130,7 +1131,7 @@ function summaryHtml(d){
 }
 function alertHtml(d){
   if (!d.alert) return "";
-  return '<div class="callout"><div class="li"><span class="li__lead li__lead--22"><span class="emo">🗻</span></span><span class="li__tx"><b>'+esc(d.alert.t)+'</b><small>'+esc(d.alert.s)+'</small></span></div></div>';
+  return '<div class="callout"><div class="li"><span class="li__lead li__lead--22">'+ill("fuji")+'</span><span class="li__tx"><b>'+esc(d.alert.t)+'</b><small>'+esc(d.alert.s)+'</small></span></div></div>';
 }
 function tasksHtml(list){
   if (!list || !list.length) return "";
@@ -1907,8 +1908,8 @@ $("scroll").addEventListener("scroll", function(){
 
 function enterView(){
   /* как при открытии страницы: блоки по очереди выезжают снизу вверх */
-  document.querySelectorAll("#view .day, #view .stay, #view .mday, #view .mlist, #view .sets, #view .pg > *").forEach(function(el, i){
-    anim(el, [{opacity:0, transform:"translate3d(0,60px,0) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, delay:Math.min(i,8)*80, easing:SPRING, fill:"backwards"});
+  document.querySelectorAll("#view .dayw, #view .days > .stay, #view .mday, #view .mlist, #view .sets, #view .pg > *").forEach(function(el, i){
+    anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:Math.min(i,8)*70, easing:SPRING, fill:"backwards"});
   });
 }
 function intro(){
@@ -1919,9 +1920,9 @@ function intro(){
   document.querySelectorAll("#chipsSlot .chip").forEach(function(el, i){
     anim(el, [{opacity:0, transform:"translateX(40px) scale(.7)"},{opacity:1, transform:"none"}], {duration:750, delay:260+i*55, easing:SPRING, fill:"backwards"});
   });
-  document.querySelectorAll("#view .day, #view .stay, #view .mday, #view .mlist, #view .sets, #view .pg > *").forEach(function(el, i){
+  document.querySelectorAll("#view .dayw, #view .days > .stay, #view .mday, #view .mlist, #view .sets, #view .pg > *").forEach(function(el, i){
     if (i > 4) return;
-    anim(el, [{opacity:0, transform:"translateY(60px) scale(.9)"},{opacity:1, transform:"none"}], {duration:900, delay:380+i*80, easing:SPRING, fill:"backwards"});
+    anim(el, [{opacity:0, transform:"translateY(24px) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:380+i*70, easing:SPRING, fill:"backwards"});
   });
   anim(document.querySelector(".tabbar__buttons"), [{transform:"translateY(140px)"},{transform:"none"}], {duration:900, delay:250, easing:SPRING, fill:"backwards"});
 }
