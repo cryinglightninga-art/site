@@ -27,6 +27,8 @@
   --mglass:rgba(248,248,248,.84);--mtext:#1a1a1a;--mtitle:#bfbfbf;--mfield:rgba(120,120,128,.16);--msep:#e6e6e6;--mred:#ff383c;
   --accent:#2c2c2e; --on-accent:#fff; --green:#58a00c; --raised:#fff; --chip-track:#f3f3f3; --chip-thumb:#fff; --chip-hl:#fff; --dash:rgba(120,120,128,.28);
   --accent-shadow:0 8px 24px rgba(0,0,0,.28);
+  --badge-bg:#58a00c; --badge-fg:#fff; --badge-hl:rgba(150,201,96,1); --badge-edge:#005415; --badge-shadow:0 4px 10px rgba(0,0,0,.16);
+  --thumb-shadow:0 4px 4px rgba(0,0,0,.12);
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -39,6 +41,8 @@
     --mglass:rgba(44,44,46,.86);--mtext:#fff;--mtitle:rgba(235,235,245,.3);--mfield:rgba(120,120,128,.32);--msep:rgba(255,255,255,.12);
     --accent:#f2f2f7; --on-accent:#000; --green:#7ac142; --raised:#2c2c2e; --chip-track:#1c1c1e; --chip-thumb:#3a3a3c; --chip-hl:rgba(255,255,255,.08); --dash:rgba(120,120,128,.4);
     --accent-shadow:0 8px 24px rgba(0,0,0,.5);
+    --badge-bg:#3f7d0b; --badge-fg:#eaffd6; --badge-hl:rgba(122,193,66,.45); --badge-edge:rgba(0,0,0,.45); --badge-shadow:0 4px 12px rgba(255,255,255,.14);
+    --thumb-shadow:0 4px 8px rgba(255,255,255,.08);
     color-scheme:dark;
   }
   .lg:not(.round--blue){background:rgba(255,255,255,.08);
@@ -503,7 +507,8 @@ a.note:active{transform:scale(.97)}
 .chip:not(:has(.chip__n)):not(:has(svg)){padding-right:2px}
 .chip__seg{display:block;padding:6px 8px 6px 16px;border-radius:50px;font:500 15px/20px "Inter",sans-serif;color:var(--label);white-space:nowrap;transition:background .25s,box-shadow .25s}
 .chip:not(:has(.chip__n)):not(:has(svg)) .chip__seg,.chip.is-active .chip__seg{padding-right:16px}
-.chip.is-active .chip__seg{background:var(--chip-thumb);box-shadow:inset 0 -2px 2px var(--chip-hl),0 4px 4px rgba(0,0,0,.12)}
+.chip.is-active .chip__seg{background:var(--chip-thumb);box-shadow:inset 0 -2px 2px var(--chip-hl),var(--thumb-shadow)}
+.tab-pill{box-shadow:var(--thumb-shadow)}
 .chip__n{opacity:1;padding:0 2px;font:400 14px/19px "Inter",sans-serif;color:var(--secondary)}
 .chip svg{width:14px;height:14px;flex:none;margin-left:4px;color:var(--control)}
 .chip[class*="c-"]{background:var(--chip-track);color:var(--label)}
@@ -513,8 +518,8 @@ a.note:active{transform:scale(.97)}
 .seg .chip:not(.is-active) .chip__seg{padding-right:16px}
 
 /* бейдж города */
-.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:1000px;background:var(--green);color:#fff;font:600 11px/18px "Inter",sans-serif;text-transform:uppercase;letter-spacing:.2px;white-space:nowrap;
-  box-shadow:inset 0 3px 3px rgba(150,201,96,1),inset 0 -3px 3px rgba(150,201,96,1),0 4px 10px rgba(0,0,0,.16),inset 0 0 2px #005415}
+.badge{display:inline-flex;align-items:center;padding:2px 9px;border-radius:1000px;background:var(--badge-bg);color:var(--badge-fg);font:600 11px/18px "Inter",sans-serif;text-transform:uppercase;letter-spacing:.2px;white-space:nowrap;
+  box-shadow:inset 0 3px 3px var(--badge-hl),inset 0 -3px 3px var(--badge-hl),var(--badge-shadow),inset 0 0 2px var(--badge-edge)}
 .tag{display:inline-flex;align-self:flex-start;padding:3px 9px;border-radius:1000px;background:var(--fill-tertiary);font-size:13px;line-height:18px;color:var(--label)}
 
 /* строка списка (List Item): слот 40 для иллюстрации, 22 — для иконки/номера/чекбокса */
@@ -566,6 +571,8 @@ a.note:active{transform:scale(.97)}
 
 /* «где живём» */
 .stay{padding:16px;border-radius:32px;justify-content:flex-start;gap:12px}
+.stay{width:100%;text-align:left;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
+.stay:active{transform:scale(.97)}
 .stay__ill{width:40px;height:40px;flex:none;object-fit:contain}
 .stay__tx{flex:1}
 
@@ -1051,11 +1058,12 @@ function renderDays(){
   scrollChips($("chipsSlot").querySelector(".chips"), prev, true, "city");
 
   var today = todayKeyJapan(), h = HOTELS[ui.city];
-  var html = '<div class="days"><a class="stay" href="'+placeUrl(h.q)+'" target="_blank" rel="noopener" aria-label="'+esc(h.name)+' в Google Maps">'+ill("hotel","stay__ill")+'<div class="stay__tx">'+
-    '<p class="stay__hotel">'+esc(h.name)+'</p><p class="stay__meta">'+stayDates(h)+' · '+h.nights+' '+plural(h.nights,"ночь","ночи","ночей")+'</p></div></a>';
+  var html = '<div class="days"><button class="stay" id="stayCard" aria-label="Отели">'+ill("hotel","stay__ill")+'<div class="stay__tx">'+
+    '<p class="stay__hotel">'+esc(h.name)+'</p><p class="stay__meta">'+stayDates(h)+' · '+h.nights+' '+plural(h.nights,"ночь","ночи","ночей")+'</p></div></button>';
   DAYS.forEach(function(d){ if (d.stay === ui.city) html += dayCard(d, d.key === today); });
   $("view").innerHTML = html + '</div>';
   bindDays();
+  $("stayCard").onclick = function(){ ui.from = "days"; ui.tab = "prep"; ui.page = "hotels"; $("scroll").scrollTop = 0; render(); slideView(1); };
 }
 
 function stayDates(h){ var a = h.inD.split(" "), b = h.outD.split(" "); return a[1]===b[1] ? a[0]+"–"+b[0]+" "+b[1] : h.inD+" — "+h.outD; }
@@ -1153,7 +1161,7 @@ function debtSummary(){
   var b = balances(), out = [];
   CUR_ORDER.forEach(function(c){ if (b[c] != null){ var l = debtLine(b[c], c); if (l) out.push(l); } });
   if (!out.length) return money.rows.length ? "Долгов нет" : "Пока пусто";
-  return out[0].from+" должна "+out[0].sum+(out.length > 1 ? " и ещё "+(out.length-1) : "");
+  return "Есть долг";
 }
 function openFolder(f){
   if ((f === "tickets" || f === "money") && isGuest()){ toast(f === "money" ? "Деньги доступны только попутчикам" : "Документы доступны только попутчикам"); return; }
@@ -1161,7 +1169,7 @@ function openFolder(f){
   if (f === "money"){ moneyLoad(); moneyRates(); }
   render(); slideView(1);
 }
-function closePage(){ ui.page = null; closeAddMenu(); $("scroll").scrollTop = 0; render(); slideView(-1); }
+function closePage(){ ui.page = null; if (ui.from){ ui.tab = ui.from; ui.from = null; } closeAddMenu(); $("scroll").scrollTop = 0; render(); slideView(-1); }
 function slideView(dir){
   if (REDUCE) return;
   anim($("view"), [{opacity:0, transform:"translate3d("+(dir*48)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING});
