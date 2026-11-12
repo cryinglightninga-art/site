@@ -127,12 +127,14 @@ a{color:inherit;text-decoration:none}
 .sets.sets--grid{display:grid;grid-template-columns:1fr 1fr;overflow:visible}
 .sets.sets--grid .set{flex:none}
 .set.is-locked{opacity:.4}
-/* свайп влево — удалить */
-.pg .check,#docsBox{overflow:hidden}
-.pg .check__item,#docsBox .att{touch-action:pan-y;will-change:transform}
+/* свайп влево — удалить: едет содержимое, разделитель стоит */
+[data-sw]{touch-action:pan-y;overflow:hidden;-webkit-user-select:none;user-select:none}
+#phone #sheet{overflow:clip}
+#phone #sheetBody{overflow-x:clip}
+[data-sw] > *{transform:translate3d(var(--sx,0px),0,0);transition:transform .4s cubic-bezier(.3,1.25,.5,1)}
+[data-sw].sw-drag > *{transition:none}
 .sw-del{position:absolute;top:50%;right:-80px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center}
-#docsBox .att{position:relative;overflow:visible}
-#docsBox .att .sw-del{right:-76px}
+#docsBox .att{position:relative}
 .sw-del svg{width:20px;height:20px}
 .addmenu{position:absolute;z-index:40;right:16px;top:calc(var(--safe) + 52px);left:auto}
 .addmenu button i{display:none}
@@ -247,15 +249,16 @@ a.note:active{transform:scale(.97)}
 .att.is-locked .att__thumb{filter:grayscale(1);opacity:.6}
 .att__go{color:var(--tertiary);flex:none}
 .att__go svg{display:block;width:8px;height:13px}
-.sheet .att{background:var(--set-bg)}
+.sheet .att,.pg .att{background:var(--set-bg)}
 /* кнопка маршрута */
 .callout{display:flex;gap:10px;padding:12px 14px;border-radius:20px;background:var(--surface);font-size:14px;line-height:19px}
 .callout__ic{font:400 16px/19px var(--emoji);flex:none}
-.sheet .callout{background:var(--set-bg)}
+.sheet .callout,.pg .callout{background:var(--set-bg)}
 .btn-route{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;height:48px;border-radius:1000px;background:var(--surface);color:var(--label);box-shadow:0 4px 14px rgba(0,0,0,.05);font-weight:600;font-size:16px;line-height:20px;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
 .btn-route:active{transform:scale(.96)}
 .btn-route .gm{height:20px}
-.sheet .btn-route{background:var(--set-bg);box-shadow:none}
+.sheet .btn-route,.pg .btn-route{background:var(--set-bg);box-shadow:none}
+.pg .hotel .btn-route{height:44px;font-size:15px;background:var(--surface);box-shadow:none}
 /* просмотр QR во весь экран */
 .qrv{position:absolute;inset:0;z-index:50;background:rgba(0,0,0,.45);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;visibility:hidden;opacity:0;transition:opacity .25s,visibility 0s .25s}
 .qrv.is-open{visibility:visible;opacity:1;transition:opacity .25s}
@@ -388,6 +391,11 @@ a.note:active{transform:scale(.97)}
 .doc-del:active{background:rgba(120,120,128,.16)}
 .alert__btn--danger{background:var(--danger)!important}
 .sheet__map .gm{height:22px}
+.sheet__acts{display:flex;gap:10px}
+.sheet__acts [hidden]{display:none}
+.sheet__add{background:rgba(0,136,255,.86)!important;color:#fff;box-shadow:0 8px 24px rgba(0,136,255,.28),inset 1.5px 1.5px 1px rgba(255,255,255,.55),inset -1px -1px 1px rgba(255,255,255,.25)!important}
+.daymenu{position:absolute;z-index:8;right:16px;top:62px;left:auto}
+.daymenu button i{display:none}
 .sheet__body > *{flex:none}
 .stack{display:flex;flex-direction:column;gap:8px}
 .sh-kicker{font-weight:500;font-size:15px;line-height:20px;color:var(--secondary);margin-bottom:4px}
@@ -528,7 +536,9 @@ a.note:active{transform:scale(.97)}
       <div class="sheet__grabber"></div>
       <div class="sheet__head">
         <button class="glass lg round" id="sheetClose" aria-label="Закрыть"><svg viewBox="0 0 18 18" style="width:18px;height:18px"><path d="M4 4l10 10M14 4L4 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
-        <a class="glass lg round sheet__map" id="sheetMap" target="_blank" rel="noopener" aria-label="Маршрут дня в Google Maps" hidden></a>
+        <div class="sheet__acts"><a class="glass lg round sheet__map" id="sheetMap" target="_blank" rel="noopener" aria-label="Маршрут дня в Google Maps" hidden></a>
+        <button class="glass lg round sheet__add" id="sheetAdd" aria-label="Добавить" hidden><svg viewBox="0 0 20 20"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button></div>
+        <div class="mmenu lg daymenu" id="dayMenu" hidden><button type="button" id="dayAddTask"><span>Добавить задачу</span></button></div>
       </div>
     </div>
     <div class="sheet__body" id="sheetBody"></div>
@@ -580,11 +590,11 @@ var CITIES = {
 /* отели: q — то, что уходит в Google Maps как точка старта/финиша */
 var HOTELS = {
   osaka:{name:"Апартаменты", q:"3-11-34 Tenjinbashi, Kita-ku, Osaka, 530-0041, Japan", addr:"3-11-34 Tenjinbashi, Kita-ku, Osaka",
-    inD:"22 ноября", inT:"~21:00", outD:"24 ноября", outT:"~08:30", nights:2},
+    inD:"22 ноября", inT:"с 16:00", outD:"24 ноября", outT:"до 10:00", nights:2},
   kyoto:{name:"Excellence Inn Nishihonganji", q:"Excellence Inn Nishihonganji Kyoto", addr:"96 Sakaimachi, Nishinakasuji-dori Hanayacho-sagaru, Shimogyo-ku, Kyoto, 600-8349",
-    inD:"24 ноября", inT:"~17:00–18:00", outD:"27 ноября", outT:"~08:00", nights:3},
+    inD:"24 ноября", inT:"с 16:00", outD:"27 ноября", outT:"до 10:00", nights:3},
   tokyo:{name:"The B Akasaka Mitsuke", q:"The B Akasaka Mitsuke, 3-21-7 Akasaka, Minato City, Tokyo", addr:"3-21-7 Akasaka, Minato-ku, Tokyo, 107-0052",
-    inD:"27 ноября", inT:"~20:00–21:00", outD:"3 декабря", outT:"~06:45", nights:6}
+    inD:"27 ноября", inT:"с 16:00", outD:"3 декабря", outT:"до 12:00", nights:6}
 };
 
 /* места дня: k — тип (see смотреть, food еда, shop шоппинг, move дорога, home отель),
@@ -953,7 +963,11 @@ function dayCard(d, isToday){
 function bindAtt(root){
   root.querySelectorAll("[data-qr]").forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); openQr(); }; });
   root.querySelectorAll("[data-usj]").forEach(function(b){ b.onclick = function(e){ e.stopPropagation(); openUsj(); }; });
-  root.querySelectorAll("[data-tasks]").forEach(function(t){ bindChecks(t, checks, "japan.checks"); });
+  root.querySelectorAll("[data-tasks]").forEach(function(t){
+    bindChecks(t, checks, "japan.checks");
+    var host = t.closest("[data-day]"), di = host ? +host.getAttribute("data-day") : sheetDay;
+    if (di != null) bindSwipe(t, "[data-check]", function(el){ deleteDayTask(di, el.getAttribute("data-check")); });
+  });
   root.querySelectorAll("[data-stop]").forEach(function(a){ a.addEventListener("click", function(e){ e.stopPropagation(); }); });
 }
 function bindDays(){
@@ -1011,7 +1025,7 @@ function pageChecklist(){
   var prev = rowLeft("#chipsSlot .chips");
   $("chipsSlot").innerHTML = '<div class="chips">'+Object.keys(PREP).map(function(g){
     var left = PREP[g].items.filter(function(x){ return !checks[x.id]; }).length;
-    return chip("c-all", PREP[g].label, left || null, ui.prep===g, 'data-prep="'+g+'"');
+    return chip("c-kyoto", PREP[g].label, left || null, ui.prep===g, 'data-prep="'+g+'"');
   }).join("")+'</div>';
   scrollChips($("chipsSlot").querySelector(".chips"), prev, prev != null, "prep");
   $("view").innerHTML = '<div class="pg"><div class="checks check" id="checkList">'+doneLast(PREP[ui.prep].items).map(checkItem).join("")+'</div></div>';
@@ -1037,15 +1051,16 @@ function askNewTask(){
     PREP[ui.prep].items.push({id:it.id, t:"<b>"+esc(v)+"</b>"});
     closePass(); render(); toast("Задача добавлена"); };
 }
-var TRASH = '<svg viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4.5h4V6M6 6l.7 9.5h6.6L14 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+var TRASH = '<svg viewBox="0 0 19.27 23.49" style="width:17px;height:21px"><path d="M6.5625 18.6035C6.93359 18.6035 7.17773 18.3691 7.16797 18.0273L6.86523 7.57812C6.85547 7.23633 6.61133 7.01172 6.25977 7.01172C5.88867 7.01172 5.64453 7.24609 5.6543 7.58789L5.94727 18.0273C5.95703 18.3789 6.20117 18.6035 6.5625 18.6035ZM9.45312 18.6035C9.82422 18.6035 10.0879 18.3691 10.0879 18.0273L10.0879 7.58789C10.0879 7.24609 9.82422 7.01172 9.45312 7.01172C9.08203 7.01172 8.82812 7.24609 8.82812 7.58789L8.82812 18.0273C8.82812 18.3691 9.08203 18.6035 9.45312 18.6035ZM12.3535 18.6035C12.7051 18.6035 12.9492 18.3789 12.959 18.0273L13.252 7.58789C13.2617 7.24609 13.0176 7.01172 12.6465 7.01172C12.2949 7.01172 12.0508 7.23633 12.041 7.58789L11.748 18.0273C11.7383 18.3691 11.9824 18.6035 12.3535 18.6035ZM5.16602 4.46289L6.71875 4.46289L6.71875 2.37305C6.71875 1.81641 7.10938 1.45508 7.69531 1.45508L11.1914 1.45508C11.7773 1.45508 12.168 1.81641 12.168 2.37305L12.168 4.46289L13.7207 4.46289L13.7207 2.27539C13.7207 0.859375 12.8027 0 11.2988 0L7.58789 0C6.08398 0 5.16602 0.859375 5.16602 2.27539ZM0.732422 5.24414L18.1836 5.24414C18.584 5.24414 18.9062 4.90234 18.9062 4.50195C18.9062 4.10156 18.584 3.76953 18.1836 3.76953L0.732422 3.76953C0.341797 3.76953 0 4.10156 0 4.50195C0 4.91211 0.341797 5.24414 0.732422 5.24414ZM4.98047 21.748L13.9355 21.748C15.332 21.748 16.2695 20.8398 16.3379 19.4434L17.0215 5.05859L15.4492 5.05859L14.7949 19.2773C14.7754 19.8633 14.3555 20.2734 13.7793 20.2734L5.11719 20.2734C4.56055 20.2734 4.14062 19.8535 4.11133 19.2773L3.41797 5.05859L1.88477 5.05859L2.57812 19.4531C2.64648 20.8496 3.56445 21.748 4.98047 21.748Z" fill="currentColor"/></svg>';
 var swOpen = null;
 function swSet(el, open){
-  el._open = open; el.style.transition = "transform .4s cubic-bezier(.3,1.25,.5,1)"; el.style.transform = open ? "translateX(-80px)" : "";
+  el._open = open; el.classList.remove("sw-drag"); el.style.setProperty("--sx", open ? "-80px" : "0px");
   if (open){ if (swOpen && swOpen !== el) swSet(swOpen, false); swOpen = el; } else if (swOpen === el) swOpen = null;
 }
 document.addEventListener("pointerdown", function(e){ if (swOpen && !swOpen.contains(e.target)) swSet(swOpen, false); }, true);
 function bindSwipe(root, sel, onDel){
   root.querySelectorAll(sel).forEach(function(el){
+    el.setAttribute("data-sw", "");
     if (!el.querySelector(".sw-del")) el.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить">'+TRASH+'</span>');
     var sx = null, sy = 0, drag = null, base = 0, dx = 0;
     el.addEventListener("pointerdown", function(e){ if (isGuest()) return; sx = e.clientX; sy = e.clientY; drag = null; base = el._open ? -80 : 0; dx = base; });
@@ -1056,7 +1071,7 @@ function bindSwipe(root, sel, onDel){
         if (Math.abs(x) > 8 && Math.abs(x) > Math.abs(y)){ drag = true; try{ el.setPointerCapture(e.pointerId); }catch(_){} }
         else if (Math.abs(y) > 8){ sx = null; return; }
       }
-      if (drag){ dx = Math.max(-104, Math.min(0, base + x)); el.style.transition = "none"; el.style.transform = "translateX("+dx+"px)"; }
+      if (drag){ dx = Math.max(-104, Math.min(0, base + x)); el.classList.add("sw-drag"); el.style.setProperty("--sx", dx+"px"); }
     });
     var end = function(){ if (drag){ el._swiped = true; setTimeout(function(){ el._swiped = false; }, 60); swSet(el, dx < -40); } sx = null; drag = null; };
     el.addEventListener("pointerup", end); el.addEventListener("pointercancel", end);
@@ -1135,7 +1150,7 @@ function bindChecks(root, store, key, after){
 function openSheet(html, mapUrl){
   var body = $("sheetBody"); body.innerHTML = html; body.scrollTop = 0;
   $("sheetFoot").hidden = true; $("sheet").classList.remove("has-foot");
-  var m = $("sheetMap"); m.hidden = !mapUrl;
+  var m = $("sheetMap"); m.hidden = !mapUrl; $("sheetAdd").hidden = true; $("dayMenu").hidden = true; sheetDay = null;
   if (mapUrl){ m.href = mapUrl; m.innerHTML = MAPS_IMG; }
   body.classList.remove("stagger"); void body.offsetWidth; body.classList.add("stagger");
   $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open");
@@ -1149,7 +1164,38 @@ document.addEventListener("keydown", function(e){
   else closeSheet();
 });
 
-function openDay(i){
+var sheetDay = null;
+var CUSTOM_DAY = load("japan.dayTasks", {});
+DAYS.forEach(function(d){ var k = d.d+"-"+d.m;
+  (CUSTOM_DAY[k] || []).forEach(function(x){ (d.tasks = d.tasks || []).push({id:x.id, t:"<b>"+esc(x.t)+"</b>"}); });
+  if (d.tasks) d.tasks = d.tasks.filter(function(x){ return HIDDEN.indexOf(x.id) < 0; }); });
+function deleteDayTask(i, id){
+  var d = DAYS[i], k = d.d+"-"+d.m, own = (CUSTOM_DAY[k] || []).some(function(x){ return x.id === id; });
+  d.tasks = (d.tasks || []).filter(function(x){ return x.id !== id; });
+  if (own){ CUSTOM_DAY[k] = CUSTOM_DAY[k].filter(function(x){ return x.id !== id; }); save("japan.dayTasks", CUSTOM_DAY); }
+  else { HIDDEN.push(id); save("japan.hiddenTasks", HIDDEN); }
+  delete checks[id]; save("japan.checks", checks);
+  render(); if (sheetDay === i) refreshDaySheet(i);
+}
+function refreshDaySheet(i){ var y = $("sheetBody").scrollTop; openDay(i, true); $("sheetBody").scrollTop = y; }
+function askDayTask(i){
+  var d = DAYS[i];
+  var a = alertOpen('<div class="alert__title">Новая задача</div><p class="alert__text">На '+d.d+' '+MONTHS[d.m]+'</p>'+
+    '<div class="alert__fields"><div class="alert__row"><input class="alert__in" id="tName" placeholder="Например, забрать билеты" autocomplete="off" enterkeyhint="done"></div></div>'+
+    '<div class="alert__btns"><button class="alert__btn alert__btn--cancel" type="button" id="tCancel">Отменить</button><button class="alert__btn alert__btn--ok" type="submit">Добавить</button></div>');
+  setTimeout(function(){ $("tName").focus(); }, 60);
+  $("tCancel").onclick = closePass;
+  a.onsubmit = function(e){ e.preventDefault(); var v = $("tName").value.trim(); if (!v){ $("tName").focus(); return; }
+    var k = d.d+"-"+d.m, it = {id:"d"+Date.now().toString(36), t:v};
+    (CUSTOM_DAY[k] = CUSTOM_DAY[k] || []).push(it); save("japan.dayTasks", CUSTOM_DAY);
+    (d.tasks = d.tasks || []).push({id:it.id, t:"<b>"+esc(v)+"</b>"});
+    closePass(); render(); refreshDaySheet(i); toast("Задача добавлена"); };
+}
+$("sheetAdd").onclick = function(e){ e.stopPropagation(); var m = $("dayMenu"); m.hidden = !m.hidden;
+  if (!m.hidden) anim(m, [{opacity:0, transform:"scale(.9) translateY(-8px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); };
+$("dayAddTask").onclick = function(e){ e.stopPropagation(); $("dayMenu").hidden = true; if (sheetDay != null) askDayTask(sheetDay); };
+document.addEventListener("click", function(){ var m = $("dayMenu"); if (m && !m.hidden) m.hidden = true; });
+function openDay(i, keep){
   var d = DAYS[i], n = 0;
   var stops = '<div class="stops">';
   var s = startPoint(d);
@@ -1165,7 +1211,9 @@ function openDay(i){
     (hasExtra ? '<div class="sh-extra" style="display:flex;flex-direction:column;gap:8px"><p class="label" style="margin-bottom:0">Не забыть</p>'+alertHtml(d)+tasksHtml(d.tasks)+attHtml(d)+'</div>' : '')+
     (d.free ? '<div class="callout"><span class="callout__ic">🌤️</span><span>'+esc(d.free)+'</span></div>' : '<div><p class="label">Места по порядку</p>'+stops+
       (d.p.some(function(p){ return p.r === 0; }) ? '<p class="hint" style="margin-top:8px">Google Карты строят маршрут максимум через 9 точек, поэтому соседние места не вошли в линию маршрута — их ссылки работают отдельно</p>' : '')+'</div>');
-  openSheet(html, mapsUrl(d));
+  if (keep){ $("sheetBody").innerHTML = html; }
+  else openSheet(html, mapsUrl(d));
+  sheetDay = i; $("sheetAdd").hidden = isGuest();
   bindAtt($("sheetBody"));
 }
 function stopRow(home, name, sub, q, num, time, off){
@@ -1194,8 +1242,7 @@ function pageHotels(){
         '<p class="hotel__name">'+esc(h.name)+'</p>'+(h.addr?'<p class="hotel__addr">'+esc(h.addr)+'</p>':'<p class="hotel__addr">Ищется в картах по названию</p>')+'</div>'+
         '<a class="stay__map" href="'+placeUrl(h.q)+'" target="_blank" rel="noopener" aria-label="'+esc(h.name)+' в Google Maps">'+MAPS_IMG+'</a></div>'+
         '<div class="hotel__dates"><div>Заезд<b>'+h.inD+'</b>'+h.inT+'</div><div>Выезд<b>'+h.outD+'</b>'+h.outT+'</div></div></div>';
-    }).join("")+'</div>'+
-    '<p class="hint">Время — планируемое по маршруту, а не официальные часы заселения и выселения</p></div>';
+    }).join("")+'</div>'+'</div>';
 }
 
 function pageTickets(){
