@@ -29,6 +29,7 @@
   --accent-shadow:0 8px 24px rgba(0,0,0,.28);
   --badge-bg:#58a00c; --badge-fg:#fff; --badge-hl:rgba(150,201,96,1); --badge-edge:#005415; --badge-shadow:0 4px 10px rgba(0,0,0,.16);
   --thumb-shadow:0 4px 4px rgba(0,0,0,.12);
+  --receipt-shadow:0 10px 30px rgba(0,0,0,.12),0 2px 6px rgba(0,0,0,.05);
   color-scheme:light;
 }
 @media (prefers-color-scheme: dark){
@@ -43,6 +44,7 @@
     --accent-shadow:0 8px 24px rgba(0,0,0,.5);
     --badge-bg:#3f7d0b; --badge-fg:#eaffd6; --badge-hl:rgba(122,193,66,.45); --badge-edge:rgba(0,0,0,.45); --badge-shadow:0 4px 12px rgba(255,255,255,.14);
     --thumb-shadow:0 4px 8px rgba(255,255,255,.08);
+    --receipt-shadow:0 10px 30px rgba(255,255,255,.07);
     color-scheme:dark;
   }
   .lg:not(.round--blue){background:rgba(255,255,255,.08);
@@ -122,7 +124,7 @@ a{color:inherit;text-decoration:none}
 #phone.is-page.has-add .toolbar__trailing .pg-add{display:flex}
 #phone.is-guest .toolbar__trailing .pg-add{display:none}
 .ptitle{position:absolute;left:72px;right:72px;top:0;height:44px;align-items:center;justify-content:center;pointer-events:none}
-#phone.is-page .ctitle{display:block;visibility:hidden;flex:1 0 0}
+#phone.is-page .ctitle{display:flex;visibility:hidden;flex:1 0 0}
 #phone.is-page .tabbar{transform:translateY(150%);opacity:0;pointer-events:none}
 .tabbar{transition:transform .5s cubic-bezier(.3,1.25,.5,1),opacity .3s}
 #phone .pg-add{background:rgba(0,136,255,.86);box-shadow:0 8px 24px rgba(0,136,255,.28),inset 1.5px 1.5px 1px rgba(255,255,255,.55),inset -1px -1px 1px rgba(255,255,255,.25)}
@@ -141,7 +143,7 @@ a{color:inherit;text-decoration:none}
 #phone #sheetBody{overflow-x:clip}
 [data-sw] > *{transform:translate3d(var(--sx,0px),0,0);transition:transform .4s cubic-bezier(.3,1.25,.5,1)}
 [data-sw].sw-drag > *{transition:none}
-.sw-del{position:absolute;top:50%;right:-80px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center}
+.sw-del{position:absolute;top:50%;right:-64px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:var(--danger);color:#fff;display:flex;align-items:center;justify-content:center}
 #docsBox .att{position:relative}
 .sw-del svg{width:20px;height:20px}
 .addmenu{position:absolute;z-index:40;right:16px;top:calc(var(--safe) + 52px);left:auto}
@@ -156,7 +158,7 @@ a{color:inherit;text-decoration:none}
 .toolbar__title p{font-weight:500;font-size:15px;line-height:20px;color:var(--secondary)}
 
 /* ---------- tab bar ---------- */
-.tabbar{position:absolute;z-index:5;left:0;bottom:0;width:100%;display:flex;gap:16px;align-items:center;justify-content:flex-end;padding:16px 25px calc(20px + env(safe-area-inset-bottom,0px));pointer-events:none}
+.tabbar{position:absolute;z-index:5;left:0;bottom:0;width:100%;display:flex;gap:16px;align-items:center;justify-content:flex-end;padding:16px 25px 16px;pointer-events:none}
 .tabbar > *{pointer-events:auto}
 .tabbar__buttons{position:relative;flex:none;width:184px;height:54px;display:flex;align-items:center;padding:0 2px}
 .tabbar__bg{position:absolute;inset:-4px}
@@ -199,7 +201,6 @@ a{color:inherit;text-decoration:none}
 .hotel .stay__map{width:40px;height:40px}
 .hotel .gm{height:19px}
 .day{position:relative;border-radius:32px;background:var(--set-bg);padding:20px 16px 16px;display:flex;flex-direction:column;gap:14px;text-align:left;transition:transform .5s cubic-bezier(.25,1.5,.4,1);border:2px solid transparent}
-.day:active{transform:scale(.97)}
 .day.is-today{border-color:var(--blue)}
 .day__top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:0 4px}
 .day__date{display:flex;align-items:baseline;gap:8px}
@@ -329,7 +330,6 @@ a.note:active{transform:scale(.97)}
 .sets::-webkit-scrollbar{display:none}
 .sets .set{flex:0 0 calc((100% - 8px) / 2.15);scroll-snap-align:start}
 .set{position:relative;height:179px;border-radius:32px;background:var(--set-bg);overflow:hidden;padding:24px 20px 20px;display:flex;flex-direction:column;gap:10px;text-align:left;transition:transform .5s cubic-bezier(.25,1.5,.4,1);-webkit-transform:translateZ(0);transform:translateZ(0)}
-.set:active{transform:scale(.96)}
 .folder{position:relative;width:55px;height:46px;flex:none;filter:drop-shadow(0 8px 7px rgba(0,0,0,.08));transition:transform .6s cubic-bezier(.25,1.6,.4,1)}
 .folder__back{position:absolute;z-index:0;left:3px;top:9.49px;width:49px;height:36.51px}
 .folder__front{position:absolute;z-index:1;left:0;top:.53px;width:55px;height:42.47px;transform-origin:50% 100%;transition:transform .55s cubic-bezier(.25,1.5,.4,1)}
@@ -572,7 +572,6 @@ a.note:active{transform:scale(.97)}
 /* «где живём» */
 .stay{padding:16px;border-radius:32px;justify-content:flex-start;gap:12px}
 .stay{width:100%;text-align:left;transition:transform .35s cubic-bezier(.3,1.6,.5,1)}
-.stay:active{transform:scale(.97)}
 .stay__ill{width:40px;height:40px;flex:none;object-fit:contain}
 .stay__tx{flex:1}
 
@@ -621,6 +620,19 @@ a.note:active{transform:scale(.97)}
 .mrow--back b,.mrow--back .mrow__sum{color:var(--green)}
 .mday{padding:8px 4px 0}
 #mMenu{top:56px}
+
+/* шапка в компактном виде: заголовок и подзаголовок друг под другом, отступ от «назад» */
+.ctitle span:empty{display:none}
+#phone.is-page .ctitle{padding-left:12px}
+/* чек «Кто кому должен»: тень сильнее, до следующего блока 24 */
+.mbal{margin-bottom:27px;box-shadow:var(--receipt-shadow)}
+.mbal + .mday{padding-top:0}
+/* переключатели: смена активного без скачков */
+.chip{gap:0!important;transition:padding .35s cubic-bezier(.3,1.2,.5,1)}
+.chip .chip__seg{transition:padding .35s cubic-bezier(.3,1.2,.5,1),background-color .3s,box-shadow .3s}
+.chip__n{transition:margin .35s cubic-bezier(.3,1.2,.5,1)}
+.chip.is-active .chip__n{margin-left:4px}
+.chip.is-active svg{margin-left:4px}
 .sheet__acts .sheet__add{width:44px;height:44px;border-radius:50%}
 .mmenu.lg{background:var(--mglass);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%)}
 .sheet .chip{background:var(--fill-tertiary)}
@@ -1026,6 +1038,17 @@ function render(){
   $("ctSub").textContent = $("subtitle").textContent;
 }
 
+/* ряд чипов: если набор тот же — переключаем классы на месте, чтобы смена активного анимировалась */
+function chipKey(b){ return b.outerHTML.replace(/ is-active/g,"").replace(/<span class="chip__n">[^<]*<\/span>/g,"").replace(/ style="[^"]*"/g,""); }
+function setChips(html){
+  var slot = $("chipsSlot"), row = slot.querySelector(".chips"), tmp = document.createElement("div"); tmp.innerHTML = html;
+  var nb = tmp.querySelectorAll(".chip"), ob = row ? row.querySelectorAll(".chip") : [];
+  var same = row && nb.length === ob.length && [].every.call(nb, function(b, i){ return chipKey(b) === chipKey(ob[i]); });
+  if (!same){ slot.innerHTML = html; return; }
+  [].forEach.call(nb, function(b, i){ var o = ob[i]; o.classList.toggle("is-active", b.classList.contains("is-active"));
+    var nn = b.querySelector(".chip__n"), on = o.querySelector(".chip__n");
+    if (nn && on) on.textContent = nn.textContent; else if (nn) o.appendChild(nn); else if (on) on.remove(); });
+}
 function chip(cls, label, n, active, attr){
   return '<button class="chip'+(active?' is-active':'')+'" '+attr+'><span class="chip__seg">'+esc(label)+'</span>'+(n!=null?'<span class="chip__n">'+n+'</span>':'')+'</button>';
 }
@@ -1052,8 +1075,8 @@ function renderDays(){
   $("subtitle").textContent = "22 ноября — 3 декабря · 11 ночей";
   var prev = rowLeft("#chipsSlot .chips");
   var counts = {}; DAYS.forEach(function(d){ counts[d.stay] = (counts[d.stay]||0)+1; });
-  $("chipsSlot").innerHTML = '<div class="chips">'+
-    ["osaka","kyoto","tokyo"].map(function(c){ return chip(CITIES[c].cls, CITIES[c].label, counts[c], ui.city===c, 'data-city="'+c+'"'); }).join("")+'</div>';
+  setChips('<div class="chips">'+
+    ["osaka","kyoto","tokyo"].map(function(c){ return chip(CITIES[c].cls, CITIES[c].label, counts[c], ui.city===c, 'data-city="'+c+'"'); }).join("")+'</div>');
   $("chipsSlot").querySelectorAll("[data-city]").forEach(function(b){ b.onclick = function(){ if (ui.city === b.getAttribute("data-city")) return; ui.city = b.getAttribute("data-city"); $("scroll").scrollTop = 0; render(); enterView(); }; });
   scrollChips($("chipsSlot").querySelector(".chips"), prev, true, "city");
 
@@ -1110,7 +1133,7 @@ function routeBtn(d){ var u = mapsUrl(d); return u ? '<a class="btn-route" href=
 
 function dayCard(d, isToday){
   return '<article class="day'+(isToday?' is-today':'')+'" role="button" tabindex="0" data-day="'+d.i+'">'+
-    '<div class="day__top"><div class="day__date"><b>'+d.d+' '+MONTHS[d.m]+'</b><span>'+(isToday?'<span class="today">сегодня</span>':d.wd)+'</span></div><div class="day__cities">'+cityChips(d)+'</div></div><hr class="dash">'+
+    '<div class="day__top"><div class="day__date"><b>'+d.d+' '+MONTHS[d.m]+'</b><span>'+(isToday?'<span class="today">сегодня</span>':d.wd)+'</span></div><div class="day__cities">'+badge(CITIES[d.cities[d.cities.length-1]].label)+'</div></div><hr class="dash">'+
     summaryHtml(d)+ alertHtml(d)+ tasksHtml(d.tasks)+ attHtml(d)+ routeBtn(d)+
   '</article>';
 }
@@ -1176,7 +1199,7 @@ function slideView(dir){
   if (dir > 0) anim($("title"), [{opacity:0, transform:"translateX(24px)"},{opacity:1, transform:"none"}], {duration:480, easing:SPRING});
 }
 function renderPage(){
-  $("chipsSlot").innerHTML = "";
+  if (ui.page !== "checklist") $("chipsSlot").innerHTML = "";
   if (ui.page === "hotels") pageHotels();
   else if (ui.page === "visa") pageVisa();
   else if (ui.page === "tickets") pageTickets();
@@ -1186,10 +1209,10 @@ function renderPage(){
 function pageChecklist(){
   var prev = rowLeft("#chipsSlot .chips"), pc = prepCounts();
   $("subtitle").textContent = pc.done+" из "+pc.all;
-  $("chipsSlot").innerHTML = '<div class="chips">'+Object.keys(PREP).map(function(g){
+  setChips('<div class="chips">'+Object.keys(PREP).map(function(g){
     var left = PREP[g].items.filter(function(x){ return !checks[x.id]; }).length;
     return chip("", PREP[g].label, left || null, ui.prep===g, 'data-prep="'+g+'"');
-  }).join("")+'</div>';
+  }).join("")+'</div>');
   scrollChips($("chipsSlot").querySelector(".chips"), prev, prev != null, "prep");
   $("view").innerHTML = '<div class="pg"><div class="checks check" id="checkList">'+doneLast(PREP[ui.prep].items).map(checkItem).join("")+'</div></div>';
   $("chipsSlot").querySelectorAll("[data-prep]").forEach(function(b){ b.onclick = function(){ if (ui.prep === b.getAttribute("data-prep")) return; ui.prep = b.getAttribute("data-prep"); render();
