@@ -2356,7 +2356,7 @@ async function sendLink(){
   if (STANDALONE){ S.hkey = S.hkey || rnd(18); lsSet("trips.hkey", {k:S.hkey, t:Date.now()}); q.set("h", S.hkey); }
   var to = BASE + (q.toString() ? "?" + q.toString() : "");
   var r = await sb.auth.signInWithOtp({email:S.email, options:{emailRedirectTo:to, shouldCreateUser:true}});
-  if (r.error){ var m = String(r.error.message || ""); toast(/rate|limit|seconds/i.test(m) ? "Слишком часто — подождите минуту и попробуйте снова" : "Не отправилось: "+m); return false; }
+  if (r.error){ var m = String(r.error.message || ""); var sec = m.match(/after (\d+) seconds/); toast(sec ? "Новое письмо можно запросить через "+sec[1]+" с" : /rate limit|too many/i.test(m) ? "Лимит писем на этот час исчерпан — попробуйте через час или войдите по ссылке из прошлого письма" : "Не отправилось: "+m); return false; }
   S.sentAt = Date.now(); return true;
 }
 A.sendCode = async function(){
