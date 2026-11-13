@@ -3053,7 +3053,7 @@ A.inviteSheet = function(){ _inviteSheet2(); var b = document.querySelector("#fB
 function normUrl(l){ l = (l || "").trim(); return l && !/^https?:\/\//i.test(l) ? "https://" + l : l; }
 var _addDoc3 = A.addDoc;
 A.addDoc = function(pre){ _addDoc3(pre); var t = $("fDt"); if (!t) return; var f = t.closest(".fld");
-  f.insertAdjacentHTML("afterend", fld("Или ссылка", '<input class="in" id="fDl" type="url" inputmode="url" autocomplete="off" placeholder="https://drive.google.com/…">')); };
+  f.insertAdjacentHTML("afterend", fld("Ссылка", '<input class="in" id="fDl" type="url" inputmode="url" autocomplete="off" placeholder="https://drive.google.com/…">')); };
 var _docSave3 = A.docSave;
 A.docSave = async function(){
   var l = normUrl(val("fDl")), t = trip();
