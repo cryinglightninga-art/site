@@ -1083,6 +1083,13 @@ select.in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .addrow > span:first-child svg{width:18px;height:18px}
 .qrbox{flex-direction:column;align-items:center;gap:16px}
 .qrbox #invLink{margin:0;text-align:center;word-break:break-all}
+.linkbtn{display:flex;align-items:center;justify-content:center;text-decoration:none}
+/* компактная шапка: 10 от кнопок до низа */
+.is-compact .bar{padding-bottom:10px!important}
+/* таймер «отправить ещё раз» — цифры не прыгают */
+#resend{font-variant-numeric:tabular-nums}
+.dli__ill{width:22px;height:22px;object-fit:contain}
+.sheet .dashl{background:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2958,7 +2965,7 @@ document.querySelectorAll(".tab").forEach(function(x){ x.addEventListener("click
 
 /* шапка в компактном режиме: чипсы прилипают ровно под неё */
 (function(){ var bar = document.querySelector(".bar"), c = $("chipsSlot"); if (!bar || !c || !window.ResizeObserver) return;
-  new ResizeObserver(function(){ c.style.top = "calc(var(--safe) + "+bar.offsetHeight+"px)"; }).observe(bar); })();
+  new ResizeObserver(function(){ c.style.top = "calc(var(--safe) + "+bar.offsetHeight+"px)"; }).observe(bar, {box:"border-box"}); })();
 
 /* пустой день — пунктирный список, как в макете */
 function dli(act, attr, title, sub){ return '<button class="dli" data-act="'+act+'"'+(attr||'')+'><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>'+title+'</b><small>'+sub+'</small></span></button>'; }
@@ -3041,6 +3048,47 @@ A.moveSheet = function(d){ _moveSheet2(d); var n = $("fMn"); if (n){ var l = n.c
 /* ссылка-приглашение — внутри плашки с QR */
 var _inviteSheet2 = A.inviteSheet;
 A.inviteSheet = function(){ _inviteSheet2(); var b = document.querySelector("#fBody .qrbox"), l = $("invLink"); if (b && l){ b.appendChild(l); } };
+
+/* документ: можно добавить ссылку вместо файла (или вместе с ним) */
+function normUrl(l){ l = (l || "").trim(); return l && !/^https?:\/\//i.test(l) ? "https://" + l : l; }
+var _addDoc3 = A.addDoc;
+A.addDoc = function(pre){ _addDoc3(pre); var t = $("fDt"); if (!t) return; var f = t.closest(".fld");
+  f.insertAdjacentHTML("afterend", fld("Или ссылка", '<input class="in" id="fDl" type="url" inputmode="url" autocomplete="off" placeholder="https://drive.google.com/…">')); };
+var _docSave3 = A.docSave;
+A.docSave = async function(){
+  var l = normUrl(val("fDl")), t = trip();
+  if (l && !val("fDt") && !($("fDf") && $("fDf").files[0])){ try { $("fDt").value = new URL(l).hostname.replace(/^www\./, ""); } catch(_){ toast("Проверьте ссылку"); return; } }
+  if (l){ t.docs.push = function(d){ d.link = l; return Array.prototype.push.apply(this, arguments); }; }
+  try { await _docSave3(); } finally { delete t.docs.push; }
+};
+var _docBtn2 = docBtn;
+docBtn = function(doc, can){
+  var a = doc.link ? '<a class="'+(doc.file ? 'btn2' : 'primary')+' linkbtn" href="'+esc(doc.link)+'" target="_blank" rel="noopener">Открыть ссылку</a>' : '';
+  if (doc.file) return '<div class="stack">'+_docBtn2(doc, can)+a+'</div>';
+  return a || _docBtn2(doc, can);
+};
+var _docSheet2 = A.docSheet;
+A.docSheet = function(d){ _docSheet2(d); var doc = trip().docs.filter(function(x){ return x.id === d.id; })[0], s = document.querySelector('#fBody [data-input="docSubT"]');
+  if (doc && s){ s.closest(".fld").insertAdjacentHTML("afterend", fld("Ссылка", '<input class="in" type="url" inputmode="url" autocomplete="off" data-input="docLink" value="'+esc(doc.link || "")+'" placeholder="https://drive.google.com/…">')); } };
+INP.docLink = function(v){ var d = trip().docs.filter(function(x){ return x.id === S.docId; })[0]; if (!d) return; d.link = normUrl(v); render(); };
+
+/* пустой день: «Запланировать день» с солнышком, обычным текстом */
+function sunRow(act, attr){ return '<button class="dli" data-act="'+act+'"'+(attr||'')+'><span class="addcard__ic">'+ill("sun", "dli__ill")+'</span><span class="addcard__tx"><b>Запланировать день</b><small>что посмотреть, где поесть</small></span></button>'; }
+var _dayCardG = dayCard;
+dayCard = function(t, d){ var h = _dayCardG(t, d);
+  return h.replace(/<button class="dli" data-act="dayAddPlace"([^>]*)>[^]*?<\/button>/, function(_, a){ return sunRow("dayAddPlace", a); }); };
+var _openDayG = openDay;
+openDay = function(k){ _openDayG(k); var t = trip(), pl = $("plist"); if (!pl || ro() || (t.places[k] || []).length) return;
+  pl.className = "dashl"; pl.innerHTML = sunRow("addPlace"); };
+
+/* «Проверьте почту»: только код и одна строка про повторную отправку */
+SCR.code = function(){
+  var left = Math.max(0, Math.ceil(((S.sentAt || 0) + 60000 - Date.now()) / 1000));
+  return {title:"Проверьте почту", sub:"Отправили код на "+esc(S.email), back:true, tabs:false, view:'<div class="pg pg--form">'+
+    fld("Код из письма", '<input class="in" id="fCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="8 цифр" data-input="codeIn">')+
+    '<button class="primary" data-act="checkCode">Войти</button><p class="hint hint--c" id="resend">'+resendText(left)+'</p></div>'};
+};
+resendText = function(left){ return left ? 'Не пришло? Отправить ещё раз через 0:'+String(left).padStart(2,"0") : 'Не пришло? <button class="linkin" data-act="resend">Отправить ещё раз</button>'; };
 
 </script>
 </body>
