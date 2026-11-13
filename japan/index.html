@@ -1118,6 +1118,14 @@ select.in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 @media (prefers-color-scheme: dark){:root{--rep-bg:#48484a}}
 .att__rep{background:var(--rep-bg)!important}
 .qadd svg{color:#0088ff!important}
+.qadd svg{color:var(--label)!important}
+.tsec > .label{margin-bottom:0!important}
+[data-act="logoutAsk"]{display:flex!important;align-items:center;justify-content:center}
+.check__text b.strk{text-decoration:none!important;background:linear-gradient(currentColor,currentColor) no-repeat 0 60%/100% 1.5px;-webkit-box-decoration-break:clone;box-decoration-break:clone;display:inline}
+#fsheet .att{background:var(--sheet-card)!important;cursor:pointer}
+#fsheet .att .att__rep{margin-left:8px}
+#fsheet .att__tx{flex:1;min-width:0}
+#fsheet .att__tx,#fsheet .att__tx small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3193,6 +3201,59 @@ applyEdit = function(){
   if (moved.length) parts.push("Места на "+moved.map(function(d){ return dm(d.k); }).slice(0, 3).join(", ")+(moved.length > 3 ? " и др." : "")+" окажутся в другом городе.");
   if (lostH.length) parts.push("Отель в "+lostH.join(", ")+" больше не будет показан в поездке.");
   ask("Изменить даты и города?", parts.join(" "), null, "Изменить", function(){ _applyEditW(); }, true);
+};
+
+/* ===== вход на страницу: анимируется весь контент (заголовок, подзаголовок, чипсы, экран) ===== */
+function enterAll(kf, o, ids){ (ids || ["title","subtitle","chipsSlot","view"]).forEach(function(id, i){ var el = $(id); if (el && el.offsetParent !== null) anim(el, kf, Object.assign({fill:"backwards", delay:i*30}, o)); }); }
+enterView = function(){
+  enterAll([{opacity:0, transform:"translateY(14px)", filter:"blur(8px)"},{opacity:1, transform:"none", filter:"blur(0)"}], {duration:700, easing:"cubic-bezier(.22,1,.36,1)"}, ["title","subtitle","chipsSlot"]);
+  document.querySelectorAll("#view .days > *, #view > .sets > *, #view > .pg > *").forEach(function(el, i){
+    if (i > 8) return; anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:i*70, easing:SPRING, fill:"backwards"}); });
+};
+slide = function(dir){
+  if (S._tabSwitch){ S._tabSwitch = false; enterView(); return; }
+  enterAll([{opacity:0, transform:"translate3d("+(dir*40)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING});
+};
+/* смена города/раздела: только блоки верхнего уровня, без вложенных чек-листов */
+enterBlocks = function(){
+  document.querySelectorAll("#view .days > *, #view > .pg > *, #view > .check > *").forEach(function(el, i){
+    if (i > 8) return; anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:i*60, easing:SPRING, fill:"backwards"}); });
+};
+
+/* ===== чекбокс: лёгкая анимация отметки и зачёркивания ===== */
+var _checkA = A.check;
+A.check = function(d){ _checkA(d);
+  document.querySelectorAll('[data-act="check"][data-id="'+d.id+'"]').forEach(function(it){
+    var box = it.querySelector(".check__box"), tx = it.querySelector(".check__text b"), done = box && box.classList.contains("is-done");
+    if (box) anim(box, done ? [{transform:"scale(.6)"},{transform:"scale(1.12)"},{transform:"none"}] : [{transform:"scale(.85)"},{transform:"none"}], {duration:380, easing:"cubic-bezier(.3,1.4,.5,1)"});
+    if (tx && done){ tx.classList.add("strk"); var a = anim(tx, [{backgroundSize:"0% 1.5px"},{backgroundSize:"100% 1.5px"}], {duration:360, easing:"cubic-bezier(.3,.8,.4,1)"}); if (a) a.onfinish = function(){ tx.classList.remove("strk"); }; else tx.classList.remove("strk"); }
+    else if (tx) anim(tx, [{opacity:.4},{opacity:1}], {duration:300});
+  }); };
+
+/* ===== поездка без городов: отель всё равно можно добавить (город = страна) ===== */
+function hotelKeys(t){ return t.cities.length ? t.cities.map(function(c){ return c.n; }) : [t.country]; }
+var _SCRtripH = SCR.trip;
+SCR.trip = function(r){ var v = _SCRtripH(r), t = trip(r.trip);
+  if (S.tab !== "prep" && !t.cities.length && v.view){
+    var ho = t.hotels[t.country], n = diff(t.from, t.to), card;
+    if (ho) card = '<button class="stay" data-act="go" data-s="hotels">'+ill("hotel","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">'+esc(ho.name)+'</p><p class="stay__meta">'+(ho.inD&&ho.outD?rangeS(ho.inD, ho.outD):esc(ho.addr||""))+'</p></div></button>';
+    else card = ro() ? '' : '<button class="addcard addcard--hotel" data-act="hotelOpen" data-c="'+esc(t.country)+'"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить отель</b><small>'+n+' '+pl(n,"ночь","ночи","ночей")+'</small></span></button>';
+    v.view = v.view.replace(/(<div class="days days--home">(?:<p class="hint">[^<]*<\/p>)?)/, "$1"+card);
+  }
+  return v; };
+var _SCRhotelsH = SCR.hotels;
+SCR.hotels = function(r){ var t = trip(r.trip);
+  if (t.cities.length) return _SCRhotelsH(r);
+  var saved = t.cities; t.cities = [{n:t.country, nights:diff(t.from, t.to)}];
+  try { var v = _SCRhotelsH(r); } finally { t.cities = saved; }
+  return v; };
+var _prepViewH = prepView;
+prepView = function(t){ if (t.cities.length) return _prepViewH(t); var saved = t.cities; t.cities = [{n:t.country, nights:diff(t.from, t.to)}]; try { return _prepViewH(t); } finally { t.cities = saved; } };
+/* плашка документа в шторке — ровно как строка в списке документов */
+docCard = function(t, doc){
+  if (!doc.file && !doc.link) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span><input type="file" id="fDf" hidden></label>';
+  return '<div class="att" id="fDfCard" data-act="docOpen" role="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+esc(docSub(t, doc))+'</small></span>'+
+    (S._docCan ? '<label class="att__rep" onclick="event.stopPropagation()">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 };
 
 </script>
