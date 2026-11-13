@@ -2363,7 +2363,7 @@ A.sendCode = async function(){
   var e = val("fEmail"); if (!/.+@.+\..+/.test(e)){ toast("Введите почту"); return; }
   S.email = e; lsSet("trips.email", e);
   var b = document.querySelector('[data-act="sendCode"]'); if (b){ b.disabled = true; b.textContent = "Отправляем…"; }
-  var ok = await sendLink(); if (b){ b.disabled = false; b.textContent = "Получить ссылку"; }
+  var ok = await sendLink(); if (b){ b.disabled = false; b.textContent = "Получить код"; }
   if (ok){ go("code"); if (STANDALONE) pollHandoff(); }
 };
 A.resend = async function(){ if (await sendLink()){ toast("Отправили ещё раз"); render(); } };
@@ -2852,6 +2852,26 @@ render = function(){
 };
 $("sheetBody").addEventListener("scroll", function(){ $("sheet").classList.toggle("is-scrolled", this.scrollTop > 8); }, {passive:true});
 var _closeDay2 = closeDay; closeDay = function(){ _closeDay2(); $("sheet").classList.remove("is-scrolled"); };
+
+/* вход по коду из письма (ссылка тоже работает) */
+SCR.code = function(){
+  var left = Math.max(0, Math.ceil(((S.sentAt || 0) + 60000 - Date.now()) / 1000));
+  return {title:"Проверьте почту", sub:"Отправили код на "+esc(S.email), back:true, tabs:false, view:'<div class="pg pg--form">'+
+    fld("Код из письма", '<input class="in" id="fCode" inputmode="numeric" autocomplete="one-time-code" maxlength="8" placeholder="8 цифр" data-input="codeIn">')+
+    '<button class="primary" data-act="checkCode">Войти</button><a class="btn2" style="display:flex;align-items:center;justify-content:center;text-decoration:none" href="'+mailUrl(S.email)+'" target="_blank" rel="noopener">Открыть почту</a>'+
+    '<p class="hint hint--c" id="resend">'+resendText(left)+'</p></div>'};
+};
+resendText = function(left){ return 'Можно войти и по ссылке из письма. '+(left ? 'Не пришло? Отправить ещё раз через 0:'+String(left).padStart(2,"0") : 'Не пришло? <button class="linkin" data-act="resend">Отправить ещё раз</button>'); };
+INP.codeIn = function(v){ var d = v.replace(/\D/g, "").slice(0, 8); var el = $("fCode"); if (el && el.value !== d) el.value = d; if (d.length === 8) A.checkCode(); };
+A.checkCode = async function(){
+  var code = val("fCode").replace(/\D/g, ""); if (code.length < 6){ toast("Введите код из письма"); return; }
+  if (S.checking) return; S.checking = true; var b = document.querySelector('[data-act="checkCode"]'); if (b){ b.disabled = true; b.textContent = "Проверяем…"; }
+  var r = await sb.auth.verifyOtp({email:S.email, token:code, type:"email"});
+  S.checking = false; if (b){ b.disabled = false; b.textContent = "Войти"; }
+  if (r.error){ var i = $("fCode"); if (i) i.classList.add("is-err"); toast(/expired/i.test(r.error.message) ? "Код устарел — отправьте новый" : "Неверный код"); return; }
+  lsDel("trips.hkey");
+};
+SCR.email = function(){ return {title:"Вход", sub:"Пароль не нужен: пришлём код на почту", back:true, tabs:false, view:'<div class="pg pg--form">'+fld("Почта", '<input class="in" id="fEmail" type="email" autocomplete="email" inputmode="email" placeholder="name@mail.com" value="'+esc(S.email||lsGet("trips.email",""))+'">')+'<button class="primary" data-act="sendCode">Получить код</button></div>'}; };
 
 </script>
 </body>
