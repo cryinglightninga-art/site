@@ -1090,6 +1090,34 @@ select.in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 #resend{font-variant-numeric:tabular-nums}
 .dli__ill{width:22px;height:22px;object-fit:contain}
 .sheet .dashl{background:none}
+/* чипсы: одинаковая ширина в обоих состояниях */
+.chip .chip__seg,.chip.is-active .chip__seg{padding:6px 14px!important}
+.chip{transition:none!important}
+/* виза: шаги на всю ширину, номер едет вместе со строкой, обрезка по серому контейнеру */
+.steps{padding:8px 0!important;overflow:hidden}
+.steps .step{padding:10px 16px!important}
+.step::before{display:none!important;content:none!important}
+.step__n{width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font:400 13px/1 "Inter",sans-serif;background:var(--fill-tertiary);color:var(--secondary)}
+.step[data-sw]{overflow:visible!important}
+.steps .step + .step::after{left:50px!important;right:16px!important}
+.steps > .addrow{padding-left:16px!important;padding-right:16px!important}
+.steps > .addrow::before{left:50px!important;right:16px!important}
+/* шторка дня: быстрые «добавить» */
+.qadds{display:flex;flex-wrap:wrap;gap:8px}
+.qadd{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px 0 12px;border-radius:20px;background:var(--sheet-card,#f2f2f2);font:500 15px/20px "Inter",sans-serif;color:var(--label)}
+.qadd svg{width:18px;height:18px;color:var(--control)}
+.qadd:active{opacity:.6}
+/* шторка документа: плашка файла */
+.att--card{display:flex;align-items:center;gap:8px;padding:0 12px 0 0;border-radius:24px;background:var(--sheet-card,#f2f2f2)}
+.att--card .att__main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:12px 0 12px 16px;text-align:left;color:var(--label)}
+.att--card .att__tx{min-width:0;font:600 16px/21px "Inter",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att--card .att__tx small{display:block;font:400 14px/19px "Inter",sans-serif;color:var(--secondary)}
+.att--card .att__thumb img{width:32px;height:32px;object-fit:contain}
+.att__rep{flex:none;height:36px;padding:0 14px;border-radius:18px;display:flex;align-items:center;background:var(--raised,#fff);font:500 15px/20px "Inter",sans-serif;color:var(--label);cursor:pointer}
+:root{--rep-bg:#fff}
+@media (prefers-color-scheme: dark){:root{--rep-bg:#48484a}}
+.att__rep{background:var(--rep-bg)!important}
+.qadd svg{color:#0088ff!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2898,6 +2926,7 @@ render = function(){
   var r = cur(), v = SCR[r.s] && r.s, ph = $("phone"), isBare = !!document.querySelector("#view .bare");
   ph.classList.toggle("is-bare", isBare);
   document.querySelectorAll("#view .addrow > span:first-child").forEach(function(x){ x.innerHTML = IC.add; });
+  document.querySelectorAll("#view .steps").forEach(function(c){ var i = 0; c.querySelectorAll(".step").forEach(function(st){ i++; if (!st.querySelector(".step__n")) st.insertAdjacentHTML("afterbegin", '<span class="step__n">'+i+'</span>'); }); });
   document.querySelectorAll("#view .check__item .cbx").forEach(function(x){ var b = x.parentNode.querySelector(".check__box"); if (x.checked){ b.classList.add("is-done"); b.innerHTML = SVG.tick; } });
   var p = document.querySelector("#view .polaroid");
   if (p && !p._anim){ p._anim = 1; p.classList.add("is-in"); var bt = document.querySelector("#view .bare__b"), hd = document.querySelector("#view .bare__head"); if (bt) bt.classList.add("is-in"); if (hd) hd.classList.add("is-in"); }
@@ -3089,6 +3118,82 @@ SCR.code = function(){
     '<button class="primary" data-act="checkCode">Войти</button><p class="hint hint--c" id="resend">'+resendText(left)+'</p></div>'};
 };
 resendText = function(left){ return left ? 'Не пришло? Отправить ещё раз через 0:'+String(left).padStart(2,"0") : 'Не пришло? <button class="linkin" data-act="resend">Отправить ещё раз</button>'; };
+
+/* ===== город: контент выезжает, чипсы не прыгают ===== */
+function enterBlocks(){
+  document.querySelectorAll("#view .days > *, #view .sets > *, #view .pg > *, #view .check > *").forEach(function(el, i){
+    if (i > 8) return; anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:i*60, easing:SPRING, fill:"backwards"}); });
+}
+function keepChips(fn){ var c = document.querySelector("#chipsSlot .chips"), sl = c ? c.scrollLeft : 0; fn();
+  var n = document.querySelector("#chipsSlot .chips"); if (!n) return; n.scrollLeft = sl;
+  var a = n.querySelector(".chip.is-active .chip__seg"); if (a){ anim(a, [{transform:"scale(.9)", opacity:.4},{transform:"none", opacity:1}], {duration:420, easing:SPRING});
+    var ch = a.parentNode, l = ch.offsetLeft - 16, r = ch.offsetLeft + ch.offsetWidth + 16 - n.clientWidth; if (n.scrollLeft > l) n.scrollTo({left:l, behavior:"smooth"}); else if (n.scrollLeft < r) n.scrollTo({left:r, behavior:"smooth"}); } }
+var _cityA = A.city; A.city = function(d){ if (S.city === d.c) return; keepChips(function(){ _cityA(d); }); enterBlocks(); };
+var _listSelA = A.listSel; A.listSel = function(d){ keepChips(function(){ _listSelA(d); }); enterBlocks(); };
+
+/* ===== шторка дня: пустые блоки не занимают место ===== */
+var _openDayH = openDay;
+openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), acts = [];
+  var map = {moveSheet:["Переезд", "plane"], addTask:["Задача", "check"], addDocDay:["Документ", "doc"]};
+  [].slice.call(b.children).forEach(function(sec){ var st = sec.querySelector(":scope > .stops"); if (!st) return;
+    var items = st.children, add = st.querySelector(".stop--add"); if (!add || items.length !== 1) return;
+    var act = add.getAttribute("data-act"); if (!map[act]) return;
+    if (act === "moveSheet" && add.textContent.indexOf("→") >= 0) return;   /* ожидаемый переезд между городами — оставляем на виду */
+    acts.push('<button class="qadd" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'); sec.remove(); });
+  if (acts.length) b.insertAdjacentHTML("beforeend", '<div><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
+};
+
+/* ===== шторка документа: плашка файла сверху, поля как при создании ===== */
+function docCard(t, doc){
+  var has = doc.file || doc.link, host = ""; try { host = doc.link ? new URL(doc.link).hostname.replace(/^www\./, "") : ""; } catch(_){}
+  if (!has) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span><input type="file" id="fDf" hidden></label>';
+  return '<div class="att att--card" id="fDfCard"><button class="att__main" data-act="docOpen" type="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+(doc.file ? "файл" : esc(host))+'</small></span></button>'+
+    (S._docCan ? '<label class="att__rep">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
+}
+A.docSheet = function(d){
+  var t = trip(), doc = t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return;
+  var can = S._docCan = !ro() && (doc.owner === S.me || !doc.owner); S.docId = doc.id;
+  var sel = function(v, o){ return o.replace('value="'+esc(v||"")+'"', 'value="'+esc(v||"")+'" selected'); };
+  var types = ["Билет","Бронь","Паспорт","Полис","Другое"].map(function(x){ return '<option value="'+x+'"'+(x === doc.type ? ' selected' : '')+'>'+x+'</option>'; }).join("");
+  var h = '<div class="pg pg--sheet">'+docCard(t, doc);
+  if (can){
+    h += fld("Название", '<input class="in" id="fDt" value="'+esc(doc.title)+'" placeholder="Например, билеты в музей">')+
+      fld("Ссылка", '<input class="in" id="fDl" type="url" inputmode="url" autocomplete="off" value="'+esc(doc.link||"")+'" placeholder="https://drive.google.com/…">')+
+      '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+types+'</select>')+fld("Чей", '<select class="in" id="fDo">'+sel(doc.owner === S.me && doc.vis === "me" ? "" : doc.owner, memberOpts(t, "", "Общий"))+'</select>')+'</div>'+
+      '<div class="inline">'+fld("К какому дню", '<select class="in" id="fDd">'+sel(doc.day, dayOpts(t, "", "Без дня"))+'</select>')+fld("Кто видит", '<select class="in" id="fDv"><option value="all"'+(doc.vis !== "me" ? ' selected' : '')+'>Все</option><option value="me"'+(doc.vis === "me" ? ' selected' : '')+'>Только я</option></select>')+'</div>'+
+      '<button class="primary" data-act="docUpd">Сохранить</button>';
+  } else h += '<p class="hint">'+esc(docSub(t, doc))+'</p>';
+  form("Документ", h+'</div>', doc.day ? "на "+dm(doc.day) : "", can ? [["docVis", doc.vis === "me" ? "Показать попутчикам" : "Скрыть от попутчиков"],["docDel","Удалить"]] : null);
+  var f = $("fDf"); if (f) f.onchange = function(){ var x = f.files[0]; if (!x) return; var c = $("fDfCard"), b = c.querySelector(".att__tx") || c.querySelector("b");
+    if (c.classList.contains("att")){ b.firstChild.nodeValue = x.name; b.querySelector("small").textContent = "новый файл — сохраните"; } else b.textContent = x.name; };
+};
+A.docOpen = function(){ var doc = trip().docs.filter(function(x){ return x.id === S.docId; })[0]; if (!doc) return; if (doc.file) openDoc(doc.id); else if (doc.link) window.open(doc.link, "_blank", "noopener"); };
+A.docUpd = async function(){
+  var t = trip(), doc = t.docs.filter(function(x){ return x.id === S.docId; })[0]; if (!doc) return;
+  var f = $("fDf"), file = f && f.files[0];
+  doc.title = val("fDt") || doc.title; doc.link = normUrl(val("fDl")); doc.type = val("fDty"); doc.vis = val("fDv");
+  doc.owner = val("fDo") || (doc.vis === "me" ? S.me : null); doc.day = val("fDd");
+  if (file){ if (!(await putFile(t, doc.id, file))) return; doc.file = doc.id; delete FILECACHE[t.id + "/" + doc.id]; }
+  closeForm(); refresh();
+};
+
+/* ===== правка дат и городов: предупредить, если что-то уже запланировано ===== */
+var _applyEditW = applyEdit;
+applyEdit = function(){
+  var t = trip(), W = S.W, old = tripDays(t), nd = tripDays(Object.assign({}, t, {from:W.from, to:W.to, cities:W.cities}));
+  var cnt = function(k){ return {p:(t.places[k] || []).length, c:t.checks.filter(function(c){ return c.day === k; }).length, d:t.docs.filter(function(x){ return x.day === k; }).length}; };
+  var gone = old.slice(nd.length).filter(function(d){ var c = cnt(d.k); return c.p + c.c + c.d; });
+  var moved = old.slice(0, nd.length).filter(function(d, i){ return d.city && nd[i].city !== d.city && cnt(d.k).p; });
+  var keep = W.cities.map(function(c){ return c.n; }), lostH = Object.keys(t.hotels).filter(function(c){ return keep.indexOf(c) < 0 && t.hotels[c] && t.hotels[c].name; });
+  if (!gone.length && !moved.length && !lostH.length){ _applyEditW(); return; }
+  var parts = [];
+  if (gone.length){ var s = {p:0, c:0, d:0}; gone.forEach(function(d){ var c = cnt(d.k); s.p += c.p; s.c += c.c; s.d += c.d; });
+    var what = [s.p ? s.p+" "+pl(s.p,"место","места","мест") : "", s.c ? s.c+" "+pl(s.c,"задача","задачи","задач") : "", s.d ? s.d+" "+pl(s.d,"документ","документа","документов") : ""].filter(Boolean).join(", ");
+    parts.push((gone.length > 1 ? "Дни "+dm(gone[0].k)+" – "+dm(gone[gone.length-1].k)+" пропадут" : "День "+dm(gone[0].k)+" пропадёт")+", а там уже "+what+"."+(s.p ? " Места перенесём в «Без даты»." : "")); }
+  if (moved.length) parts.push("Места на "+moved.map(function(d){ return dm(d.k); }).slice(0, 3).join(", ")+(moved.length > 3 ? " и др." : "")+" окажутся в другом городе.");
+  if (lostH.length) parts.push("Отель в "+lostH.join(", ")+" больше не будет показан в поездке.");
+  ask("Изменить даты и города?", parts.join(" "), null, "Изменить", function(){ _applyEditW(); }, true);
+};
 
 </script>
 </body>
