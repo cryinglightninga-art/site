@@ -928,7 +928,7 @@ textarea.in{display:block;height:auto;min-height:70px;padding:14px 16px;resize:n
 .addcard__tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .addcard__tx b{font:600 16px/21px "Inter",sans-serif}
 .addcard__tx small{font:400 14px/19px "Inter",sans-serif;color:var(--sec)}
-.addcard--hotel .addcard__tx small{font-size:13px;line-height:18px}
+.addcard--hotel .addcard__tx small{font-size:14px;line-height:19px}
 .addcard--hotel .badge{flex:none}
 .stack > .addcard + .addcard{margin-top:0}
 
@@ -2847,7 +2847,7 @@ A.placeAddMan = function(){ var n = val("fPman"); if (!n){ toast("Введите
 var _SCRhotels = SCR.hotels;
 SCR.hotels = function(r){ var v = _SCRhotels(r);
   v.view = v.view.replace(/<button class="dashbox dashbox--row"([^>]*)><span style="display:flex">(.*?)<\/span><div class="stay__tx"><p class="stay__hotel">(.*?)<\/p><p class="stay__meta">(.*?)<\/p><\/div><\/button>/g,
-    '<button class="addcard addcard--hotel"$1>$2<span class="addcard__tx"><b>$3</b><small>$4</small></span></button>');
+    '<button class="addcard addcard--hotel"$1><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>$3</b><small>$4</small></span>$2</button>');
   return v; };
 /* чек-лист: без «+» в чипах, пустой — как в макете */
 var _SCRcheck = SCR.checklist;
@@ -2979,7 +2979,7 @@ dayCard = function(t, d){
 var _SCRtripF = SCR.trip;
 SCR.trip = function(r){ var v = _SCRtripF(r), t = trip(r.trip);
   if (S.tab !== "prep" && S.city && !t.hotels[S.city] && !ro()){ var c = (t.cities.filter(function(x){ return x.n === S.city; })[0] || {}).nights || 0;
-    v.view = v.view.replace(/<button class="dashbox dashbox--row" data-act="go" data-s="hotels">[^]*?<\/button>/, '<button class="addcard addcard--hotel" data-act="hotelOpen" data-c="'+esc(S.city)+'">'+badge(S.city)+'<span class="addcard__tx"><b>Добавить отель</b>'+(c?'<small>'+c+' '+pl(c,"ночь","ночи","ночей")+'</small>':'')+'</span></button>'); }
+    v.view = v.view.replace(/<button class="dashbox dashbox--row" data-act="go" data-s="hotels">[^]*?<\/button>/, '<button class="addcard addcard--hotel" data-act="hotelOpen" data-c="'+esc(S.city)+'"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить отель</b>'+(c?'<small>'+c+' '+pl(c,"ночь","ночи","ночей")+'</small>':'')+'</span>'+badge(S.city)+'</button>'); }
   return v; };
 
 /* документ: файл — пунктирной плашкой */
