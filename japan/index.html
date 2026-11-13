@@ -908,7 +908,7 @@ textarea.in{display:block;height:auto;min-height:70px;padding:14px 16px;resize:n
 
 /* строки списков */
 .stop{padding:10px 16px!important;gap:12px!important}
-.stop + .stop::before{left:66px!important;right:0!important;border-top:1px dashed var(--dash)!important}
+.stop + .stop::before{left:50px!important;right:16px!important;border-top:1px dashed var(--dash)!important}
 .stop__n{width:22px!important;height:22px!important}
 .stop__n.is-icon{background:none!important;color:var(--ctl)}
 .stop__n.is-icon svg{width:18px;height:18px}
@@ -1022,7 +1022,7 @@ textarea.in{display:block;height:auto;min-height:70px;padding:14px 16px;resize:n
 /* чекбоксы в «Поделиться» */
 .fsheet .check__item{cursor:pointer}
 /* правки после сверки */
-.sets--grid{padding:0!important;margin:0!important;overflow:visible!important}
+.tsec .sets--grid{padding:0!important;margin:0!important;overflow:visible!important}
 .bar{padding-bottom:4px!important}
 .toolbar__title p{margin-top:4px}
 .bare__ill{transform:scaleX(-1)}
@@ -1039,6 +1039,50 @@ select.in{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.o
 .sheet__blur{opacity:0;transition:opacity .2s}
 .sheet.is-scrolled .sheet__blur{opacity:1}
 .polaroid__cap{left:33px!important;right:auto!important;text-align:left!important}
+
+/* шапка шторки: крестик слева, действия и галочка справа, заголовок ниже */
+.fsh__head{flex-direction:column!important;align-items:stretch!important;gap:0!important;padding:16px 16px 20px!important}
+.fsh__bar{display:flex;align-items:center;gap:10px;height:44px}
+.fsh__bar [hidden]{display:none!important}
+.fsh__sp{flex:1}
+.fsh__bar > *{flex:none}
+.fsh__t{padding-top:12px!important}
+.fsh__save{background:var(--accent)!important;color:var(--on-accent,#fff)!important;box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.fsh__save::after{display:none!important}
+.fsh__save svg{width:22px;height:22px}
+.is-hoisted{display:none!important}
+.sheet__map{display:flex;align-items:center;justify-content:center;width:44px!important;height:44px!important}
+.sheet__map .gm{height:22px!important;width:auto}
+#sheet .sheet__head{justify-content:space-between!important}
+#sheet .sh-head{padding-right:0!important}
+#sheet .sheet__body{padding-top:77px!important}
+/* полезное */
+#view > .sets.sets--grid{padding:20px 16px 120px!important;margin:0!important;overflow:visible!important}
+/* пустой день */
+.dashl{display:flex;flex-direction:column;gap:4px;padding:6px 0;border:1.5px dashed var(--dash);border-radius:24px}
+.dli{position:relative;display:flex;align-items:center;gap:12px;width:100%;padding:10px 16px;text-align:left;color:var(--label);background:none;cursor:pointer}
+.dli + .dli::before{content:"";position:absolute;left:50px;right:16px;top:-2px;border-top:1px dashed var(--dash)}
+.dli:active{opacity:.6}
+/* карта в форме */
+.mapbox{height:240px!important}
+.mapbox iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+.mapbox .sq--map{position:absolute;z-index:2;left:12px;right:12px;top:12px}
+#hotRes,#mapRes{margin-top:-8px}
+/* место: ссылка и своё */
+#pmLink:not([hidden]),#pmOwn:not([hidden]){display:flex;flex-direction:column;gap:16px}
+.links{display:flex;flex-direction:column;align-items:center;gap:12px}
+.links .linkin.is-on{font-weight:600}
+.fsh__bar > .fsh__sp{flex:1 1 auto}
+#view .pg > div > .label:not(:last-child),#view .pg > section > .label:not(:last-child){margin:0 0 8px!important}
+/* нижние «добавить» — делитель с теми же отступами, что между пунктами */
+.addrow{position:relative;border-top:0!important}
+.addrow::before{content:"";position:absolute;left:50px;right:16px;top:0;border-top:1px dashed var(--dash)}
+.steps > .addrow{padding-left:0;padding-right:0}
+.steps > .addrow::before{left:34px;right:0}
+.addrow > span:first-child{display:inline-flex;justify-content:center;align-items:center;flex:none}
+.addrow > span:first-child svg{width:18px;height:18px}
+.qrbox{flex-direction:column;align-items:center;gap:16px}
+.qrbox #invLink{margin:0;text-align:center;word-break:break-all}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2846,6 +2890,7 @@ render = function(){
   _render2();
   var r = cur(), v = SCR[r.s] && r.s, ph = $("phone"), isBare = !!document.querySelector("#view .bare");
   ph.classList.toggle("is-bare", isBare);
+  document.querySelectorAll("#view .addrow > span:first-child").forEach(function(x){ x.innerHTML = IC.add; });
   document.querySelectorAll("#view .check__item .cbx").forEach(function(x){ var b = x.parentNode.querySelector(".check__box"); if (x.checked){ b.classList.add("is-done"); b.innerHTML = SVG.tick; } });
   var p = document.querySelector("#view .polaroid");
   if (p && !p._anim){ p._anim = 1; p.classList.add("is-in"); var bt = document.querySelector("#view .bare__b"), hd = document.querySelector("#view .bare__head"); if (bt) bt.classList.add("is-in"); if (hd) hd.classList.add("is-in"); }
@@ -2872,6 +2917,130 @@ A.checkCode = async function(){
   lsDel("trips.hkey");
 };
 SCR.email = function(){ return {title:"Вход", sub:"Пароль не нужен: пришлём код на почту", back:true, tabs:false, view:'<div class="pg pg--form">'+fld("Почта", '<input class="in" id="fEmail" type="email" autocomplete="email" inputmode="email" placeholder="name@mail.com" value="'+esc(S.email||lsGet("trips.email",""))+'">')+'<button class="primary" data-act="sendCode">Получить код</button></div>'}; };
+
+/* ===================== правки: шапки шторок, сохранение галочкой ===================== */
+IC.check = '<svg viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+(function(){
+  var fh = document.querySelector(".fsh__head"), bar = document.createElement("div"); bar.className = "fsh__bar";
+  var sp = document.createElement("span"); sp.className = "fsh__sp";
+  var sv = document.createElement("button"); sv.id = "fSave"; sv.type = "button"; sv.className = "glass lg round fsh__save"; sv.setAttribute("aria-label", "Сохранить"); sv.hidden = true; sv.innerHTML = IC.check;
+  var fm = $("fMap"); fm.className = "glass lg round sheet__map";
+  bar.appendChild($("fClose")); bar.appendChild(sp); bar.appendChild($("fMore")); bar.appendChild(fm); bar.appendChild(sv);
+  fh.insertBefore(bar, fh.firstChild);
+  sv.onclick = function(){ if (S.fSave) S.fSave(); };
+  /* шторка дня: крестик слева */
+  var sh = document.querySelector("#sheet .sheet__head"); sh.insertBefore($("sheetClose"), sh.firstChild);
+})();
+var SAVE_RE = /^(Сохранить|Добавить|Готово)$/;
+function hoistSave(){
+  var b = $("fBody"), sv = $("fSave"), list = [].slice.call(b.querySelectorAll("button.primary")).filter(function(x){ return SAVE_RE.test(x.textContent.trim()); });
+  var p = list[list.length-1]; S.fSave = p ? function(){ p.click(); } : null; sv.hidden = !p;
+  if (p) p.classList.add("is-hoisted");
+}
+var _form3 = form;
+form = function(title, html, sub, more, maps){ _form3(title, html, sub, more, maps); hoistSave(); };
+
+/* поделиться = та же шторка, что «Пригласить» */
+A.shareSheet = function(){ A.inviteSheet(); $("fTitle").textContent = "Поделиться"; };
+
+/* «Чем платили» — с анимацией, как остальные меню */
+A.curMenu = function(){ var m = $("mMenu"); if (!m.hidden){ m.hidden = true; return; } m.hidden = false; anim(m, [{opacity:0, transform:"scale(.92) translateY(-6px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); };
+
+/* смена вкладок — блоки выезжают по очереди, как в первой версии */
+function enterView(){
+  anim($("title"), [{opacity:0, transform:"translateY(14px)", filter:"blur(8px)"},{opacity:1, transform:"none", filter:"blur(0)"}], {duration:700, easing:"cubic-bezier(.22,1,.36,1)", fill:"backwards"});
+  document.querySelectorAll("#view .days > *, #view .sets > *, #view .pg > *").forEach(function(el, i){
+    anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:Math.min(i,8)*70, easing:SPRING, fill:"backwards"});
+  });
+}
+slide = (function(orig){ return function(dir){ if (S._tabSwitch){ S._tabSwitch = false; enterView(); return; } orig(dir); }; })(slide);
+document.querySelectorAll(".tab").forEach(function(x){ x.addEventListener("click", function(){ S._tabSwitch = true; setTimeout(function(){ S._tabSwitch = false; }, 0); }, true); });
+
+/* шапка в компактном режиме: чипсы прилипают ровно под неё */
+(function(){ var bar = document.querySelector(".bar"), c = $("chipsSlot"); if (!bar || !c || !window.ResizeObserver) return;
+  new ResizeObserver(function(){ c.style.top = "calc(var(--safe) + "+bar.offsetHeight+"px)"; }).observe(bar); })();
+
+/* пустой день — пунктирный список, как в макете */
+function dli(act, attr, title, sub){ return '<button class="dli" data-act="'+act+'"'+(attr||'')+'><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>'+title+'</b><small>'+sub+'</small></span></button>'; }
+var _dayCardF = dayCard;
+dayCard = function(t, d){
+  var h = _dayCardF(t, d); if (h.indexOf("dashbox--day") < 0) return h;
+  var m = moveFor(t, d.k), lbl = '<p class="day__lbl">'+dm(d.k)+', '+WD[D(d.k).getDay()]+'</p>';
+  return '<section class="dayw">'+lbl+'<div class="dashl">'+(m ? dli("moveSheet", ' data-k="'+d.k+'"', m.kind === "mid" ? esc(moveTitle(m)) : "Как добираетесь", "перелёт, поезд или автобус") : '')+
+    dli("dayAddPlace", ' data-k="'+d.k+'"', "Добавить место", "что посмотреть, где поесть")+'</div></section>';
+};
+var _SCRtripF = SCR.trip;
+SCR.trip = function(r){ var v = _SCRtripF(r), t = trip(r.trip);
+  if (S.tab !== "prep" && S.city && !t.hotels[S.city] && !ro()){ var c = (t.cities.filter(function(x){ return x.n === S.city; })[0] || {}).nights || 0;
+    v.view = v.view.replace(/<button class="dashbox dashbox--row" data-act="go" data-s="hotels">[^]*?<\/button>/, '<button class="addcard addcard--hotel" data-act="hotelOpen" data-c="'+esc(S.city)+'">'+badge(S.city)+'<span class="addcard__tx"><b>Добавить отель</b>'+(c?'<small>'+c+' '+pl(c,"ночь","ночи","ночей")+'</small>':'')+'</span></button>'); }
+  return v; };
+
+/* документ: файл — пунктирной плашкой */
+var _addDoc2 = A.addDoc;
+A.addDoc = function(pre){ _addDoc2(pre); var f = $("fDf"); if (!f) return; var lab = f.closest(".fld");
+  var card = document.createElement("label"); card.className = "addcard"; card.id = "fDfCard";
+  card.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span>';
+  var inp = document.createElement("input"); inp.type = "file"; inp.id = "fDf"; inp.hidden = true; card.appendChild(inp); lab.parentNode.replaceChild(card, lab);
+  inp.onchange = function(){ var x = inp.files[0]; if (x){ card.querySelector("b").textContent = x.name; var t = $("fDt"); if (t && !t.value){ t.value = x.name.replace(/\.[^.]+$/, ""); t.dispatchEvent(new Event("input", {bubbles:true})); } } }; };
+/* задача: по умолчанию «Всем» */
+var _addCheck2 = A.addCheck;
+A.addCheck = function(pre){ _addCheck2(pre); var s = $("fCw"); if (s && s.options[0] && s.options[0].value === "") s.options[0].textContent = "Всем"; };
+
+/* ---------- карта Google ---------- */
+function gmap(q, z){ return "https://www.google.com/maps?q="+encodeURIComponent(q)+"&z="+(z||15)+"&hl=ru&output=embed"; }
+mapEmbed = function(lat, lon, d, marker){ var f = $("mapFrame"); if (!f) return; f.src = gmap(lat+","+lon, d >= .05 ? 12 : 16); };
+mapCity = function(c){ var f = $("mapFrame"); if (f) f.src = gmap(c, 12); nomi(c, 1).then(function(r){ if (r[0]){ S.map.lat = +r[0].lat; S.map.lon = +r[0].lon; } }).catch(function(){}); };
+function mapBox(id, val, ph, inp){ return '<div class="mapbox"><label class="sq sq--map">'+IC.search+'<input class="in" id="'+id+'" data-input="'+inp+'" placeholder="'+ph+'" autocomplete="off" value="'+esc(val||"")+'"></label><iframe id="mapFrame" title="Карта" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>'; }
+
+/* отель: адрес вводится прямо в карту */
+A.hotelOpen = function(d, el, e){
+  if (e && e.target.closest("a")) return;
+  var t = trip(), c = d.c, h = t.hotels[c] || {name:"", addr:"", link:"", book:"", inD:"", inT:"", outD:"", outT:""}; S.hcity = c;
+  if (ro()){ form(c, '<p class="hint">'+esc(h.name)+(h.addr?' · '+esc(h.addr):'')+'</p>', "Проживание"); return; }
+  S.hmap = {res:[]};
+  form(c, '<div class="pg pg--sheet">'+fld("Название", '<input class="in" id="fHn" value="'+esc(h.name)+'" placeholder="Например, Апартаменты">')+
+    mapBox("fHa", h.addr, "Адрес отеля", "hotQ")+'<div class="stops" id="hotRes" hidden></div><input type="hidden" id="fHl" value="'+esc(h.link)+'">'+
+    '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("Время", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
+    '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("Время", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
+    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'" placeholder="Например, MF12BK">')+
+    '<label class="addcard" id="fHfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот</small></span><input type="file" id="fHf" hidden></label>'+
+    '<button class="primary" data-act="hotelSave">Сохранить</button></div>', "Проживание");
+  $("fHf").onchange = function(){ var f = this.files[0]; if (f) $("fHfCard").querySelector("b").textContent = f.name; };
+  $("mapFrame").src = gmap(h.addr || (h.name ? h.name+", "+c : c), h.addr ? 16 : 12);
+};
+var hotT = null;
+INP.hotQ = function(v){ clearTimeout(hotT); var box = $("hotRes"); $("fHl").value = "";
+  if (v.trim().length < 3){ box.hidden = true; return; }
+  hotT = setTimeout(function(){ $("mapFrame").src = gmap(v + (S.hcity ? ", "+S.hcity : ""), 16);
+    nomi(v + (S.hcity ? ", "+S.hcity : "")).then(function(r){ return r.length ? r : nomi(v); }).then(function(r){ S.hmap.res = r || []; var b = $("hotRes"); if (!b) return;
+      b.hidden = !S.hmap.res.length;
+      b.innerHTML = nb(S.hmap.res.slice(0, 4).map(function(x, i){ var parts = String(x.display_name||"").split(",").map(function(s){ return s.trim(); });
+        return '<button class="stop" data-act="hotPick" data-i="'+i+'"><span class="stop__n is-icon">'+IC.search+'</span><span class="stop__tx"><b>'+esc(parts[0])+'</b><small>'+esc(parts.slice(1, 3).join(", "))+'</small></span></button>'; }).join("")); }).catch(function(){}); }, 600); };
+A.hotPick = function(d){ var x = S.hmap.res[+d.i]; if (!x) return; var a = String(x.display_name||"").split(",").slice(0, 3).map(function(s){ return s.trim(); }).join(", ");
+  var i = $("fHa"); i.value = a; i.dispatchEvent(new Event("input", {bubbles:true})); clearTimeout(hotT); $("hotRes").hidden = true;
+  $("fHl").value = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(a); $("mapFrame").src = gmap(x.lat+","+x.lon, 16); };
+
+/* место: сохранение — галочкой сверху */
+var _addPlace3 = A.addPlace;
+A.addPlace = function(){ _addPlace3(); var b = $("mapAdd"); if (b) b.classList.add("is-hoisted");
+  document.querySelectorAll("#pmLink .btn2, #pmOwn .btn2").forEach(function(x){ x.classList.add("is-hoisted"); });
+  $("fSave").hidden = false;
+  S.fSave = function(){ if (!$("pmLink").hidden) A.placeAddLink(); else if (!$("pmOwn").hidden) A.placeAddMan(); else if (S.map.pick == null) toast("Найдите место на карте"); else A.placeAddPick(); }; };
+A.placeMode = function(d){ var l = $("pmLink"), o = $("pmOwn"), was = d.m === "link" ? !l.hidden : !o.hidden;
+  l.hidden = was || d.m !== "link"; o.hidden = was || d.m !== "own";
+  document.querySelectorAll('[data-act="placeMode"]').forEach(function(b){ b.classList.toggle("is-on", (b.getAttribute("data-m") === "link" && !l.hidden) || (b.getAttribute("data-m") === "own" && !o.hidden)); });
+  var box = !l.hidden ? l : !o.hidden ? o : null; if (box){ anim(box, [{opacity:0, transform:"translateY(-6px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); var f = box.querySelector("input"); if (f) f.focus(); } };
+/* переезд: «Заметка» и билет — пунктирной плашкой */
+var _moveSheet2 = A.moveSheet;
+A.moveSheet = function(d){ _moveSheet2(d); var n = $("fMn"); if (n){ var l = n.closest(".fld"); if (l) l.querySelector(".label").textContent = "Заметка"; }
+  var f = $("fMfile"); if (!f) return; var lab = f.closest(".fld"); if (!lab) return;
+  var card = document.createElement("label"); card.className = "addcard"; card.id = "fMfCard";
+  card.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить билет</b><small>PDF или скриншот</small></span>';
+  var inp = document.createElement("input"); inp.type = "file"; inp.id = "fMfile"; inp.hidden = true; card.appendChild(inp); lab.parentNode.replaceChild(card, lab);
+  inp.onchange = function(){ var x = inp.files[0]; if (x) card.querySelector("b").textContent = x.name; }; };
+/* ссылка-приглашение — внутри плашки с QR */
+var _inviteSheet2 = A.inviteSheet;
+A.inviteSheet = function(){ _inviteSheet2(); var b = document.querySelector("#fBody .qrbox"), l = $("invLink"); if (b && l){ b.appendChild(l); } };
 
 </script>
 </body>
