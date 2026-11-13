@@ -925,7 +925,7 @@ function money(v, cur){ return Math.round(v).toLocaleString("ru-RU").replace(/ 
 function dat(n){ return /[ая]$/.test(n) ? n.slice(0,-1)+'е' : n; }
 function acc(n){ return /а$/.test(n) ? n.slice(0,-1)+'у' : /я$/.test(n) ? n.slice(0,-1)+'ю' : n; }
 function fem(n){ return /[ая]$/.test(n) ? "а" : ""; }
-function ill(n, cls){ return '<img class="'+(cls||'')+'" src="ill/'+n+'.webp" alt="">'; }
+function ill(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp" alt="">'; }
 var REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
 var SPRING = "cubic-bezier(.3,1.3,.5,1)";
 function anim(el, kf, o){ if (REDUCE || !el || !el.animate) return null; return el.animate(kf, o); }
@@ -2140,7 +2140,7 @@ setInterval(function(){ if (S && cur() && cur().s === "code" && $("resend")){ va
 A.toEmail = function(){ go("email"); };
 async function sendLink(){
   var q = new URLSearchParams();
-  if (S.invite) q.set("join", S.invite.token);
+  if (S.invite){ q.set("join", S.invite.token); lsSet("trips.join", {k:S.invite.token, t:Date.now()}); }
   if (STANDALONE){ S.hkey = S.hkey || rnd(18); lsSet("trips.hkey", {k:S.hkey, t:Date.now()}); q.set("h", S.hkey); }
   var to = BASE + (q.toString() ? "?" + q.toString() : "");
   var r = await sb.auth.signInWithOtp({email:S.email, options:{emailRedirectTo:to, shouldCreateUser:true}});
@@ -2284,6 +2284,8 @@ var booted = false;
 async function boot(){
   var view = QS.get("view"), join = QS.get("join"), hk = QS.get("h");
   var ses = (await sb.auth.getSession()).data.session;
+  var sj = lsGet("trips.join", null); lsDel("trips.join");
+  if (!join && ses && sj && Date.now() - sj.t < 3600e3) join = sj.k;
   if (ses && hk && !S.noHandoff){
     try { await sb.rpc("tp_handoff_put", {p_key:hk, p_access:ses.access_token, p_refresh:ses.refresh_token}); } catch(e){}
     sb.auth.stopAutoRefresh(); try { localStorage.removeItem("trips.auth"); } catch(e){}
