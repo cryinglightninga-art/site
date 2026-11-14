@@ -133,7 +133,7 @@
     RAIL.forEach(function (key) {
       var img = el('img', 'rail-shot', {
         src: shot(key, 'light'), alt: '', loading: 'lazy',
-        width: '804', height: '1748'
+        width: '603', height: '1311'
       });
       img.dataset.shot = key;
       rail.appendChild(img);
