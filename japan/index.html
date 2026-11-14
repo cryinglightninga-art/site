@@ -1201,6 +1201,11 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 /* шапка сама закрывает зону статус-бара — тени кнопок не обрезаются белой плашкой сверху */
 .topfade{display:none!important}
 .bar::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:calc(var(--safe) + 2px);background:var(--white);pointer-events:none}
+/* iOS рисует страницу ниже системного статус-бара — тень выше края экрана обрезается.
+   Опускаем кнопки шапки на 8 и смещаем тень вниз, чтобы она целиком помещалась. */
+.toolbar__controls{margin-top:8px}
+.glass{box-shadow:0 12px 28px rgba(0,0,0,.11),0 2px 6px rgba(0,0,0,.04)!important}
+@media (prefers-color-scheme: dark){.glass{box-shadow:0 12px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3)!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
