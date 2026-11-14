@@ -9,7 +9,7 @@
 // Pictures the scripts build get this stamp on the end of their address.
 // A file keeps its name when its contents change, and without the stamp a
 // browser goes on showing the copy it already has.
-var ASSET_V = '202611141837';
+var ASSET_V = '202611141844';
 
 window.PF = (function () {
   'use strict';
@@ -786,6 +786,9 @@ window.PF = (function () {
 
     function mark(img) {
       if (img.getAttribute('data-skeleton')) return;
+      // Not in the hero: those shots rise into place on their own, and a
+      // placeholder would ride up with them before anything is there.
+      if (img.closest && img.closest('.hero')) return;
       img.setAttribute('data-skeleton', '1');
       if (img.complete && img.naturalWidth) return;
       img.classList.add('is-loading');

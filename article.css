@@ -25,8 +25,7 @@ img.is-loading {
 
 /* The phone shots carry their own rounded corners, so the placeholder takes
    the same shape instead of a bare rectangle. */
-.rail-shot.is-loading,
-.screen.is-loading { border-radius: 15.92% / 7.32%; }
+.rail-shot.is-loading { border-radius: 15.92% / 7.32%; }
 
 @keyframes skeleton-sweep {
   from { background-position: 160% 0; }
