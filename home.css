@@ -284,6 +284,23 @@
   .tile.in-view:hover .phones-row { transform: none; }
 }
 
+/* A phone keeps the reveal on for every card it has passed, and each kept
+   transform is a layer the browser has to hold. Ten of them over pictures of
+   this size is what makes Safari throw decoded images away and fetch them back
+   as you scroll — the blink. On a phone the reveal is the fade alone; the
+   cover, the clip and the certificate stay where they are. The pointer
+   version on a wide screen is untouched: there only one card is lit at a time.
+   The fanned and stacked screens keep their motion — they carry it in their
+   own base transform and were there long before this. */
+@media (max-width: 899px) {
+  .tile.hovered .cover:not(.is-tilt),
+  .tile.hovered .tile-video,
+  .tile.hovered .tile-svg,
+  .tile.hovered .soon-logo { transform: none; }
+
+  .tile.hovered .cert-img { transform: rotate(-2.5deg); }
+}
+
 /* Narrower on phones: at full tile width the screens crowded the card. The
    desktop width is restored in the >= 900px block. */
 .stack-img {
