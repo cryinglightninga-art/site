@@ -1340,6 +1340,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* крупные заголовки 34/41 — трекинг −0.4, как в макетах */
 .bare__t h2,.bare__big,.created__title,.fsh__t h2,.fsh__head h2,.sh-head .sh-title,.sh-title,.toolbar__title h1{letter-spacing:-.4px!important}
+
+/* «Ещё в этот день» — стеклянные кнопки S */
+.qadds{gap:8px!important;padding:2px 0 12px}
+.qadd.glass{height:36px!important;padding:0 14px 0 10px!important;border-radius:1000px!important;background:var(--glass)!important;box-shadow:var(--glass-shadow)!important;font:600 15px/20px "Inter",sans-serif!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3362,7 +3366,7 @@ openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), a
     var items = st.children, add = st.querySelector(".stop--add"); if (!add || items.length !== 1) return;
     var act = add.getAttribute("data-act"); if (!map[act]) return;
     if (act === "moveSheet" && add.textContent.indexOf("→") >= 0) return;   /* ожидаемый переезд между городами — оставляем на виду */
-    acts.push('<button class="qadd" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'); sec.remove(); });
+    acts.push('<button class="qadd glass" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'); sec.remove(); });
   if (acts.length) b.insertAdjacentHTML("beforeend", '<div><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
 };
 
