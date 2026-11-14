@@ -1307,6 +1307,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* чёрные кнопки без стекла — без тени */
 .primary,.primary:active,#phone .pg-add,.round--blue,#phone .sheet__add.round,.sheet__add:not(.round){box-shadow:none!important}
+
+/* «Добавить фото» — Glass S (36) */
+.avbtn.avbtn--glass{height:36px!important;padding:0 14px!important;font:600 15px/20px "Inter",sans-serif!important}
+/* приглашение: фиксированная высота и скелетоны */
+#invHint{min-height:36px}
+.qrbox #invLink{height:18px;line-height:18px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;word-break:normal}
+@keyframes skel{0%{background-position:100% 0}100%{background-position:-100% 0}}
+.qrbox .qr.is-sk,.qrbox #invLink.is-sk{background:linear-gradient(90deg,rgba(120,120,128,.12) 25%,rgba(120,120,128,.24) 50%,rgba(120,120,128,.12) 75%)!important;background-size:200% 100%!important;animation:skel 1.2s linear infinite}
+.qrbox #invLink.is-sk{width:180px;border-radius:6px;color:transparent}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2849,7 +2858,7 @@ openDay = function(k){ _openDay(k); var b = $("sheetBody"); b.querySelectorAll("
 function bare(content, buttons){ return '<div class="bare"><div class="bare__c">'+content+'</div>'+(buttons?'<div class="bare__b">'+buttons+'</div>':'')+'</div>'; }
 SCR.welcome = function(){
   var inv = S.invite;
-  return {title:"", bare:true, tabs:false, view:bare(ill("airplane","bare__ill")+'<div class="bare__t"><h2>Поездки вместе</h2><p>'+(inv ? 'Войдите, чтобы попасть в поездку «'+esc(inv.meta.country)+'»' : 'План по дням, документы, чек-лист и общие траты — для всех, кто едет')+'</p></div>',
+  return {title:"", bare:true, tabs:false, view:bare(ill("travelers","bare__ill")+'<div class="bare__t"><h2>Поездки вместе</h2><p>'+(inv ? 'Войдите, чтобы попасть в поездку «'+esc(inv.meta.country)+'»' : 'План по дням, документы, чек-лист и общие траты — для всех, кто едет')+'</p></div>',
     '<button class="primary" data-act="toEmail">Войти по почте</button>')};
 };
 SCR.handoff = function(){ return {title:"", bare:true, tabs:false, view:bare(ill("airplane","bare__ill")+'<div class="bare__t"><h2>Вы вошли</h2><p>Вернитесь в приложение на экране «Домой» — вход там уже выполнен. Эту вкладку можно закрыть</p></div>', '')}; };
@@ -2890,7 +2899,7 @@ SCR.whoami = function(){
 var _SCRtrips = SCR.trips;
 SCR.trips = function(){
   var right = gbtn("newTrip", SVG.plus, "Новая поездка")+gbtn("go", S.avatars[S.uid] ? '<img class="accimg" src="'+S.avatars[S.uid]+'" alt="">' : SVG.acc, "Профиль", "", ' data-s="account"');
-  if (!S.trips.length) return {title:"Мои поездки", right:right, tabs:false, view:'<div class="emptyc">'+ill("airplane","emptyc__ill")+'<div class="emptyc__t"><h3>Куда едем?</h3><p>Страна и даты — остальное можно добавить потом</p></div><button class="primary" data-act="newTrip">Создать поездку</button></div>'};
+  if (!S.trips.length) return {title:"Мои поездки", right:right, tabs:false, view:'<div class="emptyc">'+ill("baggage","emptyc__ill")+'<div class="emptyc__t"><h3>Куда едем?</h3><p>Страна и даты — остальное можно добавить потом</p></div><button class="primary" data-act="newTrip">Создать поездку</button></div>'};
   var st = function(t){ return diff(S.today, t.to) < 0; };
   var up = S.trips.filter(function(t){ return !t.archived && !st(t); }).sort(function(a,b){ return a.from < b.from ? -1 : 1; });
   var past = S.trips.filter(function(t){ return t.archived || st(t); }).sort(function(a,b){ return a.from < b.from ? 1 : -1; });
@@ -3567,6 +3576,18 @@ ask = function(title, text, input, okLabel, onOk, danger, ph){ _askP(title, text
 A.newList = function(){ ask("Новый раздел", null, "", "Создать", function(n){ var id = "l"+uid(); trip().lists.push({id:id, name:n}); S.listSel = id; render(); }, false, "Название раздела"); };
 A.listRenameAsk = function(){ var l = trip().lists.filter(function(x){ return x.id === S.listSel; })[0]; if (!l) return;
   ask("Переименовать раздел", null, l.name, "Сохранить", function(n){ l.name = n; render(); }, false, "Название раздела"); };
+
+/* приглашение: скелетоны на время загрузки ссылки, шторка не меняет высоту */
+fillInvite = async function(kind){
+  var t = trip(), box = document.querySelector("#fBody .qr"), lab = $("invLink"), my = (fillInvite.n = (fillInvite.n || 0) + 1);
+  if (box){ box.innerHTML = ""; box.classList.remove("qr--real"); box.classList.add("is-sk"); }
+  if (lab){ lab.textContent = ""; lab.classList.add("is-sk"); }
+  try { var tok = await getInvite(t, kind, kind === "view" ? ["plan","hotels","checks","visa"] : []), url = linkFor(kind, tok);
+    if (my !== fillInvite.n) return; S.invUrl = url;
+    if (box){ box.innerHTML = qrSvg(url); box.classList.add("qr--real"); box.classList.remove("is-sk"); }
+    if (lab){ lab.textContent = url.replace(/^https?:\/\//, ""); lab.classList.remove("is-sk"); }
+  } catch(e){ if (my !== fillInvite.n) return; if (box) box.classList.remove("is-sk"); if (lab){ lab.classList.remove("is-sk"); lab.textContent = "Не получилось создать ссылку"; } }
+};
 
 </script>
 </body>
