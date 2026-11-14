@@ -1370,7 +1370,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
       </div>
     </header>
     <div class="chips-slot" id="chipsSlot"></div>
-    <main id="view"></main>
+    <main id="view"><div class="boot" id="boot-static"><span class="ios-spin"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div></main>
   </div>
 
   <nav class="tabbar">
@@ -2629,7 +2629,7 @@ A.copyShare = async function(){
 };
 
 /* ---------- вход ---------- */
-SCR.loading = function(){ return {title:"", tabs:false, view:'<div class="pg" style="flex:1;justify-content:center;align-items:center"><p class="hint">Загружаем…</p></div>'}; };
+SCR.loading = function(){ return {title:"", bare:true, tabs:false, view:'<div class="boot" role="status" aria-label="Загрузка"><span class="ios-spin"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></div>'}; };
 SCR.welcome = function(){
   var inv = S.invite;
   return {title:"Поездки", sub:"", tabs:false, view:'<div class="pg" style="flex:1;justify-content:flex-end;padding-bottom:40px">'+
@@ -3614,7 +3614,14 @@ fillInvite = async function(kind){
 };
 
 /* загрузка при входе: системный спиннер вместо слова */
-SCR.loading = function(){ return {title:"", bare:true, tabs:false, view:'<div class="boot" role="status" aria-label="Загрузка"><span class="ios-spin">'+Array(8).join('<i></i>')+'<i></i></span></div>'}; };
+
+
+/* после загрузки первый экран появляется с анимацией контента */
+(function(){ var _r = render, prev = null;
+  render = function(){ var was = prev; _r.apply(this, arguments); var now = cur() && cur().s; prev = now;
+    if (was === "loading" && now !== "loading") requestAnimationFrame(function(){ enterView();
+      document.querySelectorAll("#view > .emptyc > *, #view .bare__c > *, #view .bare__b > *").forEach(function(el, i){ anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:i*70, easing:SPRING, fill:"backwards"}); }); }); };
+})();
 
 </script>
 </body>
