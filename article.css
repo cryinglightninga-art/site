@@ -899,10 +899,12 @@ a.photo-cell { cursor: pointer; }
 
 /* The grey is the one the Figma frame was drawn on, so the rounded corners
    baked into the pieces disappear into it in either theme. */
+/* The same dark plate the cover is drawn on, in both themes: the pieces are
+   light screens, and they read as a spread of work on a dark table. */
 .hero.is-collage {
-  background-color: #ebebeb;
+  background-color: #1c1c1e;
   background-image: none;
-  border-color: rgba(0, 0, 0, 0.06);
+  border-color: rgba(255, 255, 255, 0.08);
   position: relative;
   overflow: hidden;
 }
