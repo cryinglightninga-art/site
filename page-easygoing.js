@@ -101,7 +101,7 @@
       // On a phone the plan leads from the middle, the others stand lower.
       var img = el('img', 'screen' + (i === 1 ? ' is-lead' : ''), {
         src: 'assets/eg-hero-' + key + '-light.png' + PF.av, alt: '',
-        width: '880', height: '1812',
+        width: '700', height: '1441',
         fetchpriority: i === 1 ? 'high' : 'auto'
       });
       img.style.setProperty('--i', String(i));

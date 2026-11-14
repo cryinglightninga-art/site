@@ -602,20 +602,28 @@ a.photo-cell { cursor: pointer; }
    screen they hang from the top and the floor cuts their feet, the way the
    other heroes stand; on a phone all three fit, side by side and the same
    size, as they do on the card on the home page. */
-.hero.is-screens.is-even,
-.hero.is-screens.is-even .screens { align-items: flex-start; }
-
-.hero.is-screens.is-even .screens { padding-top: 13%; }
-
+/* The shots stand on the floor like the others, then slide down by a third of
+   their own height so the same 16% of the box shows above them and the floor
+   cuts the same amount below — the picture the pre-cut shots used to give.
+   The offset rides in the keyframes: the rise sets transform itself, and a
+   rule beside it would be overwritten the moment the animation ends. */
 .hero.is-screens.is-even .screen,
-.hero.is-screens.is-even .screen.is-lead { height: 144%; }
+.hero.is-screens.is-even .screen.is-lead {
+  height: 124%;
+  animation-name: om-rise-even;
+}
+
+@keyframes om-rise-even {
+  from { opacity: 0; transform: translateY(54%); }
+  to   { opacity: 1; transform: translateY(32%); }
+}
 
 @media (max-width: 899px) {
   .hero.is-screens.is-even,
   .hero.is-screens.is-even .screens { align-items: center; }
 
   .hero.is-screens.is-even { padding: 0 4%; }
-  .hero.is-screens.is-even .screens { padding-top: 0; gap: 4%; }
+  .hero.is-screens.is-even .screens { gap: 4%; }
 
   .hero.is-screens.is-even .screen,
   .hero.is-screens.is-even .screen.is-lead {
@@ -623,6 +631,7 @@ a.photo-cell { cursor: pointer; }
     width: calc((100% - 8%) / 3);
     height: auto;
     max-height: 100%;
+    animation-name: om-rise;
   }
 }
 

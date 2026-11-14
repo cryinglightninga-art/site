@@ -251,6 +251,7 @@
   justify-content: center;
   gap: 2.5%;
   transform-origin: center center;
+  transform: scale(0.94);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -275,11 +276,11 @@
 .tile.in-view .phones-wrap.is-ready .phone-left  { transition-delay: 0.1s; }
 .tile.in-view .phones-wrap.is-ready .phone-right { transition-delay: 0.18s; }
 
-/* Pointing at the card draws the row back a little. Only where there is a real
-   pointer: on a touch screen the card carries no hover, and the shrink would
-   simply stay on. */
+/* Pointing at the card brings the row forward to its full size. Only where
+   there is a real pointer: on a touch screen the card carries no hover, and
+   the row would simply stay large. */
 @media (hover: hover) and (pointer: fine) {
-  .tile.in-view:hover .phones-row { transform: scale(0.94); }
+  .tile.in-view:hover .phones-row { transform: none; }
 }
 
 /* Narrower on phones: at full tile width the screens crowded the card. The
