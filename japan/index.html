@@ -2864,7 +2864,7 @@ openDay = function(k){ _openDay(k); var b = $("sheetBody"); b.querySelectorAll("
 function bare(content, buttons){ return '<div class="bare"><div class="bare__c">'+content+'</div>'+(buttons?'<div class="bare__b">'+buttons+'</div>':'')+'</div>'; }
 SCR.welcome = function(){
   var inv = S.invite;
-  return {title:"", bare:true, tabs:false, view:bare(ill("travelers","bare__ill")+'<div class="bare__t"><h2>'+(inv ? 'Добро пожаловать' : 'Вся поездка в одном месте')+'</h2><p>'+(inv ? 'Вас позвали в поездку «'+esc(inv.meta.country)+'» — войдите, чтобы увидеть план' : 'План по дням, документы, чек-лист и общие траты — для всех, кто едет')+'</p></div>',
+  return {title:"", bare:true, tabs:false, view:bare(ill("travelers","bare__ill")+'<div class="bare__t"><h2>'+(inv ? 'Добро пожаловать' : 'Вся поездка в одном месте')+'</h2><p>'+(inv ? 'Вас позвали в поездку «'+esc(inv.meta.country)+'»\u00a0— войдите, чтобы увидеть план' : 'План по дням, документы, чек-лист и общие траты — для всех, кто едет')+'</p></div>',
     '<button class="primary" data-act="toEmail">Войти по почте</button>')};
 };
 SCR.handoff = function(){ return {title:"", bare:true, tabs:false, view:bare(ill("airplane","bare__ill")+'<div class="bare__t"><h2>Вы вошли</h2><p>Вернитесь в приложение на экране «Домой» — вход там уже выполнен. Эту вкладку можно закрыть</p></div>', '')}; };
