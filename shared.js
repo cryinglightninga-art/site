@@ -9,7 +9,7 @@
 // Pictures the scripts build get this stamp on the end of their address.
 // A file keeps its name when its contents change, and without the stamp a
 // browser goes on showing the copy it already has.
-var ASSET_V = '202611141801';
+var ASSET_V = '202611141804';
 
 window.PF = (function () {
   'use strict';
@@ -152,7 +152,27 @@ window.PF = (function () {
 
   /* ── Sidebar rendering ────────────────────────────────────────────────── */
 
+  // Switching the language changes three words in a row, not the row itself.
+  // Rebuilding it threw the logos away and drew them again, which showed as a
+  // blink; so when the rows are already there, only the text is replaced.
+  function relabelExperience(container, t) {
+    var rows = container.querySelectorAll('.exp-row');
+    if (rows.length !== t.exp.length) return false;
+    for (var i = 0; i < rows.length; i += 1) {
+      var exp = t.exp[i];
+      var company = rows[i].querySelector('.exp-company');
+      var role = rows[i].querySelector('.exp-role');
+      var dates = rows[i].querySelector('.exp-dates');
+      if (!company || !role || !dates) return false;
+      if (company.textContent !== exp.company) company.textContent = exp.company;
+      if (role.textContent !== exp.role) role.textContent = exp.role;
+      if (dates.textContent !== exp.dates) dates.textContent = exp.dates;
+    }
+    return true;
+  }
+
   function renderExperience(container, t) {
+    if (relabelExperience(container, t)) return;
     container.textContent = '';
     t.exp.forEach(function (exp) {
       var row = el('div', 'exp-row');

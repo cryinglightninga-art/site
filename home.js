@@ -140,6 +140,17 @@
 
   /* ── Build: tile covers ───────────────────────────────────────────────── */
 
+  // Pictures that only ever appear as CSS backgrounds. Held for the life of
+  // the page so their decoded form is not thrown away.
+  var keepDecoded = [];
+
+  function preload(src) {
+    var img = new Image();
+    img.decoding = 'async';
+    img.src = src;
+    return img;
+  }
+
   function buildTileMedia(meta) {
     var media = el('div', 'tile-media');
 
@@ -210,6 +221,13 @@
       var coverBg = el('div', 'cover-bg');
       coverBg.style.background = meta.bg || 'transparent';
       media.appendChild(coverBg);
+
+      // A picture drawn as a background has no element holding it, so the
+      // browser is free to drop what it decoded and decode it again later —
+      // which shows as a blink when the card comes back or the language
+      // flips. These two keep a handle on it instead.
+      keepDecoded.push(preload(meta.cover));
+      if (meta.coverDark) keepDecoded.push(preload(meta.coverDark));
 
       var cover = el('div', 'cover' + (meta.tilt ? ' is-tilt' : '') + (meta.contain ? ' is-contain' : ''));
       // Custom properties rather than an inline background-image: a card may
