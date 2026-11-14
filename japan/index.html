@@ -3314,7 +3314,7 @@ function enterBlocks(){
 function keepChips(fn){ var c = document.querySelector("#chipsSlot .chips"), sl = c ? c.scrollLeft : 0; fn();
   var n = document.querySelector("#chipsSlot .chips"); if (!n) return; n.scrollLeft = sl;
   var a = n.querySelector(".chip.is-active .chip__seg"); if (a){ anim(a, [{transform:"scale(.9)", opacity:.4},{transform:"none", opacity:1}], {duration:420, easing:SPRING});
-    var ch = a.parentNode, l = ch.offsetLeft - 16, r = ch.offsetLeft + ch.offsetWidth + 16 - n.clientWidth; if (n.scrollLeft > l) n.scrollTo({left:l, behavior:"smooth"}); else if (n.scrollLeft < r) n.scrollTo({left:r, behavior:"smooth"}); } }
+    var ch = a.parentNode, nb = n.getBoundingClientRect(), cb = ch.getBoundingClientRect(), x0 = cb.left - nb.left + n.scrollLeft, l = x0 - 16, r = x0 + cb.width + 16 - n.clientWidth; if (n.scrollLeft > l) n.scrollTo({left:l, behavior:"smooth"}); else if (n.scrollLeft < r) n.scrollTo({left:r, behavior:"smooth"}); } }
 var _cityA = A.city; A.city = function(d){ if (S.city === d.c) return; keepChips(function(){ _cityA(d); }); enterBlocks(); };
 var _listSelA = A.listSel; A.listSel = function(d){ keepChips(function(){ _listSelA(d); }); enterBlocks(); };
 
