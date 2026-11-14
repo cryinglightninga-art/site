@@ -9,7 +9,7 @@
 // Pictures the scripts build get this stamp on the end of their address.
 // A file keeps its name when its contents change, and without the stamp a
 // browser goes on showing the copy it already has.
-var ASSET_V = '202611141749';
+var ASSET_V = '202611141752';
 
 window.PF = (function () {
   'use strict';
