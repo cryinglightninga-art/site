@@ -456,7 +456,15 @@
   function applyTileStates() {
     tiles.forEach(function (tile) {
       var hovered = state.isDesktop ? hoveredIndex === tile.index : !!inView[tile.index];
-      tile.node.classList.toggle('hovered', hovered);
+      // On a phone this is the reveal, not a hover: it plays when the card
+      // first reaches the screen and then stays on. Taking it off again as the
+      // card scrolls past made the pictures restart their motion every time,
+      // which reads as flicker.
+      if (state.isDesktop) {
+        tile.node.classList.toggle('hovered', hovered);
+      } else if (hovered) {
+        tile.node.classList.add('hovered');
+      }
       // Separate from 'hovered': set once, when the card first reaches the
       // screen, and never taken off again. A card that plays an entrance of
       // its own should play it on the way in and then stay put, not start
@@ -510,7 +518,9 @@
               applyTileStates();
             }, 220);
           }
-        } else if (inView[idx]) {
+        } else if (inView[idx] && state.isDesktop) {
+          // Only the wide layout needs to know a card has left: on a phone the
+          // reveal is one-way, and forgetting would replay it.
           inView[idx] = false;
           changed = true;
         }
