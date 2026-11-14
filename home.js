@@ -246,7 +246,7 @@
       ].forEach(function (pair) {
         var img = el('img', pair[1], {
           src: pair[0] + PF.av, alt: '', decoding: 'async', fetchpriority: 'high',
-          width: '560', height: '1153'
+          width: '560', height: '1152'
         });
         if (img.complete) {
           arrived();
