@@ -1171,6 +1171,9 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
   .glass{background:rgba(44,44,46,.7)!important;box-shadow:0 0 0 .5px rgba(255,255,255,.18),0 8px 40px rgba(0,0,0,.4)!important}
   .glass::before{box-shadow:inset 0 0 0 1px rgba(255,255,255,.05),inset 0 1.5px 1px -.5px rgba(255,255,255,.25)!important}
 }
+/* кант шире: 1pt */
+.glass{box-shadow:0 0 0 1px rgba(0,0,0,.14),0 8px 40px rgba(0,0,0,.06)!important}
+@media (prefers-color-scheme: dark){.glass{box-shadow:0 0 0 1px rgba(255,255,255,.16),0 8px 40px rgba(0,0,0,.4)!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
