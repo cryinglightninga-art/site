@@ -246,7 +246,7 @@
       ].forEach(function (pair) {
         var img = el('img', pair[1], {
           src: pair[0] + PF.av, alt: '', decoding: 'async', fetchpriority: 'high',
-          width: '560', height: '1152'
+          width: '440', height: '905'
         });
         if (img.complete) {
           arrived();
@@ -499,6 +499,26 @@
 
   /* ── Scroll-driven behaviour ──────────────────────────────────────────── */
 
+  // A clip keeps decoding frames with nobody looking, which on a phone is the
+  // heaviest thing on this page. Each one runs only while it is on screen.
+  function setupVideoObserver() {
+    if (typeof IntersectionObserver === 'undefined') return;
+    var clips = dom.grid.querySelectorAll('video');
+    if (!clips.length) return;
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var v = entry.target;
+        if (entry.isIntersecting) {
+          var playing = v.play();
+          if (playing && playing.catch) playing.catch(function () {});
+        } else if (!v.paused) {
+          v.pause();
+        }
+      });
+    }, { rootMargin: '200px 0px' });
+    Array.prototype.forEach.call(clips, function (v) { io.observe(v); });
+  }
+
   function setupObserver() {
     // Without an observer nothing would ever be marked as seen, and a card
     // that animates itself in would stay invisible. Show them all instead.
@@ -605,6 +625,7 @@
     });
 
     setupObserver();
+    setupVideoObserver();
     setupShotRotation();
     setupParallax();
 
