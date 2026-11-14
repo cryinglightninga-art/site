@@ -1722,10 +1722,16 @@ function catSummaryRows(ps){
 }
 function city(s){ return String(s||"").split(",")[0].trim(); }
 function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? v.dep+'–'+v.arr : v.dep ? 'в '+v.dep : ''); }
+function stopQ(p){ if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
+function dirUrl(hs, ps){
+  var stops = ps.map(stopQ).filter(Boolean); if (!stops.length) return "";
+  var pts = hs ? [hs].concat(stops, [hs]) : stops;
+  if (pts.length > 10) pts = stops;
+  return "https://www.google.com/maps/dir/"+pts.slice(0, 10).map(encodeURIComponent).join("/");
+}
 function routeUrl(t, k){
   var ps = t.places[k] || [], d = tripDays(t).filter(function(x){ return x.k === k; })[0], ho = d && d.city && t.hotels[d.city];
-  var stops = ps.map(function(p){ return p.addr || p.n; }), hs = ho ? (ho.addr || ho.name) : "";
-  return ps.length ? "https://www.google.com/maps/dir/"+(hs?[hs].concat(stops,[hs]):stops).map(encodeURIComponent).join("/") : "";
+  return dirUrl(ho ? (ho.addr || ho.name) : "", ps);
 }
 function notesRows(t, k){ return (t.notes && t.notes[k] || []).map(function(n){ return li(ill(n.ic), esc(n.t), esc(n.s)); }).join(""); }
 function dayCard(t, d){
@@ -1918,9 +1924,8 @@ function openDay(k){
       ''+'</div>';
   }
   $("sheetBody").innerHTML = nb(h);
-  var stops = ps.map(function(p){ return p.addr || p.n; }), hs = ho ? (ho.addr || ho.name) : "";
-  var m = $("sheetMap");
-  if (ps.length){ m.hidden = false; m.href = "https://www.google.com/maps/dir/"+(hs?[hs].concat(stops,[hs]):stops).map(encodeURIComponent).join("/"); m.innerHTML = MAPS_IMG; } else m.hidden = true;
+  var m = $("sheetMap"), du = dirUrl(ho ? (ho.addr || ho.name) : "", ps);
+  if (du){ m.hidden = false; m.href = du; m.innerHTML = MAPS_IMG; } else m.hidden = true;
   $("sheetAdd").hidden = true;
   if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; }
 }
