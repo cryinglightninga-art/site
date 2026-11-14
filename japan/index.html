@@ -1239,8 +1239,7 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 #alert .alert__btn--cancel{background-color:rgba(120,120,128,.16)!important}
 @media (prefers-color-scheme: dark){#alert .alert__btn--cancel{background-color:rgba(120,120,128,.32)!important}}
 /* профиль: выход внизу */
-.logout-btn{margin-top:auto}
-#view > .pg--g24:has(.logout-btn){min-height:calc(100dvh - var(--safe) - 150px);display:flex;flex-direction:column}
+.logout-btn{margin-top:-8px}
 /* таб-бар: активная вкладка чёрная, как в Figma */
 .tab.is-active{color:var(--label)!important}
 /* «＋ Добавить …» — везде как в Figma (161:4892): 44, иконка 18, отступ 12, текст 16/600 синий */
@@ -1248,6 +1247,17 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 .addrow > span:first-child{width:22px;justify-content:center}
 .addrow > span:first-child svg,.stop--add .stop__n svg{width:18px!important;height:18px!important;color:#0088ff}
 .stop--add .stop__tx{font:600 16px/21px "Inter",sans-serif!important}
+
+/* одно место в дне — перетаскивать нечего */
+#plist:not(:has(.prow ~ .prow)) .grip{display:none}
+/* бейджи на плитках поездок (Figma: Chip Small, 13 от верха и справа) */
+.set__tag{position:absolute;top:13px;right:13px;display:flex}
+.badge--warn{padding:2px 6px;background:#ff8c00;box-shadow:inset 0 3px 3px rgba(255,208,40,1),inset 0 -3px 3px rgba(255,208,40,1),inset 0 0 2px #ca3200,0 4px 10px rgba(0,0,0,.16)}
+.badge--warn svg{width:11px;height:18px;display:block}
+
+/* Мои поездки — отступы как в Figma: заголовок → «Предстоящие» 26, подпись → плитки 8 */
+#view > .pg:has(> .tsec){padding-top:26px!important;gap:20px!important}
+#view .pg > div.tsec > .label:not(:last-child){margin:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3469,6 +3479,26 @@ NATIVE_TRIG.push("checkMenu");
 
 /* выход из поездки в «Мои поездки» — с той же анимацией контента */
 $("pgBack").onclick = function(){ if (S.role === "guest") return; if (cur().s === "trip"){ reset("trips"); slide(-1); return; } back(); };
+
+/* картинки стран из Figma (Images → Countries) + бейджи «Скоро» и «есть долг» */
+var CIMG = {"Япония":"c-japan","Турция":"c-turkiye","Грузия":"c-georgia","Австралия":"c-australia","Египет":"c-egypt"};
+function cimg(t){ return CIMG[t.country] || t.img; }
+var WARN = '<svg viewBox="0 0 11 10"><path d="M5.5.6c.4 0 .7.2.9.5l4.3 7.5c.4.7-.1 1.4-.9 1.4H1.2C.4 10-.1 9.3.3 8.6L4.6 1.1c.2-.3.5-.5.9-.5z" fill="#fff"/><rect x="4.9" y="3.1" width="1.2" height="3.6" rx=".6" fill="#ff8c00"/><circle cx="5.5" cy="8.1" r=".7" fill="#ff8c00"/></svg>';
+var _SCRtripsC = SCR.trips;
+SCR.trips = function(){ var v = _SCRtripsC();
+  if (!S.trips.length) return v;
+  var up = S.trips.filter(function(t){ return !t.archived && diff(S.today, t.to) >= 0; }).sort(function(a,b){ return a.from < b.from ? -1 : 1; });
+  var soon = up[0] && diff(S.today, up[0].from) > 0 && diff(S.today, up[0].from) <= 30 ? up[0].id : null;
+  S.trips.forEach(function(t){
+    var re = new RegExp('(<button class="set[^"]*" data-act="openTrip" data-trip="'+t.id+'">)([^]*?)(<p class="set__t">)'), past = up.indexOf(t) < 0, debt = past && transfers(t).length;
+    var img = cimg(t), pic = img ? ill(img, "set__ill") : '<span class="set__flag">'+t.flag+'</span>';
+    var tag = t.id === soon ? '<span class="set__tag">'+badge("Скоро")+'</span>' : debt ? '<span class="set__tag" aria-label="Есть долг"><span class="badge badge--warn">'+WARN+'</span></span>' : '';
+    v.view = v.view.replace(re, function(m, a, b, c){ return a + tag + pic + c; });
+  });
+  v.view = v.view.replace(/ · есть долг/g, "");
+  return v; };
+var _polaroidC = polaroid;
+polaroid = function(img, flag, from, to, cap){ var t = trip(); return _polaroidC((t && CIMG[t.country]) || img, flag, from, to, cap); };
 
 </script>
 </body>
