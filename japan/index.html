@@ -1333,6 +1333,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .ios-spin i:nth-child(7){transform:rotate(270deg);transform-origin:1.5px 14px;opacity:.3}
 .ios-spin i:nth-child(8){transform:rotate(315deg);transform-origin:1.5px 14px;opacity:.2}
 @keyframes iosspin{to{transform:rotate(360deg)}}
+
+/* стеклянная кнопка S (как «Заменить фото»): 36, отступы 14, текст 15/600 */
+.gbtn-s{display:inline-flex!important;align-items:center;flex:none;height:36px!important;padding:0 14px!important;border-radius:1000px!important;font:600 15px/20px "Inter",sans-serif!important;color:var(--label)!important;white-space:nowrap;cursor:pointer}
+.att__rep.glass{background:var(--glass)!important;box-shadow:var(--glass-shadow)!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3364,7 +3368,7 @@ function docCard(t, doc){
   var has = doc.file || doc.link, host = ""; try { host = doc.link ? new URL(doc.link).hostname.replace(/^www\./, "") : ""; } catch(_){}
   if (!has) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span><input type="file" id="fDf" hidden></label>';
   return '<div class="att att--card" id="fDfCard"><button class="att__main" data-act="docOpen" type="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+(doc.file ? "файл" : esc(host))+'</small></span></button>'+
-    (S._docCan ? '<label class="att__rep">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
+    (S._docCan ? '<label class="att__rep glass gbtn-s">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 }
 A.docSheet = function(d){
   var t = trip(), doc = t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return;
@@ -3461,7 +3465,7 @@ prepView = function(t){ if (t.cities.length) return _prepViewH(t); var saved = t
 docCard = function(t, doc){
   if (!doc.file && !doc.link) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span><input type="file" id="fDf" hidden></label>';
   return '<div class="att" id="fDfCard" data-act="docOpen" role="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+esc(docSub(t, doc))+'</small></span>'+
-    (S._docCan ? '<label class="att__rep" onclick="event.stopPropagation()">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
+    (S._docCan ? '<label class="att__rep glass gbtn-s" onclick="event.stopPropagation()">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 };
 
 /* ПРОБА Liquid Glass: SVG-линза для Chrome */
