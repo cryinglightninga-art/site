@@ -9,7 +9,7 @@
 // Pictures the scripts build get this stamp on the end of their address.
 // A file keeps its name when its contents change, and without the stamp a
 // browser goes on showing the copy it already has.
-var ASSET_V = '202611141832';
+var ASSET_V = '202611141837';
 
 window.PF = (function () {
   'use strict';
@@ -776,8 +776,44 @@ window.PF = (function () {
 
   // `sub` builds the back-link chrome and sidebar; the home page supplies its
   // own markup and only needs the state machine.
+  // A picture inside a case page can take a moment on a slow line. Until it
+  // lands the <img> is an empty hole in the page; this puts a quiet pulse in
+  // its place and takes it off the moment the picture is there. It runs on
+  // whatever the page draws now and on whatever it draws later, so no page
+  // script has to remember to ask.
+  function watchImages(root) {
+    if (!root) return;
+
+    function mark(img) {
+      if (img.getAttribute('data-skeleton')) return;
+      img.setAttribute('data-skeleton', '1');
+      if (img.complete && img.naturalWidth) return;
+      img.classList.add('is-loading');
+      function done() { img.classList.remove('is-loading'); }
+      img.addEventListener('load', done);
+      img.addEventListener('error', done);
+    }
+
+    function scan(node) {
+      if (node.nodeType !== 1) return;
+      if (node.tagName === 'IMG') mark(node);
+      else if (node.querySelectorAll) {
+        Array.prototype.forEach.call(node.querySelectorAll('img'), mark);
+      }
+    }
+
+    scan(root);
+    if (typeof MutationObserver === 'undefined') return;
+    new MutationObserver(function (records) {
+      records.forEach(function (record) {
+        Array.prototype.forEach.call(record.addedNodes, scan);
+      });
+    }).observe(root, { childList: true, subtree: true });
+  }
+
   function init(kind) {
     if (kind === 'sub') buildSubPageChrome();
+    if (kind === 'sub') watchImages(document.querySelector('[data-content]'));
     if (kind === 'home') watchHomeScroll();
     bindControls();
     renderContactsInto();

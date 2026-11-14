@@ -3,6 +3,40 @@
    the six sub-pages draw from. Loaded after base.css.
    ========================================================================== */
 
+/* ── Pictures that have not arrived yet ───────────────────────────────────── */
+
+/* A quiet pulse stands in for the picture while it loads, and goes the moment
+   it is there — so a shot with transparent corners is not left sitting on a
+   grey rectangle. shared.js puts the class on and takes it off. */
+img.is-loading {
+  /* A shade of grey rather than a colour of the theme: the strip it stands on
+     is already --bg-secondary, and the two would cancel out. */
+  background-color: rgba(128, 128, 128, 0.13);
+  background-image: linear-gradient(
+    100deg,
+    rgba(128, 128, 128, 0) 30%,
+    rgba(128, 128, 128, 0.16) 50%,
+    rgba(128, 128, 128, 0) 70%
+  );
+  background-repeat: no-repeat;
+  background-size: 220% 100%;
+  animation: skeleton-sweep 1.3s linear infinite;
+}
+
+/* The phone shots carry their own rounded corners, so the placeholder takes
+   the same shape instead of a bare rectangle. */
+.rail-shot.is-loading,
+.screen.is-loading { border-radius: 15.92% / 7.32%; }
+
+@keyframes skeleton-sweep {
+  from { background-position: 160% 0; }
+  to   { background-position: -60% 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  img.is-loading { animation: none; background-image: none; }
+}
+
 /* ── Hero + heading ───────────────────────────────────────────────────────── */
 
 .hero {
