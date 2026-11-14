@@ -778,7 +778,14 @@ a.photo-cell { cursor: pointer; }
   .shot-rail > :first-child { margin-left: 16px; }
   .shot-rail > :last-child { margin-right: 16px; }
 
-  .rail-shot { width: calc((100% - 36px) / 2.15); }
+  .rail-shot {
+    width: calc((100% - 36px) / 2.15);
+    /* Off the plate the light screens melt into the page, so each gets the
+       same hairline the hero has. The radius repeats the one baked into the
+       shot (64 of 402 across, of 874 down), so the ring sits on its edge. */
+    border-radius: 15.92% / 7.32%;
+    box-shadow: 0 0 0 1px var(--card-border);
+  }
 }
 
 /* ── Tabs inside a project page ───────────────────────────────────────────── */

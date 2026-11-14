@@ -96,7 +96,6 @@
   // sized by height, each rising a beat after the last.
   function buildStage() {
     var hero = el('div', 'hero is-screens');
-    hero.style.setProperty('--stage', '#1f2227');
     var row = el('div', 'screens');
     STAGE.forEach(function (key, i) {
       // On a phone the plan leads from the middle, the others stand lower.
