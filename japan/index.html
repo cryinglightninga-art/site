@@ -1276,6 +1276,14 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 .set__tag{z-index:2}
 
 #chipsSlot .chip--plus svg{color:var(--label)!important;margin:0!important;width:18px!important;height:18px!important}
+
+/* аватар участника в списках (Figma: Avatar 32 — фото или первая буква на сером круге) */
+.av.av--32{width:32px;height:32px;background:rgba(0,0,0,.18);color:var(--sec);font:600 14px/1 "Inter",sans-serif}
+@media (prefers-color-scheme: dark){.av.av--32{background:rgba(255,255,255,.12)}}
+.stop > .avw{align-self:center}
+/* «Добавить фото» — стеклянная кнопка (Figma: Button Style=Glass, Size=M) */
+.avbtn.avbtn--glass{display:flex;align-items:center;height:44px;padding:0 16px;border-radius:1000px;font:600 15px/20px "Inter",sans-serif;color:var(--label);white-space:nowrap}
+.avbtn--glass > span{position:relative;z-index:1}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2810,7 +2818,7 @@ checkItem = function(t, c){
     '<span class="check__text'+(c.done?' is-done':'')+'"><b>'+esc(c.t)+'</b>'+(c.s?'<small>'+esc(c.s)+'</small>':'')+'</span></div>';
 };
 dayOpts = function(t, sel, none){ return (none?'<option value="">'+none+'</option>':'')+tripDays(t).map(function(d){ return '<option value="'+d.k+'"'+(d.k===sel?' selected':'')+'>'+dm(d.k)+'</option>'; }).join(""); };
-function avatarLead(id){ return '<span class="stop__n is-icon">'+IC.person+'</span>'; }
+function avatarLead(id, name){ var a = id && S.avatars[id]; return '<span class="avw"><span class="av av--32">'+(a ? '<img src="'+a+'" alt="">' : esc(String(name||"?").trim()[0]||"?"))+'</span></span>'; }
 var _openDay = openDay;
 openDay = function(k){ _openDay(k); var b = $("sheetBody"); b.querySelectorAll(".stop--add .stop__n").forEach(function(n){ n.innerHTML = IC.add; }); };
 
@@ -2851,7 +2859,7 @@ SCR.profile = function(){ return {title:"Как вас зовут?", sub:"Так
 SCR.whoami = function(){
   var p = S.invite;
   return {title:"Кто вы?", sub:"В поездке «"+esc(p.meta.country)+"» уже есть имена — выберите своё", tabs:false, view:'<div class="pg pg--form"><div class="stops">'+
-    p.free.map(function(m){ return '<button class="stop" data-act="pickSlot" data-id="'+m.id+'" data-n="'+esc(m.name)+'">'+avatarLead()+'<span class="stop__tx"><b>'+esc(m.name)+'</b></span><span class="stop__go">'+IC.chev+'</span></button>'; }).join("")+
+    p.free.map(function(m){ return '<button class="stop" data-act="pickSlot" data-id="'+m.id+'" data-n="'+esc(m.name)+'">'+avatarLead(null, m.name)+'<span class="stop__tx"><b>'+esc(m.name)+'</b></span><span class="stop__go">'+IC.chev+'</span></button>'; }).join("")+
     plusRow("pickSlot", "Меня нет в списке")+'</div></div>'};
 };
 
@@ -2905,7 +2913,7 @@ SCR.account = function(){
   return {title:"Профиль", back:true, tabs:false, view:'<div class="pg pg--form pg--g24"><div class="avcard">'+
     '<div class="avwrap"><label class="avbig">'+(av?'<img src="'+av+'" alt="">':'<span>'+esc((n||"?")[0])+'</span>')+'<input type="file" accept="image/*" data-input="avatar" hidden></label>'+
     (av?'<button class="avclr" data-act="avatarDel" aria-label="Удалить фото">'+IC.x+'</button>':'')+'</div>'+
-    '<label class="chip is-active avbtn"><span class="chip__seg">'+(av?'Заменить фото':'Добавить фото')+'</span><input type="file" accept="image/*" data-input="avatar" hidden></label></div>'+
+    '<label class="glass avbtn avbtn--glass"><span>'+(av?'Заменить фото':'Добавить фото')+'</span><input type="file" accept="image/*" data-input="avatar" hidden></label></div>'+
     fld("Имя", '<input class="in" id="fMyName" data-input="myName" value="'+esc(n)+'">')+'<button class="btn2 is-danger logout-btn" data-act="logoutAsk">Выйти из аккаунта</button></div>'};
 };
 INP.avatar = (function(orig){ return function(){ var fs = document.querySelectorAll('[data-input="avatar"]'), f = null; fs.forEach(function(x){ if (x.files && x.files[0]) f = x; });
@@ -2916,7 +2924,7 @@ SCR.members = function(r){
   var t = trip(r.trip), own = isOwner(t);
   var h = '<div class="pg"><div class="stops">'+t.members.map(function(m){
     var role = m.left ? "вышел" : m.id === t.owner ? "владелец" : "участник", tap = false, sw = own && m.id !== S.me && !m.left;
-    return '<'+(tap?'button':'div')+' class="stop"'+(sw?swAttr("member", m.id):'')+(m.left?' style="opacity:.5"':'')+'>'+avatarLead()+'<span class="stop__tx"><b>'+esc(m.name)+(m.id===S.me?' (вы)':'')+'</b><small>'+role+'</small></span></'+(tap?'button':'div')+'>';
+    return '<'+(tap?'button':'div')+' class="stop"'+(sw?swAttr("member", m.id):'')+(m.left?' style="opacity:.5"':'')+'>'+avatarLead(m.id, m.name)+'<span class="stop__tx"><b>'+esc(m.name)+(m.id===S.me?' (вы)':'')+'</b><small>'+role+'</small></span></'+(tap?'button':'div')+'>';
   }).join("")+'</div>';
   if (own) h += '<button class="btn2" data-act="transferSheet">Передать владение</button>';
   return {title:"Участники", sub:t.members.length+' '+pl(t.members.length,"человек","человека","человек"), back:true, right:ro()?'':gbtn("inviteSheet", SVG.plus, "Пригласить", "btn-acc"), tabs:false, view:h+'</div>'};
@@ -2927,7 +2935,7 @@ A._unused = function(d){
   form(m.name, '<div class="stack"><button class="btn2" data-act="renameMem" data-id="'+m.id+'">Переименовать</button><button class="btn2 is-danger" data-act="delMem" data-id="'+m.id+'">Удалить из поездки</button></div>');
 };
 A.transferSheet = function(){ var t = trip(), others = t.members.filter(function(m){ return !m.left && m.id !== t.owner; });
-  form("Передать владение", others.length ? '<div class="stops">'+others.map(function(m){ return '<button class="stop" data-act="transferOk" data-id="'+m.id+'">'+avatarLead()+'<span class="stop__tx"><b>'+esc(m.name)+'</b></span><span class="stop__go">'+IC.chev+'</span></button>'; }).join("")+'</div>' : '<p class="hint">Сначала пригласите попутчика</p>', "Вы останетесь участником"); };
+  form("Передать владение", others.length ? '<div class="stops">'+others.map(function(m){ return '<button class="stop" data-act="transferOk" data-id="'+m.id+'">'+avatarLead(m.id, m.name)+'<span class="stop__tx"><b>'+esc(m.name)+'</b></span><span class="stop__go">'+IC.chev+'</span></button>'; }).join("")+'</div>' : '<p class="hint">Сначала пригласите попутчика</p>', "Вы останетесь участником"); };
 A.inviteSheet = function(){ closeMenus();
   form("Пригласить", '<div class="pg pg--sheet">'+seg("invSeg", [["member","Участник"],["guest","Гость"]], "member")+'<p class="hint" id="invHint">Может добавлять места, траты и отмечать пункты</p><div class="qrbox"><div class="qr"></div></div><p class="hint hint--c" id="invLink"></p><button class="primary" data-act="copyInvite">Скопировать ссылку</button></div>');
   S.invKind = "member"; fillInvite("member"); };
@@ -3503,7 +3511,7 @@ document.addEventListener("scroll", function(e){ var c = e.target; if (c && c.cl
 $("pgBack").onclick = function(){ if (S.role === "guest") return; if (cur().s === "trip"){ reset("trips"); slide(-1); return; } back(); };
 
 /* картинки стран из Figma (Images → Countries) + бейджи «Скоро» и «есть долг» */
-var CIMG = {"Япония":"c-japan","Турция":"c-turkiye","Грузия":"c-georgia","Австралия":"c-australia","Египет":"c-egypt"};
+var CIMG = {"Таиланд":"c-thailand","Тайланд":"c-thailand","Япония":"c-japan","Турция":"c-turkiye","Грузия":"c-georgia","Австралия":"c-australia","Египет":"c-egypt"};
 function cimg(t){ return CIMG[t.country] || t.img; }
 var WARN = '<svg viewBox="0 0 11 10"><path d="M5.5.6c.4 0 .7.2.9.5l4.3 7.5c.4.7-.1 1.4-.9 1.4H1.2C.4 10-.1 9.3.3 8.6L4.6 1.1c.2-.3.5-.5.9-.5z" fill="#fff"/><rect x="4.9" y="3.1" width="1.2" height="3.6" rx=".6" fill="#ff8c00"/><circle cx="5.5" cy="8.1" r=".7" fill="#ff8c00"/></svg>';
 var _SCRtripsC = SCR.trips;
