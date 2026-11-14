@@ -2889,6 +2889,7 @@ SCR.hotels = function(r){ var v = _SCRhotels(r);
 var _SCRcheck = SCR.checklist;
 SCR.checklist = function(r){ var v = _SCRcheck(r), t = trip(r.trip);
   v.chips = (t.lists.length || t.checks.length) ? v.chips.replace(/<button class="chip chip--add"[^]*?<\/button>/, '') : '';
+  if (!ro() && S.listSel != null) v.view = v.view.replace(/(<div class="pg"><div class="check">[^]*?)(<\/div>(?:<button class="linkbtn"|<\/div>$))/, '$1<button class="addrow" data-act="addCheckHere"><span>＋</span>Добавить задачу</button>$2');
   return v; };
 
 /* ---------- поля ввода: крестик, маски, календарь, файл ---------- */
