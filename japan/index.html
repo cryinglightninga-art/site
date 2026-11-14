@@ -1322,6 +1322,20 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* аватар в строке: 24, текст на одной оси с остальными строками (50 от края) */
 .av.av--32{width:24px;height:24px;font-size:12px}
 .stop > .avw{margin-right:-2px}
+
+/* iOS-спиннер */
+.boot{min-height:calc(100dvh - var(--safe,0px) - 40px);display:flex;align-items:center;justify-content:center}
+.ios-spin{position:relative;width:28px;height:28px;display:block;animation:iosspin .8s steps(8) infinite}
+.ios-spin i{position:absolute;left:12.5px;top:0;width:3px;height:8px;border-radius:2px;background:var(--sec)}
+.ios-spin i:nth-child(1){transform:rotate(0deg);transform-origin:1.5px 14px;opacity:1}
+.ios-spin i:nth-child(2){transform:rotate(45deg);transform-origin:1.5px 14px;opacity:.85}
+.ios-spin i:nth-child(3){transform:rotate(90deg);transform-origin:1.5px 14px;opacity:.7}
+.ios-spin i:nth-child(4){transform:rotate(135deg);transform-origin:1.5px 14px;opacity:.6}
+.ios-spin i:nth-child(5){transform:rotate(180deg);transform-origin:1.5px 14px;opacity:.5}
+.ios-spin i:nth-child(6){transform:rotate(225deg);transform-origin:1.5px 14px;opacity:.4}
+.ios-spin i:nth-child(7){transform:rotate(270deg);transform-origin:1.5px 14px;opacity:.3}
+.ios-spin i:nth-child(8){transform:rotate(315deg);transform-origin:1.5px 14px;opacity:.2}
+@keyframes iosspin{to{transform:rotate(360deg)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3594,6 +3608,9 @@ fillInvite = async function(kind){
     if (lab){ lab.textContent = url.replace(/^https?:\/\//, ""); lab.classList.remove("is-sk"); }
   } catch(e){ if (my !== fillInvite.n) return; if (box) box.classList.remove("is-sk"); if (lab){ lab.classList.remove("is-sk"); lab.textContent = "Не получилось создать ссылку"; } }
 };
+
+/* загрузка при входе: системный спиннер вместо слова */
+SCR.loading = function(){ return {title:"", bare:true, tabs:false, view:'<div class="boot" role="status" aria-label="Загрузка"><span class="ios-spin">'+Array(8).join('<i></i>')+'<i></i></span></div>'}; };
 
 </script>
 </body>
