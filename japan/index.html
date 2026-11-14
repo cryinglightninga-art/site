@@ -1284,6 +1284,16 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 /* «Добавить фото» — стеклянная кнопка (Figma: Button Style=Glass, Size=M) */
 .avbtn.avbtn--glass{display:flex;align-items:center;height:44px;padding:0 16px;border-radius:1000px;font:600 15px/20px "Inter",sans-serif;color:var(--label);white-space:nowrap}
 .avbtn--glass > span{position:relative;z-index:1}
+
+/* Алерт — как компонент Alert в Figma (11:124): стекло, заголовок 17/22, описание 13/18, поля 52 / r16, кнопки 44 */
+#alert{display:flex;flex-direction:column;gap:10px;padding:14px!important;border-radius:34px!important}
+#alert .alert__title{padding:8px 8px 0!important;font:600 17px/22px "Inter",sans-serif!important;letter-spacing:0!important}
+#alert .alert__text{padding:0 8px!important;margin:0!important;font:400 13px/18px "Inter",sans-serif!important;letter-spacing:0!important;color:var(--sec)!important}
+#alert .alert__fields{display:flex;flex-direction:column;gap:10px;margin:14px 0 0!important;padding:0!important;background:none!important;box-shadow:none!important;border:0!important;border-radius:0!important}
+#alert .alert__row{height:52px!important;padding:0 16px!important;border-radius:16px!important;background:var(--field)!important;border:0!important;box-shadow:none!important}
+#alert .alert__in{font:400 16px/21px "Inter",sans-serif!important;letter-spacing:0!important;color:var(--label)!important}
+#alert .alert__btns{margin-top:14px!important}
+#alert .alert__btn{height:44px!important;font:600 16px/20px "Inter",sans-serif!important;letter-spacing:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3537,6 +3547,13 @@ slide = function(dir){
   enterAll([{opacity:0, transform:"translate3d("+(dir*40)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING, delay:0});
 };
 (function(){ ["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc"].forEach(function(n){ var i = new Image(); i.decoding = "async"; i.src = "/japan/ill/"+n+".webp"; }); })();
+
+/* алерт: плейсхолдер поля */
+var _askP = ask;
+ask = function(title, text, input, okLabel, onOk, danger, ph){ _askP(title, text, input, okLabel, onOk, danger); var i = $("aIn"); if (i && ph) i.placeholder = ph; };
+A.newList = function(){ ask("Новый раздел", null, "", "Создать", function(n){ var id = "l"+uid(); trip().lists.push({id:id, name:n}); S.listSel = id; render(); }, false, "Название раздела"); };
+A.listRenameAsk = function(){ var l = trip().lists.filter(function(x){ return x.id === S.listSel; })[0]; if (!l) return;
+  ask("Переименовать раздел", null, l.name, "Сохранить", function(n){ l.name = n; render(); }, false, "Название раздела"); };
 
 </script>
 </body>
