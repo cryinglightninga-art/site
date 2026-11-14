@@ -69,11 +69,13 @@
 
 /* ── Tile ─────────────────────────────────────────────────────────────────── */
 
+/* On a phone a card is a fixed 300 tall; the wide layout goes back to a ratio
+   in the block below. */
 .tile {
   position: relative;
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  height: 300px;
   border-radius: 12px;
   overflow: hidden;
   border: none;
@@ -238,7 +240,8 @@
 .phones-wrap {
   position: absolute;
   inset: 0;
-  background: #1f2227;
+  /* The same plate the hero stands on inside the project. */
+  background: var(--bg-secondary);
   overflow: hidden;
 }
 
@@ -254,8 +257,6 @@
   transform: scale(0.94);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-[data-theme="dark"] .phones-wrap { background: #131416; }
 
 .phone-img {
   height: 76%;
@@ -632,6 +633,7 @@
   }
 
   .tile {
+    height: auto;
     aspect-ratio: 4 / 3.2;
     grid-column: span var(--span, 3);
   }
