@@ -1348,11 +1348,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* таб-бар: стеклянная подложка ровно 184×54, отступы 25 справа и 24 снизу как в макете */
 .tabbar__bg{inset:0!important}
 
-/* таб-бар как в Figma: подложка 184×54, внутренний отступ 4.5, вкладки 87.5×45 */
-.tabbar__buttons{padding:0 4.5px!important}
-.tab{flex:0 0 87.5px!important;height:45px!important;margin-right:0!important}
-.tab svg{right:auto!important;bottom:auto!important;left:50%!important;top:50%!important;width:95px!important;height:54px!important;transform:translate(-50%,-50%)}
-.tab-pill{top:4.5px!important;bottom:4.5px!important}
+/* таб-бар как у Apple (Figma Tab Bar 192×62): стекло 192×62 в 25/24 от края, вкладки 94×54 с подписью */
+.tabbar{padding:16px 29px 28px!important}
+.tabbar__bg{inset:-4px!important}
+.tabbar__buttons{width:184px!important;height:54px!important;padding:0 2px!important}
+.tab{flex:0 0 94px!important;height:54px!important;margin-right:-8px!important}
+.tab:last-of-type{margin-right:0!important}
+.tab svg{right:auto!important;bottom:auto!important;left:50%!important;top:50%!important;width:95px!important;height:54px!important;transform:translate(-50%,calc(-50% - 7px))}
+.tab__l{position:absolute;left:0;right:0;bottom:7px;font:600 10px/12px "Inter",sans-serif;text-align:center;color:currentColor;pointer-events:none}
+.tab-pill{top:0!important;bottom:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3635,6 +3639,9 @@ fillInvite = async function(kind){
     if (was === "loading" && now !== "loading") requestAnimationFrame(function(){ enterView();
       document.querySelectorAll("#view > .emptyc > *, #view .bare__c > *, #view .bare__b > *").forEach(function(el, i){ anim(el, [{opacity:0, transform:"translate3d(0,24px,0) scale(.97)"},{opacity:1, transform:"none"}], {duration:800, delay:i*70, easing:SPRING, fill:"backwards"}); }); }); };
 })();
+
+/* подписи вкладок, как в таб-баре Apple */
+(function(){ [["days","План"],["prep","Мои файлы"]].forEach(function(x){ var b = document.querySelector('.tab[data-tab="'+x[0]+'"]'); if (b && !b.querySelector(".tab__l")) b.insertAdjacentHTML("beforeend", '<span class="tab__l">'+x[1]+'</span>'); }); })();
 
 </script>
 </body>
