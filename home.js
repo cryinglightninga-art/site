@@ -67,9 +67,6 @@
     { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split-cover.mp4', poster: 'assets/split-cover-poster.webp', href: 'payment-split.html' },
     { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
     { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true }
-    // Hidden for now — the pages and their assets stay in the folder:
-    // ContentLog (contentlog.html), the competition identity
-    // (city-identity.html) and the playing cards (cards.html).
   ];
 
   var BOOKS = [
@@ -246,7 +243,7 @@
       ].forEach(function (pair) {
         var img = el('img', pair[1], {
           src: pair[0] + PF.av, alt: '', decoding: 'async', fetchpriority: 'high',
-          width: '440', height: '905'
+          width: '332', height: '680'
         });
         if (img.complete) {
           arrived();
