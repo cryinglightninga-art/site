@@ -1316,6 +1316,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 @keyframes skel{0%{background-position:100% 0}100%{background-position:-100% 0}}
 .qrbox .qr.is-sk,.qrbox #invLink.is-sk{background:linear-gradient(90deg,rgba(120,120,128,.12) 25%,rgba(120,120,128,.24) 50%,rgba(120,120,128,.12) 75%)!important;background-size:200% 100%!important;animation:skel 1.2s linear infinite}
 .qrbox #invLink.is-sk{width:180px;border-radius:6px;color:transparent}
+
+/* пустые «Мои поездки»: кнопка по ширине текста, как в Figma */
+.emptyc .primary{width:auto!important;align-self:center;padding:15px 20px!important}
+/* аватар в строке: 24, текст на одной оси с остальными строками (50 от края) */
+.av.av--32{width:24px;height:24px;font-size:12px}
+.stop > .avw{margin-right:-2px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2858,7 +2864,7 @@ openDay = function(k){ _openDay(k); var b = $("sheetBody"); b.querySelectorAll("
 function bare(content, buttons){ return '<div class="bare"><div class="bare__c">'+content+'</div>'+(buttons?'<div class="bare__b">'+buttons+'</div>':'')+'</div>'; }
 SCR.welcome = function(){
   var inv = S.invite;
-  return {title:"", bare:true, tabs:false, view:bare(ill("travelers","bare__ill")+'<div class="bare__t"><h2>Поездки вместе</h2><p>'+(inv ? 'Войдите, чтобы попасть в поездку «'+esc(inv.meta.country)+'»' : 'План по дням, документы, чек-лист и общие траты — для всех, кто едет')+'</p></div>',
+  return {title:"", bare:true, tabs:false, view:bare(ill("travelers","bare__ill")+'<div class="bare__t"><h2>'+(inv ? 'Добро пожаловать' : 'Вся поездка в одном месте')+'</h2><p>'+(inv ? 'Вас позвали в поездку «'+esc(inv.meta.country)+'» — войдите, чтобы увидеть план' : 'План по дням, документы, чек-лист и общие траты — для всех, кто едет')+'</p></div>',
     '<button class="primary" data-act="toEmail">Войти по почте</button>')};
 };
 SCR.handoff = function(){ return {title:"", bare:true, tabs:false, view:bare(ill("airplane","bare__ill")+'<div class="bare__t"><h2>Вы вошли</h2><p>Вернитесь в приложение на экране «Домой» — вход там уже выполнен. Эту вкладку можно закрыть</p></div>', '')}; };
