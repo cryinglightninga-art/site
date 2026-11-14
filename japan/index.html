@@ -1347,6 +1347,12 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 
 /* таб-бар: стеклянная подложка ровно 184×54, отступы 25 справа и 24 снизу как в макете */
 .tabbar__bg{inset:0!important}
+
+/* таб-бар как в Figma: подложка 184×54, внутренний отступ 4.5, вкладки 87.5×45 */
+.tabbar__buttons{padding:0 4.5px!important}
+.tab{flex:0 0 87.5px!important;height:45px!important;margin-right:0!important}
+.tab svg{right:auto!important;bottom:auto!important;left:50%!important;top:50%!important;width:95px!important;height:54px!important;transform:translate(-50%,-50%)}
+.tab-pill{top:4.5px!important;bottom:4.5px!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
