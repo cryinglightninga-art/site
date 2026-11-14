@@ -354,8 +354,10 @@
   position: absolute;
   inset: 0;
   background-image: var(--cover);
-  background-size: cover;
-  background-position: center;
+  /* A card whose picture is the artwork alone, with the colour behind it in
+     the plate, gives its own size and place. */
+  background-size: var(--cover-size, cover);
+  background-position: var(--cover-pos, center);
   background-repeat: no-repeat;
   transform: scale(1);
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);

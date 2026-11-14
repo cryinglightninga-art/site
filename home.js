@@ -59,7 +59,7 @@
   // Cover treatment per tile. Order matches COPY[lang].tiles.
   var TILE_META = [
     { type: 'project', c1: '#dfe3e6', c2: '#c3cad0', phones: true, href: 'easygoing.html' },
-    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb-dark.webp', bg: '#1c1c1e', href: 'wb.html' },
+    { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb-art.png', bg: '#1f1f1f', coverSize: '44.5% auto', coverPos: 'center 48.6%', href: 'wb.html' },
     { type: 'project', c1: '#dcd6cc', c2: '#c8c0b1', shapeAlt: true, stack: true, href: 'mujo.html' },
     { type: 'article', c1: '#e4e0d8', c2: '#d3cdc0', shapeAlt: true, video: 'assets/animation.mp4', href: 'animation-challenge.html' },
     { type: 'project', c1: '#d9d9dc', c2: '#bdbdc2', shape: true, fan: true, href: 'airtrip.html' },
@@ -235,6 +235,8 @@
       // choose between them.
       cover.style.setProperty('--cover', 'url("' + meta.cover + '")');
       if (meta.coverDark) cover.style.setProperty('--cover-dark', 'url("' + meta.coverDark + '")');
+      if (meta.coverSize) cover.style.setProperty('--cover-size', meta.coverSize);
+      if (meta.coverPos) cover.style.setProperty('--cover-pos', meta.coverPos);
       media.appendChild(cover);
     }
 
