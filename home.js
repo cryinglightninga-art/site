@@ -18,7 +18,7 @@
       typeLabels: { project: 'Проект', article: 'Статья', pet: 'Pet проект' },
       soonLabel: 'Скоро',
       tiles: [
-        'ContentLog — трекер съёмок для блога',
+        'EasyGoing — планировщик совместных поездок',
         'Wildberries',
         'MUJO AI — платформа для контента маркетплейсов',
         'Как я проходила челлендж по анимации?',
@@ -35,7 +35,7 @@
       typeLabels: { project: 'Project', article: 'Article', pet: 'Pet project' },
       soonLabel: 'Soon',
       tiles: [
-        'ContentLog — a shoot tracker for my blog',
+        'EasyGoing — a planner for shared trips',
         'Wildberries',
         'MUJO AI — marketplace content platform',
         'How I completed an animation challenge',
@@ -58,7 +58,7 @@
 
   // Cover treatment per tile. Order matches COPY[lang].tiles.
   var TILE_META = [
-    { type: 'project', badge: 'pet', c1: '#e6e6e6', c2: '#d2d2d6', video: 'assets/contentlog-promo.mp4', poster: 'assets/contentlog-poster.webp', href: 'contentlog.html' },
+    { type: 'project', c1: '#dfe3e6', c2: '#c3cad0', phones: true, href: 'easygoing.html' },
     { type: 'project', c1: '#d3d8dc', c2: '#b3bcc2', cover: 'assets/cover-wb.webp', coverDark: 'assets/cover-wb-dark.webp', href: 'wb.html' },
     { type: 'project', c1: '#dcd6cc', c2: '#c8c0b1', shapeAlt: true, stack: true, href: 'mujo.html' },
     { type: 'article', c1: '#e4e0d8', c2: '#d3cdc0', shapeAlt: true, video: 'assets/animation.mp4', href: 'animation-challenge.html' },
@@ -67,9 +67,9 @@
     { type: 'project', c1: '#d5d9dc', c2: '#b8bec4', video: 'assets/split-cover.mp4', poster: 'assets/split-cover-poster.webp', href: 'payment-split.html' },
     { type: 'article', c1: '#dedad0', c2: '#c7c0b0', shape: true, cover: 'assets/cover-desk-setup.webp', href: 'desk-setup.html' },
     { type: 'article', c1: '#d7dbd6', c2: '#bfc7bd', shapeAlt: true, cover: 'assets/cover-egemen.webp', tilt: true, bg: 'rgba(120,120,128,0.12)', href: 'https://egemen.kz/news/article390633-onim-dizayneri-basekeli-mamangha-aynaldy', external: true }
-    // Hidden for now — the pages and their assets stay in the folder: the
-    // competition identity (city-identity.html) and the playing cards
-    // (cards.html).
+    // Hidden for now — the pages and their assets stay in the folder:
+    // ContentLog (contentlog.html), the competition identity
+    // (city-identity.html) and the playing cards (cards.html).
   ];
 
   var BOOKS = [
@@ -223,6 +223,28 @@
       media.appendChild(cover);
     }
 
+    // Three phones on a dark stage. At rest the middle one is blown up and
+    // runs past the tile; on hover all three settle into a row.
+    if (meta.phones) {
+      var phonesWrap = el('div', 'phones-wrap');
+      // The row is a node of its own so that pointing at the card scales the
+      // three together, around the middle of the card rather than each phone's
+      // own middle.
+      var phonesRow = el('div', 'phones-row');
+      [
+        ['assets/eg-tile-trips.png', 'phone-img phone-left'],
+        ['assets/eg-tile-plan.png', 'phone-img phone-center'],
+        ['assets/eg-tile-day.png', 'phone-img phone-right']
+      ].forEach(function (pair) {
+        phonesRow.appendChild(el('img', pair[1], {
+          src: pair[0], alt: '', loading: 'lazy', decoding: 'async',
+          width: '560', height: '1153'
+        }));
+      });
+      phonesWrap.appendChild(phonesRow);
+      media.appendChild(phonesWrap);
+    }
+
     if (meta.cert) {
       var certWrap = el('div', 'cert-wrap');
       var certImg = el('div', 'cert-img');
@@ -231,7 +253,7 @@
       media.appendChild(certWrap);
     }
 
-    var plainCover = !meta.video && !meta.fan && !meta.stack && !meta.shots && !meta.cert && !meta.cover && !meta.soon;
+    var plainCover = !meta.video && !meta.fan && !meta.stack && !meta.shots && !meta.cert && !meta.cover && !meta.phones && !meta.soon;
     if (plainCover) {
       var NS = 'http://www.w3.org/2000/svg';
       var svg = document.createElementNS(NS, 'svg');
@@ -420,6 +442,11 @@
     tiles.forEach(function (tile) {
       var hovered = state.isDesktop ? hoveredIndex === tile.index : !!inView[tile.index];
       tile.node.classList.toggle('hovered', hovered);
+      // Separate from 'hovered': set once, when the card first reaches the
+      // screen, and never taken off again. A card that plays an entrance of
+      // its own should play it on the way in and then stay put, not start
+      // over every time it is scrolled past.
+      if (inView[tile.index]) tile.node.classList.add('in-view');
       tile.node.classList.toggle('labels-on', state.isDesktop ? hoveredIndex === tile.index : true);
     });
   }
@@ -450,7 +477,13 @@
   /* ── Scroll-driven behaviour ──────────────────────────────────────────── */
 
   function setupObserver() {
-    if (typeof IntersectionObserver === 'undefined') return;
+    // Without an observer nothing would ever be marked as seen, and a card
+    // that animates itself in would stay invisible. Show them all instead.
+    if (typeof IntersectionObserver === 'undefined') {
+      tiles.forEach(function (tile) { inView[tile.index] = true; });
+      applyTileStates();
+      return;
+    }
     var io = new IntersectionObserver(function (entries) {
       var changed = false;
       entries.forEach(function (entry) {

@@ -269,11 +269,64 @@ window.PF = (function () {
 
   function bindControls(root) {
     var scope = root || document;
+
+    // Some switches are written straight into the page's markup rather than
+    // built here; give those the sliding pill too.
+    Array.prototype.forEach.call(scope.querySelectorAll('.lang-switch'), function (sw) {
+      if (!sw.querySelector('.switch-knob')) trackKnob(sw, '.lang-btn');
+    });
+
     Array.prototype.forEach.call(scope.querySelectorAll('[data-lang]'), function (btn) {
       if (btn.dataset.pfBound) return;
       btn.dataset.pfBound = '1';
       btn.addEventListener('click', function () { setLang(btn.dataset.lang); });
     });
+  }
+
+  /* ── Switches ─────────────────────────────────────────────────────────── */
+
+  /* A switch is a row of buttons with one pill behind the active one. The pill
+     is a single element that slides, so switching reads as movement rather
+     than as one background appearing while another disappears. */
+  function trackKnob(container, selector) {
+    var knob = el('span', 'switch-knob');
+    knob.setAttribute('aria-hidden', 'true');
+    container.insertBefore(knob, container.firstChild);
+
+    function place(animate) {
+      var active = container.querySelector(selector + '.is-active');
+      if (!active) { knob.style.opacity = '0'; return; }
+      if (!animate) knob.style.transition = 'none';
+      knob.style.opacity = '1';
+      knob.style.width = active.offsetWidth + 'px';
+      knob.style.height = active.offsetHeight + 'px';
+      knob.style.transform = 'translate(' + active.offsetLeft + 'px, ' +
+                             active.offsetTop + 'px)';
+      if (!animate) {
+        // Force the frame so the first placement never animates in from 0,0.
+        void knob.offsetWidth;
+        knob.style.transition = '';
+      }
+    }
+
+    container.addEventListener('click', function () { setTimeout(place, 0); });
+    window.addEventListener('resize', function () { place(false); });
+    // Classes are set by whoever owns the buttons, so re-place on any change.
+    new MutationObserver(function () { place(true); }).observe(container, {
+      subtree: true, attributes: true, attributeFilter: ['class']
+    });
+    // The buttons have no size until the switch is in the page and the font has
+    // settled, so the first placement waits for a frame — and for the box to
+    // stop changing, which a ResizeObserver reports.
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () { place(false); }).observe(container);
+    }
+    knob.style.opacity = '0';
+    requestAnimationFrame(function () { place(false); });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () { place(false); });
+    }
+    return place;
   }
 
   function controlsMarkup() {
@@ -285,6 +338,7 @@ window.PF = (function () {
       btn.textContent = code.toUpperCase();
       langSwitch.appendChild(btn);
     });
+    trackKnob(langSwitch, '.lang-btn');
 
     wrap.appendChild(langSwitch);
     return wrap;
@@ -718,6 +772,10 @@ window.PF = (function () {
   /* ── Building blocks shared by the project and article pages ──────────── */
 
   var ui = {
+    // Pages build their own switches (the light/dark one on a case page, for
+    // example) and give them the same sliding pill.
+    trackKnob: trackKnob,
+
     // `mobileSrc` is optional; article.css swaps to it below 900px. Both go in
     // as custom properties rather than as an inline background-image, which no
     // media query could out-rank.

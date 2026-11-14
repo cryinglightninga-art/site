@@ -406,12 +406,30 @@ button.contact-link {
 /* ── Controls: language switch + theme toggle ─────────────────────────────── */
 
 .lang-switch {
+  position: relative;
   display: flex;
   align-items: center;
   height: 34px;
   background: var(--surface);
   border-radius: 980px;
   padding: 0 3px;
+}
+
+/* The pill that slides between the sides of a switch. Shared by the language
+   switch here and by the light/dark switch on a case page. */
+.switch-knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 980px;
+  background: var(--bg);
+  pointer-events: none;
+  transition: transform 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+              width 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch-knob { transition: none; }
 }
 
 .lang-btn {
@@ -431,10 +449,13 @@ button.contact-link {
   transition: background 0.15s ease, color 0.15s ease, filter 0.15s ease;
 }
 
-.lang-btn.is-active {
-  background: var(--bg);
-  color: var(--text-primary);
+.lang-btn {
+  position: relative;
+  z-index: 1;
 }
+
+/* The pill is drawn by .switch-knob, so the active button only changes ink. */
+.lang-btn.is-active { color: var(--text-primary); }
 
 
 /* ── Sub-page chrome: back link + the row it sits in ──────────────────────── */

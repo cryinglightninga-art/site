@@ -125,7 +125,7 @@
   z-index: 5;
   top: 12px;
   left: 12px;
-  background: rgba(255, 255, 255, 0.9);
+  background: #ffffff;
   color: #1d1d1f;
   font-size: 11px;
   font-weight: 500;
@@ -230,6 +230,57 @@
 .tile.hovered .fan-left   { transform: translate(-28%, -26%) rotate(0deg) scale(0.84); }
 .tile.hovered .fan-right  { transform: translate(0%, 2%) rotate(0deg) scale(0.84); }
 .tile.hovered .fan-center { transform: translate(28%, 30%) rotate(0deg) scale(0.84); }
+
+/* — Variant: three phones (EasyGoing) — */
+
+/* The three screens stand in a row. They are not there until the card reaches
+   the screen: each rises into place, the middle one first. */
+.phones-wrap {
+  position: absolute;
+  inset: 0;
+  background: #1f2227;
+  overflow: hidden;
+}
+
+/* Carries the row itself, so the plate behind it never moves. */
+.phones-row {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5%;
+  transform-origin: center center;
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .phones-wrap { background: #131416; }
+
+.phone-img {
+  height: 76%;
+  width: auto;
+  opacity: 0;
+  transform: translateY(16%) scale(0.94);
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.5s ease;
+}
+
+.phone-center { z-index: 2; }
+
+.tile.in-view .phone-img {
+  opacity: 1;
+  transform: none;
+}
+
+/* The middle one lands first, the sides follow it out. */
+.tile.in-view .phone-left  { transition-delay: 0.1s; }
+.tile.in-view .phone-right { transition-delay: 0.18s; }
+
+/* Pointing at the card draws the row back a little. Only where there is a real
+   pointer: on a touch screen the card carries no hover, and the shrink would
+   simply stay on. */
+@media (hover: hover) and (pointer: fine) {
+  .tile.in-view:hover .phones-row { transform: scale(0.94); }
+}
 
 /* Narrower on phones: at full tile width the screens crowded the card. The
    desktop width is restored in the >= 900px block. */
@@ -608,6 +659,8 @@
   .tile-video,
   .fan-img,
   .stack-img,
+  .phone-img,
+  .phones-row,
   .soon-logo,
   .cover,
   .cover.is-tilt,
