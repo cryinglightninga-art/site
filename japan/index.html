@@ -1198,6 +1198,9 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
     linear-gradient(180deg,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 16px,rgba(255,255,255,0) calc(100% - 16px),rgba(255,255,255,.2) 100%),rgba(255,255,255,.06)}
 }
 .glass::after{padding:.5px!important}
+/* шапка сама закрывает зону статус-бара — тени кнопок не обрезаются белой плашкой сверху */
+.topfade{display:none!important}
+.bar::before{content:"";position:absolute;left:0;right:0;bottom:100%;height:calc(var(--safe) + 2px);background:var(--white);pointer-events:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
