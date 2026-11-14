@@ -90,7 +90,7 @@
 
   var content = document.querySelector('[data-content]');
 
-  function shot(key, theme) { return 'assets/eg-' + key + '-' + theme + '.png'; }
+  function shot(key, theme) { return 'assets/eg-' + key + '-' + theme + '.png' + PF.av; }
 
   // Three shots standing on a plain stage, exactly as the ContentLog hero:
   // sized by height, each rising a beat after the last.
@@ -101,7 +101,7 @@
     STAGE.forEach(function (key, i) {
       // On a phone the plan leads from the middle, the others stand lower.
       var img = el('img', 'screen' + (i === 1 ? ' is-lead' : ''), {
-        src: 'assets/eg-hero-' + key + '-light.png', alt: '',
+        src: 'assets/eg-hero-' + key + '-light.png' + PF.av, alt: '',
         width: '900', height: '1222',
         fetchpriority: i === 1 ? 'high' : 'auto'
       });

@@ -231,15 +231,30 @@
       // three together, around the middle of the card rather than each phone's
       // own middle.
       var phonesRow = el('div', 'phones-row');
+      // The entrance is only worth playing once there is something to show:
+      // until all three have arrived the card counts as not ready, and the
+      // reveal waits for them rather than running against empty boxes.
+      var waiting = 3;
+      function arrived() {
+        waiting -= 1;
+        if (waiting === 0) phonesWrap.classList.add('is-ready');
+      }
       [
         ['assets/eg-tile-trips.png', 'phone-img phone-left'],
         ['assets/eg-tile-plan.png', 'phone-img phone-center'],
         ['assets/eg-tile-day.png', 'phone-img phone-right']
       ].forEach(function (pair) {
-        phonesRow.appendChild(el('img', pair[1], {
-          src: pair[0], alt: '', loading: 'lazy', decoding: 'async',
+        var img = el('img', pair[1], {
+          src: pair[0] + PF.av, alt: '', decoding: 'async', fetchpriority: 'high',
           width: '560', height: '1153'
-        }));
+        });
+        if (img.complete) {
+          arrived();
+        } else {
+          img.addEventListener('load', arrived);
+          img.addEventListener('error', arrived);
+        }
+        phonesRow.appendChild(img);
       });
       phonesWrap.appendChild(phonesRow);
       media.appendChild(phonesWrap);

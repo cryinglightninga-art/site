@@ -266,14 +266,14 @@
 
 .phone-center { z-index: 2; }
 
-.tile.in-view .phone-img {
+.tile.in-view .phones-wrap.is-ready .phone-img {
   opacity: 1;
   transform: none;
 }
 
 /* The middle one lands first, the sides follow it out. */
-.tile.in-view .phone-left  { transition-delay: 0.1s; }
-.tile.in-view .phone-right { transition-delay: 0.18s; }
+.tile.in-view .phones-wrap.is-ready .phone-left  { transition-delay: 0.1s; }
+.tile.in-view .phones-wrap.is-ready .phone-right { transition-delay: 0.18s; }
 
 /* Pointing at the card draws the row back a little. Only where there is a real
    pointer: on a touch screen the card carries no hover, and the shrink would

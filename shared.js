@@ -6,6 +6,11 @@
    register PF.onChange(fn) to re-render when the language or theme flips.
    ========================================================================== */
 
+// Pictures the scripts build get this stamp on the end of their address.
+// A file keeps its name when its contents change, and without the stamp a
+// browser goes on showing the copy it already has.
+var ASSET_V = '202611141706';
+
 window.PF = (function () {
   'use strict';
 
@@ -889,6 +894,7 @@ window.PF = (function () {
   return {
     state: state,
     ui: ui,
+    av: '?v=' + ASSET_V,
     reduceMotion: reduceMotion,
     DESKTOP_MIN: DESKTOP_MIN,
     el: el,
