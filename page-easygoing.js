@@ -130,18 +130,36 @@
     var rail = el('div', 'shot-rail');
     var imgs = [];
 
-    RAIL.forEach(function (key) {
-      var img = el('img', 'rail-shot', {
-        src: shot(key, 'light'), alt: '', loading: 'lazy',
-        width: '603', height: '1311'
-      });
+    var theme = 'light';
+
+    // Fifteen screens in two themes is three megabytes, and the strip shows
+    // two at a time. A shot is fetched when it comes near the edge of the
+    // strip, not when the page opens; its box is held by the width and height
+    // below, so nothing jumps and the placeholder sits in its place.
+    function show(img) {
+      var want = shot(img.dataset.shot, theme);
+      if (img.getAttribute('src') === want) return;
+      img.src = want;
+    }
+
+    var near = null;
+    if (typeof IntersectionObserver !== 'undefined') {
+      near = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) show(entry.target);
+        });
+      }, { root: rail, rootMargin: '0px 700px' });
+    }
+
+    RAIL.forEach(function (key, i) {
+      var img = el('img', 'rail-shot', { alt: '', width: '603', height: '1311' });
       img.dataset.shot = key;
       rail.appendChild(img);
       imgs.push(img);
+      // The first two are on screen the moment the strip is; the rest wait.
+      if (i < 2 || !near) show(img);
+      if (near) near.observe(img);
     });
-
-    // The other theme is fetched up front, so the switch never shows a gap.
-    RAIL.forEach(function (key) { var p = new Image(); p.src = shot(key, 'dark'); });
 
     [['light', SUN, t.lightLabel], ['dark', MOON, t.darkLabel]].forEach(function (opt) {
       var btn = el('button', 'seg-btn' + (opt[0] === 'light' ? ' is-active' : ''), {
@@ -153,7 +171,10 @@
         Array.prototype.forEach.call(seg.children, function (b) {
           b.classList.toggle('is-active', b === btn);
         });
-        imgs.forEach(function (img) { img.src = shot(img.dataset.shot, opt[0]); });
+        theme = opt[0];
+        // Only what has already been fetched is swapped; the rest will come
+        // in the new theme when the strip reaches them.
+        imgs.forEach(function (img) { if (img.getAttribute('src')) show(img); });
       });
       seg.appendChild(btn);
     });
