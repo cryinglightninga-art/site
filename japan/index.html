@@ -1241,6 +1241,13 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 /* профиль: выход внизу */
 .logout-btn{margin-top:auto}
 #view > .pg--g24:has(.logout-btn){min-height:calc(100dvh - var(--safe) - 150px);display:flex;flex-direction:column}
+/* таб-бар: активная вкладка чёрная, как в Figma */
+.tab.is-active{color:var(--label)!important}
+/* «＋ Добавить …» — везде как в Figma (161:4892): 44, иконка 18, отступ 12, текст 16/600 синий */
+.addrow,.stop--add{min-height:44px;padding:10px 16px!important;gap:12px;font:600 16px/21px "Inter",sans-serif!important;color:#0088ff!important}
+.addrow > span:first-child{width:22px;justify-content:center}
+.addrow > span:first-child svg,.stop--add .stop__n svg{width:18px!important;height:18px!important;color:#0088ff}
+.stop--add .stop__tx{font:600 16px/21px "Inter",sans-serif!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3439,6 +3446,29 @@ SCR.trip = function(r){ var v = _SCRtripFiles(r); if (v && v.title === "Поле
 
 /* папка в таб-баре — залитая */
 (function(){ var p = document.querySelector('.tab[data-tab="prep"] svg'); if (p) p.innerHTML = '<g transform="translate(35.7 17.6) scale(1.05)" fill="currentColor"><path d="M3.06641 17.8711L19.4043 17.8711C21.1523 17.8711 22.1777 16.8555 22.1777 14.8438L22.1777 4.81445C22.1777 2.80273 21.1426 1.78711 19.1113 1.78711L9.24805 1.78711C8.58398 1.78711 8.18359 1.63086 7.69531 1.21094L7.09961 0.722656C6.45508 0.175781 5.95703 0 4.99023 0L2.69531 0C0.986328 0 0 0.976562 0 2.93945L0 14.8438C0 16.8652 1.02539 17.8711 3.06641 17.8711ZM1.80664 5.39062L1.80664 4.84375C1.80664 4.24805 2.22656 3.86719 2.95898 3.86719L19.1797 3.86719C19.9023 3.86719 20.332 4.24805 20.332 4.84375L20.332 5.39062Z"/></g>'; })();
+
+/* ===== чек-лист: управление разделами — через ⋯ в шапке, удаление раздела не стирает пункты ===== */
+IC.more = '<svg viewBox="0 0 36 36" style="width:30px;height:30px"><circle cx="11" cy="18" r="2.2" fill="currentColor"/><circle cx="18" cy="18" r="2.2" fill="currentColor"/><circle cx="25" cy="18" r="2.2" fill="currentColor"/></svg>';
+var _SCRcheckM = SCR.checklist;
+SCR.checklist = function(r){ var v = _SCRcheckM(r);
+  v.view = v.view.replace(/<button class="linkbtn" data-act="listMenu">[^]*?<\/button>/, '');
+  if (!ro() && S.listSel) v.right = gbtn("checkMenu", SVG.dots, "Раздел");
+  return v; };
+A.checkMenu = function(){ var m = $("tMenu"); if (!m.hidden){ m.hidden = true; return; }
+  var t = trip(), l = t.lists.filter(function(x){ return x.id === S.listSel; })[0], items = [];
+  if (l){ items.push(["listRenameAsk","Переименовать «"+esc(l.name)+"»"]); items.push(["listDelAsk","Удалить «"+esc(l.name)+"»",' class="is-danger"']); }
+  menu(m, items); };
+A.listRenameAsk = function(){ var l = trip().lists.filter(function(x){ return x.id === S.listSel; })[0]; if (!l) return;
+  ask("Переименовать раздел", null, l.name, "Сохранить", function(n){ l.name = n; render(); }); };
+A.listDelAsk = function(){ var t = trip(), id = S.listSel, l = t.lists.filter(function(x){ return x.id === id; })[0]; if (!l) return;
+  var n = t.checks.filter(function(c){ return c.l === id; }).length;
+  ask("Удалить раздел «"+l.name+"»?", n ? n+" "+pl(n,"пункт","пункта","пунктов")+" не пропадут — перенесём их в «Без раздела»" : null, null, "Удалить", function(){
+    t.lists = t.lists.filter(function(x){ return x.id !== id; }); t.checks.forEach(function(c){ if (c.l === id) c.l = ""; }); S.listSel = null; render(); }, true); };
+A.listDel = function(){ S.listSel = S.listSel; closeForm(); A.listDelAsk(); };
+NATIVE_TRIG.push("checkMenu");
+
+/* выход из поездки в «Мои поездки» — с той же анимацией контента */
+$("pgBack").onclick = function(){ if (S.role === "guest") return; if (cur().s === "trip"){ reset("trips"); slide(-1); return; } back(); };
 
 </script>
 </body>
