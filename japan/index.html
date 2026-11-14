@@ -1294,6 +1294,10 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 #alert .alert__in{font:400 16px/21px "Inter",sans-serif!important;letter-spacing:0!important;color:var(--label)!important}
 #alert .alert__btns{margin-top:14px!important}
 #alert .alert__btn{height:44px!important;font:600 16px/20px "Inter",sans-serif!important;letter-spacing:0!important}
+
+/* бейджи: фиксированная высота 22 как в Figma, iOS не увеличивает мелкий текст */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+.badge{box-sizing:border-box;height:22px;line-height:18px!important;overflow:visible}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
