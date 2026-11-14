@@ -8,7 +8,8 @@
 /* A quiet pulse stands in for the picture while it loads, and goes the moment
    it is there — so a shot with transparent corners is not left sitting on a
    grey rectangle. shared.js puts the class on and takes it off. */
-img.is-loading {
+img.is-loading,
+img.is-swapping {
   /* A shade of grey rather than a colour of the theme: the strip it stands on
      is already --bg-secondary, and the two would cancel out. */
   background-color: rgba(128, 128, 128, 0.13);
@@ -25,7 +26,8 @@ img.is-loading {
 
 /* The phone shots carry their own rounded corners, so the placeholder takes
    the same shape instead of a bare rectangle. */
-.rail-shot.is-loading { border-radius: 15.92% / 7.32%; }
+.rail-shot.is-loading,
+.rail-shot.is-swapping { border-radius: 15.92% / 7.32%; }
 
 @keyframes skeleton-sweep {
   from { background-position: 160% 0; }
@@ -33,7 +35,8 @@ img.is-loading {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  img.is-loading { animation: none; background-image: none; }
+  img.is-loading,
+  img.is-swapping { animation: none; background-image: none; }
 }
 
 /* ── Hero + heading ───────────────────────────────────────────────────────── */
@@ -827,6 +830,9 @@ a.photo-cell { cursor: pointer; }
   flex: none;
   width: calc((100% - 48px) / 1.5);
   height: auto;
+  /* The shape of the screen, held even while the picture is away, so the
+     placeholder keeps the same box and nothing shifts around it. */
+  aspect-ratio: 603 / 1311;
   scroll-snap-align: start;
 }
 

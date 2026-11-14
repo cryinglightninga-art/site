@@ -91,6 +91,7 @@
   var content = document.querySelector('[data-content]');
 
   function shot(key, theme) { return 'assets/eg-' + key + '-' + theme + '.png' + PF.av; }
+  var BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
 
   // Three shots standing on a plain stage, exactly as the ContentLog hero:
   // sized by height, each rising a beat after the last.
@@ -136,10 +137,29 @@
     // two at a time. A shot is fetched when it comes near the edge of the
     // strip, not when the page opens; its box is held by the width and height
     // below, so nothing jumps and the placeholder sits in its place.
+    // A browser holds the picture it has until the next one is decoded, so
+    // swapping the address alone left the light shot on screen and the switch
+    // looked dead. The shot is cleared first — the placeholder takes its
+    // place — and the new one goes in once it is ready.
     function show(img) {
       var want = shot(img.dataset.shot, theme);
-      if (img.getAttribute('src') === want) return;
-      img.src = want;
+      if (img.dataset.want === want) return;
+      img.dataset.want = want;
+
+      if (img.getAttribute('src')) {
+        // A clear pixel rather than no address at all: an empty img draws the
+        // browser's broken-picture mark in the corner.
+        img.src = BLANK;
+        img.classList.add('is-swapping');
+      }
+
+      var next = new Image();
+      next.onload = next.onerror = function () {
+        if (img.dataset.want !== want) return;   // the theme moved on meanwhile
+        img.src = want;
+        img.classList.remove('is-swapping');
+      };
+      next.src = want;
     }
 
     var near = null;
@@ -174,7 +194,7 @@
         theme = opt[0];
         // Only what has already been fetched is swapped; the rest will come
         // in the new theme when the strip reaches them.
-        imgs.forEach(function (img) { if (img.getAttribute('src')) show(img); });
+        imgs.forEach(function (img) { if (img.dataset.want) show(img); });
       });
       seg.appendChild(btn);
     });
