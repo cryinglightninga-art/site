@@ -1722,7 +1722,7 @@ function catSummaryRows(ps){
 }
 function city(s){ return String(s||"").split(",")[0].trim(); }
 function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? v.dep+'–'+v.arr : v.dep ? 'в '+v.dep : ''); }
-function stopQ(p){ if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
+function stopQ(p){ if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
 function dirUrl(hs, ps){
   var stops = ps.map(stopQ).filter(Boolean); if (!stops.length) return "";
   var pts = hs ? [hs].concat(stops, [hs]) : stops;
@@ -1731,7 +1731,7 @@ function dirUrl(hs, ps){
 }
 function routeUrl(t, k){
   var ps = t.places[k] || [], d = tripDays(t).filter(function(x){ return x.k === k; })[0], ho = d && d.city && t.hotels[d.city];
-  return dirUrl(ho ? (ho.addr || ho.name) : "", ps);
+  return dirUrl(ho ? (ho.q || ho.addr || ho.name) : "", ps);
 }
 function notesRows(t, k){ return (t.notes && t.notes[k] || []).map(function(n){ return li(ill(n.ic), esc(n.t), esc(n.s)); }).join(""); }
 function dayCard(t, d){
@@ -1924,7 +1924,7 @@ function openDay(k){
       ''+'</div>';
   }
   $("sheetBody").innerHTML = nb(h);
-  var m = $("sheetMap"), du = dirUrl(ho ? (ho.addr || ho.name) : "", ps);
+  var m = $("sheetMap"), du = dirUrl(ho ? (ho.q || ho.addr || ho.name) : "", ps);
   if (du){ m.hidden = false; m.href = du; m.innerHTML = MAPS_IMG; } else m.hidden = true;
   $("sheetAdd").hidden = true;
   if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; }
@@ -2094,7 +2094,7 @@ A.placeSheet = function(d){
 function editedPlace(){ var t = trip(), arr = S.edit.day === "_nodate" ? t.nodate : t.places[S.edit.day]; return {arr:arr, p:arr.filter(function(x){ return x.id === S.edit.id; })[0]}; }
 A.placeSave = function(){
   var t = trip(), e = editedPlace(), nd = val("fPday"), from = S.edit.day === "_nodate" ? "" : S.edit.day;
-  e.p.n = val("fPn") || e.p.n; e.p.t = val("fPt"); e.p.note = val("fPnote"); e.p.link = val("fPl"); e.p.c = S.pcat;
+  if (val("fPn") && val("fPn") !== e.p.n) delete e.p.q; e.p.n = val("fPn") || e.p.n; e.p.t = val("fPt"); e.p.note = val("fPnote"); e.p.link = val("fPl"); e.p.c = S.pcat;
   if (nd !== from){ e.arr.splice(e.arr.indexOf(e.p), 1); if (nd) (t.places[nd] = t.places[nd] || []).push(e.p); else t.nodate.push(e.p); toast("Перенесено на "+(nd?dm(nd):"«Без даты»")); }
   closeForm(); refresh();
 };
@@ -2158,7 +2158,7 @@ A.hotelOpen = function(d, el, e){
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("до", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
     fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'">')+fld("Файл брони", '<input class="in" type="file" id="fHf">')+'<button class="primary" data-act="hotelSave">Сохранить</button></div>');
 };
-A.hotelSave = function(){ var n = val("fHn"); if (!n){ toast("Введите название"); return; } trip().hotels[S.hcity] = {name:n, addr:val("fHa"), link:val("fHl"), book:val("fHb"), inD:val("fHid"), inT:val("fHit"), outD:val("fHod"), outT:val("fHot")}; closeForm(); render(); };
+A.hotelSave = function(){ var n = val("fHn"); if (!n){ toast("Введите название"); return; } var oh = trip().hotels[S.hcity] || {}, nh = {name:n, addr:val("fHa"), link:val("fHl"), book:val("fHb"), inD:val("fHid"), inT:val("fHit"), outD:val("fHod"), outT:val("fHot")}; if (oh.q && oh.addr === nh.addr && oh.name === nh.name) nh.q = oh.q; trip().hotels[S.hcity] = nh; closeForm(); render(); };
 
 /* документы */
 A.addDoc = function(pre){
