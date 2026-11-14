@@ -3594,7 +3594,7 @@ var _polaroidC = polaroid;
 polaroid = function(img, flag, from, to, cap){ var t = trip(); return _polaroidC((t && CIMG[t.country]) || img, flag, from, to, cap); };
 
 /* переход внутрь поездки без микрозадержки: весь экран едет одновременно, картинки декодируются не в основном потоке */
-ill = function(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp" alt="" decoding="async">'; };
+ill = function(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp?v=3" alt="" decoding="async">'; };
 slide = function(dir){
   if (S._tabSwitch){ S._tabSwitch = false; enterView(); return; }
   enterAll([{opacity:0, transform:"translate3d("+(dir*40)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING, delay:0});
