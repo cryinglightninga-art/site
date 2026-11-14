@@ -1234,6 +1234,13 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 .mmenu{background:rgba(255,255,255,.84)!important}
 @media (prefers-color-scheme: dark){.mmenu{background:rgba(38,38,40,.84)!important}}
 .nsel{position:absolute;z-index:10;opacity:0;margin:0;padding:0;border:0;-webkit-appearance:none;appearance:none;font-size:16px;cursor:pointer;background:transparent;color:transparent}
+/* кнопки в попапах подтверждения — без стекла и тени */
+#alert .alert__btn,#alert .alert__btn--cancel,#alert .alert__btn--ok{box-shadow:none!important}
+#alert .alert__btn--cancel{background-color:rgba(120,120,128,.16)!important}
+@media (prefers-color-scheme: dark){#alert .alert__btn--cancel{background-color:rgba(120,120,128,.32)!important}}
+/* профиль: выход внизу */
+.logout-btn{margin-top:auto}
+#view > .pg--g24:has(.logout-btn){min-height:calc(100dvh - var(--safe) - 150px);display:flex;flex-direction:column}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2860,11 +2867,11 @@ INP.countryQ = function(v){ S.W.q = v; var list = document.querySelector(".clist
 /* ---------- профиль ---------- */
 SCR.account = function(){
   var av = S.avatars[S.uid], n = (S.profile && S.profile.name) || "";
-  return {title:"Профиль", back:true, right:gbtn("logoutAsk", IC.logout, "Выйти"), tabs:false, view:'<div class="pg pg--form pg--g24"><div class="avcard">'+
+  return {title:"Профиль", back:true, tabs:false, view:'<div class="pg pg--form pg--g24"><div class="avcard">'+
     '<div class="avwrap"><label class="avbig">'+(av?'<img src="'+av+'" alt="">':'<span>'+esc((n||"?")[0])+'</span>')+'<input type="file" accept="image/*" data-input="avatar" hidden></label>'+
     (av?'<button class="avclr" data-act="avatarDel" aria-label="Удалить фото">'+IC.x+'</button>':'')+'</div>'+
     '<label class="chip is-active avbtn"><span class="chip__seg">'+(av?'Заменить фото':'Добавить фото')+'</span><input type="file" accept="image/*" data-input="avatar" hidden></label></div>'+
-    fld("Имя", '<input class="in" id="fMyName" data-input="myName" value="'+esc(n)+'">')+'</div>'};
+    fld("Имя", '<input class="in" id="fMyName" data-input="myName" value="'+esc(n)+'">')+'<button class="btn2 is-danger logout-btn" data-act="logoutAsk">Выйти из аккаунта</button></div>'};
 };
 INP.avatar = (function(orig){ return function(){ var fs = document.querySelectorAll('[data-input="avatar"]'), f = null; fs.forEach(function(x){ if (x.files && x.files[0]) f = x; });
   if (f && f !== fs[0]){ var dt = new DataTransfer(); dt.items.add(f.files[0]); fs[0].files = dt.files; } orig(); }; })(INP.avatar);
@@ -3429,6 +3436,9 @@ $("fMore").setAttribute("data-act", "fMore"); $("sheetAdd").setAttribute("data-a
 })();
 var _SCRtripFiles = SCR.trip;
 SCR.trip = function(r){ var v = _SCRtripFiles(r); if (v && v.title === "Полезное") v.title = "Мои файлы"; return v; };
+
+/* папка в таб-баре — залитая */
+(function(){ var p = document.querySelector('.tab[data-tab="prep"] svg'); if (p) p.innerHTML = '<g transform="translate(35.7 17.6) scale(1.05)" fill="currentColor"><path d="M3.06641 17.8711L19.4043 17.8711C21.1523 17.8711 22.1777 16.8555 22.1777 14.8438L22.1777 4.81445C22.1777 2.80273 21.1426 1.78711 19.1113 1.78711L9.24805 1.78711C8.58398 1.78711 8.18359 1.63086 7.69531 1.21094L7.09961 0.722656C6.45508 0.175781 5.95703 0 4.99023 0L2.69531 0C0.986328 0 0 0.976562 0 2.93945L0 14.8438C0 16.8652 1.02539 17.8711 3.06641 17.8711ZM1.80664 5.39062L1.80664 4.84375C1.80664 4.24805 2.22656 3.86719 2.95898 3.86719L19.1797 3.86719C19.9023 3.86719 20.332 4.24805 20.332 4.84375L20.332 5.39062Z"/></g>'; })();
 
 </script>
 </body>
