@@ -123,9 +123,17 @@
 
   // One rail, two sets of files. The switch swaps the source of every shot in
   // place, so the order and the scroll position never change.
+  //
+  // The strip is built once and kept across a change of language: the words
+  // above it are swapped, the shots are not. Otherwise the whole thing was
+  // rebuilt from scratch and the chosen theme — a thing the language has no
+  // business touching — fell back to light.
+  var screens = null;
+
   function buildScreens(t) {
     var head = el('div', 'rail-head');
-    head.appendChild(ui.sectionHeading(t.galleryLabel));
+    var heading = ui.sectionHeading(t.galleryLabel);
+    head.appendChild(heading);
 
     var seg = el('div', 'seg is-icons');
     var rail = el('div', 'shot-rail');
@@ -181,6 +189,7 @@
       if (near) near.observe(img);
     });
 
+    var btns = [];
     [['light', SUN, t.lightLabel], ['dark', MOON, t.darkLabel]].forEach(function (opt) {
       var btn = el('button', 'seg-btn' + (opt[0] === 'light' ? ' is-active' : ''), {
         type: 'button', title: opt[2], 'aria-label': opt[2]
@@ -196,16 +205,25 @@
         // in the new theme when the strip reaches them.
         imgs.forEach(function (img) { if (img.dataset.want) show(img); });
       });
+      btns.push(btn);
       seg.appendChild(btn);
     });
 
     ui.trackKnob(seg, '.seg-btn');
     head.appendChild(seg);
 
-    var wrap = document.createDocumentFragment();
-    wrap.appendChild(head);
-    wrap.appendChild(rail);
-    return wrap;
+    return {
+      head: head,
+      rail: rail,
+      // The language gives the heading and the two tooltips, nothing else.
+      relabel: function (t2) {
+        heading.textContent = t2.galleryLabel;
+        [t2.lightLabel, t2.darkLabel].forEach(function (label, i) {
+          btns[i].setAttribute('title', label);
+          btns[i].setAttribute('aria-label', label);
+        });
+      }
+    };
   }
 
   function buildPromo(failedLabel) {
@@ -218,6 +236,9 @@
 
   function render() {
     var t = PF.localize(COPY);
+    // Taking the strip out of the page zeroes its scroll, so where it stood is
+    // noted and put back.
+    var railAt = screens ? screens.rail.scrollLeft : 0;
 
     content.textContent = '';
     content.appendChild(buildStage());
@@ -232,7 +253,11 @@
 
     // The clip opens the gallery; the rail of screens follows it.
     if (PROMO) content.appendChild(buildPromo(t.failedLabel));
-    content.appendChild(buildScreens(t));
+    if (!screens) screens = buildScreens(t);
+    else screens.relabel(t);
+    content.appendChild(screens.head);
+    content.appendChild(screens.rail);
+    if (railAt) screens.rail.scrollLeft = railAt;
   }
 
   function init() {
