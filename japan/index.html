@@ -1233,6 +1233,7 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 }
 .mmenu{background:rgba(255,255,255,.84)!important}
 @media (prefers-color-scheme: dark){.mmenu{background:rgba(38,38,40,.84)!important}}
+.nsel{position:absolute;z-index:10;opacity:0;margin:0;padding:0;border:0;-webkit-appearance:none;appearance:none;font-size:16px;cursor:pointer;background:transparent;color:transparent}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3376,6 +3377,48 @@ docCard = function(t, doc){
 /* меню раскрываются из кнопки, как в iOS */
 menu = (function(orig){ return function(el, items){ orig(el, items); var a = el.getAnimations ? el.getAnimations() : []; a.forEach(function(x){ x.cancel(); });
   anim(el, [{opacity:0, transform:"scale(.35)", filter:"blur(6px)"},{opacity:1, transform:"none", filter:"blur(0)"}], {duration:460, easing:"cubic-bezier(.3,1.25,.4,1)"}); }; })(menu);
+
+/* ===== системные меню iOS: поверх кнопок ⋯ / ＋ лежит прозрачный <select>, его открывает сама iOS ===== */
+var NATIVE_TRIG = ["tripMenu","dayAdd","fMore","visaMenu","addMoneyMenu","curMenu"];
+function nativeItems(btn){
+  var act = btn.getAttribute("data-act");
+  if (act === "curMenu") return [].map.call($("mMenu").querySelectorAll("button[data-act]"), function(b){ return [b.getAttribute("data-act"), b.textContent.trim(), ' data-c="'+(b.getAttribute("data-c")||"")+'"', b.classList.contains("is-on")]; });
+  var cap = null, m0 = menu; closeMenus();
+  menu = function(el, items){ cap = items; };
+  try { var d = {}; [].forEach.call(btn.attributes, function(a){ if (a.name.indexOf("data-") === 0) d[a.name.slice(5)] = a.value; }); A[act](d, btn, {target:btn}); } catch(_){}
+  finally { menu = m0; closeMenus(); }
+  return cap || [];
+}
+function nativeRun(it){
+  var tmp = document.createElement("button"); tmp.type = "button"; tmp.hidden = true;
+  tmp.setAttribute("data-act", it[0]); var w = document.createElement("div"); w.innerHTML = '<i'+(it[2]||'')+'></i>';
+  [].forEach.call(w.firstChild.attributes, function(a){ if (a.name.indexOf("data-") === 0) tmp.setAttribute(a.name, a.value); });
+  $("phone").appendChild(tmp); tmp.click(); tmp.remove();
+}
+function nativeSync(){
+  NATIVE_TRIG.forEach(function(act){
+    document.querySelectorAll('#phone [data-act="'+act+'"]').forEach(function(btn){
+      var p = btn.parentElement; if (!p) return;
+      var sel = btn._nsel;
+      if (!sel || sel.parentElement !== p){
+        sel = document.createElement("select"); sel.className = "nsel"; sel.setAttribute("aria-label", btn.getAttribute("aria-label") || "Меню"); btn._nsel = sel;
+        if (getComputedStyle(p).position === "static") p.style.position = "relative";
+        p.appendChild(sel);
+        var fill = function(){ var items = nativeItems(btn); sel._items = items;
+          sel.innerHTML = items.map(function(x, i){ return '<option value="'+i+'">'+String(x[1]).replace(/<[^>]+>/g, "")+'</option>'; }).join("");
+          var on = items.findIndex(function(x){ return x[3]; }); sel.selectedIndex = on; };
+        sel.addEventListener("touchstart", fill, {passive:true}); sel.addEventListener("mousedown", fill); sel.addEventListener("focus", function(){ if (!sel._items) fill(); });
+        sel.addEventListener("change", function(){ var it = sel._items && sel._items[+sel.value]; sel.selectedIndex = -1; sel._items = null; if (it) nativeRun(it); sel.blur(); });
+      }
+      var r = btn.getBoundingClientRect(), pr = p.getBoundingClientRect();
+      sel.style.left = (r.left - pr.left) + "px"; sel.style.top = (r.top - pr.top) + "px"; sel.style.width = r.width + "px"; sel.style.height = r.height + "px";
+      sel.hidden = btn.hidden || btn.offsetParent === null;
+    });
+  });
+}
+var nsT = 0; new MutationObserver(function(){ cancelAnimationFrame(nsT); nsT = requestAnimationFrame(nativeSync); }).observe($("phone"), {childList:true, subtree:true, attributes:true, attributeFilter:["hidden","class"]});
+window.addEventListener("resize", nativeSync); setTimeout(nativeSync, 300);
+$("fMore").setAttribute("data-act", "fMore"); $("sheetAdd").setAttribute("data-act", "dayAdd"); nativeSync();
 
 </script>
 </body>
