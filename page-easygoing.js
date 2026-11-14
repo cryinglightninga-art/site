@@ -95,13 +95,13 @@
   // Three shots standing on a plain stage, exactly as the ContentLog hero:
   // sized by height, each rising a beat after the last.
   function buildStage() {
-    var hero = el('div', 'hero is-screens');
+    var hero = el('div', 'hero is-screens is-even');
     var row = el('div', 'screens');
     STAGE.forEach(function (key, i) {
       // On a phone the plan leads from the middle, the others stand lower.
       var img = el('img', 'screen' + (i === 1 ? ' is-lead' : ''), {
         src: 'assets/eg-hero-' + key + '-light.png' + PF.av, alt: '',
-        width: '900', height: '1222',
+        width: '880', height: '1812',
         fetchpriority: i === 1 ? 'high' : 'auto'
       });
       img.style.setProperty('--i', String(i));

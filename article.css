@@ -598,6 +598,34 @@ a.photo-cell { cursor: pointer; }
   .screen.is-lead { height: 84%; }
 }
 
+/* These shots are whole phones, so the box decides what shows: on a wide
+   screen they hang from the top and the floor cuts their feet, the way the
+   other heroes stand; on a phone all three fit, side by side and the same
+   size, as they do on the card on the home page. */
+.hero.is-screens.is-even,
+.hero.is-screens.is-even .screens { align-items: flex-start; }
+
+.hero.is-screens.is-even .screens { padding-top: 13%; }
+
+.hero.is-screens.is-even .screen,
+.hero.is-screens.is-even .screen.is-lead { height: 144%; }
+
+@media (max-width: 899px) {
+  .hero.is-screens.is-even,
+  .hero.is-screens.is-even .screens { align-items: center; }
+
+  .hero.is-screens.is-even { padding: 0 4%; }
+  .hero.is-screens.is-even .screens { padding-top: 0; gap: 4%; }
+
+  .hero.is-screens.is-even .screen,
+  .hero.is-screens.is-even .screen.is-lead {
+    order: 0;
+    width: calc((100% - 8%) / 3);
+    height: auto;
+    max-height: 100%;
+  }
+}
+
 @keyframes om-rise {
   from { opacity: 0; transform: translateY(22%); }
   to   { opacity: 1; transform: translateY(0); }
@@ -781,10 +809,12 @@ a.photo-cell { cursor: pointer; }
   .rail-shot {
     width: calc((100% - 36px) / 2.15);
     /* Off the plate the light screens melt into the page, so each gets the
-       same hairline the hero has. The radius repeats the one baked into the
-       shot (64 of 402 across, of 874 down), so the ring sits on its edge. */
+       same hairline the hero has. A border, not a shadow: a shadow falls
+       outside the box and the strip, which hides what overflows it, cut the
+       ring off at the top and bottom. The radius repeats the one baked into
+       the shot — 64 of 402 across, 64 of 874 down. */
+    border: 1px solid var(--card-border);
     border-radius: 15.92% / 7.32%;
-    box-shadow: 0 0 0 1px var(--card-border);
   }
 }
 
