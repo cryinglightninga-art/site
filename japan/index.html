@@ -3382,7 +3382,7 @@ menu = (function(orig){ return function(el, items){ orig(el, items); var a = el.
 var NATIVE_TRIG = ["tripMenu","dayAdd","fMore","visaMenu","addMoneyMenu","curMenu"];
 function nativeItems(btn){
   var act = btn.getAttribute("data-act");
-  if (act === "curMenu") return [].map.call($("mMenu").querySelectorAll("button[data-act]"), function(b){ return [b.getAttribute("data-act"), b.textContent.trim(), ' data-c="'+(b.getAttribute("data-c")||"")+'"', b.classList.contains("is-on")]; });
+  if (act === "curMenu") return [].map.call($("mMenu").querySelectorAll("button[data-act]"), function(b){ return [b.getAttribute("data-act"), (b.querySelector("span") || b).textContent.trim(), ' data-c="'+(b.getAttribute("data-c")||"")+'"', b.classList.contains("is-on")]; });
   var cap = null, m0 = menu; closeMenus();
   menu = function(el, items){ cap = items; };
   try { var d = {}; [].forEach.call(btn.attributes, function(a){ if (a.name.indexOf("data-") === 0) d[a.name.slice(5)] = a.value; }); A[act](d, btn, {target:btn}); } catch(_){}
