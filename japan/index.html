@@ -1354,8 +1354,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .tabbar__buttons{width:184px!important;height:54px!important;padding:0 2px!important}
 .tab{flex:0 0 94px!important;height:54px!important;margin-right:-8px!important}
 .tab:last-of-type{margin-right:0!important}
-.tab svg{right:auto!important;bottom:auto!important;left:50%!important;top:50%!important;width:95px!important;height:54px!important;transform:translate(-50%,calc(-50% - 7px))}
-.tab__l{position:absolute;left:0;right:0;bottom:7px;font:600 10px/12px "Inter",sans-serif;text-align:center;color:currentColor;pointer-events:none}
+.tab svg{right:auto!important;bottom:auto!important;left:50%!important;top:50%!important;width:95px!important;height:54px!important;transform:translate(-50%,-50%)}
 .tab-pill{top:0!important;bottom:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
@@ -3641,7 +3640,6 @@ fillInvite = async function(kind){
 })();
 
 /* подписи вкладок, как в таб-баре Apple */
-(function(){ [["days","План"],["prep","Мои файлы"]].forEach(function(x){ var b = document.querySelector('.tab[data-tab="'+x[0]+'"]'); if (b && !b.querySelector(".tab__l")) b.insertAdjacentHTML("beforeend", '<span class="tab__l">'+x[1]+'</span>'); }); })();
 
 </script>
 </body>
