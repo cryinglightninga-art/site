@@ -1239,7 +1239,8 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 #alert .alert__btn--cancel{background-color:rgba(120,120,128,.16)!important}
 @media (prefers-color-scheme: dark){#alert .alert__btn--cancel{background-color:rgba(120,120,128,.32)!important}}
 /* профиль: выход внизу */
-.logout-btn{margin-top:-8px}
+.logout-btn{margin-top:0}
+#view > .pg--g24:has(.logout-btn){gap:16px!important}
 /* таб-бар: активная вкладка чёрная, как в Figma */
 .tab.is-active{color:var(--label)!important}
 /* «＋ Добавить …» — везде как в Figma (161:4892): 44, иконка 18, отступ 12, текст 16/600 синий */
