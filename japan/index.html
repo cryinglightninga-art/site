@@ -1722,7 +1722,7 @@ function catSummaryRows(ps){
 }
 function city(s){ return String(s||"").split(",")[0].trim(); }
 function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? v.dep+'–'+v.arr : v.dep ? 'в '+v.dep : ''); }
-function stopQ(p){ if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
+function stopQ(p){ if (p.near) return ""; if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
 function dirUrl(hs, ps){
   var stops = ps.map(stopQ).filter(Boolean); if (!stops.length) return "";
   var pts = hs ? [hs].concat(stops, [hs]) : stops;
