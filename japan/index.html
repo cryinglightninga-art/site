@@ -1174,6 +1174,19 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 /* кант шире: 1pt */
 .glass{box-shadow:0 0 0 1px rgba(0,0,0,.14),0 8px 40px rgba(0,0,0,.06)!important}
 @media (prefers-color-scheme: dark){.glass{box-shadow:0 0 0 1px rgba(255,255,255,.16),0 8px 40px rgba(0,0,0,.4)!important}}
+/* кант как у Apple: тёмный по бокам, к центру пропадает; светлый сверху и снизу */
+.glass{box-shadow:0 8px 40px rgba(0,0,0,.06)!important}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;z-index:2;
+  background:linear-gradient(90deg,rgba(0,0,0,.2) 0,rgba(0,0,0,0) 22px,rgba(0,0,0,0) calc(100% - 22px),rgba(0,0,0,.2) 100%),
+             linear-gradient(180deg,rgba(255,255,255,1) 0,rgba(255,255,255,0) 16px,rgba(255,255,255,0) calc(100% - 16px),rgba(255,255,255,1) 100%),
+             rgba(0,0,0,.05);
+  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0)}
+.fsh__save::after{display:block!important}
+@media (prefers-color-scheme: dark){
+  .glass{box-shadow:0 8px 40px rgba(0,0,0,.4)!important}
+  .glass::after{background:linear-gradient(90deg,rgba(255,255,255,.1) 0,rgba(255,255,255,0) 22px,rgba(255,255,255,0) calc(100% - 22px),rgba(255,255,255,.1) 100%),
+    linear-gradient(180deg,rgba(255,255,255,.35) 0,rgba(255,255,255,0) 16px,rgba(255,255,255,0) calc(100% - 16px),rgba(255,255,255,.2) 100%),rgba(255,255,255,.06)}
+}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
