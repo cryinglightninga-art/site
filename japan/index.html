@@ -1357,6 +1357,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .tab svg{right:auto!important;bottom:auto!important;left:50%!important;top:50%!important;width:95px!important;height:54px!important;transform:translate(-50%,-50%)}
 .tab-pill{top:0!important;bottom:0!important}
 .mbal,.mbal::before,.mbal::after{box-shadow:none!important;filter:none!important}
+/* шторки-формы: кнопки поверх контента, заголовок в скролле */
+#fsheet > .sheet__grabber{position:absolute;left:50%;top:8px;margin:0;transform:translateX(-50%);z-index:4}
+#fsheet .fsh__head{position:absolute;z-index:3;left:0;right:0;top:0;height:92px;padding:16px 16px 0!important;pointer-events:none}
+#fsheet .fsh__bar{position:relative;z-index:1}
+#fsheet .fsh__bar > *{pointer-events:auto}
+#fsheet .sheet__body{padding-top:72px!important}
+#fsheet .sheet__body > .fsh__t{padding-top:0!important}
+#fsheet .sheet__blur{border-radius:38px 38px 0 0;overflow:hidden}
+#fsheet .sheet__body{border-radius:38px 38px 0 0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3641,6 +3650,15 @@ fillInvite = async function(kind){
 })();
 
 /* подписи вкладок, как в таб-баре Apple */
+
+/* шторки-формы: шапка не фиксируется — кнопки плавают, заголовок скроллится вместе с контентом, как в шторке дня */
+(function(){
+  var fs = $("fsheet"), fh = fs.querySelector(".fsh__head"), ft = fs.querySelector(".fsh__t"), fb = $("fBody");
+  var bl = document.createElement("div"); bl.className = "sheet__blur"; bl.innerHTML = "<i></i><i></i><i></i><i></i>"; fh.insertBefore(bl, fh.firstChild);
+  fb.addEventListener("scroll", function(){ fs.classList.toggle("is-scrolled", fb.scrollTop > 4); }, {passive:true});
+  var _form4 = form;
+  form = function(){ fh.appendChild(ft); _form4.apply(this, arguments); fb.insertBefore(ft, fb.firstChild); fs.classList.remove("is-scrolled"); };
+})();
 
 </script>
 </body>
