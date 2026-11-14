@@ -1206,6 +1206,33 @@ html.lg-refract .glass{-webkit-backdrop-filter:url(#lgRefract) blur(10px) satura
 .toolbar__controls{margin-top:8px}
 .glass{box-shadow:0 12px 28px rgba(0,0,0,.11),0 2px 6px rgba(0,0,0,.04)!important}
 @media (prefers-color-scheme: dark){.glass{box-shadow:0 12px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3)!important}}
+/* акцентные (чёрные) — чёрное стекло */
+.btn-acc,.fsh__save{background:rgba(22,22,24,.9)!important;-webkit-backdrop-filter:blur(12px) saturate(1.6);backdrop-filter:blur(12px) saturate(1.6);
+  box-shadow:0 12px 28px rgba(0,0,0,.2),0 2px 6px rgba(0,0,0,.08)!important}
+.btn-acc::before,.fsh__save::before{background:radial-gradient(110% 90% at 50% 0%,rgba(255,255,255,.2) 0%,rgba(255,255,255,0) 60%)!important;box-shadow:inset 0 1px 1px rgba(255,255,255,.18)!important}
+.btn-acc::after,.fsh__save::after{background:linear-gradient(90deg,rgba(255,255,255,.14) 0,rgba(255,255,255,0) 12px,rgba(255,255,255,0) calc(100% - 12px),rgba(255,255,255,.14) 100%),
+  linear-gradient(180deg,rgba(255,255,255,.55) 0,rgba(255,255,255,0) 16px,rgba(255,255,255,0) calc(100% - 16px),rgba(255,255,255,.22) 100%),rgba(255,255,255,.06)!important}
+@media (prefers-color-scheme: dark){
+  .btn-acc::after,.fsh__save::after{background:linear-gradient(180deg,#fff 0,rgba(255,255,255,0) 16px),rgba(0,0,0,.08)!important}
+}
+
+/* меню (⋯ и др.) — как системное меню iOS */
+.mmenu{font-family:-apple-system,"SF Pro Text",system-ui,sans-serif!important;min-width:250px;padding:8px 0!important;border-radius:26px!important;
+  background:rgba(255,255,255,.66)!important;-webkit-backdrop-filter:blur(40px) saturate(2.2);backdrop-filter:blur(40px) saturate(2.2);
+  box-shadow:0 0 0 .5px rgba(0,0,0,.07),0 18px 50px rgba(0,0,0,.18),0 4px 12px rgba(0,0,0,.06)!important;transform-origin:top right}
+.mmenu button{height:44px!important;padding:0 20px!important;border-radius:0!important;gap:12px;font:400 17px/22px -apple-system,"SF Pro Text",system-ui,sans-serif!important;letter-spacing:-.43px;color:var(--label)}
+.mmenu button:active{background:rgba(0,0,0,.07)!important}
+.mmenu button svg{width:20px;height:20px;flex:none;order:2}
+@media (prefers-color-scheme: dark){
+  .mmenu{background:rgba(36,36,38,.66)!important;box-shadow:0 0 0 .5px rgba(255,255,255,.1),0 18px 50px rgba(0,0,0,.5)!important}
+  .mmenu button:active{background:rgba(255,255,255,.1)!important}
+}
+@media (prefers-color-scheme: dark){
+  .btn-acc,.fsh__save{background:rgba(245,245,247,.94)!important;box-shadow:0 12px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3)!important}
+  .btn-acc::before,.fsh__save::before{background:radial-gradient(110% 90% at 50% 0%,rgba(255,255,255,.8) 0%,rgba(255,255,255,0) 60%)!important;box-shadow:inset 0 1px 1px #fff!important}
+}
+.mmenu{background:rgba(255,255,255,.84)!important}
+@media (prefers-color-scheme: dark){.mmenu{background:rgba(38,38,40,.84)!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3069,7 +3096,7 @@ form = function(title, html, sub, more, maps){ _form3(title, html, sub, more, ma
 A.shareSheet = function(){ A.inviteSheet(); $("fTitle").textContent = "Поделиться"; };
 
 /* «Чем платили» — с анимацией, как остальные меню */
-A.curMenu = function(){ var m = $("mMenu"); if (!m.hidden){ m.hidden = true; return; } m.hidden = false; anim(m, [{opacity:0, transform:"scale(.92) translateY(-6px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); };
+A.curMenu = function(){ var m = $("mMenu"); if (!m.hidden){ m.hidden = true; return; } m.hidden = false; anim(m, [{opacity:0, transform:"scale(.35)", filter:"blur(6px)"},{opacity:1, transform:"none", filter:"blur(0)"}], {duration:460, easing:"cubic-bezier(.3,1.25,.4,1)"}); };
 
 /* смена вкладок — блоки выезжают по очереди, как в первой версии */
 function enterView(){
@@ -3346,6 +3373,9 @@ docCard = function(t, doc){
   s.innerHTML = '<filter id="lgRefract" x="0" y="0" width="1" height="1" primitiveUnits="objectBoundingBox" color-interpolation-filters="sRGB"><feImage href="'+map+'" x="0" y="0" width="1" height="1" preserveAspectRatio="none" result="m"/><feDisplacementMap in="SourceGraphic" in2="m" scale="0.12" xChannelSelector="R" yChannelSelector="G"/></filter>';
   document.body.appendChild(s); document.documentElement.classList.add("lg-refract");
 })();
+/* меню раскрываются из кнопки, как в iOS */
+menu = (function(orig){ return function(el, items){ orig(el, items); var a = el.getAnimations ? el.getAnimations() : []; a.forEach(function(x){ x.cancel(); });
+  anim(el, [{opacity:0, transform:"scale(.35)", filter:"blur(6px)"},{opacity:1, transform:"none", filter:"blur(0)"}], {duration:460, easing:"cubic-bezier(.3,1.25,.4,1)"}); }; })(menu);
 
 </script>
 </body>
