@@ -1426,6 +1426,11 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .check__item:has(small){min-height:62px}
 .check__item:not(:has(small)){align-items:center;padding-top:5px;padding-bottom:5px;margin-top:0}
 .stop,.li,.mrow{align-items:center!important}
+/* «Кто кому должен»: фон как у карточек, верхний отступ 8, табы валют видны на карточке */
+.mbal,.mbal::after{background:var(--set-bg)!important}
+.mbal{padding-top:8px!important}
+.mconv__cur .chip:not(.is-active){background:#fff;box-shadow:none}
+@media (prefers-color-scheme: dark){.mconv__cur .chip:not(.is-active){background:#3a3a3c}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
