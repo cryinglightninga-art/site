@@ -1431,7 +1431,7 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .mbal{padding-top:8px!important}
 :root{--chip-inset:#e3e3e4}
 @media (prefers-color-scheme: dark){:root{--chip-inset:#000}}
-.mconv__cur .chip:not(.is-active){background:var(--chip-inset);box-shadow:none}
+
 /* одна строка — ровно посередине между разделителями (52, по 15 сверху и снизу) */
 .check__item + .check__item:not(:has(small)),.check__item:not(:has(small)){padding-top:5px!important;padding-bottom:5px!important;margin-top:0!important}
 .step{min-height:52px;box-sizing:border-box}
@@ -1457,7 +1457,7 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .sh-facts{margin:8px 0 0;font-size:14px;line-height:19px;color:var(--secondary)}
 .addcard--big{width:100%;min-height:72px}
 /* сегменты в формах — как табы валют: невыбранные на подложке --chip-inset, выбранный — обычный активный чип */
-.chips--seg .chip:not(.is-active){background:var(--chip-inset)!important;box-shadow:none!important}
+
 /* предупреждение — скругления и отступы как в Figma */
 .daywarn{border-radius:24px!important;padding:16px!important}
 /* не вошло в маршрут */
@@ -1502,6 +1502,13 @@ html[data-tabs="A"] .chip.is-active .chip__seg,html[data-tabs="A"] .chip.is-acti
 
 .fld--seg{display:flex;flex-direction:column;gap:6px}
 #trailing{display:flex;gap:8px}
+
+/* табы: правки — подложка у дорожки в шторках тёмной темы, без чужих фонов у невыбранных, без выезда за экран */
+html:not([data-tabs="A"]) body .chips .chip:not(.is-active),html:not([data-tabs="A"]) body .chips--seg .chip:not(.is-active),html:not([data-tabs="A"]) body .mconv__cur .chip:not(.is-active){background:transparent!important;box-shadow:none!important}
+html[data-tabs="A"] body .chips .chip:not(.is-active),html[data-tabs="A"] body .chips--seg .chip:not(.is-active),html[data-tabs="A"] body .mconv__cur .chip:not(.is-active){background:var(--tg-bg)!important;box-shadow:var(--tg-sh)!important}
+html:not([data-tabs="A"]) body .sheet .chips,html:not([data-tabs="A"]) body .sheet .chips--seg,html:not([data-tabs="A"]) body .chips,html:not([data-tabs="A"]) body .chips--seg,html:not([data-tabs="A"]) body .mconv__cur{overflow-x:auto!important;overflow-y:hidden!important;max-width:100%!important;min-width:0}
+.sheet .sheet__body,#fBody{overflow-x:hidden}
+@media (prefers-color-scheme: dark){.sheet{--tg-track:rgba(118,118,128,.28)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
