@@ -3706,6 +3706,15 @@ document.addEventListener("input", function(e){ if (e.target.matches && e.target
 var _addCheck3 = A.addCheck;
 A.addCheck = function(pre){ _addCheck3(pre); taFit($("fCs")); };
 
+/* перерисовка (в т.ч. фоновая подгрузка раз в 45 с) не сбрасывает прокрутку табов */
+var _renderKeepChips = render;
+render = function(){
+  var q = "#chipsSlot .chips, #chipsSlot .chipsc", scr = cur() && cur().s, sl = [].map.call(document.querySelectorAll(q), function(el){ return el.scrollLeft; });
+  var r = _renderKeepChips.apply(this, arguments);
+  if (scr === (cur() && cur().s)) [].forEach.call(document.querySelectorAll(q), function(el, i){ if (sl[i]) el.scrollLeft = sl[i]; });
+  return r;
+};
+
 </script>
 </body>
 </html>
