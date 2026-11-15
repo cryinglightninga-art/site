@@ -3598,7 +3598,7 @@ function keepChips(fn){ var c = document.querySelector("#chipsSlot .chips"), sl 
   var n = document.querySelector("#chipsSlot .chips"); if (!n) return; n.scrollLeft = sl;
   var a = n.querySelector(".chip.is-active .chip__seg"); if (a && !(window.tgBusy && window.tgBusy()) && document.documentElement.getAttribute("data-tabs") === "A"){ anim(a, [{transform:"scale(.9)", opacity:.4},{transform:"none", opacity:1}], {duration:420, easing:SPRING});
     var ch = a.parentNode, nb = n.getBoundingClientRect(), cb = ch.getBoundingClientRect(), x0 = cb.left - nb.left + n.scrollLeft, l = x0 - 16, r = x0 + cb.width + 16 - n.clientWidth; if (n.scrollLeft > l) n.scrollTo({left:l, behavior:"smooth"}); else if (n.scrollLeft < r) n.scrollTo({left:r, behavior:"smooth"}); } }
-var _cityA = A.city; A.city = function(d){ if (S.city === d.c) return; keepChips(function(){ _cityA(d); }); enterBlocks(); };
+var _cityA = A.city; A.city = function(d){ if (S.city === d.c) return; keepChips(function(){ _cityA(d); }); var sc = $("scroll"); if (sc) sc.scrollTop = 0; enterBlocks(); };
 var _listSelA = A.listSel; A.listSel = function(d){ keepChips(function(){ _listSelA(d); }); enterBlocks(); };
 
 /* ===== шторка дня: пустые блоки не занимают место ===== */
@@ -4152,7 +4152,7 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     var list = chipsCities(), i = list.indexOf(S.city), j = s.dx < 0 ? i + 1 : i - 1, go = Math.abs(s.dx) > 60 && j >= 0 && j < list.length;
     if (s.el){ s.el.style.transition = "transform .35s cubic-bezier(.3,1.2,.5,1), opacity .25s"; s.el.style.transform = ""; s.el.style.opacity = ""; }
     if (!go) return;
-    A.city({c:list[j]});
+    A.city({c:list[j]}); var sc = $("scroll"); if (sc) sc.scrollTop = 0;
     var n = box(); if (n) anim(n, [{transform:"translate3d("+(s.dx < 0 ? 60 : -60)+"px,0,0)", opacity:0},{transform:"none", opacity:1}], {duration:450, easing:SPRING});
   }
   document.addEventListener("touchend", end); document.addEventListener("touchcancel", function(){ if (st && st.el){ st.el.style.transform = ""; st.el.style.opacity = ""; } st = null; });
