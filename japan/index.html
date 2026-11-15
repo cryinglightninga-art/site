@@ -1370,6 +1370,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 .sw-edit{position:absolute;top:50%;right:-64px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:var(--fill-tertiary);color:var(--control);display:flex;align-items:center;justify-content:center}
 [data-sw]:has(> .sw-edit) > .sw-del{right:-136px}
 textarea.in{height:auto!important;min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22px;resize:none;font-family:inherit}
+/* пункт чек-листа: минимум как название + строка описания */
+.check__item{min-height:62px;box-sizing:border-box}
+.check__item:not(:has(small)){align-items:center}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3714,6 +3717,12 @@ render = function(){
   if (scr === (cur() && cur().s)) [].forEach.call(document.querySelectorAll(q), function(el, i){ if (sl[i]) el.scrollLeft = sl[i]; });
   return r;
 };
+
+/* картинки: одна ссылка (с ?v=3), держим декодированными в памяти — без моргания при возврате на экран */
+var IMGK = {};
+function keepImg(src){ if (IMGK[src]) return; var i = new Image(); i.src = src; IMGK[src] = i; if (i.decode) i.decode().catch(function(){}); }
+ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=3"; keepImg(src); return '<img class="'+(cls||'')+'" src="'+src+'" alt="">'; };
+["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=3"); });
 
 </script>
 </body>
