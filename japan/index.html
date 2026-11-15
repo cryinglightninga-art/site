@@ -1531,6 +1531,12 @@ html body .label + .chips--seg{margin-top:8px!important}
 /* валюта: дорожка заметна на фоне блока в обеих темах */
 html:not([data-tabs="A"]) body .mconv__cur{background:var(--chip-inset,#e3e3e4)!important}
 @media (prefers-color-scheme: dark){html:not([data-tabs="A"]) body .mconv__cur{background:rgba(118,118,128,.3)!important}}
+/* правило: подпись → поле/табы всегда 8px, как у полей ввода */
+.fld--seg{gap:8px!important}
+html body .label + .chips--seg,html body .label + .chips,html body .label + .mconv__cur,html body .label + .tabs{margin-top:8px!important}
+/* таб-бар внизу: выбранный — как выбранный таб (стеклянная плашка) */
+html body .tab-pill{background:var(--tg-bg)!important;box-shadow:var(--tg-sh)!important;-webkit-backdrop-filter:blur(10px) saturate(1.6);backdrop-filter:blur(10px) saturate(1.6)}
+html body .fld--seg > .label + .chips--seg,html body .fld > .label + .chips--seg{margin-top:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4585,6 +4591,23 @@ SCR.checklist = function(r){ var v = _SCRcheckFirst(r); if (ro() || !v.view) ret
   var add = '<button class="addrow" data-act="addCheckHere"><span>＋</span>Добавить задачу</button>';
   v.view = v.view.replace(/<button class="addrow[^"]*" data-act="addCheckHere">[^]*?<\/button>/g, "").replace(/<div class="check">/g, '<div class="check">'+add);
   return v; };
+
+/* ===== документы: удаление свайпом влево везде, где они списком (шторка дня, «Документы», заметка) — с подтверждением ===== */
+var _attRowSW = attRow;
+attRow = function(t, d){ var h = _attRowSW(t, d); if (ro() || !(d.owner === S.me || !d.owner)) return h; return h.replace('<button class="att"', '<button class="att"'+swAttr("doc", d.id)); };
+var _swDelDoc = swDelete;
+swDelete = function(el){ var k = el.getAttribute("data-sw").split(":"); if (k[0] !== "doc") return _swDelDoc(el);
+  var t = trip(), d = t.docs.filter(function(x){ return x.id === k[1]; })[0]; if (!d) return;
+  ask("Удалить документ?", "«"+d.title+"» пропадёт у всех участников поездки.", null, "Удалить", function(){
+    t.docs = t.docs.filter(function(x){ return x.id !== d.id; }); (t.memos || []).forEach(function(m){ m.blocks = (m.blocks || []).filter(function(b){ return b.docId !== d.id; }); });
+    swOpen = null; refresh(); if ($("sheet") && $("sheet").classList.contains("is-open") && S.day) openDay(S.day); toast("Документ удалён"); }, true);
+  swSet(el, false); };
+/* текстовый блок заметки — тоже свайпом */
+var _blockHtmlSW = blockHtml;
+blockHtml = function(t, m, b, g){ var h = _blockHtmlSW(t, m, b, g); return (b.type === "text" && !g) ? h.replace('<button class="memo-text"', '<button class="memo-text"'+swAttr("mblk", b.id)) : h; };
+var _openDayDocSW = openDay;
+openDay = function(k){ _openDayDocSW(k); if (ro()) return; var t = trip();
+  [].forEach.call(document.querySelectorAll("#sheetBody .stop[data-act='docSheet']"), function(r){ var d = t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; if (d && (d.owner === S.me || !d.owner)) r.setAttribute("data-sw", "doc:"+d.id); }); };
 
 </script>
 </body>
