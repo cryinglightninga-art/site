@@ -1369,11 +1369,15 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 /* свайп задачи: карандаш слева от корзины */
 .sw-edit{position:absolute;top:50%;right:-64px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:var(--fill-tertiary);color:var(--control);display:flex;align-items:center;justify-content:center}
 [data-sw]:has(> .sw-edit) > .sw-del{right:-136px}
-textarea.in{height:auto!important;min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22px;resize:none;font-family:inherit}
+textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22px;resize:none;font-family:inherit}
 /* пункт чек-листа: минимум как название + строка описания */
 .check__item{min-height:62px;box-sizing:border-box}
 .check__item:not(:has(small)){align-items:center}
 .mbal,.mbal::after{background:var(--sheet-card)!important}
+/* кружок задачи — отдельная зона нажатия 44×44 */
+.check__box{position:relative}
+.check__box::after{content:"";position:absolute;inset:-12px}
+.check__item[data-act='check']{cursor:pointer}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2196,7 +2200,7 @@ A.docSheet = function(d){
     can ? [["docVis", doc.vis==="me" ? "Показать попутчикам" : "Скрыть от попутчиков"],["docDel","Удалить"]] : null);
 };
 function docSub(t, d){ return d.sub || [d.type, d.owner?mName(t,d.owner):"общий", d.day?"на "+dm(d.day):"", d.vis==="me"?"видите только вы":""].filter(Boolean).join(" · "); }
-A.fMore = function(){ var m = $("fMenu"); if (!m.hidden){ m.hidden = true; return; } menu(m, S.fMore.map(function(x){ return [x[0], x[1], x[0]==="docDel" ? ' class="is-danger"' : '']; })); };
+A.fMore = function(){ var m = $("fMenu"); if (!m.hidden){ m.hidden = true; return; } menu(m, S.fMore.map(function(x){ return [x[0], x[1], /Del$/.test(x[0]) ? ' class="is-danger"' : '']; })); };
 A.docRename = function(){
   var t = trip(), doc = t.docs.filter(function(x){ return x.id === S.docId; })[0];
   form("Документ", '<div class="pg" style="padding:0">'+fld("Название", '<input class="in" id="fDn" value="'+esc(doc.title)+'">')+fld("Подзаголовок", '<input class="in" id="fDs" value="'+esc(doc.sub || "")+'" placeholder="'+esc(docSub(t, Object.assign({}, doc, {sub:""})))+'">')+'<button class="primary" data-act="docRenameOk">Сохранить</button></div>');
@@ -2321,7 +2325,6 @@ function swSet(el, open){ el._open = open; el.classList.remove("sw-drag"); el.st
     if (swOpen && !swOpen.contains(e.target)) swSet(swOpen, false);
     var x = e.target.closest("[data-sw]"); if (!x || e.target.closest(".grip,.sw-del")) return;
     if (!x.querySelector(".sw-del")) x.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить" data-swdel>'+TRASH+'</span>');
-    if (/^check:/.test(x.getAttribute("data-sw")) && !x.querySelector(".sw-edit")) x.insertAdjacentHTML("beforeend", '<span class="sw-edit" role="button" aria-label="Изменить" data-swedit>'+PENCIL+'</span>');
     el = x; sx = e.clientX; sy = e.clientY; drag = null; base = x._open ? -swW(x) : 0; dx = base;
   }, true);
   document.addEventListener("pointermove", function(e){
@@ -3724,6 +3727,24 @@ var IMGK = {};
 function keepImg(src){ if (IMGK[src]) return; var i = new Image(); i.src = src; IMGK[src] = i; if (i.decode) i.decode().catch(function(){}); }
 ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=3"; keepImg(src); return '<img class="'+(cls||'')+'" src="'+src+'" alt="">'; };
 ["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=3"); });
+
+/* задача: кружок — отметить, сам пункт — открыть шторку редактирования; удаление в «⋯» шторки */
+document.addEventListener("click", function(e){
+  var it = e.target.closest && e.target.closest(".check__item[data-act='check']"); if (!it || ro()) return;
+  if (e.target.closest(".check__box") || it._open || it._swiped) return;
+  e.preventDefault(); e.stopPropagation(); A.checkEdit({id: it.getAttribute("data-id")});
+}, true);
+var _addCheck4 = A.addCheck;
+A.addCheck = function(pre){
+  _addCheck4(pre);
+  if (S.cEdit){ S.fMore = [["checkDel","Удалить"]]; $("fMore").hidden = false; if (typeof nativeSync === "function") nativeSync(); }
+};
+A.checkDel = function(){
+  var t = trip(), id = S.cEdit, c = t.checks.filter(function(x){ return x.id === id; })[0]; if (!c) return;
+  ask("Удалить задачу?", "«"+c.t+"» пропадёт из чек-листа"+(c.day ? " и из дня" : "")+".", null, "Удалить", function(){ t.checks = t.checks.filter(function(x){ return x.id !== id; }); S.cEdit = null; closeForm(); refresh(); toast("Удалено"); }, true);
+};
+var _addCheck5 = A.addCheck;
+A.addCheck = function(pre){ _addCheck5(pre); requestAnimationFrame(function(){ taFit($("fCs")); }); setTimeout(function(){ taFit($("fCs")); }, 350); };
 
 </script>
 </body>
