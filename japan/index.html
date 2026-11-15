@@ -1449,6 +1449,11 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .daywarn{margin:0;padding:10px 12px;border-radius:14px;background:rgba(255,149,0,.12);color:#c26a00;font-size:14px;line-height:19px}
 .day .daywarn{margin-top:8px}
 @media (prefers-color-scheme: dark){.daywarn{color:#ffb35c;background:rgba(255,159,10,.16)}}
+/* кнопка под меткой на карте */
+.mapbox{position:relative}
+.pin-add{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:6px;height:40px;padding:0 16px 0 12px;border-radius:20px;font:600 15px/20px "Inter",sans-serif;color:var(--label);white-space:nowrap}
+.pin-add svg{width:18px;height:18px}
+.pin-add[hidden]{display:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4111,6 +4116,31 @@ var _moveSheetPM = A.moveSheet;
 A.moveSheet = function(d){ _moveSheetPM(d); var t = trip(), pm = pendingMove(t, d.k);
   if (!pm || ro() || !(d.i == null || +d.i < 0) || legs(t, d.k).length) return;
   var f = $("fMf"), to = $("fMt"); if (f && !f.value) f.value = pm.from; if (to && !to.value) to.value = pm.to; $("fTitle").textContent = pm.from+" → "+pm.to; };
+
+/* карта: «Добавить эту метку» — берём то, что нашёл Google на карте (в iframe метку нажать нельзя — кнопка под меткой) */
+function pinBtn(){ return '<button type="button" class="pin-add glass" data-act="mapPinAdd" hidden>'+IC.add+'<span>Добавить эту метку</span></button>'; }
+function pinShow(q){ var b = document.querySelector("#fBody .pin-add"); if (b) b.hidden = !(q && q.trim().length >= 2); }
+var _addPlacePin = A.addPlace;
+A.addPlace = function(){ _addPlacePin(); var mb = document.querySelector("#fBody .mapbox"); if (mb) mb.insertAdjacentHTML("beforeend", pinBtn());
+  var q = $("fPq"); if (q) q.addEventListener("input", function(){ pinShow(q.value); if (S.map && S.map.pick === "g"){ S.map.pick = null; var b = $("mapAdd"); if (b){ b.disabled = true; b.textContent = "Добавить место"; } } });
+  /* карта в форме места тоже показывает поиск Google, а не только город */
+  if (q) q.addEventListener("input", function(){ clearTimeout(q._gm); q._gm = setTimeout(function(){ var f = $("mapFrame"); if (f && q.value.trim().length >= 2) f.src = gmap(q.value + (S.map.city ? ", "+S.map.city : ""), 16); }, 600); }); };
+var _hotelOpenPin = A.hotelOpen;
+A.hotelOpen = function(d, el, e){ _hotelOpenPin(d, el, e); S.hq = null; var mb = document.querySelector("#fBody .mapbox"); if (!mb || ro()) return; mb.insertAdjacentHTML("beforeend", pinBtn());
+  var a = $("fHa"); if (a) a.addEventListener("input", function(){ S.hq = null; pinShow(a.value); }); };
+A.mapPinAdd = function(){
+  var pq = $("fPq");
+  if (pq){ var q = pq.value.trim(), city = S.map.city || ""; S.map.pick = "g"; S.map.g = {n:q, q:q+(city ? ", "+city : "")};
+    var box = $("mapRes"); if (box) box.hidden = true;
+    S.map.cat = S.pcat = guessCat(q); var cb = $("catBox"); cb.hidden = false; cb.innerHTML = '<p class="label">Что это</p>'+nb(catSeg(S.map.cat));
+    var b = $("mapAdd"); b.disabled = false; b.textContent = "Добавить «"+q+"»"; toast("Метка выбрана — сохраните галочкой"); return; }
+  var ha = $("fHa"); if (ha){ var v = ha.value.trim(); S.hq = v + (S.hcity ? ", "+S.hcity : ""); $("fHl").value = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(S.hq);
+    var r = $("hotRes"); if (r) r.hidden = true; clearTimeout(hotT); toast("Метка выбрана — сохраните галочкой"); }
+};
+var _placeAddPickG = A.placeAddPick;
+A.placeAddPick = function(){ if (S.map && S.map.pick === "g" && S.map.g){ var g = S.map.g; pushPlace({n:g.n, c:S.pcat || "sight", q:g.q, link:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(g.q)}); return; } _placeAddPickG(); };
+var _hotelSavePin = A.hotelSave;
+A.hotelSave = function(){ var c = S.hcity, hq = S.hq; _hotelSavePin(); var t = trip(); if (hq && t.hotels[c]){ t.hotels[c].q = hq; S.hq = null; refresh(); } };
 
 </script>
 </body>
