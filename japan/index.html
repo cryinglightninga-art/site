@@ -1521,6 +1521,16 @@ html body .addrow,html body .stop--add,html body .stop--add .stop__tx{color:var(
 html body .addrow > span:first-child,html body .addrow > span:first-child svg,html body .stop--add .stop__n,html body .stop--add .stop__n svg{color:var(--label)!important}
 .addrow:first-child::before,.stop--add:first-child::before{display:none!important}
 .addrow:first-child,.stop--add:first-child{border-top:0!important}
+/* чек-лист: «Добавить задачу» первой строкой — разделитель под ней */
+.check > .addrow:first-child + .check__item{position:relative;padding-top:10px}
+.check > .addrow:first-child + .check__item::before{content:"";position:absolute;left:50px;right:16px;top:0;border-top:1px dashed var(--dash)}
+/* отель «старт/финиш» в местах по порядку — не кнопка */
+.stop.is-home:not([data-act]),.stop.is-home:not([data-act]):active,.stop.is-home:not([data-act]):hover{background:transparent!important;cursor:default;-webkit-tap-highlight-color:transparent}
+/* отступ подписи над табами в шторках */
+html body .label + .chips--seg{margin-top:8px!important}
+/* валюта: дорожка заметна на фоне блока в обеих темах */
+html:not([data-tabs="A"]) body .mconv__cur{background:var(--chip-inset,#e3e3e4)!important}
+@media (prefers-color-scheme: dark){html:not([data-tabs="A"]) body .mconv__cur{background:rgba(118,118,128,.3)!important}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4559,6 +4569,13 @@ blockHtml = function(t, m, b, g){ if ((b.type === "checks" || b.type === "steps"
 /* заметка: у текстового блока постоянный заголовок «Заметка», как у списков */
 var _blockHtmlN = blockHtml;
 blockHtml = function(t, m, b, g){ var h = _blockHtmlN(t, m, b, g); return b.type === "text" ? '<div><p class="label">Заметка</p>'+h+'</div>' : h; };
+
+/* ===== чек-лист (экран): «Добавить задачу» — первой строкой внутри каждого блока задач ===== */
+var _SCRcheckFirst = SCR.checklist;
+SCR.checklist = function(r){ var v = _SCRcheckFirst(r); if (ro() || !v.view) return v;
+  var add = '<button class="addrow" data-act="addCheckHere"><span>＋</span>Добавить задачу</button>';
+  v.view = v.view.replace(/<button class="addrow[^"]*" data-act="addCheckHere">[^]*?<\/button>/g, "").replace(/<div class="check">/g, '<div class="check">'+add);
+  return v; };
 
 </script>
 </body>
