@@ -1429,12 +1429,15 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 /* «Кто кому должен»: фон как у карточек, верхний отступ 8, табы валют видны на карточке */
 .mbal,.mbal::after{background:var(--set-bg)!important}
 .mbal{padding-top:8px!important}
-.mconv__cur .chip:not(.is-active){background:#fff;box-shadow:none}
-@media (prefers-color-scheme: dark){.mconv__cur .chip:not(.is-active){background:#3a3a3c}}
+:root{--chip-inset:#e3e3e4}
+@media (prefers-color-scheme: dark){:root{--chip-inset:#000}}
+.mconv__cur .chip:not(.is-active){background:var(--chip-inset);box-shadow:none}
 /* одна строка — ровно посередине между разделителями (52, по 15 сверху и снизу) */
 .check__item + .check__item:not(:has(small)),.check__item:not(:has(small)){padding-top:5px!important;padding-bottom:5px!important;margin-top:0!important}
 .step{min-height:52px;box-sizing:border-box}
 .step:not(:has(small)){align-items:center}
+
+.mconv__body .mbal__res{padding:4px 0 6px!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
