@@ -1442,6 +1442,9 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .mconv__cur{padding-top:0!important}
 .mconv__body .mbal__res{padding:8px 0 6px!important}
 .label + .chips--seg{margin-top:6px!important}
+/* день переезда: в шторке «Осака → Киото» двумя бейджами */
+.wrap--move{display:flex;align-items:center;gap:6px}
+.badge-arrow{display:flex;color:var(--secondary)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1673,6 +1676,7 @@ function spent(t){ var s = 0; t.money.forEach(function(e){ if (e.kind === "exp")
 /* ===== общие куски разметки ===== */
 function gbtn(act, svg, label, cls, extra){ return '<div class="glass lg btn-group btn-group--1'+(cls?' '+cls:'')+'"><button class="sym" data-act="'+act+'" aria-label="'+label+'"'+(extra||'')+'>'+svg+'</button></div>'; }
 function chip(label, n, active, attr){ return '<button class="chip'+(active?' is-active':'')+'" '+attr+'><span class="chip__seg">'+esc(label)+'</span>'+(n!=null?'<span class="chip__n">'+n+'</span>':'')+'</button>'; }
+var SVG_ARR = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8h10M9 4l4 4-4 4"/></svg>';
 function badge(l){ return '<span class="badge">'+esc(l)+'</span>'; }
 function li(lead, b, s, attr){ return '<'+(attr?'button':'div')+' class="li"'+(attr||'')+'><span class="li__lead">'+lead+'</span><span class="li__tx"><b>'+b+'</b>'+(s?'<small>'+s+'</small>':'')+'</span></'+(attr?'button':'div')+'>'; }
 function swAttr(kind, id){ return ro() ? '' : ' data-sw="'+kind+':'+id+'"'; }
@@ -1829,7 +1833,7 @@ function dayCard(t, d){
       '<div class="dashbox dashbox--day">'+(m?'<button class="li" data-act="moveSheet" data-k="'+d.k+'"><span class="li__lead">'+ill(m.kind==="mid"?"train":"airplane")+'</span><span class="li__tx sub2">'+esc(moveTitle(m))+'</span><span class="plus">＋</span></button>':'')+
       '<button class="li" data-act="dayAddPlace" data-k="'+d.k+'"><span class="li__lead">'+ill("sightseeing")+'</span><span class="li__tx sub2">Добавить место</span><span class="plus">＋</span></button></div>')+'</section>';
   }
-  return '<section class="dayw">'+lbl+'<article class="day" data-act="openDay" data-k="'+d.k+'">'+(d.city?'<span class="day__badge">'+badge(d.city)+'</span>':'')+
+  return '<section class="dayw">'+lbl+'<article class="day" data-act="openDay" data-k="'+d.k+'">'+(function(){ var mv = moveFor(t, d.k); return mv && mv.kind === "mid" ? '<span class="day__badge">'+badge("Переезд")+'</span>' : (d.city ? '<span class="day__badge">'+badge(d.city)+'</span>' : ''); })()+
     '<div class="sum">'+nt+ls.map(legRow).join("")+catSummaryRows(ps)+'</div>'+
     (ts.length ? '<div class="check tasks">'+ts.map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+
     ds.map(function(x){ return attRow(t, x); }).join("")+
@@ -1995,7 +1999,7 @@ function openDay(k){
   var t = trip(), d = tripDays(t).filter(function(x){ return x.k === k; })[0], ps = t.places[k] = t.places[k] || [], g = ro();
   var dh = dayHotels(t, k, d.city), ho = dh.s, hoE = dh.e, ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
   var ls = legs(t, k), mk = moveFor(t, k);
-  var h = '<div class="sh-head"><p class="sh-kicker">'+WDF[D(k).getDay()]+'</p><h2 class="sh-title">'+dm(k)+'</h2>'+(d.city?'<div class="wrap">'+badge(d.city)+'</div>':'')+'</div>';
+  var h = '<div class="sh-head"><p class="sh-kicker">'+WDF[D(k).getDay()]+'</p><h2 class="sh-title">'+dm(k)+'</h2>'+(mk && mk.kind === "mid" ? '<div class="wrap wrap--move">'+badge(mk.from)+'<span class="badge-arrow" aria-label="в">'+SVG_ARR+'</span>'+badge(mk.to)+'</div>' : (d.city?'<div class="wrap">'+badge(d.city)+'</div>':''))+'</div>';
   var nt = notesRows(t, k); if (nt) h += '<div class="check">'+nt+'</div>';
   var addRow = function(act, label, extra){ return '<button class="stop stop--add" data-act="'+act+'"'+(extra||'')+'><span class="stop__n">＋</span><span class="stop__tx">'+label+'</span></button>'; };
   if (ls.length || !g){
