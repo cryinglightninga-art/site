@@ -1445,6 +1445,10 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 /* день переезда: в шторке «Осака → Киото» двумя бейджами */
 .wrap--move{display:flex;align-items:center;gap:6px}
 .badge-arrow{display:flex;color:var(--secondary)}
+/* ночная поездка: предупреждение */
+.daywarn{margin:0;padding:10px 12px;border-radius:14px;background:rgba(255,149,0,.12);color:#c26a00;font-size:14px;line-height:19px}
+.day .daywarn{margin-top:8px}
+@media (prefers-color-scheme: dark){.daywarn{color:#ffb35c;background:rgba(255,159,10,.16)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1801,7 +1805,14 @@ function catSummaryRows(ps){
   }).join("");
 }
 function city(s){ return String(s||"").split(",")[0].trim(); }
-function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? v.dep+'–'+v.arr : v.dep ? 'в '+v.dep : ''); }
+function legSpan(v){ return v.dep+'–'+v.arr+(v.arr < v.dep ? '\u00a0+1' : ''); }
+function nextK(k){ var d = D(k); d.setDate(d.getDate()+1); return K(d); }
+function prevK(k){ var d = D(k); d.setDate(d.getDate()-1); return K(d); }
+function overnight(t, k){ return legs(t, k).filter(function(v){ return v.dep && v.arr && v.arr < v.dep; }); }
+function arrRows(t, k){ return overnight(t, prevK(k)).map(function(v){ return li(moveIc(v.type), 'Прибытие · '+esc(city(v.to)), 'в '+v.arr); }).join(""); }
+function nightWarn(t, k, cityName){ var ov = overnight(t, k), h = cityName && t.hotels[cityName]; if (!ov.length || !h || h.inD !== nextK(k)) return "";
+  var v = ov[ov.length-1]; return '<p class="daywarn">Приезжаете '+dm(nextK(k))+' в '+esc(v.arr)+', а заезд в отель тоже '+dm(nextK(k))+' — ночь без жилья</p>'; }
+function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? legSpan(v) : v.dep ? 'в '+v.dep : ''); }
 function stopQ(p){ if (p.near) return ""; if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
 function dayHotels(t, k, city){
   var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(Boolean);
@@ -1826,7 +1837,8 @@ function dayCard(t, d){
   var ps = t.places[d.k] || [], ts = t.checks.filter(function(c){ return c.day === d.k && (!c.done || (S.jd && S.jd[c.id])); }), ds = t.docs.filter(function(x){ return x.day === d.k && (x.vis === "all" || x.owner === S.me); });
   var ls = legs(t, d.k), lbl = '<p class="day__lbl">'+dm(d.k)+', '+WD[D(d.k).getDay()]+'</p>';
   var nt = notesRows(t, d.k);
-  if (!ps.length && !ts.length && !ds.length && !ls.length && !nt){
+  var ar = arrRows(t, d.k), wr = nightWarn(t, d.k, d.city);
+  if (!ps.length && !ts.length && !ds.length && !ls.length && !nt && !ar){
     if (t.archived) return '';
     var m = moveFor(t, d.k);
     return '<section class="dayw">'+lbl+(ro() ? '<div class="dashbox"><span class="hint">Пока пусто</span></div>' :
@@ -1834,7 +1846,7 @@ function dayCard(t, d){
       '<button class="li" data-act="dayAddPlace" data-k="'+d.k+'"><span class="li__lead">'+ill("sightseeing")+'</span><span class="li__tx sub2">Добавить место</span><span class="plus">＋</span></button></div>')+'</section>';
   }
   return '<section class="dayw">'+lbl+'<article class="day" data-act="openDay" data-k="'+d.k+'">'+(function(){ var mv = moveFor(t, d.k); return mv && mv.kind === "mid" ? '<span class="day__badge">'+badge("Переезд")+'</span>' : (d.city ? '<span class="day__badge">'+badge(d.city)+'</span>' : ''); })()+
-    '<div class="sum">'+nt+ls.map(legRow).join("")+catSummaryRows(ps)+'</div>'+
+    '<div class="sum">'+nt+ar+ls.map(legRow).join("")+catSummaryRows(ps)+'</div>'+wr+
     (ts.length ? '<div class="check tasks">'+ts.map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+
     ds.map(function(x){ return attRow(t, x); }).join("")+
     (ps.length ? '<a class="btn-route" href="'+routeUrl(t, d.k)+'" target="_blank" rel="noopener">'+MAPS_IMG+'Маршрут дня</a>' : '')+'</article></section>';
@@ -1993,7 +2005,7 @@ function render(){
 function positionPill(){ var a = document.querySelector(".tab.is-active"), p = $("tabPill"); if (!a || !p) return; p.style.width = a.offsetWidth+"px"; p.style.transform = "translateX("+a.offsetLeft+"px)"; }
 
 /* шторка дня — как в гайде */
-function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[when, v.no, v.dep&&v.arr?v.dep+'–'+v.arr:v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></div>'; }
+function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[when, v.no, v.dep&&v.arr?legSpan(v):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></div>'; }
 function openDay(k){
   S.day = k;
   var t = trip(), d = tripDays(t).filter(function(x){ return x.k === k; })[0], ps = t.places[k] = t.places[k] || [], g = ro();
@@ -2004,7 +2016,7 @@ function openDay(k){
   var addRow = function(act, label, extra){ return '<button class="stop stop--add" data-act="'+act+'"'+(extra||'')+'><span class="stop__n">＋</span><span class="stop__tx">'+label+'</span></button>'; };
   if (ls.length || !g){
     h += '<div><p class="label">'+'Переезд'+'</p><div class="stops">'+
-      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?v.dep+'–'+v.arr:v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+
+      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+
       (g ? '' : addRow("moveSheet", ls.length ? 'Переезд' : mk ? esc(moveTitle(mk)) : 'Добавить переезд', ' data-k="'+k+'" data-i="-1"'))+'</div></div>';
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
@@ -2223,7 +2235,7 @@ A.moveSheet = function(d){
   var t = trip(), k = d.k; S.day = S.day || k;
   var m = moveFor(t, k) || {kind:"mid", from:"", to:""}, ls = legs(t, k), i = d.i == null ? (ls.length ? 0 : -1) : +d.i, last = ls[ls.length-1];
   var v = i >= 0 ? ls[i] : {type: last || m.kind==="mid" ? "Поезд" : "Самолёт", from: last ? last.to : m.from, to: m.to, dep:"", arr:"", no:""};
-  if (ro()){ if (i >= 0) form(v.from+" → "+v.to, '<p class="hint" style="font-size:15px;line-height:20px">'+[v.type, v.no, v.dep&&v.arr?v.dep+'–'+v.arr:v.dep].filter(Boolean).map(esc).join(" · ")+'</p>'); return; }
+  if (ro()){ if (i >= 0) form(v.from+" → "+v.to, '<p class="hint" style="font-size:15px;line-height:20px">'+[v.type, v.no, v.dep&&v.arr?legSpan(v):v.dep].filter(Boolean).map(esc).join(" · ")+'</p>'); return; }
   S.moveK = k; S.moveI = i;
   form(i < 0 && ls.length ? "Пересадка" : moveTitle(m), '<div class="pg" style="padding:0">'+(i < 0 && ls.length ? '<p class="hint">Встанет после «'+esc(last.from)+' → '+esc(last.to)+'». Начнём оттуда, где закончился прошлый участок.</p>' : '')+
     seg("mvSeg", Object.keys(MOVE).map(function(x){ return [x, x]; }), v.type)+
@@ -4056,6 +4068,18 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     [].forEach.call(document.querySelectorAll(q), function(el, i){ if (changed && CHS[k] && CHS[k][i] != null) el.scrollLeft = CHS[k][i]; reveal(el, !changed); });
     return res; };
 })();
+
+/* шторка дня: ночное прибытие предыдущего дня и предупреждение о ночи без жилья */
+var _openDayArr = openDay;
+openDay = function(k){ _openDayArr(k);
+  var t = trip(), b = $("sheetBody"); if (!t || !b) return;
+  var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {}, html = "";
+  var ar = overnight(t, prevK(k)); if (ar.length) html += '<div class="arrsec"><p class="label">Прибытие</p><div class="stops">'+ar.map(function(v){ return '<div class="stop"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.to)+'</b><small>в '+esc(v.arr)+' · '+esc(v.from)+' → '+esc(v.to)+'</small></span></div>'; }).join("")+'</div></div>';
+  var w = nightWarn(t, k, d.city); if (w) html += w;
+  if (!html) return;
+  var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0];
+  if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html);
+};
 
 </script>
 </body>
