@@ -1511,7 +1511,7 @@ html:not([data-tabs="A"]) body .sheet .chips,html:not([data-tabs="A"]) body .she
 @media (prefers-color-scheme: dark){.sheet{--tg-track:rgba(118,118,128,.28)}}
 /* табы: плашка выбранного — отдельный слой, плавно переезжает; отступ справа у чек-листа */
 html:not([data-tabs="A"]) .tg-has-thumb{position:relative}
-html:not([data-tabs="A"]) .tg-thumb{position:absolute;top:3px;left:0;height:calc(100% - 6px);border-radius:1000px;background:var(--tg-bg);box-shadow:var(--tg-sh);-webkit-backdrop-filter:blur(10px) saturate(1.6);backdrop-filter:blur(10px) saturate(1.6);pointer-events:none;z-index:0;transition:transform .38s cubic-bezier(.3,1.15,.5,1),width .38s cubic-bezier(.3,1.15,.5,1),opacity .2s;will-change:transform,width}
+html:not([data-tabs="A"]) .tg-thumb{position:absolute;top:3px;left:0;height:calc(100% - 6px);border-radius:1000px;background:var(--tg-bg);box-shadow:var(--tg-sh);-webkit-backdrop-filter:blur(10px) saturate(1.6);backdrop-filter:blur(10px) saturate(1.6);pointer-events:none;z-index:0;transition:opacity .2s;will-change:transform,width}
 html[data-tabs="A"] .tg-thumb{display:none}
 html:not([data-tabs="A"]) body .tg-has-thumb .chip.is-active{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 html:not([data-tabs="A"]) .tg-has-thumb .chip,html:not([data-tabs="A"]) .tg-has-thumb .chipw{position:relative;z-index:1}
@@ -4363,13 +4363,13 @@ var _prepViewN = prepView;
 prepView = function(t){ var h = _prepViewN(t), g = isGuest(), sec = function(n){ return !g || (t.sections || []).indexOf(n) >= 0; };
   h = h.replace(/<button class="set[^"]*" data-act="go" data-s="visa"[^]*?<\/button>/, "");
   var n = memos(t).length;
-  if (sec("notes") || sec("visa")) h = h.replace(/<\/div>$/, setTile("go", ' data-s="notes"', ill("notes","set__ill"), "Заметки", n ? n+" "+pl(n,"заметка","заметки","заметок") : "Пусто", !n)+'</div>');
+  if (sec("notes") || sec("visa")) h = h.replace(/<\/div>$/, setTile("go", ' data-s="notes"', ill("notes","set__ill"), "Заметки", n ? n+" "+pl(n,"список","списка","списков") : "Пусто", !n)+'</div>');
   return h; };
 SCR.notes = function(r){ var t = trip(r.trip), g = ro(), ms = memos(t), h = '<div class="pg">';
-  if (!ms.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Заметка</b><span class="hint">текст, список с задачами, нумерованный список или документ</span>', "noteNew");
+  if (!ms.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Список</b><span class="hint">заметки, задачи, шаги и документы</span>', "noteNew");
   else h += '<div class="check">'+ms.map(function(m){ return '<button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+'</div>';
-  return {title:"Заметки", ill:"notes", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новая заметка", "btn-acc"), tabs:false, view:h+'</div>'}; };
-A.noteNew = function(){ ask("Новая заметка", "", "", "Создать", function(n){ var t = trip(), m = {id:"m"+uid(), title:n, blocks:[]}; memos(t).push(m); S.noteId = m.id; go("note"); }); };
+  return {title:"Заметки", ill:"notes", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новый список", "btn-acc"), tabs:false, view:h+'</div>'}; };
+A.noteNew = function(){ ask("Новый список", "", "", "Создать", function(n){ var t = trip(), m = {id:"m"+uid(), title:n, blocks:[]}; memos(t).push(m); S.noteId = m.id; go("note"); }); };
 A.noteOpen = function(d){ S.noteId = d.id; go("note"); };
 function blockHtml(t, m, b, g){
   if (b.type === "text") return '<button class="memo-text" data-act="blkEdit" data-b="'+b.id+'"'+(g?' disabled':'')+'>'+esc(b.text || "").replace(/\n/g, "<br>")+'</button>';
@@ -4382,13 +4382,13 @@ function blockHtml(t, m, b, g){
   if (b.type === "doc"){ var d = t.docs.filter(function(x){ return x.id === b.docId; })[0]; if (!d) return ''; return '<div'+swAttr("mblk", b.id)+'>'+attRow(t, d)+'</div>'; }
   return '';
 }
-SCR.note = function(r){ var t = trip(r.trip), g = ro(), m = memo(t, S.noteId); if (!m){ return {title:"Заметка", back:true, tabs:false, view:'<div class="pg"><p class="hint">Заметка удалена</p></div>'}; }
+SCR.note = function(r){ var t = trip(r.trip), g = ro(), m = memo(t, S.noteId); if (!m){ return {title:"Заметка", back:true, tabs:false, view:'<div class="pg"><p class="hint">Список удалён</p></div>'}; }
   var h = '<div class="pg">'+((m.blocks || []).length ? m.blocks.map(function(b){ return blockHtml(t, m, b, g); }).join("") : (g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Добавить</b><span class="hint">текст, список с задачами, нумерованный список или документ</span>', "noteMenu")));
   return {title:esc(m.title), back:true, right:g?'':gbtn("noteMenu", SVG.plus, "Добавить", "btn-acc"), tabs:false, view:h+'</div>'}; };
 A.noteMenu = function(){ var m = $("addMenu"); if (!m.hidden){ m.hidden = true; return; }
   menu(m, [["blkAdd","Текст",' data-type="text"'],["blkAdd","Список с задачами",' data-type="checks"'],["blkAdd","Нумерованный список",' data-type="steps"'],["blkAdd","Документ",' data-type="doc"'],["noteRename","Переименовать заметку"],["noteDelAsk","Удалить заметку",' class="is-danger"']]); };
-A.noteRename = function(){ var m = memo(trip(), S.noteId); ask("Название заметки", "", m.title, "Сохранить", function(n){ m.title = n; render(); }); };
-A.noteDelAsk = function(){ var t = trip(), m = memo(t, S.noteId); ask("Удалить заметку?", "«"+m.title+"» пропадёт вместе с содержимым.", null, "Удалить", function(){ t.memos = memos(t).filter(function(x){ return x.id !== m.id; }); S.stack.pop(); render(); }, true); };
+A.noteRename = function(){ var m = memo(trip(), S.noteId); ask("Название списка", "", m.title, "Сохранить", function(n){ m.title = n; render(); }); };
+A.noteDelAsk = function(){ var t = trip(), m = memo(t, S.noteId); ask("Удалить список?", "«"+m.title+"» пропадёт вместе с содержимым.", null, "Удалить", function(){ t.memos = memos(t).filter(function(x){ return x.id !== m.id; }); S.stack.pop(); render(); }, true); };
 function curBlk(id){ var m = memo(trip(), S.noteId); return m && (m.blocks || []).filter(function(b){ return b.id === id; })[0]; }
 A.blkAdd = function(d){ closeMenus(); var t = trip(), m = memo(t, S.noteId); m.blocks = m.blocks || [];
   if (d.type === "text"){ S.blk = null; form("Текст", '<div class="pg pg--sheet">'+fld("Текст", '<textarea class="in" id="fBt" rows="4" placeholder="Например, адрес посольства и часы работы"></textarea>')+'<button class="primary" data-act="blkSaveText">Добавить</button></div>'); return; }
@@ -4519,7 +4519,7 @@ var _SCRnoteM = SCR.note;
 SCR.note = function(r){ var v = _SCRnoteM(r); if (!ro() && memo(trip(r.trip), S.noteId)) v.right = gbtn("noteMore", SVG.dots, "Ещё")+gbtn("noteMenu", SVG.plus, "Добавить", "btn-acc"); return v; };
 A.noteMenu = function(){ var m = $("addMenu"); if (!m.hidden){ m.hidden = true; return; }
   menu(m, [["blkAdd","Заметка",' data-type="text"'],["blkAdd","Список с задачами",' data-type="checks"'],["blkAdd","Нумерованный список",' data-type="steps"'],["blkAdd","Документ",' data-type="doc"']]); };
-A.noteMore = function(){ var m = $("tMenu"); if (!m.hidden){ m.hidden = true; return; } menu(m, [["noteRename","Переименовать заметку"],["noteDelAsk","Удалить заметку",' class="is-danger"']]); };
+A.noteMore = function(){ var m = $("tMenu"); if (!m.hidden){ m.hidden = true; return; } menu(m, [["noteRename","Переименовать список"],["noteDelAsk","Удалить список",' class="is-danger"']]); };
 BLK.text = "Заметка";
 var _blkAddT = A.blkAdd;
 A.blkAdd = function(d){ _blkAddT(d); if (d.type === "text" && $("fTitle")) $("fTitle").textContent = "Заметка"; };
@@ -4529,31 +4529,40 @@ A.blkEdit = function(d){ _blkEditT(d); if ($("fTitle")) $("fTitle").textContent 
 var _placeFormT = placeForm;
 placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r.html = r.html.replace('<div class="chips chips--seg" id="catSeg"', '<div class="fld fld--seg"><p class="label">Тип места</p><div class="chips chips--seg" id="catSeg"').replace(/(<div class="chips chips--seg" id="catSeg"[^]*?<\/div>)/, '$1</div>'); return r; };
 
-/* ===== табы (общий компонент): выбранный по центру ряда (у краёв — к краю), «стеклянная» плашка плавно переезжает на новый таб — для любых табов, как бы ни перерисовался экран ===== */
+/* ===== табы (общий компонент): выбранный по центру ряда (у краёв — к краю), «стеклянная» плашка плавно переезжает на новый таб.
+   Анимация — по времени в JS, поэтому не сбивается, если экран перерисовался посреди движения ===== */
 (function(){
-  var SEL = ".chips, .chips--seg, .mconv__cur", ANIM = {}, DUR = 380;
+  var SEL = ".chips, .chips--seg, .mconv__cur", ANIM = {}, DUR = 340, loop = false;
   function on(){ return document.documentElement.getAttribute("data-tabs") !== "A"; }
   function keyOf(el){ if (el.id) return "#"+el.id; if (el.classList.contains("mconv__cur")) return ".mconv__cur"; if (el.closest("#chipsSlot")) return el.closest(".chipsc") ? "chk" : "city"; var all = [].slice.call(document.querySelectorAll(SEL)); return "i"+all.indexOf(el); }
+  function byKey(k){ if (k === "city") return [].filter.call(document.querySelectorAll("#chipsSlot .chips"), function(x){ return !x.closest(".chipsc"); })[0]; if (k === "chk") return document.querySelector("#chipsSlot .chipsc .chips"); if (k.charAt(0) === "i") return document.querySelectorAll(SEL)[+k.slice(1)]; return document.querySelector(k); }
   function act(el){ return el.querySelector(".chip.is-active"); }
   function pos(el, a){ var r = a.getBoundingClientRect(), e = el.getBoundingClientRect(); return {x:Math.round(r.left - e.left + el.scrollLeft - el.clientLeft), w:Math.round(r.width)}; }
-  function thumb(el){ var t = el.querySelector(":scope > .tg-thumb"); if (!t){ t = document.createElement("span"); t.className = "tg-thumb"; el.insertBefore(t, el.firstChild); el.classList.add("tg-has-thumb"); } return t; }
-  function set(el, p, ms){ var t = thumb(el); t.style.transition = ms ? "transform "+ms+"ms cubic-bezier(.3,1.15,.5,1), width "+ms+"ms cubic-bezier(.3,1.15,.5,1), opacity .2s" : "none"; t.style.width = p.w+"px"; t.style.transform = "translateX("+p.x+"px)"; t._x = p.x; t._w = p.w; if (!ms) void t.offsetWidth; }
+  function thumb(el){ var t = el.querySelector(":scope > .tg-thumb"); if (!t){ t = document.createElement("span"); t.className = "tg-thumb"; el.insertBefore(t, el.firstChild); el.classList.add("tg-has-thumb"); } t.style.transition = "opacity .2s"; return t; }
+  function put(el, x, w){ var t = thumb(el); t.style.width = w+"px"; t.style.transform = "translateX("+x+"px)"; t._x = x; t._w = w; }
   function ease(q){ return 1 - Math.pow(1 - q, 3); }
-  function mid(an){ var q = Math.min(1, (Date.now() - an.t0) / an.ms), e = ease(q); return {x:Math.round(an.from.x + (an.to.x - an.from.x) * e), w:Math.round(an.from.w + (an.to.w - an.from.w) * e), left:Math.max(0, an.ms * (1 - q))}; }
-  function go(el, k, from, to){ var an = {from:from, to:to, t0:Date.now(), ms:DUR, el:el}; ANIM[k] = an; set(el, from, 0); set(el, to, DUR); center(el, to); }
-  function center(el, p){ var to = p.x + p.w/2 - el.clientWidth/2; to = Math.max(0, Math.min(to, el.scrollWidth - el.clientWidth)); if (Math.abs(to - el.scrollLeft) > 1) el.scrollTo({left:to, behavior:"smooth"}); }
+  function tick(){ var now = performance.now(), live = false;
+    Object.keys(ANIM).forEach(function(k){ var an = ANIM[k], el = byKey(k); if (!el){ delete ANIM[k]; return; }
+      var a = act(el); if (a){ var tp = pos(el, a); an.to = tp; }
+      var q = Math.min(1, (now - an.t0) / DUR), e = ease(q);
+      put(el, an.from.x + (an.to.x - an.from.x) * e, an.from.w + (an.to.w - an.from.w) * e);
+      if (an.sl0 != null){ var tgt = Math.max(0, Math.min(an.to.x + an.to.w/2 - el.clientWidth/2, el.scrollWidth - el.clientWidth)); el.scrollLeft = an.sl0 + (tgt - an.sl0) * e; }
+      if (q >= 1) delete ANIM[k]; else live = true; });
+    if (live) requestAnimationFrame(tick); else loop = false; }
+  function start(){ if (!loop){ loop = true; requestAnimationFrame(tick); } }
   function syncAll(){ if (!on()) return;
     [].forEach.call(document.querySelectorAll(SEL), function(el){ var a = act(el), t = el.querySelector(":scope > .tg-thumb");
       if (!a){ if (t) t.style.opacity = "0"; return; } if (t) t.style.opacity = "";
-      var k = keyOf(el), to = pos(el, a), an = ANIM[k];
-      if (an && Date.now() - an.t0 < an.ms + 60){
-        if (an.el === el && an.to.x === to.x && an.to.w === to.w) return;
-        var m = mid(an); if (an.el !== el){ el.scrollLeft = an.sl != null ? an.sl : el.scrollLeft; }
-        ANIM[k] = {from:m, to:to, t0:Date.now(), ms:Math.max(120, m.left), el:el, sl:an.sl}; set(el, m, 0); set(el, to, ANIM[k].ms); return; }
-      if (!t || t._x !== to.x || t._w !== to.w) set(el, to, 0); }); }
+      if (ANIM[keyOf(el)]) return;
+      var p = pos(el, a); if (!t || t._x !== p.x || t._w !== p.w) put(el, p.x, p.w); }); }
   document.addEventListener("click", function(e){ if (!on()) return; var c = e.target.closest && e.target.closest(".chip"); if (!c || c.classList.contains("chip--plus") || c.classList.contains("chip--add")) return; var el = c.closest(SEL); if (!el) return; var a = act(el); if (!a || c === a) return;
-    var k = keyOf(el), from = pos(el, a), to = pos(el, c); go(el, k, from, to); ANIM[k].sl = null;
-    var tgt = to.x + to.w/2 - el.clientWidth/2; ANIM[k].sl = Math.max(0, Math.min(tgt, el.scrollWidth - el.clientWidth)); }, true);
+    var k = keyOf(el), t = el.querySelector(":scope > .tg-thumb"), from = t && t._x != null ? {x:t._x, w:t._w} : pos(el, a);
+    ANIM[k] = {from:from, to:pos(el, c), t0:performance.now(), sl0:el.scrollLeft}; start(); }, true);
+  var _rA = render;
+  render = function(){ var keep = {}; Object.keys(ANIM).forEach(function(k){ var el = byKey(k); if (el) keep[k] = el.scrollLeft; });
+    var res = _rA.apply(this, arguments);
+    Object.keys(keep).forEach(function(k){ var el = byKey(k); if (el){ el.scrollLeft = keep[k]; var an = ANIM[k]; if (an){ var q = Math.min(1, (performance.now() - an.t0) / DUR), e = ease(q); put(el, an.from.x + (an.to.x - an.from.x) * e, an.from.w + (an.to.w - an.from.w) * e); } } });
+    syncAll(); return res; };
   var sched = false; new MutationObserver(function(){ if (sched) return; sched = true; requestAnimationFrame(function(){ sched = false; syncAll(); }); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
   window.addEventListener("load", syncAll); window.tgSync = syncAll;
 })();
