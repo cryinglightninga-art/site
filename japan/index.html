@@ -1466,6 +1466,9 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .popover{position:fixed;z-index:200;max-width:241px;padding:12px 16px;border-radius:24px;background:rgba(255,255,255,.84);-webkit-backdrop-filter:blur(50px);backdrop-filter:blur(50px);box-shadow:0 10px 100px rgba(0,0,0,.3);font-size:14px;line-height:19px;color:#000}
 .popover::after{content:"";position:absolute;bottom:-9px;left:calc(var(--ax) - 14px);width:28px;height:10px;background:rgba(255,255,255,.84);clip-path:path("M0 0 H28 C22 0 18 9 14 9 C10 9 6 0 0 0 Z")}
 @media (prefers-color-scheme: dark){.popover{background:rgba(58,58,60,.92);color:#fff}.popover::after{background:rgba(58,58,60,.92)}}
+/* заметки */
+.memo-text{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:24px;background:var(--set-bg);font-size:16px;line-height:22px;color:var(--label);white-space:normal}
+.memo-text[disabled]{opacity:1}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2545,7 +2548,7 @@ var byOrd = function(a, b){ return (a.ord || 0) - (b.ord || 0); };
 function strip(o){ var x = Object.assign({}, o); delete x.ord; return x; }
 function buildTrip(id, items, members, profiles){
   var t = {id:id, country:"", flag:"", from:S.today, to:S.today, archived:false, cities:[], cur:["₽"], img:null, hotels:{}, moves:{}, places:{}, nodate:[], notes:{},
-           lists:[], visa:[], visaDocs:[], docs:[], checks:[], money:[], members:[], owner:null, me:null};
+           lists:[], visa:[], visaDocs:[], docs:[], checks:[], money:[], memos:[], members:[], owner:null, me:null};
   var pl = [];
   items.forEach(function(it){
     var d = JSON.parse(JSON.stringify(it.data || {})), key = it.id.slice(it.id.indexOf(":") + 1);
@@ -2561,10 +2564,11 @@ function buildTrip(id, items, members, profiles){
       case "doc": t.docs.push(d); break;
       case "hotel": var c = d.city || key; delete d.city; t.hotels[c] = d; break;
       case "money": t.money.push(d); break;
+      case "memo": t.memos.push(d); break;
     }
   });
   pl.sort(byOrd).forEach(function(p){ var day = p.day; delete p.day; delete p.ord; if (day) (t.places[day] = t.places[day] || []).push(p); else t.nodate.push(p); });
-  ["lists","checks","visa","visaDocs"].forEach(function(k){ t[k].sort(byOrd); t[k] = t[k].map(strip); });
+  ["lists","checks","visa","visaDocs","memos"].forEach(function(k){ t[k].sort(byOrd); t[k] = t[k].map(strip); });
   var used = {}; t.money.forEach(function(e){ used[e.payer] = 1; if (e.to) used[e.to] = 1; var sp = e.split || {}; (sp.ids || []).forEach(function(i){ used[i] = 1; }); Object.keys(sp.shares || {}).forEach(function(i){ used[i] = 1; }); });
   (members || []).forEach(function(m){
     if (m.left_at && !used[m.id] && m.user_id !== S.uid) return;
@@ -2591,6 +2595,7 @@ function ser(t){
   t.docs.forEach(function(d){ o["doc:"+d.id] = {kind:"doc", data:Object.assign({}, d)}; });
   Object.keys(t.hotels).forEach(function(c){ if (t.hotels[c]) o["hotel:"+c] = {kind:"hotel", data:Object.assign({}, t.hotels[c], {city:c})}; });
   t.money.forEach(function(e){ o["money:"+e.id] = {kind:"money", data:Object.assign({}, e)}; });
+  (t.memos || []).forEach(function(m, i){ o["memo:"+m.id] = {kind:"memo", data:Object.assign({}, m, {ord:i})}; });
   return o;
 }
 var SNAP = {}, MSNAP = {};
@@ -4282,6 +4287,84 @@ A.routeInfo = function(d, el, e){ if (e) e.stopPropagation(); var old = document
   pop.style.left = x+"px"; pop.style.top = (r.top - pop.offsetHeight - 12)+"px"; pop.style.setProperty("--ax", (r.left + r.width/2 - x)+"px");
   anim(pop, [{opacity:0, transform:"translateY(6px) scale(.96)"},{opacity:1, transform:"none"}], {duration:260, easing:SPRING});
   setTimeout(function(){ document.addEventListener("pointerdown", function h(ev){ if (!pop.contains(ev.target)){ pop.remove(); document.removeEventListener("pointerdown", h, true); } }, true); }, 0); };
+
+/* ===== Заметки: вместо «Виза и въезд». Заметка = заголовок + блоки: текст, список с задачами, нумерованный список, документ ===== */
+NATIVE_TRIG.push("noteMenu");
+var BLK = {text:"Текст", checks:"Список с задачами", steps:"Нумерованный список", doc:"Документ"};
+function memos(t){ return t.memos = t.memos || []; }
+function memo(t, id){ return memos(t).filter(function(m){ return m.id === id; })[0]; }
+function memoSummary(m){ var n = {text:0, checks:0, steps:0, doc:0};
+  (m.blocks || []).forEach(function(b){ if (b.type === "checks"){ n.checks += (b.items || []).length; } else if (b.type === "steps"){ n.steps += (b.items || []).length; } else n[b.type]++; });
+  var out = []; if (n.steps) out.push(n.steps+" "+pl(n.steps,"шаг","шага","шагов")); if (n.checks) out.push(n.checks+" "+pl(n.checks,"пункт","пункта","пунктов")); if (n.doc) out.push(n.doc+" "+pl(n.doc,"документ","документа","документов")); if (n.text) out.push(n.text+" "+pl(n.text,"абзац","абзаца","абзацев"));
+  return out.join(" · ") || "Пусто"; }
+var _prepViewN = prepView;
+prepView = function(t){ var h = _prepViewN(t), g = isGuest(), sec = function(n){ return !g || (t.sections || []).indexOf(n) >= 0; };
+  h = h.replace(/<button class="set[^"]*" data-act="go" data-s="visa"[^]*?<\/button>/, "");
+  var n = memos(t).length;
+  if (sec("notes") || sec("visa")) h = h.replace(/<\/div>$/, setTile("go", ' data-s="notes"', ill("doc","set__ill"), "Заметки", n ? n+" "+pl(n,"заметка","заметки","заметок") : "Пусто", !n)+'</div>');
+  return h; };
+SCR.notes = function(r){ var t = trip(r.trip), g = ro(), ms = memos(t), h = '<div class="pg">';
+  if (!ms.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Заметка</b><span class="hint">текст, список с задачами, нумерованный список или документ</span>', "noteNew");
+  else h += '<div class="check">'+ms.map(function(m){ return '<button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+'</div>';
+  return {title:"Заметки", ill:"doc", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новая заметка", "btn-acc"), tabs:false, view:h+'</div>'}; };
+A.noteNew = function(){ ask("Новая заметка", "", "", "Создать", function(n){ var t = trip(), m = {id:"m"+uid(), title:n, blocks:[]}; memos(t).push(m); S.noteId = m.id; go("note"); }); };
+A.noteOpen = function(d){ S.noteId = d.id; go("note"); };
+function blockHtml(t, m, b, g){
+  if (b.type === "text") return '<button class="memo-text" data-act="blkEdit" data-b="'+b.id+'"'+(g?' disabled':'')+'>'+esc(b.text || "").replace(/\n/g, "<br>")+'</button>';
+  if (b.type === "checks") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="check">'+(b.items || []).map(function(it){
+      return '<div class="check__item" data-act="memoCheck" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><span class="check__box'+(it.done?' is-done':'')+'">'+(it.done?SVG.tick:'')+'</span><span class="check__text'+(it.done?' is-done':'')+'"><b>'+esc(it.t)+'</b>'+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</span></div>'; }).join("")+
+    (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить пункт</button>')+'</div></div>';
+  if (b.type === "steps") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="steps">'+(b.items || []).map(function(it){
+      return '<button class="step" data-act="itemEdit" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><div>'+esc(it.t)+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</div></button>'; }).join("")+
+    (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить шаг</button>')+'</div></div>';
+  if (b.type === "doc"){ var d = t.docs.filter(function(x){ return x.id === b.docId; })[0]; if (!d) return ''; return '<div'+swAttr("mblk", b.id)+'>'+attRow(t, d)+'</div>'; }
+  return '';
+}
+SCR.note = function(r){ var t = trip(r.trip), g = ro(), m = memo(t, S.noteId); if (!m){ return {title:"Заметка", back:true, tabs:false, view:'<div class="pg"><p class="hint">Заметка удалена</p></div>'}; }
+  var h = '<div class="pg">'+((m.blocks || []).length ? m.blocks.map(function(b){ return blockHtml(t, m, b, g); }).join("") : (g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Добавить</b><span class="hint">текст, список с задачами, нумерованный список или документ</span>', "noteMenu")));
+  return {title:esc(m.title), back:true, right:g?'':gbtn("noteMenu", SVG.plus, "Добавить", "btn-acc"), tabs:false, view:h+'</div>'}; };
+A.noteMenu = function(){ var m = $("addMenu"); if (!m.hidden){ m.hidden = true; return; }
+  menu(m, [["blkAdd","Текст",' data-type="text"'],["blkAdd","Список с задачами",' data-type="checks"'],["blkAdd","Нумерованный список",' data-type="steps"'],["blkAdd","Документ",' data-type="doc"'],["noteRename","Переименовать заметку"],["noteDelAsk","Удалить заметку",' class="is-danger"']]); };
+A.noteRename = function(){ var m = memo(trip(), S.noteId); ask("Название заметки", "", m.title, "Сохранить", function(n){ m.title = n; render(); }); };
+A.noteDelAsk = function(){ var t = trip(), m = memo(t, S.noteId); ask("Удалить заметку?", "«"+m.title+"» пропадёт вместе с содержимым.", null, "Удалить", function(){ t.memos = memos(t).filter(function(x){ return x.id !== m.id; }); S.stack.pop(); render(); }, true); };
+function curBlk(id){ var m = memo(trip(), S.noteId); return m && (m.blocks || []).filter(function(b){ return b.id === id; })[0]; }
+A.blkAdd = function(d){ closeMenus(); var t = trip(), m = memo(t, S.noteId); m.blocks = m.blocks || [];
+  if (d.type === "text"){ S.blk = null; form("Текст", '<div class="pg pg--sheet">'+fld("Текст", '<textarea class="in" id="fBt" rows="4" placeholder="Например, адрес посольства и часы работы"></textarea>')+'<button class="primary" data-act="blkSaveText">Добавить</button></div>'); return; }
+  if (d.type === "checks" || d.type === "steps"){ S.blkType = d.type; form(BLK[d.type], '<div class="pg pg--sheet">'+fld("Заголовок списка", '<input class="in" id="fBh" placeholder="Необязательно, например «Документы»">')+'<button class="primary" data-act="blkSaveList">Добавить</button></div>'); return; }
+  if (d.type === "doc"){ var used = {}; m.blocks.forEach(function(b){ if (b.docId) used[b.docId] = 1; });
+    var ds = t.docs.filter(function(x){ return (x.vis === "all" || x.owner === S.me) && !used[x.id]; });
+    form("Документ", '<div class="pg pg--sheet">'+(ds.length ? '<div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="blkDocPick" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(x.type||"")+'</small></span></button>'; }).join("")+'</div>' : '<p class="hint">Документов пока нет</p>')+
+      '<button class="addcard" data-act="blkDocNew"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Новый документ</b><small>билеты и полис</small></span></button></div>'); }
+};
+A.blkSaveText = function(){ var v = val("fBt"); if (!v){ toast("Введите текст"); return; } var m = memo(trip(), S.noteId);
+  if (S.blk){ var b = curBlk(S.blk); b.text = v; } else m.blocks.push({id:"b"+uid(), type:"text", text:v}); S.blk = null; closeForm(); render(); };
+A.blkSaveList = function(){ var m = memo(trip(), S.noteId), b = {id:"b"+uid(), type:S.blkType, title:val("fBh"), items:[]}; m.blocks.push(b); closeForm(); render(); A.itemAdd({b:b.id}); };
+A.blkDocPick = function(d){ memo(trip(), S.noteId).blocks.push({id:"b"+uid(), type:"doc", docId:d.id}); closeForm(); render(); };
+A.blkDocNew = function(){ S.blkDocFor = S.noteId; closeForm(); A.addDoc({}); };
+var _docSaveN = A.docSave;
+A.docSave = function(){ var t = trip(), before = t.docs.length; _docSaveN.apply(this, arguments);
+  if (S.blkDocFor && t.docs.length > before){ var m = memo(t, S.blkDocFor); if (m) m.blocks.push({id:"b"+uid(), type:"doc", docId:t.docs[t.docs.length-1].id}); S.blkDocFor = null; render(); } };
+A.blkEdit = function(d){ if (ro()) return; var b = curBlk(d.b); S.blk = b.id;
+  form("Текст", '<div class="pg pg--sheet">'+fld("Текст", '<textarea class="in" id="fBt" rows="4">'+esc(b.text||"")+'</textarea>')+'<button class="primary" data-act="blkSaveText">Сохранить</button></div>', "", [["blkDel","Удалить"]]);
+  requestAnimationFrame(function(){ taFit($("fBt")); }); };
+A.blkDel = function(){ var m = memo(trip(), S.noteId), id = S.blk; ask("Удалить текст?", "", null, "Удалить", function(){ m.blocks = m.blocks.filter(function(b){ return b.id !== id; }); S.blk = null; closeForm(); render(); }, true); };
+A.itemAdd = function(d){ var b = curBlk(d.b); S.item = {b:b.id, id:null};
+  form(b.type === "steps" ? "Шаг" : "Пункт", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt">')+fld("Описание", '<textarea class="in" id="fIs" rows="2" placeholder="Подробности, если нужны"></textarea>')+'<button class="primary" data-act="itemSave">Добавить</button></div>', b.title || ""); };
+A.itemEdit = function(d){ if (ro()) return; var b = curBlk(d.b), it = (b.items || []).filter(function(x){ return x.id === d.id; })[0]; if (!it) return; S.item = {b:b.id, id:it.id};
+  form(b.type === "steps" ? "Шаг" : "Пункт", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt" value="'+esc(it.t)+'">')+fld("Описание", '<textarea class="in" id="fIs" rows="2">'+esc(it.s||"")+'</textarea>')+'<button class="primary" data-act="itemSave">Сохранить</button></div>', b.title || "", [["itemDel","Удалить"]]);
+  requestAnimationFrame(function(){ taFit($("fIs")); }); };
+A.itemSave = function(){ var v = val("fIt"); if (!v){ toast("Введите название"); return; } var b = curBlk(S.item.b), s = val("fIs");
+  if (S.item.id){ var it = b.items.filter(function(x){ return x.id === S.item.id; })[0]; it.t = v; it.s = s; } else b.items.push({id:"i"+uid(), t:v, s:s, done:false});
+  closeForm(); render(); };
+A.itemDel = function(){ var b = curBlk(S.item.b), id = S.item.id; b.items = b.items.filter(function(x){ return x.id !== id; }); closeForm(); render(); };
+A.memoCheck = function(d){ var b = curBlk(d.b), it = (b.items || []).filter(function(x){ return x.id === d.id; })[0]; if (!it || ro()) return; it.done = !it.done; render(); };
+CHECK_EDIT.memoCheck = function(id, el){ var row = document.querySelector('.check__item[data-act="memoCheck"][data-id="'+id+'"]'); A.itemEdit({b:row.getAttribute("data-b"), id:id}); };
+var _swDelN = swDelete;
+swDelete = function(el){ var k = el.getAttribute("data-sw").split(":"), t = trip();
+  if (k[0] === "memo"){ t.memos = memos(t).filter(function(m){ return m.id !== k[1]; }); swOpen = null; refresh(); toast("Удалено"); return; }
+  if (k[0] === "mitem"){ var p = k[1].split("|"), b = curBlk(p[0]); if (b){ b.items = b.items.filter(function(x){ return x.id !== p[1]; }); if (!b.items.length) memo(t, S.noteId).blocks = memo(t, S.noteId).blocks.filter(function(x){ return x.id !== b.id; }); } swOpen = null; refresh(); toast("Удалено"); return; }
+  if (k[0] === "mblk"){ var m = memo(t, S.noteId); m.blocks = m.blocks.filter(function(x){ return x.id !== k[1]; }); swOpen = null; refresh(); toast("Убрано из заметки"); return; }
+  return _swDelN(el); };
 
 </script>
 </body>
