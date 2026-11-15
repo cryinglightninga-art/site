@@ -1460,6 +1460,12 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .chips--seg .chip:not(.is-active){background:var(--chip-inset)!important;box-shadow:none!important}
 /* предупреждение — скругления и отступы как в Figma */
 .daywarn{border-radius:24px!important;padding:16px!important}
+/* не вошло в маршрут */
+.route-off{display:flex;align-items:center;gap:4px;margin-top:2px;font-size:14px;line-height:19px;color:#ff8b00;font-weight:400}
+.info-i{display:inline-flex;color:#ff8b00;padding:4px;margin:-4px;cursor:pointer}
+.popover{position:fixed;z-index:200;max-width:241px;padding:12px 16px;border-radius:24px;background:rgba(255,255,255,.84);-webkit-backdrop-filter:blur(50px);backdrop-filter:blur(50px);box-shadow:0 10px 100px rgba(0,0,0,.3);font-size:14px;line-height:19px;color:#000}
+.popover::after{content:"";position:absolute;bottom:-9px;left:calc(var(--ax) - 14px);width:28px;height:10px;background:rgba(255,255,255,.84);clip-path:path("M0 0 H28 C22 0 18 9 14 9 C10 9 6 0 0 0 Z")}
+@media (prefers-color-scheme: dark){.popover{background:rgba(58,58,60,.92);color:#fff}.popover::after{background:rgba(58,58,60,.92)}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1831,7 +1837,7 @@ function pendingMove(t, k){ var cm = changeDayOf(t, k); return cm && !moveCovere
 function nightWarn(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) return ""; var v = ov[ov.length-1], ad = tripDays(t).filter(function(x){ return x.k === v.arrD; })[0], h = t.hotels[(ad && ad.city) || cityName]; if (!h || h.inD !== v.arrD) return "";
   return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд в отель тоже '+dm(v.arrD)+' — ночь без жилья</p>'; }
 function legRow(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? legSpan(v, k) : v.dep ? 'в '+v.dep : ''); }
-function stopQ(p){ if (p.near) return ""; if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
+function stopQ(p){ if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
 function dayHotels(t, k, city){
   var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(Boolean);
   var stay = hs.filter(function(h){ return h.inD && h.outD && h.inD <= k && k < h.outD; })[0];
@@ -4260,6 +4266,22 @@ A.mapPinAdd = function(){
     toast("Метка выбрана — проверьте и сохраните"); return; }
   var ha = $("fHa"); if (ha){ var v = ha.value.trim(); if (v.length < 2) return; S.hq = v + (S.hcity ? ", "+S.hcity : ""); $("fHl").value = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(S.hq); toast("Адрес взят с карты"); }
 };
+
+/* маршрут дня: места, которые не влезли в ссылку Google Maps (лимит точек), помечаются оранжевым с «i» и подсказкой */
+function routeOff(t, k){ var ps = t.places[k] || [], d = tripDays(t).filter(function(x){ return x.k === k; })[0], dh = dayHotels(t, k, d && d.city);
+  var el = ps.filter(function(p){ return !!stopQ(p); }), hs = hq(dh.s), he = hq(dh.e) || hs, total = (hs ? 1 : 0) + el.length + (he ? 1 : 0), cap = total > 10 ? 10 : el.length, off = {};
+  el.slice(cap).forEach(function(p){ off[p.id] = 1; }); return off; }
+var INFO_I = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><rect x="7.1" y="6.6" width="1.8" height="5.4" rx=".9" fill="#fff"/><circle cx="8" cy="4.4" r="1.1" fill="#fff"/></svg>';
+var _openDayRO = openDay;
+openDay = function(k){ _openDayRO(k); var t = trip(), off = routeOff(t, k), ps = t.places[k] || [];
+  [].forEach.call(document.querySelectorAll("#plist .prow"), function(row){ var p = ps[+row.getAttribute("data-i")]; if (!p || !off[p.id]) return;
+    var tx = row.querySelector(".stop__tx"); if (tx && !tx.querySelector(".route-off")) tx.insertAdjacentHTML("beforeend", '<span class="route-off">Не добавлено в Google Maps<span class="info-i" role="button" aria-label="Почему" data-act="routeInfo">'+INFO_I+'</span></span>'); }); };
+A.routeInfo = function(d, el, e){ if (e) e.stopPropagation(); var old = document.querySelector(".popover"); if (old){ old.remove(); if (old._for === el) return; }
+  var pop = document.createElement("div"); pop.className = "popover"; pop._for = el; pop.textContent = "Google Maps позволяет сохранять до 9 точек в маршрут"; document.body.appendChild(pop);
+  var r = el.getBoundingClientRect(), w = pop.offsetWidth, x = Math.min(window.innerWidth - w - 12, Math.max(12, r.left + r.width/2 - w/2));
+  pop.style.left = x+"px"; pop.style.top = (r.top - pop.offsetHeight - 12)+"px"; pop.style.setProperty("--ax", (r.left + r.width/2 - x)+"px");
+  anim(pop, [{opacity:0, transform:"translateY(6px) scale(.96)"},{opacity:1, transform:"none"}], {duration:260, easing:SPRING});
+  setTimeout(function(){ document.addEventListener("pointerdown", function h(ev){ if (!pop.contains(ev.target)){ pop.remove(); document.removeEventListener("pointerdown", h, true); } }, true); }, 0); };
 
 </script>
 </body>
