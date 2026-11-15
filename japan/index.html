@@ -1469,7 +1469,7 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 /* заметки */
 .memo-text{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:24px;background:var(--set-bg);font-size:16px;line-height:22px;color:var(--label);white-space:normal}
 .memo-text[disabled]{opacity:1}
-.sug{margin-top:8px}
+.sug{margin-top:-8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4176,7 +4176,7 @@ openDay = function(k){ _openDayE(k); var t = trip(), b = $("sheetBody"); if (!t 
   if (false && f.length && head && !head.querySelector(".sh-facts")){ var anchor = head.querySelector(".wrap") || head.querySelector(".sh-title"); var html2 = '<p class="sh-facts">'+f.join(" · ")+'</p>'; if (anchor) anchor.insertAdjacentHTML("afterend", html2); else head.insertAdjacentHTML("beforeend", html2); }
   if (ro() || (t.places[k] || []).length) return;
   var pl = $("plist"); if (!pl) return; var sec = pl.parentNode;
-  sec.innerHTML = '<button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
+  sec.innerHTML = '<p class="label">Места по порядку</p><button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
 };
 
 /* ===== карта: без подсказок OpenStreetMap — Google ищет в городе дня, «Добавить эту метку» добавляет сразу ===== */
@@ -4200,7 +4200,7 @@ openDay = function(k){ _openDayMP(k); var b = $("sheetBody"); if (!b || ro()) re
   [].forEach.call(b.children, function(sec){ var l = sec.querySelector(":scope > .label"), st = sec.querySelector(":scope > .stops"); if (!l || !st || l.textContent !== "Переезд") return;
     var add = st.querySelector(":scope > .stop--add[data-act='moveSheet']"); if (!add || st.children.length !== 1 || add.textContent.indexOf("→") < 0) return;
     var title = add.querySelector(".stop__tx") ? add.querySelector(".stop__tx").textContent : add.textContent;
-    sec.innerHTML = '<button class="addcard addcard--big" data-act="moveSheet" data-k="'+add.getAttribute("data-k")+'" data-i="-1"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>'+esc(title.trim())+'</b><small>перелёт, поезд или автобус</small></span></button>'; });
+    sec.innerHTML = '<p class="label">Переезд</p><button class="addcard addcard--big" data-act="moveSheet" data-k="'+add.getAttribute("data-k")+'" data-i="-1"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>'+esc(title.trim())+'</b><small>перелёт, поезд или автобус</small></span></button>'; });
 };
 
 /* ===== чек-лист: первый таб «Все задачи»; новые задачи без раздела по умолчанию ===== */
@@ -4277,11 +4277,11 @@ A.mapPinAdd = function(){
 function routeOff(t, k){ var ps = t.places[k] || [], d = tripDays(t).filter(function(x){ return x.k === k; })[0], dh = dayHotels(t, k, d && d.city);
   var el = ps.filter(function(p){ return !!stopQ(p); }), hs = hq(dh.s), he = hq(dh.e) || hs, total = (hs ? 1 : 0) + el.length + (he ? 1 : 0), cap = total > 10 ? 10 : el.length, off = {};
   el.slice(cap).forEach(function(p){ off[p.id] = 1; }); return off; }
-var INFO_I = '<svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><circle cx="8" cy="8" r="8" fill="currentColor"/><rect x="7.1" y="6.6" width="1.8" height="5.4" rx=".9" fill="#fff"/><circle cx="8" cy="4.4" r="1.1" fill="#fff"/></svg>';
+var INFO_I = '<svg viewBox="0 0 20 20" width="12" height="12" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M19.9219 9.96094C19.9219 15.4492 15.459 19.9219 9.96094 19.9219C4.47266 19.9219 0 15.4492 0 9.96094C0 4.46289 4.47266 0 9.96094 0C15.459 0 19.9219 4.46289 19.9219 9.96094ZM8.36914 8.1543C7.95898 8.1543 7.63672 8.47656 7.63672 8.86719C7.63672 9.28711 7.95898 9.58984 8.36914 9.58984L9.44336 9.58984L9.44336 14.1797L8.20312 14.1797C7.7832 14.1797 7.46094 14.502 7.46094 14.8926C7.46094 15.3125 7.7832 15.6152 8.20312 15.6152L12.2949 15.6152C12.7148 15.6152 13.0371 15.3125 13.0371 14.8926C13.0371 14.502 12.7148 14.1797 12.2949 14.1797L11.0547 14.1797L11.0547 9.07227C11.0547 8.52539 10.7812 8.1543 10.2637 8.1543ZM8.55469 5.16602C8.55469 5.9082 9.14062 6.49414 9.87305 6.49414C10.6055 6.49414 11.1816 5.9082 11.1816 5.16602C11.1816 4.42383 10.6055 3.83789 9.87305 3.83789C9.14062 3.83789 8.55469 4.42383 8.55469 5.16602Z"/></svg>';
 var _openDayRO = openDay;
 openDay = function(k){ _openDayRO(k); var t = trip(), off = routeOff(t, k), ps = t.places[k] || [];
   [].forEach.call(document.querySelectorAll("#plist .prow"), function(row){ var p = ps[+row.getAttribute("data-i")]; if (!p || !off[p.id]) return;
-    var tx = row.querySelector(".stop__tx"); if (tx && !tx.querySelector(".route-off")) tx.insertAdjacentHTML("beforeend", '<span class="route-off">Не добавлено в Google Maps<span class="info-i" role="button" aria-label="Почему" data-act="routeInfo">'+INFO_I+'</span></span>'); }); };
+    var tx = row.querySelector(".stop__tx"); if (tx && !tx.querySelector(".route-off")) tx.insertAdjacentHTML("beforeend", '<span class="route-off">Не добавлено в маршрут дня<span class="info-i" role="button" aria-label="Почему" data-act="routeInfo">'+INFO_I+'</span></span>'); }); };
 A.routeInfo = function(d, el, e){ if (e) e.stopPropagation(); var old = document.querySelector(".popover"); if (old){ old.remove(); if (old._for === el) return; }
   var pop = document.createElement("div"); pop.className = "popover"; pop._for = el; pop.textContent = "Google Maps позволяет сохранять до 9 точек в маршрут"; document.body.appendChild(pop);
   var r = el.getBoundingClientRect(), w = pop.offsetWidth, x = Math.min(window.innerWidth - w - 12, Math.max(12, r.left + r.width/2 - w/2));
