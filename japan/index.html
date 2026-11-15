@@ -1727,15 +1727,23 @@ function catSummaryRows(ps){
 function city(s){ return String(s||"").split(",")[0].trim(); }
 function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? v.dep+'–'+v.arr : v.dep ? 'в '+v.dep : ''); }
 function stopQ(p){ if (p.near) return ""; if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
-function dirUrl(hs, ps){
-  var stops = ps.map(stopQ).filter(Boolean); if (!stops.length) return "";
-  var pts = hs ? [hs].concat(stops, [hs]) : stops;
+function dayHotels(t, k, city){
+  var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(Boolean);
+  var stay = hs.filter(function(h){ return h.inD && h.outD && h.inD <= k && k < h.outD; })[0];
+  var out = hs.filter(function(h){ return h.outD === k; })[0], inn = hs.filter(function(h){ return h.inD === k; })[0];
+  var def = city && t.hotels[city];
+  return {s: out || stay || def || inn || null, e: inn || stay || def || out || null};
+}
+function hq(h){ return h ? (h.q || h.addr || h.name) : ""; }
+function dirUrl(hs, ps, he){
+  var stops = ps.map(stopQ).filter(Boolean); if (!stops.length) return ""; if (he === undefined) he = hs;
+  var pts = (hs ? [hs] : []).concat(stops, he ? [he] : []);
   if (pts.length > 10) pts = stops;
   return "https://www.google.com/maps/dir/"+pts.slice(0, 10).map(encodeURIComponent).join("/");
 }
 function routeUrl(t, k){
-  var ps = t.places[k] || [], d = tripDays(t).filter(function(x){ return x.k === k; })[0], ho = d && d.city && t.hotels[d.city];
-  return dirUrl(ho ? (ho.q || ho.addr || ho.name) : "", ps);
+  var ps = t.places[k] || [], d = tripDays(t).filter(function(x){ return x.k === k; })[0], dh = dayHotels(t, k, d && d.city);
+  return dirUrl(hq(dh.s), ps, hq(dh.e));
 }
 function notesRows(t, k){ return (t.notes && t.notes[k] || []).map(function(n){ return li(ill(n.ic), esc(n.t), esc(n.s)); }).join(""); }
 function dayCard(t, d){
@@ -1907,7 +1915,7 @@ function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-hom
 function openDay(k){
   S.day = k;
   var t = trip(), d = tripDays(t).filter(function(x){ return x.k === k; })[0], ps = t.places[k] = t.places[k] || [], g = ro();
-  var ho = d.city && t.hotels[d.city], ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
+  var dh = dayHotels(t, k, d.city), ho = dh.s, hoE = dh.e, ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
   var ls = legs(t, k), mk = moveFor(t, k);
   var h = '<div class="sh-head"><p class="sh-kicker">'+WDF[D(k).getDay()]+'</p><h2 class="sh-title">'+dm(k)+'</h2>'+(d.city?'<div class="wrap">'+badge(d.city)+'</div>':'')+'</div>';
   var nt = notesRows(t, k); if (nt) h += '<div class="check">'+nt+'</div>';
@@ -1924,11 +1932,11 @@ function openDay(k){
       ps.map(function(p, i){ return '<div class="stop prow" data-i="'+i+'"'+swAttr("place", p.id)+'><span class="stop__n">'+(i+1)+'</span><button class="stop__tx" data-act="placeSheet" data-day="'+k+'" data-id="'+p.id+'"><b>'+esc(p.n)+'</b><small>'+(p.t?'<b style="display:inline;color:var(--label);font-weight:600">'+esc(p.t)+'</b>'+(p.note?' · ':''):'')+esc(p.note||'')+'</small></button>'+
         (g?'':'<span class="grip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>')+'</div>'; }).join("")+
       (g?'':addRow("addPlace", "Добавить место"))+
-      (ho && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>финиш</small></span></div>':'')+'</div>'+
+      (hoE && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш</small></span></div>':'')+'</div>'+
       ''+'</div>';
   }
   $("sheetBody").innerHTML = nb(h);
-  var m = $("sheetMap"), du = dirUrl(ho ? (ho.q || ho.addr || ho.name) : "", ps);
+  var m = $("sheetMap"), du = dirUrl(hq(ho), ps, hq(hoE));
   if (du){ m.hidden = false; m.href = du; m.innerHTML = MAPS_IMG; } else m.hidden = true;
   $("sheetAdd").hidden = true;
   if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; }
