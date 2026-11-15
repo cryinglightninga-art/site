@@ -1392,6 +1392,7 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .att__tx small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* у крестика зона нажатия 44×44 */
 .fbox__clr::after{content:"";position:absolute;inset:-12px}
+.mrow[data-act]{cursor:pointer;-webkit-tap-highlight-color:transparent}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1865,7 +1866,7 @@ SCR.money = function(r){
       h += '<p class="mday">'+dm(day)+'</p><div class="check mlist">'+by[day].map(function(e){
         var who = e.kind === "ref" ? esc(mName(t,e.payer))+' вернул'+fem(mName(t,e.payer))+' '+esc(dat(mName(t,e.to))) :
           'Платил'+fem(mName(t,e.payer))+' '+esc(mName(t,e.payer))+' · '+(e.split.mode==="all"?"на всех":e.split.mode==="sel"?"на "+e.split.ids.map(function(i){return esc(acc(mName(t,i)));}).join(", "):"свои доли");
-        return '<div class="mrow'+(e.kind==="ref"?' mrow--back':'')+'"><span class="mrow__tx"><b>'+esc(e.title)+'</b><small>'+who+'</small></span><span class="mrow__sum">'+money(e.amt, e.cur)+'</span></div>'; }).join("")+'</div>';
+        return '<div class="mrow'+(e.kind==="ref"?' mrow--back':'')+'"'+(ro()?'':' role="button" data-act="moneyEdit" data-id="'+e.id+'"'+swAttr("money", e.id))+'><span class="mrow__tx"><b>'+esc(e.title)+'</b><small>'+who+'</small></span><span class="mrow__sum">'+money(e.amt, e.cur)+'</span></div>'; }).join("")+'</div>';
     });
   }
   return {title:"Деньги", ill:"money", back:true, right:ro()?'':gbtn("addMoneyMenu", SVG.plus, "Добавить", "btn-acc"), tabs:false, view:h+'</div>'};
@@ -2355,6 +2356,7 @@ function swDelete(el){
   if (k[0] === "check") t.checks = t.checks.filter(function(c){ return c.id !== id; });
   if (k[0] === "vdoc") t.visaDocs = t.visaDocs.filter(function(c){ return c.id !== id; });
   if (k[0] === "vstep") t.visa = t.visa.filter(function(c){ return c.id !== id; });
+  if (k[0] === "money") t.money = t.money.filter(function(c){ return c.id !== id; });
   if (k[0] === "place") t.places[S.day] = (t.places[S.day] || []).filter(function(p){ return p.id !== id; });
   if (k[0] === "member"){ swOpen = null; render(); A.delMem({id:id}); return; }
   swOpen = null; refresh(); toast("Удалено");
@@ -3819,6 +3821,41 @@ document.addEventListener("pointerdown", function(e){
   var box = b.closest(".fbox"), el = box && box.querySelector("input,textarea"); if (!el) return;
   el.value = ""; el.dispatchEvent(new Event("input", {bubbles:true})); box.classList.remove("is-filled"); el.focus();
 }, true);
+
+/* деньги: тап по трате или возврату — шторка редактирования */
+S.mEdit = null;
+A.moneyEdit = function(d){
+  var t = trip(), e = t.money.filter(function(x){ return x.id === d.id; })[0]; if (!e || ro()) return;
+  if (e.kind === "ref"){
+    A.addRef(); $("fRf").value = e.payer; $("fRt").value = e.to; $("fRa").value = String(e.amt); $("fRc").value = e.cur;
+  } else {
+    A.addExp(); $("fEt").value = e.title; $("fEa").value = String(e.amt); $("fEc").value = e.cur; $("fEp").value = e.payer;
+    var sp = e.split || {mode:"all"}; A.segPick({seg:"splitSeg", v:sp.mode});
+    if (sp.mode === "sel") [].forEach.call(document.querySelectorAll(".spSel"), function(x){ x.checked = sp.ids.indexOf(x.value) >= 0; });
+    if (sp.mode === "shares") [].forEach.call(document.querySelectorAll(".spSh"), function(x){ var v = sp.shares[x.getAttribute("data-id")]; x.value = v ? String(v) : ""; });
+  }
+  S.mEdit = e.id;
+  var btn = $("fBody").querySelector(".primary"); if (btn) btn.textContent = "Сохранить";
+  S.fMore = [["moneyDel","Удалить"]]; $("fMore").hidden = false; if (typeof nativeSync === "function") nativeSync();
+};
+function moneySaveWrap(orig){ return function(){
+  var id = S.mEdit, t = trip(), n = t.money.length;
+  if (!id) return orig.apply(this, arguments);
+  orig.apply(this, arguments);
+  if (t.money.length === n) return;               /* не прошла проверка — шторка осталась открытой */
+  var nw = t.money.pop(), i = t.money.findIndex(function(x){ return x.id === id; });
+  if (i >= 0){ nw.id = id; nw.date = t.money[i].date; if (t.money[i].kind === "ref") nw.title = t.money[i].title; t.money[i] = nw; }
+  S.mEdit = null; render();
+}; }
+A.expSave = moneySaveWrap(A.expSave);
+A.refSave = moneySaveWrap(A.refSave);
+A.moneyDel = function(){
+  var t = trip(), id = S.mEdit, e = t.money.filter(function(x){ return x.id === id; })[0]; if (!e) return;
+  ask(e.kind === "ref" ? "Удалить возврат?" : "Удалить трату?", "Долги пересчитаются.", null, "Удалить", function(){
+    t.money = t.money.filter(function(x){ return x.id !== id; }); closeForm(); render(); }, true);
+};
+var _closeFormM = closeForm;
+closeForm = function(){ var r = _closeFormM.apply(this, arguments); S.mEdit = null; return r; };
 
 </script>
 </body>
