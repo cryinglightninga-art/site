@@ -1509,6 +1509,13 @@ html[data-tabs="A"] body .chips .chip:not(.is-active),html[data-tabs="A"] body .
 html:not([data-tabs="A"]) body .sheet .chips,html:not([data-tabs="A"]) body .sheet .chips--seg,html:not([data-tabs="A"]) body .chips,html:not([data-tabs="A"]) body .chips--seg,html:not([data-tabs="A"]) body .mconv__cur{overflow-x:auto!important;overflow-y:hidden!important;max-width:100%!important;min-width:0}
 .sheet .sheet__body,#fBody{overflow-x:hidden}
 @media (prefers-color-scheme: dark){.sheet{--tg-track:rgba(118,118,128,.28)}}
+/* табы: плашка выбранного — отдельный слой, плавно переезжает; отступ справа у чек-листа */
+html:not([data-tabs="A"]) .tg-has-thumb{position:relative}
+html:not([data-tabs="A"]) .tg-thumb{position:absolute;top:3px;left:0;height:calc(100% - 6px);border-radius:1000px;background:var(--tg-bg);box-shadow:var(--tg-sh);-webkit-backdrop-filter:blur(10px) saturate(1.6);backdrop-filter:blur(10px) saturate(1.6);pointer-events:none;z-index:0;transition:transform .38s cubic-bezier(.3,1.15,.5,1),width .38s cubic-bezier(.3,1.15,.5,1),opacity .2s;will-change:transform,width}
+html[data-tabs="A"] .tg-thumb{display:none}
+html:not([data-tabs="A"]) body .tg-has-thumb .chip.is-active{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
+html:not([data-tabs="A"]) .tg-has-thumb .chip,html:not([data-tabs="A"]) .tg-has-thumb .chipw{position:relative;z-index:1}
+html:not([data-tabs="A"]) body #chipsSlot .chipsc .chips{max-width:calc(100% - 16px)!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4506,6 +4513,34 @@ A.blkEdit = function(d){ _blkEditT(d); if ($("fTitle")) $("fTitle").textContent 
 /* место: подпись над типом места */
 var _placeFormT = placeForm;
 placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r.html = r.html.replace('<div class="chips chips--seg" id="catSeg"', '<div class="fld fld--seg"><p class="label">Тип места</p><div class="chips chips--seg" id="catSeg"').replace(/(<div class="chips chips--seg" id="catSeg"[^]*?<\/div>)/, '$1</div>'); return r; };
+
+/* ===== табы: выбранный по центру ряда (у краёв — к краю), «стеклянная» плашка плавно переезжает на новый таб ===== */
+(function(){
+  var SEL = ".chips, .chips--seg, .mconv__cur";
+  function on(){ return document.documentElement.getAttribute("data-tabs") !== "A"; }
+  function keyOf(el){ if (el.id) return "#"+el.id; if (el.classList.contains("mconv__cur")) return ".mconv__cur"; if (el.closest("#chipsSlot")) return "#chipsSlot "+(el.closest(".chipsc") ? ".chipsc .chips" : "> .chips"); return null; }
+  function find(k){ try { return document.querySelector(k.indexOf("#chipsSlot >") === 0 ? "#chipsSlot > .chips" : k); } catch(_){ return null; } }
+  function act(el){ return el.querySelector(".chip.is-active"); }
+  function pos(el, a){ var r = a.getBoundingClientRect(), e = el.getBoundingClientRect(); return {x:Math.round(r.left - e.left + el.scrollLeft - el.clientLeft), w:Math.round(r.width)}; }
+  function thumb(el){ var t = el.querySelector(":scope > .tg-thumb"); if (!t){ t = document.createElement("span"); t.className = "tg-thumb"; el.insertBefore(t, el.firstChild); el.classList.add("tg-has-thumb"); } return t; }
+  function place(el, p, anim){ var t = thumb(el); if (!anim) t.style.transition = "none"; t.style.width = p.w+"px"; t.style.transform = "translateX("+p.x+"px)"; if (!anim){ void t.offsetWidth; t.style.transition = ""; } }
+  function center(el, p, smooth){ var to = p.x + p.w/2 - el.clientWidth/2; to = Math.max(0, Math.min(to, el.scrollWidth - el.clientWidth)); if (Math.abs(to - el.scrollLeft) < 2) return; if (smooth) el.scrollTo({left:to, behavior:"smooth"}); else el.scrollLeft = to; }
+  function syncAll(){ if (!on()) return; [].forEach.call(document.querySelectorAll(SEL), function(el){ var a = act(el); var t = el.querySelector(":scope > .tg-thumb"); if (!a){ if (t) t.style.opacity = "0"; return; } if (t) t.style.opacity = ""; var p = pos(el, a); if (!t || t._x !== p.x || t._w !== p.w){ place(el, p, false); var tt = thumb(el); tt._x = p.x; tt._w = p.w; } }); }
+  var pending = null;
+  document.addEventListener("click", function(e){ if (!on()) return; var c = e.target.closest && e.target.closest(".chip"); if (!c || c.classList.contains("chip--plus") || c.classList.contains("chip--add")) return; var el = c.closest(SEL); if (!el) return; var a = act(el), k = keyOf(el);
+    pending = {k:k, el:el, from:a ? pos(el, a) : null, sl:el.scrollLeft}; setTimeout(run, 0); }, true);
+  function run(){ var p = pending; pending = null; if (!p) return; var el = document.contains(p.el) ? p.el : (p.k && find(p.k)); if (!el) return; var a = act(el); if (!a) return;
+    if (el !== p.el) el.scrollLeft = p.sl;
+    var to = pos(el, a); if (p.from){ place(el, p.from, false); requestAnimationFrame(function(){ place(el, to, true); var t = thumb(el); t._x = to.x; t._w = to.w; }); } else place(el, to, false);
+    center(el, to, true); }
+  var _rT = render;
+  render = function(){ var keep = [].map.call(document.querySelectorAll(SEL), function(el){ return {k:keyOf(el), sl:el.scrollLeft}; });
+    var res = _rT.apply(this, arguments);
+    keep.forEach(function(o){ if (!o.k) return; var el = find(o.k); if (el && pending && pending.k === o.k) el.scrollLeft = o.sl; });
+    return res; };
+  new MutationObserver(function(){ requestAnimationFrame(syncAll); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
+  window.addEventListener("load", syncAll);
+})();
 
 </script>
 </body>
