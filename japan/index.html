@@ -1366,6 +1366,10 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 #fsheet .sheet__body > .fsh__t{padding-top:0!important}
 #fsheet .sheet__blur{border-radius:38px 38px 0 0;overflow:hidden}
 #fsheet .sheet__body{border-radius:38px 38px 0 0!important}
+/* свайп задачи: карандаш слева от корзины */
+.sw-edit{position:absolute;top:50%;right:-64px;width:64px;height:44px;margin-top:-22px;border-radius:22px;background:#8e8e93;color:#fff;display:flex;align-items:center;justify-content:center}
+[data-sw]:has(> .sw-edit) > .sw-del{right:-136px}
+textarea.in{height:auto!important;min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22px;resize:none;font-family:inherit}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2296,19 +2300,22 @@ A.deleteTrip = function(){ var t = trip(); ask("Удалить «"+t.country+"»
 
 /* ===== свайп влево — удалить, как в гайде ===== */
 var swOpen = null;
-function swSet(el, open){ el._open = open; el.classList.remove("sw-drag"); el.style.setProperty("--sx", open ? "-80px" : "0px"); if (open){ if (swOpen && swOpen !== el) swSet(swOpen, false); swOpen = el; } else if (swOpen === el) swOpen = null; }
+var PENCIL = '<svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+function swW(el){ return el.querySelector(".sw-edit") ? 152 : 80; }
+function swSet(el, open){ el._open = open; el.classList.remove("sw-drag"); el.style.setProperty("--sx", open ? -swW(el)+"px" : "0px"); if (open){ if (swOpen && swOpen !== el) swSet(swOpen, false); swOpen = el; } else if (swOpen === el) swOpen = null; }
 (function(){
   var sx = null, sy = 0, el = null, drag = null, base = 0, dx = 0;
   document.addEventListener("pointerdown", function(e){
     if (swOpen && !swOpen.contains(e.target)) swSet(swOpen, false);
     var x = e.target.closest("[data-sw]"); if (!x || e.target.closest(".grip,.sw-del")) return;
     if (!x.querySelector(".sw-del")) x.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить" data-swdel>'+TRASH+'</span>');
-    el = x; sx = e.clientX; sy = e.clientY; drag = null; base = x._open ? -80 : 0; dx = base;
+    if (/^check:/.test(x.getAttribute("data-sw")) && !x.querySelector(".sw-edit")) x.insertAdjacentHTML("beforeend", '<span class="sw-edit" role="button" aria-label="Изменить" data-swedit>'+PENCIL+'</span>');
+    el = x; sx = e.clientX; sy = e.clientY; drag = null; base = x._open ? -swW(x) : 0; dx = base;
   }, true);
   document.addEventListener("pointermove", function(e){
     if (sx == null || !el) return; var x = e.clientX - sx, y = e.clientY - sy;
     if (drag === null){ if (Math.abs(x) > 8 && Math.abs(x) > Math.abs(y)) drag = true; else if (Math.abs(y) > 8){ sx = null; return; } }
-    if (drag){ dx = Math.max(-104, Math.min(0, base + x)); el.classList.add("sw-drag"); el.style.setProperty("--sx", dx+"px"); }
+    if (drag){ dx = Math.max(-swW(el)-24, Math.min(0, base + x)); el.classList.add("sw-drag"); el.style.setProperty("--sx", dx+"px"); }
   });
   document.addEventListener("pointerup", function(){ if (drag && el){ el._swiped = true; var e2 = el; setTimeout(function(){ e2._swiped = false; }, 80); swSet(el, dx < -40); } sx = null; drag = null; });
 })();
@@ -2328,6 +2335,7 @@ function swDelete(el){
 document.addEventListener("click", function(e){
   var b = e.target.closest("[data-act]");
   if (!e.target.closest(".mmenu,#fMore") && !(b && /Menu$|^dayAdd$|^tripMenu$|^curMenu$/.test(b.getAttribute("data-act")))) closeMenus();
+  var ed = e.target.closest("[data-swedit]"); if (ed){ e.preventDefault(); e.stopPropagation(); var row = ed.closest("[data-sw]"); swSet(row, false); A.checkEdit({id:row.getAttribute("data-sw").split(":")[1]}); return; }
   var del = e.target.closest("[data-swdel]"); if (del){ e.preventDefault(); e.stopPropagation(); swDelete(del.closest("[data-sw]")); return; }
   var sw = e.target.closest("[data-sw]"); if (sw && (sw._swiped || sw._open)){ e.preventDefault(); if (sw._open && !sw._swiped) swSet(sw, false); return; }
   if (!b || b.disabled || !$("phone").contains(b)) return;
@@ -3664,6 +3672,31 @@ fillInvite = async function(kind){
   var _form4 = form;
   form = function(){ fh.appendChild(ft); _form4.apply(this, arguments); fb.insertBefore(ft, fb.firstChild); fs.classList.remove("is-scrolled"); };
 })();
+
+/* задача: описание + редактирование (свайп влево → карандаш) */
+A.addCheck = function(pre){
+  var t = trip(); pre = pre || {}; var c = pre.edit ? t.checks.filter(function(x){ return x.id === pre.edit; })[0] : null; S.cEdit = c ? c.id : null;
+  var cur = c ? c.l : pre.l, day = c ? c.day : (pre.day || "");
+  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===cur?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(cur===""?' selected':'')+'>Без раздела</option><option value="_new">Новый раздел…</option>';
+  form("Задача", '<div class="pg pg--sheet">'+fld("Что сделать", '<input class="in" id="fCt" placeholder="Например, купить eSIM" value="'+(c?esc(c.t):'')+'">')+
+    fld("Описание", '<textarea class="in" id="fCs" rows="2" placeholder="Подробности, если нужны">'+(c?esc(c.s||''):'')+'</textarea>')+
+    fld("Раздел чек-листа", '<select class="in" id="fCg" data-input="listPick">'+lopts+'</select>')+'<input class="in" id="fCnew" placeholder="Название раздела" hidden>'+
+    '<div class="inline">'+fld("Кому", '<select class="in" id="fCw">'+memberOpts(t, c ? c.who : "", "Всем")+'</select>')+fld("К какому дню", '<select class="in" id="fCd">'+dayOpts(t, day, "Без дня")+'</select>')+'</div>'+
+    '<button class="primary" data-act="checkSave">'+(c?'Сохранить':'Добавить')+'</button></div>', !c && pre.day ? "на "+dm(pre.day) : "");
+};
+A.checkEdit = function(d){ if (ro()) return; A.addCheck({edit:d.id}); };
+A.checkSave = function(){
+  var t = trip(), n = val("fCt"); if (!n){ toast("Напишите, что сделать"); return; }
+  var l = val("fCg"); if (l === "_new"){ var ln = val("fCnew"); if (!ln){ toast("Назовите раздел"); return; } l = "l"+uid(); t.lists.push({id:l, name:ln}); }
+  var c = S.cEdit ? t.checks.filter(function(x){ return x.id === S.cEdit; })[0] : null;
+  if (c){ c.t = n; c.s = val("fCs"); c.l = l; c.who = val("fCw"); c.day = val("fCd"); }
+  else t.checks.push({id:uid(), l:l, t:n, s:val("fCs"), who:val("fCw"), day:val("fCd"), done:false});
+  S.cEdit = null; closeForm(); refresh();
+};
+function taFit(ta){ if (!ta) return; ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; }
+document.addEventListener("input", function(e){ if (e.target.matches && e.target.matches("textarea.in")) taFit(e.target); });
+var _addCheck3 = A.addCheck;
+A.addCheck = function(pre){ _addCheck3(pre); taFit($("fCs")); };
 
 </script>
 </body>
