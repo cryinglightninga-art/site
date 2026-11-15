@@ -78,7 +78,9 @@
   // The hero: the trip list, the plan, and the day sheet standing over it.
   // Each is exported already sitting in the same phone mockup the ContentLog
   // hero uses, so the two pages open the same way.
-  var STAGE = ['01-trips', '02-plan', '05-day'];
+  // The same three files as the cover on the home page, so the second page
+  // takes them from the cache instead of fetching them again.
+  var STAGE = ['trips', 'plan', 'day'];
 
   // The gallery, in the order a trip is actually made and then run.
   var RAIL = ['01-trips', '13-new', '14-tickets', '15-country', '16-cities',
@@ -95,13 +97,18 @@
 
   // Three shots standing on a plain stage, exactly as the ContentLog hero:
   // sized by height, each rising a beat after the last.
+  // Built once as well: the language has nothing to say about these three,
+  // and rebuilding them replayed the entrance and made them blink.
+  var stageNode = null;
+
   function buildStage() {
+    if (stageNode) return stageNode;
     var hero = el('div', 'hero is-screens is-even');
     var row = el('div', 'screens');
     STAGE.forEach(function (key, i) {
       // On a phone the plan leads from the middle, the others stand lower.
       var img = el('img', 'screen' + (i === 1 ? ' is-lead' : ''), {
-        src: 'assets/eg-hero-' + key + '-light.png' + PF.av, alt: '',
+        src: 'assets/eg-screen-' + key + '.png' + PF.av, alt: '',
         width: '332', height: '680',
         fetchpriority: i === 1 ? 'high' : 'auto'
       });
@@ -110,6 +117,7 @@
       row.appendChild(img);
     });
     hero.appendChild(row);
+    stageNode = hero;
     return hero;
   }
 

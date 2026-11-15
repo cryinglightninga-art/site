@@ -143,6 +143,8 @@
   // Pictures that only ever appear as CSS backgrounds. Held for the life of
   // the page so their decoded form is not thrown away.
   var keepDecoded = [];
+  // The cover of EasyGoing: its three shots are built once and kept here.
+  var phonesNode = null;
 
   function preload(src) {
     var img = new Image();
@@ -242,7 +244,13 @@
 
     // Three phones on a dark stage. At rest the middle one is blown up and
     // runs past the tile; on hover all three settle into a row.
-    if (meta.phones) {
+    //
+    // Built once for the life of the page: a change of language re-lays the
+    // cards, and rebuilding the three shots there made them blink and replayed
+    // their entrance. The same node simply moves back into place.
+    if (meta.phones && phonesNode) {
+      media.appendChild(phonesNode);
+    } else if (meta.phones) {
       var phonesWrap = el('div', 'phones-wrap');
       // The row is a node of its own so that pointing at the card scales the
       // three together, around the middle of the card rather than each phone's
@@ -257,9 +265,9 @@
         if (waiting === 0) phonesWrap.classList.add('is-ready');
       }
       [
-        ['assets/eg-tile-trips.png', 'phone-img phone-left'],
-        ['assets/eg-tile-plan.png', 'phone-img phone-center'],
-        ['assets/eg-tile-day.png', 'phone-img phone-right']
+        ['assets/eg-screen-trips.png', 'phone-img phone-left'],
+        ['assets/eg-screen-plan.png', 'phone-img phone-center'],
+        ['assets/eg-screen-day.png', 'phone-img phone-right']
       ].forEach(function (pair) {
         var img = el('img', pair[1], {
           src: pair[0] + PF.av, alt: '', decoding: 'async', fetchpriority: 'high',
@@ -274,6 +282,7 @@
         phonesRow.appendChild(img);
       });
       phonesWrap.appendChild(phonesRow);
+      phonesNode = phonesWrap;
       media.appendChild(phonesWrap);
     }
 
