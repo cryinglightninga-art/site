@@ -4301,12 +4301,12 @@ var _prepViewN = prepView;
 prepView = function(t){ var h = _prepViewN(t), g = isGuest(), sec = function(n){ return !g || (t.sections || []).indexOf(n) >= 0; };
   h = h.replace(/<button class="set[^"]*" data-act="go" data-s="visa"[^]*?<\/button>/, "");
   var n = memos(t).length;
-  if (sec("notes") || sec("visa")) h = h.replace(/<\/div>$/, setTile("go", ' data-s="notes"', ill("doc","set__ill"), "Заметки", n ? n+" "+pl(n,"заметка","заметки","заметок") : "Пусто", !n)+'</div>');
+  if (sec("notes") || sec("visa")) h = h.replace(/<\/div>$/, setTile("go", ' data-s="notes"', ill("notes","set__ill"), "Заметки", n ? n+" "+pl(n,"заметка","заметки","заметок") : "Пусто", !n)+'</div>');
   return h; };
 SCR.notes = function(r){ var t = trip(r.trip), g = ro(), ms = memos(t), h = '<div class="pg">';
   if (!ms.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Заметка</b><span class="hint">текст, список с задачами, нумерованный список или документ</span>', "noteNew");
   else h += '<div class="check">'+ms.map(function(m){ return '<button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+'</div>';
-  return {title:"Заметки", ill:"doc", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новая заметка", "btn-acc"), tabs:false, view:h+'</div>'}; };
+  return {title:"Заметки", ill:"notes", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новая заметка", "btn-acc"), tabs:false, view:h+'</div>'}; };
 A.noteNew = function(){ ask("Новая заметка", "", "", "Создать", function(n){ var t = trip(), m = {id:"m"+uid(), title:n, blocks:[]}; memos(t).push(m); S.noteId = m.id; go("note"); }); };
 A.noteOpen = function(d){ S.noteId = d.id; go("note"); };
 function blockHtml(t, m, b, g){
