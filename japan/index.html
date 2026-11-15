@@ -1469,6 +1469,7 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 /* заметки */
 .memo-text{display:block;width:100%;text-align:left;padding:14px 16px;border-radius:24px;background:var(--set-bg);font-size:16px;line-height:22px;color:var(--label);white-space:normal}
 .memo-text[disabled]{opacity:1}
+.sug{margin-top:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2369,7 +2370,7 @@ A.addExp = function(){
   form("Трата", '<div class="pg" style="padding:0">'+fld("За что", '<input class="in" id="fEt" placeholder="Например, ужин">')+
     '<div class="inline">'+fld("Сколько", '<input class="in" id="fEa" inputmode="decimal">')+fld("Валюта", '<select class="in" id="fEc" data-input="expCur">'+t.cur.map(function(c){ return '<option>'+c+'</option>'; }).join("")+'<option value="_other">Другая…</option></select>')+'</div>'+
     '<select class="in" id="fEcO" hidden>'+CURS.filter(function(c){ return t.cur.indexOf(c) < 0; }).map(function(c){ return '<option>'+c+'</option>'; }).join("")+'</select>'+
-    fld("Кто платил", '<select class="in" id="fEp">'+memberOpts(t, S.me)+'</select>')+'<div><p class="label">На кого делить</p>'+seg("splitSeg", [["all","Все"],["sel","Выбрать"],["shares","По суммам"]], "all")+'</div><div id="splitBox"></div>'+
+    fld("Кто платил", '<select class="in" id="fEp">'+memberOpts(t, S.me)+'</select>')+'<div><p class="label">На кого делить</p>'+seg("splitSeg", [["all","Все"],["sel","Выбрать"]], "all")+'</div><div id="splitBox"></div>'+
     '<button class="primary" data-act="expSave">Добавить</button></div>');
 };
 INP.expCur = function(v){ $("fEcO").hidden = v !== "_other"; };
@@ -4397,6 +4398,37 @@ var _placeSaveNA = A.placeSave;
 A.placeSave = function(){ var q = $("fPq"), e = editedPlace(), before = e && e.p ? joinNA(e.p.n, e.p.addr) : null;
   if (q && before !== null && q.value.trim() === before){ var n = $("fPn"); if (n) n.value = e.p.n; _placeSaveNA(); return; }
   if (placeFromQ()) _placeSaveNA(); };
+
+
+/* ===== подсказки адреса: одна выпадашка под полем карты, поиск только внутри города дня/отеля ===== */
+var CITYBOX = {};
+function cityBox(city){ if (!city) return Promise.resolve(null); if (CITYBOX[city]) return Promise.resolve(CITYBOX[city]);
+  return nomi(city, 1).then(function(r){ var b = r && r[0] && r[0].boundingbox; if (!b) return null; CITYBOX[city] = {s:+b[0], n:+b[1], w:+b[2], e:+b[3]}; return CITYBOX[city]; }).catch(function(){ return null; }); }
+function nomiIn(q, city){ return cityBox(city).then(function(b){
+  var u = "https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&namedetails=1&limit=6&accept-language=ru,en&q="+encodeURIComponent(q);
+  if (b) u += "&bounded=1&viewbox="+[b.w, b.n, b.e, b.s].join(",");
+  return fetch(u).then(function(r){ return r.json(); }); }); }
+function sugLine(x){ var a = x.address || {}, nd = x.namedetails || {}, name = nd["name:ru"] || nd["name:en"] || x.name || String(x.display_name||"").split(",")[0].trim();
+  var street = a.road ? [a.road, a.house_number].filter(Boolean).join(" ") : "", area = a.suburb || a.city_district || a.quarter || a.neighbourhood || "";
+  var addr = [street, area].filter(Boolean).join(", ") || String(x.display_name||"").split(",").slice(1, 3).map(function(s){ return s.trim(); }).join(", ");
+  return {n:name, a:addr}; }
+var SUG = {res:[], field:null, city:"", t:null};
+function sugBox(field){ var i = $(field), mb = i && i.closest(".mapbox"); if (!mb) return null; var b = $("naSug");
+  if (!b){ b = document.createElement("div"); b.className = "stops sug"; b.id = "naSug"; b.hidden = true; mb.insertAdjacentElement("afterend", b); } return b; }
+function sugRun(field, city, v){ SUG.field = field; SUG.city = city; clearTimeout(SUG.t); var box = sugBox(field); if (!box) return;
+  if (!v || v.trim().length < 3){ box.hidden = true; return; }
+  SUG.t = setTimeout(function(){ var q = v.trim(); nomiIn(q, city).then(function(r){ if ($(field) && $(field).value.trim() !== q) return;
+    SUG.res = (r || []).map(sugLine).filter(function(x){ return x.n; }); var b = sugBox(field); if (!b) return; b.hidden = !SUG.res.length;
+    b.innerHTML = nb(SUG.res.slice(0, 5).map(function(x, i){ return '<button type="button" class="stop" data-act="sugPick" data-i="'+i+'"><span class="stop__n is-icon">'+IC.search+'</span><span class="stop__tx"><b>'+esc(x.n)+'</b><small>'+esc(x.a || city)+'</small></span></button>'; }).join("")); }).catch(function(){}); }, 650); }
+A.sugPick = function(d){ var x = SUG.res[+d.i], f = $(SUG.field); if (!x || !f) return; var full = joinNA(x.n, x.a);
+  f.value = full; var b = $("naSug"); if (b) b.hidden = true; clearTimeout(SUG.t);
+  var q = full + (SUG.city ? ", "+SUG.city : ""), link = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(q), mf = $("mapFrame"); if (mf) mf.src = gmap(q, 16);
+  if (SUG.field === "fHa"){ S.hq = q; var hl = $("fHl"); if (hl) hl.value = link; }
+  else { S.pq = q; var pl = $("fPl"); if (pl) pl.value = link; var cat = guessCat(x.n); if (cat && cat !== S.pcat){ S.pcat = cat; A.segPick({seg:"catSeg", v:cat}); } } };
+var _plQS = INP.plQ;
+INP.plQ = function(v){ _plQS(v); S.pq = null; sugRun("fPq", (S.map && S.map.city) || "", v); };
+var _hotQS = INP.hotQ;
+INP.hotQ = function(v){ _hotQS(v); S.hq = null; sugRun("fHa", S.hcity || "", v); };
 
 </script>
 </body>
