@@ -4430,6 +4430,24 @@ INP.plQ = function(v){ _plQS(v); S.pq = null; sugRun("fPq", (S.map && S.map.city
 var _hotQS = INP.hotQ;
 INP.hotQ = function(v){ _hotQS(v); S.hq = null; sugRun("fHa", S.hcity || "", v); };
 
+
+/* ===== подсказки адреса через Google Places (New): те же места и адреса, что на карте Google; поиск ограничен рамкой города. Если Google не ответил — OpenStreetMap ===== */
+var GPK = "AIzaSyBZKBLRcxX3Ouac9K7OGh2Qul-IttSACNk";
+function gAuto(q, city){ return cityBox(city).then(function(b){
+  var body = {input:q, languageCode:"ru"};
+  if (b) body.locationRestriction = {rectangle:{low:{latitude:b.s, longitude:b.w}, high:{latitude:b.n, longitude:b.e}}};
+  return fetch("https://places.googleapis.com/v1/places:autocomplete", {method:"POST", headers:{"Content-Type":"application/json", "X-Goog-Api-Key":GPK}, body:JSON.stringify(body)})
+    .then(function(r){ if (!r.ok) throw new Error("places "+r.status); return r.json(); })
+    .then(function(j){ return (j.suggestions || []).map(function(s){ var p = s.placePrediction; if (!p) return null; var sf = p.structuredFormat || {};
+      return {n:(sf.mainText && sf.mainText.text) || (p.text && p.text.text) || "", a:(sf.secondaryText && sf.secondaryText.text) || ""}; }).filter(function(x){ return x && x.n; }); }); }); }
+var _nomiInG = nomiIn;
+sugRun = function(field, city, v){ SUG.field = field; SUG.city = city; clearTimeout(SUG.t); var box = sugBox(field); if (!box) return;
+  if (!v || v.trim().length < 3){ box.hidden = true; return; }
+  SUG.t = setTimeout(function(){ var q = v.trim();
+    gAuto(q, city).catch(function(){ return _nomiInG(q, city).then(function(r){ return (r || []).map(sugLine); }); }).then(function(res){ if ($(field) && $(field).value.trim() !== q) return;
+      SUG.res = (res || []).filter(function(x){ return x.n; }); var b = sugBox(field); if (!b) return; b.hidden = !SUG.res.length;
+      b.innerHTML = nb(SUG.res.slice(0, 5).map(function(x, i){ return '<button type="button" class="stop" data-act="sugPick" data-i="'+i+'"><span class="stop__n is-icon">'+IC.search+'</span><span class="stop__tx"><b>'+esc(x.n)+'</b><small>'+esc(x.a || city)+'</small></span></button>'; }).join("")); }).catch(function(){}); }, 450); };
+
 </script>
 </body>
 </html>
