@@ -1801,7 +1801,7 @@ SCR.trip = function(r){
   } else {
     if (S.city){
       var ho = t.hotels[S.city];
-      h += ho ? '<button class="stay" data-act="go" data-s="hotels">'+ill("hotel","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">'+esc(ho.name)+'</p><p class="stay__meta">'+(ho.inD&&ho.outD?rangeS(ho.inD, ho.outD)+' · '+diff(ho.inD, ho.outD)+' '+pl(diff(ho.inD, ho.outD),"ночь","ночи","ночей"):esc(ho.addr))+'</p></div></button>'
+      h += ho ? '<button class="stay" data-act="hotelOpen" data-c="'+esc(S.city)+'">'+ill("hotel","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">'+esc(ho.name)+'</p><p class="stay__meta">'+(ho.inD&&ho.outD?rangeS(ho.inD, ho.outD)+' · '+diff(ho.inD, ho.outD)+' '+pl(diff(ho.inD, ho.outD),"ночь","ночи","ночей"):esc(ho.addr))+'</p></div></button>'
               : (ro() ? '' : '<button class="dashbox dashbox--row" data-act="go" data-s="hotels">'+ill("hotel","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">Где живёте в городе '+esc(S.city)+'?</p><p class="stay__meta">Добавить отель</p></div></button>');
     }
     (S.city ? days.filter(function(d){ return d.city === S.city; }) : days).forEach(function(d){ h += dayCard(t, d); });
@@ -3521,7 +3521,7 @@ var _SCRtripH = SCR.trip;
 SCR.trip = function(r){ var v = _SCRtripH(r), t = trip(r.trip);
   if (S.tab !== "prep" && !t.cities.length && v.view){
     var ho = t.hotels[t.country], n = diff(t.from, t.to), card;
-    if (ho) card = '<button class="stay" data-act="go" data-s="hotels">'+ill("hotel","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">'+esc(ho.name)+'</p><p class="stay__meta">'+(ho.inD&&ho.outD?rangeS(ho.inD, ho.outD):esc(ho.addr||""))+'</p></div></button>';
+    if (ho) card = '<button class="stay" data-act="hotelOpen" data-c="'+esc(t.country)+'">'+ill("hotel","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">'+esc(ho.name)+'</p><p class="stay__meta">'+(ho.inD&&ho.outD?rangeS(ho.inD, ho.outD):esc(ho.addr||""))+'</p></div></button>';
     else card = ro() ? '' : '<button class="addcard addcard--hotel" data-act="hotelOpen" data-c="'+esc(t.country)+'"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить отель</b><small>'+n+' '+pl(n,"ночь","ночи","ночей")+'</small></span></button>';
     v.view = v.view.replace(/(<div class="days days--home">(?:<p class="hint">[^<]*<\/p>)?)/, "$1"+card);
   }
