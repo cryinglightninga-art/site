@@ -1751,7 +1751,7 @@ function dayCard(t, d){
   }
   return '<section class="dayw">'+lbl+'<article class="day" data-act="openDay" data-k="'+d.k+'">'+(d.city?'<span class="day__badge">'+badge(d.city)+'</span>':'')+
     '<div class="sum">'+nt+ls.map(legRow).join("")+catSummaryRows(ps)+'</div>'+
-    (ts.length ? '<div class="check tasks">'+ts.slice().sort(function(a,b){ return a.done - b.done; }).map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+
+    (ts.length ? '<div class="check tasks">'+ts.map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+
     ds.map(function(x){ return attRow(t, x); }).join("")+
     (ps.length ? '<a class="btn-route" href="'+routeUrl(t, d.k)+'" target="_blank" rel="noopener">'+MAPS_IMG+'Маршрут дня</a>' : '')+'</article></section>';
 }
@@ -1851,7 +1851,7 @@ SCR.checklist = function(r){
   var h = '<div class="pg">';
   if (sel == null) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Раздел</b>', "newList");
   else {
-    var items = t.checks.filter(function(c){ return (c.l || "") === sel; }).sort(function(a,b){ return a.done - b.done; });
+    var items = t.checks.filter(function(c){ return (c.l || "") === sel; });
     h += items.length ? '<div class="check">'+items.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>' : (g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Пункт</b><span class="hint">можно назначить человеку и привязать к дню</span>', "addCheckHere"));
     if (!g && l) h += '<button class="linkbtn" data-act="listMenu">Переименовать или удалить раздел «'+esc(l.name)+'»</button>';
   }
@@ -1917,7 +1917,7 @@ function openDay(k){
       ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?v.dep+'–'+v.arr:v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+
       (g ? '' : addRow("moveSheet", ls.length ? 'Переезд' : mk ? esc(moveTitle(mk)) : 'Добавить переезд', ' data-k="'+k+'" data-i="-1"'))+'</div></div>';
   }
-  if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.slice().sort(function(a,b){ return a.done - b.done; }).map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
+  if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
   if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
   if (ps.length || !g){
     h += '<div><p class="label">Места по порядку</p><div class="stops" id="plist">'+(ho && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт</small></span></div>':'')+
