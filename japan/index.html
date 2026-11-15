@@ -1381,6 +1381,17 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 /* выбор страны: поиск прилипает сверху при прокрутке списка */
 .pg--form > .sq:has(#fQ){position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:5}
 .pg--form > .sq:has(#fQ)::before{content:"";position:absolute;left:-16px;right:-16px;top:-12px;bottom:-12px;background:var(--white);z-index:-1}
+/* тост с действием */
+#toast{pointer-events:auto}
+.toast__btn{margin-left:12px;font:600 15px/20px "Inter",sans-serif;color:#0088ff;background:none;border:0;padding:0}
+.day .check__item{overflow:hidden}
+/* длинное имя файла не вылезает из карточки */
+.addcard{min-width:0}
+.addcard__tx{flex:1;min-width:0}
+.addcard__tx b,.att__tx{display:block;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.att__tx small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* у крестика зона нажатия 44×44 */
+.fbox__clr::after{content:"";position:absolute;inset:-12px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1758,7 +1769,7 @@ function routeUrl(t, k){
 }
 function notesRows(t, k){ return (t.notes && t.notes[k] || []).map(function(n){ return li(ill(n.ic), esc(n.t), esc(n.s)); }).join(""); }
 function dayCard(t, d){
-  var ps = t.places[d.k] || [], ts = t.checks.filter(function(c){ return c.day === d.k; }), ds = t.docs.filter(function(x){ return x.day === d.k && (x.vis === "all" || x.owner === S.me); });
+  var ps = t.places[d.k] || [], ts = t.checks.filter(function(c){ return c.day === d.k && (!c.done || (S.jd && S.jd[c.id])); }), ds = t.docs.filter(function(x){ return x.day === d.k && (x.vis === "all" || x.owner === S.me); });
   var ls = legs(t, d.k), lbl = '<p class="day__lbl">'+dm(d.k)+', '+WD[D(d.k).getDay()]+'</p>';
   var nt = notesRows(t, d.k);
   if (!ps.length && !ts.length && !ds.length && !ls.length && !nt){
@@ -3770,6 +3781,44 @@ A.addCheck = function(pre){ _addCheck6(pre);
 A.checkVis = function(){ var t = trip(), id = S.cEdit, c = t.checks.filter(function(x){ return x.id === id; })[0]; if (!c) return;
   if (c.vis === "me"){ c.vis = ""; toast("Задачу видят все"); } else { c.vis = "me"; c.owner = S.me; toast("Задачу видите только вы"); }
   refresh(); A.addCheck({edit:id}); };
+
+/* карточка дня: выполненная задача пропадает через 3,5 с; «Вернуть» в тосте снимает отметку */
+S.jd = {};
+var _checkJ = A.check;
+A.check = function(d){
+  var c = trip().checks.filter(function(x){ return x.id === d.id; })[0], was = c && c.done;
+  var inCard = !!document.querySelector('#view .day [data-act="check"][data-id="'+d.id+'"]') && !$("sheet").classList.contains("is-open") && !$("fsheet").classList.contains("is-open");
+  if (inCard && c && !was) S.jd[d.id] = true;
+  _checkJ(d);
+  if (!inCard || !c || was || !c.done) return;
+  clearTimeout(A.check["t"+d.id]);
+  var el = $("toast"); el.innerHTML = 'Задача выполнена <button type="button" class="toast__btn" data-undo="'+d.id+'">Вернуть</button>'; el.classList.add("is-on"); clearTimeout(toast.t);
+  toast.t = setTimeout(function(){ el.classList.remove("is-on"); }, 3500);
+  A.check["t"+d.id] = setTimeout(function(){
+    var it = document.querySelector('#view .day [data-act="check"][data-id="'+d.id+'"]');
+    var done = function(){ delete S.jd[d.id]; refresh(); };
+    if (it && c.done){ var a = anim(it, [{opacity:1, maxHeight:it.offsetHeight+"px"},{opacity:0, maxHeight:"0px", paddingTop:"0px", paddingBottom:"0px"}], {duration:320, easing:"cubic-bezier(.3,.8,.4,1)", fill:"forwards"}); if (a) a.onfinish = done; else done(); }
+    else done();
+  }, 3500);
+};
+document.addEventListener("click", function(e){
+  var b = e.target.closest && e.target.closest("[data-undo]"); if (!b) return; e.preventDefault(); e.stopPropagation();
+  var id = b.getAttribute("data-undo"), c = trip().checks.filter(function(x){ return x.id === id; })[0];
+  clearTimeout(A.check["t"+id]); $("toast").classList.remove("is-on");
+  if (c && c.done){ c.done = false; c.by = null; } delete S.jd[id]; refresh();
+}, true);
+
+/* документ: имя файла — только подсказка в поле «Название», значение не подменяется */
+var _addDoc5 = A.addDoc;
+A.addDoc = function(pre){ _addDoc5(pre); var inp = $("fDf"), card = $("fDfCard"); if (!inp || !card) return;
+  inp.onchange = function(){ var x = inp.files[0], t = $("fDt"); if (!x) return; card.querySelector("b").textContent = x.name; var sm = card.querySelector("small"); if (sm) sm.textContent = "нажмите, чтобы заменить"; card.classList.add("is-file");
+    if (t){ t.placeholder = x.name.replace(/\.[^.]+$/, ""); } }; };
+/* крестик «очистить» срабатывает с первого касания (до того как поле теряет фокус) */
+document.addEventListener("pointerdown", function(e){
+  var b = e.target.closest && e.target.closest(".fbox__clr"); if (!b) return; e.preventDefault(); e.stopPropagation();
+  var box = b.closest(".fbox"), el = box && box.querySelector("input,textarea"); if (!el) return;
+  el.value = ""; el.dispatchEvent(new Event("input", {bubbles:true})); box.classList.remove("is-filled"); el.focus();
+}, true);
 
 </script>
 </body>
