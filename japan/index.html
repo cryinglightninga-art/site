@@ -1456,9 +1456,8 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .pin-add[hidden]{display:none}
 .sh-facts{margin:8px 0 0;font-size:14px;line-height:19px;color:var(--secondary)}
 .addcard--big{width:100%;min-height:72px}
-/* сегменты в формах: выбранный — тёмный, текст светлый (как Chip State=Selected в Figma) */
-.chips--seg .chip.is-active{background:var(--label)!important;box-shadow:none!important}
-.chips--seg .chip.is-active .chip__seg{background:transparent!important;box-shadow:none!important;color:var(--surface)!important}
+/* сегменты в формах — как табы валют: невыбранные на подложке --chip-inset, выбранный — обычный активный чип */
+.chips--seg .chip:not(.is-active){background:var(--chip-inset)!important;box-shadow:none!important}
 /* предупреждение — скругления и отступы как в Figma */
 .daywarn{border-radius:24px!important;padding:16px!important}
 </style>
@@ -2158,7 +2157,7 @@ A.wNext = function(){ if (S.W.edit){ applyEdit(); return; } cur().step++; render
 A.wCreate = function(){
   var W = S.W, cc = COUNTRIES.filter(function(c){ return c.n === W.country; })[0];
   var t = {id:"t"+uid(), country:W.country, flag:cc.f, from:W.from, to:W.to, owner:S.me, archived:false, cities:W.cities, cur:[cc.cur].concat(cc.cur===S.home?[]:[S.home]),
-    members:[{id:S.me, name:S.users[S.me]}], hotels:{}, moves:W.moves || {}, places:{}, nodate:[], notes:{}, lists:defLists(), visa:[], visaDocs:[], checks:[], money:[],
+    members:[{id:S.me, name:S.users[S.me]}], hotels:{}, moves:W.moves || {}, places:{}, nodate:[], notes:{}, lists:[], visa:[], visaDocs:[], checks:[], money:[],
     docs:(W.docs || []).map(function(d){ return {id:uid(), title:d.title, type:"Билет", owner:null, vis:"all", day:d.day}; })};
   S.trips.push(t); S.W = null; S.stack = [{s:"trips"},{s:"created", trip:t.id}]; render();
 };
@@ -2323,7 +2322,7 @@ A.listMenu = function(){ var t = trip(), l = t.lists.filter(function(x){ return 
   form(l.name, '<div class="pg" style="padding:0">'+fld("Название раздела", '<input class="in" id="fLr" value="'+esc(l.name)+'">')+'<div class="stack"><button class="primary" data-act="listRename">Сохранить</button><button class="btn2 is-danger" data-act="listDel">Удалить раздел</button></div><p class="hint">Пункты раздела удалятся и из дней.</p></div>'); };
 A.listRename = function(){ var n = val("fLr"); if (!n) return; trip().lists.filter(function(x){ return x.id === S.listSel; })[0].name = n; closeForm(); render(); };
 A.listDel = function(){ var t = trip(), id = S.listSel; t.lists = t.lists.filter(function(x){ return x.id !== id; }); t.checks = t.checks.filter(function(c){ return c.l !== id; }); S.listSel = null; closeForm(); render(); };
-A.suggestList = function(){ var t = trip(); if (!t.lists.length) t.lists = defLists(); var id = S.listSel || t.lists[0].id; (TPL[t.country] || TPL._).forEach(function(x){ t.checks.push({id:uid(), l:id, t:x.t, s:x.s, who:"", day:"", done:false}); }); render(); };
+A.suggestList = function(){ var t = trip(); if (!t.lists.length) t.lists = [{id:"l"+uid(), name:"Перед поездкой"}]; var id = S.listSel || t.lists[0].id; (TPL[t.country] || TPL._).forEach(function(x){ t.checks.push({id:uid(), l:id, t:x.t, s:x.s, who:"", day:"", done:false}); }); render(); };
 A.addCheckHere = function(){ A.addCheck({l:S.listSel}); };
 A.addCheck = function(pre){
   var t = trip(); pre = pre || {};
@@ -2921,7 +2920,7 @@ A.wCreate = async function(){
   var t = buildTrip(id, [{id:"meta", kind:"meta", data:meta}], [{id:ms.data.id, name:S.profile.name, role:"owner", user_id:S.uid}], {});
   if (S.profile.avatar) S.avatars[t.me] = S.profile.avatar;
   SNAP[id] = {meta:JSON.stringify(ser(t).meta.data)}; MSNAP[id] = {}; MSNAP[id][t.me] = S.profile.name;
-  t.lists = defLists();
+  t.lists = [];
   S.trips.push(t); S.W = null; S.stack = [{s:"trips"},{s:"created", trip:id}]; render();
 };
 
@@ -4179,6 +4178,16 @@ A.mapPinAdd = function(){
   if (pq){ var q = pq.value.trim(); if (q.length < 2) return; var city = S.map.city || "", qq = q + (city ? ", "+city : "");
     pushPlace({n:q, c:guessCat(q), q:qq, link:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(qq)}); toast("«"+q+"» добавлено"); return; }
   var ha = $("fHa"); if (ha){ var v = ha.value.trim(); if (v.length < 2) return; S.hq = v + (S.hcity ? ", "+S.hcity : ""); $("fHl").value = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(S.hq); toast("Адрес взят с карты"); }
+};
+
+/* сегменты в формах — как табы валют: невыбранные на подложке chip/inset, выбранный — обычный активный чип */
+/* пустой блок «Переезд» с ожидаемым переездом — пунктирной карточкой, как «Добавить место» */
+var _openDayMP = openDay;
+openDay = function(k){ _openDayMP(k); var b = $("sheetBody"); if (!b || ro()) return;
+  [].forEach.call(b.children, function(sec){ var l = sec.querySelector(":scope > .label"), st = sec.querySelector(":scope > .stops"); if (!l || !st || l.textContent !== "Переезд") return;
+    var add = st.querySelector(":scope > .stop--add[data-act='moveSheet']"); if (!add || st.children.length !== 1 || add.textContent.indexOf("→") < 0) return;
+    var title = add.querySelector(".stop__tx") ? add.querySelector(".stop__tx").textContent : add.textContent;
+    sec.innerHTML = '<button class="addcard addcard--big" data-act="moveSheet" data-k="'+add.getAttribute("data-k")+'" data-i="-1"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>'+esc(title.trim())+'</b><small>перелёт, поезд или автобус</small></span></button>'; });
 };
 
 </script>
