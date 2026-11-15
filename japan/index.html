@@ -1975,7 +1975,7 @@ SCR.checklist = function(r){
   if (ids.indexOf(S.listSel) < 0) S.listSel = ids.length ? ids[0] : null;
   var sel = S.listSel, l = t.lists.filter(function(x){ return x.id === sel; })[0];
   var chips = '<div class="chips">'+t.lists.map(function(x){ var n = t.checks.filter(function(c){ return c.l === x.id && !c.done; }).length; return chip(x.name, n || null, x.id === sel, 'data-act="listSel" data-id="'+x.id+'"'); }).join("")+
-    (loose.length ? chip("Без раздела", loose.length, sel === "", 'data-act="listSel" data-id=""') : '')+(g ? '' : '<button class="chip chip--add" data-act="newList" aria-label="Новый раздел"><span class="chip__seg">＋</span></button>')+'</div>';
+    (g ? '' : '<button class="chip chip--add" data-act="newList" aria-label="Новый раздел"><span class="chip__seg">＋</span></button>')+'</div>';
   var all = t.checks.length, done = t.checks.filter(function(c){ return c.done; }).length;
   var h = '<div class="pg">';
   if (sel == null) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Раздел</b>', "newList");
@@ -2221,7 +2221,7 @@ A.placeSheet = function(d){
   S.edit = {day:d.day, id:d.id}; S.pcat = p.c || "sight";
   form(p.n, '<div class="pg" style="padding:0">'+catSeg(S.pcat)+fld("Название", '<input class="in" id="fPn" value="'+esc(p.n)+'">')+
     '<div class="inline">'+fld("Время", '<input class="in" id="fPt" type="time" value="'+esc(p.t)+'">')+fld("День", '<select class="in" id="fPday">'+dayOpts(t, d.day==="_nodate"?"":d.day, d.day==="_nodate"?"Без даты":"")+'</select>')+'</div>'+
-    fld("Заметка", '<textarea class="in" id="fPnote">'+esc(p.note)+'</textarea>')+fld("Ссылка на Google Maps", '<input class="in" id="fPl" value="'+esc(p.link)+'" placeholder="https://maps.app.goo.gl/…">')+
+    fld("Описание", '<textarea class="in" id="fPnote">'+esc(p.note)+'</textarea>')+fld("Ссылка на Google Maps", '<input class="in" id="fPl" value="'+esc(p.link)+'" placeholder="https://maps.app.goo.gl/…">')+
     '<button class="primary" data-act="placeSave">Сохранить</button></div>', "", null, maps);
 };
 function editedPlace(){ var t = trip(), arr = S.edit.day === "_nodate" ? t.nodate : t.places[S.edit.day]; return {arr:arr, p:arr.filter(function(x){ return x.id === S.edit.id; })[0]}; }
@@ -2335,7 +2335,7 @@ A.suggestList = function(){ var t = trip(); if (!t.lists.length) t.lists = [{id:
 A.addCheckHere = function(){ A.addCheck({l:S.listSel}); };
 A.addCheck = function(pre){
   var t = trip(); pre = pre || {};
-  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===pre.l?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(pre.l===""?' selected':'')+'>Без раздела</option><option value="_new">＋ Новый раздел</option>';
+  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===pre.l?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(pre.l===""?' selected':'')+'>Все задачи</option><option value="_new">＋ Новый раздел</option>';
   form(pre.day ? "Задача на "+dm(pre.day) : "Пункт", '<div class="pg" style="padding:0">'+fld("Что сделать", '<input class="in" id="fCt" placeholder="Например, купить eSIM">')+
     fld("Раздел чек-листа", '<select class="in" id="fCg" data-input="listPick">'+lopts+'</select>')+'<input class="in" id="fCnew" placeholder="Название раздела" hidden>'+
     '<div class="inline">'+fld("Кому", '<select class="in" id="fCw">'+memberOpts(t, "", "Никому")+'</select>')+fld("К какому дню", '<select class="in" id="fCd">'+dayOpts(t, pre.day||"", "Без дня")+'</select>')+'</div>'+
@@ -2369,7 +2369,7 @@ A.addExp = function(){
   form("Трата", '<div class="pg" style="padding:0">'+fld("За что", '<input class="in" id="fEt" placeholder="Например, ужин">')+
     '<div class="inline">'+fld("Сколько", '<input class="in" id="fEa" inputmode="decimal">')+fld("Валюта", '<select class="in" id="fEc" data-input="expCur">'+t.cur.map(function(c){ return '<option>'+c+'</option>'; }).join("")+'<option value="_other">Другая…</option></select>')+'</div>'+
     '<select class="in" id="fEcO" hidden>'+CURS.filter(function(c){ return t.cur.indexOf(c) < 0; }).map(function(c){ return '<option>'+c+'</option>'; }).join("")+'</select>'+
-    fld("Кто платил", '<select class="in" id="fEp">'+memberOpts(t, S.me)+'</select>')+'<div><p class="label">На кого делить</p>'+seg("splitSeg", [["all","Все"],["sel","Выбрать"],["shares","Свои доли"]], "all")+'</div><div id="splitBox"></div>'+
+    fld("Кто платил", '<select class="in" id="fEp">'+memberOpts(t, S.me)+'</select>')+'<div><p class="label">На кого делить</p>'+seg("splitSeg", [["all","Все"],["sel","Выбрать"],["shares","По суммам"]], "all")+'</div><div id="splitBox"></div>'+
     '<button class="primary" data-act="expSave">Добавить</button></div>');
 };
 INP.expCur = function(v){ $("fEcO").hidden = v !== "_other"; };
@@ -3191,7 +3191,7 @@ A.addDoc = function(pre){
 };
 A.addCheck = function(pre){
   var t = trip(); pre = pre || {};
-  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===pre.l?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(pre.l===""?' selected':'')+'>Без раздела</option><option value="_new">Новый раздел…</option>';
+  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===pre.l?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(pre.l===""?' selected':'')+'>Все задачи</option><option value="_new">Новый раздел…</option>';
   form("Задача", '<div class="pg pg--sheet">'+fld("Что сделать", '<input class="in" id="fCt" placeholder="Например, купить eSIM">')+
     fld("Раздел чек-листа", '<select class="in" id="fCg" data-input="listPick">'+lopts+'</select>')+'<input class="in" id="fCnew" placeholder="Название раздела" hidden>'+
     '<div class="inline">'+fld("Кому", '<select class="in" id="fCw">'+memberOpts(t, "", "Никому")+'</select>')+fld("К какому дню", '<select class="in" id="fCd">'+dayOpts(t, pre.day||"", "Без дня")+'</select>')+'</div>'+
@@ -3231,7 +3231,7 @@ A.placeSheet = function(d){
   S.edit = {day:d.day, id:d.id}; S.pcat = p.c || "sight";
   form(p.n, '<div class="pg pg--sheet">'+catSeg(S.pcat)+fld("Название", '<input class="in" id="fPn" value="'+esc(p.n)+'">')+
     '<div class="inline">'+fld("Время", '<input class="in" id="fPt" type="time" value="'+esc(p.t)+'">')+fld("День", '<input class="in" id="fPday" type="date" min="'+t.from+'" max="'+t.to+'" value="'+(d.day==="_nodate"?"":d.day)+'">')+'</div>'+
-    fld("Заметка", '<textarea class="in" id="fPnote" rows="2">'+esc(p.note)+'</textarea>')+fld("Ссылка на Google Maps", '<input class="in" id="fPl" value="'+esc(p.link)+'" placeholder="https://maps.app.goo.gl/…">')+
+    fld("Описание", '<textarea class="in" id="fPnote" rows="2">'+esc(p.note)+'</textarea>')+fld("Ссылка на Google Maps", '<input class="in" id="fPl" value="'+esc(p.link)+'" placeholder="https://maps.app.goo.gl/…">')+
     '<button class="primary" data-act="placeSave">Сохранить</button></div>', "", null, maps);
 };
 var _placeSave = A.placeSave;
@@ -3467,7 +3467,7 @@ A.placeMode = function(d){ var l = $("pmLink"), o = $("pmOwn"), was = d.m === "l
   var box = !l.hidden ? l : !o.hidden ? o : null; if (box){ anim(box, [{opacity:0, transform:"translateY(-6px)"},{opacity:1, transform:"none"}], {duration:320, easing:SPRING}); var f = box.querySelector("input"); if (f) f.focus(); } };
 /* переезд: «Заметка» и билет — пунктирной плашкой */
 var _moveSheet2 = A.moveSheet;
-A.moveSheet = function(d){ _moveSheet2(d); var n = $("fMn"); if (n){ var l = n.closest(".fld"); if (l) l.querySelector(".label").textContent = "Заметка"; }
+A.moveSheet = function(d){ _moveSheet2(d); var n = $("fMn"); if (n){ var l = n.closest(".fld"); if (l) l.querySelector(".label").textContent = "Описание"; }
   var f = $("fMfile"); if (!f) return; var lab = f.closest(".fld"); if (!lab) return;
   var card = document.createElement("label"); card.className = "addcard"; card.id = "fMfCard";
   card.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить билет</b><small>PDF или скриншот</small></span>';
@@ -3818,7 +3818,7 @@ fillInvite = async function(kind){
 A.addCheck = function(pre){
   var t = trip(); pre = pre || {}; var c = pre.edit ? t.checks.filter(function(x){ return x.id === pre.edit; })[0] : null; S.cEdit = c ? c.id : null;
   var cur = c ? (c.l || "") : (pre.l == null || pre.l === "_all" ? "" : pre.l), day = c ? c.day : (pre.day || "");
-  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===cur?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(cur===""?' selected':'')+'>Без раздела</option><option value="_new">Новый раздел…</option>';
+  var lopts = t.lists.map(function(l){ return '<option value="'+l.id+'"'+(l.id===cur?' selected':'')+'>'+esc(l.name)+'</option>'; }).join("")+'<option value=""'+(cur===""?' selected':'')+'>Все задачи</option><option value="_new">Новый раздел…</option>';
   form("Задача", '<div class="pg pg--sheet">'+fld("Что сделать", '<input class="in" id="fCt" placeholder="Например, купить eSIM" value="'+(c?esc(c.t):'')+'">')+
     fld("Описание", '<textarea class="in" id="fCs" rows="2" placeholder="Подробности, если нужны">'+(c?esc(c.s||''):'')+'</textarea>')+
     fld("Раздел чек-листа", '<select class="in" id="fCg" data-input="listPick">'+lopts+'</select>')+'<input class="in" id="fCnew" placeholder="Название раздела" hidden>'+
@@ -4211,11 +4211,11 @@ SCR.checklist = function(r){
   S.listSel = "_all";
   var v = _SCRcheckAll(r); S.listSel = "_all";
   var groups = t.lists.map(function(l){ return {name:l.name, items:t.checks.filter(function(c){ return c.l === l.id; })}; });
-  var loose = t.checks.filter(function(c){ return !c.l || !t.lists.some(function(l){ return l.id === c.l; }); }); if (loose.length) groups.push({name:"Без раздела", items:loose});
+  var loose = t.checks.filter(function(c){ return !c.l || !t.lists.some(function(l){ return l.id === c.l; }); }); if (loose.length) groups.unshift({name:"", items:loose});
   groups = groups.filter(function(x){ return x.items.length; });
   var h = '<div class="pg">';
   if (!groups.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Задача</b><span class="hint">можно назначить человеку и привязать к дню</span>', "addCheckHere");
-  else groups.forEach(function(x){ h += (groups.length > 1 || x.name !== "Без раздела" ? '<p class="label">'+esc(x.name)+'</p>' : '')+'<div class="check">'+x.items.map(function(c){ return checkItem(t, c, true); }).join("")+(g ? '' : '')+'</div>'; });
+  else groups.forEach(function(x){ h += (x.name ? '<p class="label">'+esc(x.name)+'</p>' : '')+'<div class="check">'+x.items.map(function(c){ return checkItem(t, c, true); }).join("")+(g ? '' : '')+'</div>'; });
   if (!g && groups.length) h += '<button class="addrow addrow--solo" data-act="addCheckHere"><span>＋</span>Добавить задачу</button>';
   v.view = h+'</div>';
   return allChip(v, t);
@@ -4237,7 +4237,7 @@ function placeForm(t, p, isNew, day){
   var html = '<div class="pg pg--sheet">'+mapBox("fPq", "", "Поиск на карте", "plQ")+catSeg(S.pcat)+
     fld("Название", '<input class="in" id="fPn" value="'+esc(p.n||"")+'" placeholder="Например, Fushimi Inari">')+
     '<div class="inline">'+fld("Время", '<input class="in" id="fPt" type="time" value="'+esc(p.t||"")+'">')+fld("День", '<input class="in" id="fPday" type="date" min="'+t.from+'" max="'+t.to+'" value="'+(day==="_nodate"?"":day)+'">')+'</div>'+
-    fld("Заметка", '<textarea class="in" id="fPnote" rows="2" placeholder="Например, рядом с Shibuya 109">'+esc(p.note||"")+'</textarea>')+
+    fld("Описание", '<textarea class="in" id="fPnote" rows="2" placeholder="Например, рядом с Shibuya 109">'+esc(p.note||"")+'</textarea>')+
     fld("Ссылка на Google Maps", '<input class="in" id="fPl" value="'+esc(p.link||"")+'" placeholder="https://maps.app.goo.gl/…">')+
     '<button class="primary" data-act="'+(isNew ? "placeAddNew" : "placeSave")+'">'+(isNew ? "Добавить" : "Сохранить")+'</button></div>';
   return {html:html, city:city};
@@ -4365,6 +4365,38 @@ swDelete = function(el){ var k = el.getAttribute("data-sw").split(":"), t = trip
   if (k[0] === "mitem"){ var p = k[1].split("|"), b = curBlk(p[0]); if (b){ b.items = b.items.filter(function(x){ return x.id !== p[1]; }); if (!b.items.length) memo(t, S.noteId).blocks = memo(t, S.noteId).blocks.filter(function(x){ return x.id !== b.id; }); } swOpen = null; refresh(); toast("Удалено"); return; }
   if (k[0] === "mblk"){ var m = memo(t, S.noteId); m.blocks = m.blocks.filter(function(x){ return x.id !== k[1]; }); swOpen = null; refresh(); toast("Убрано из заметки"); return; }
   return _swDelN(el); };
+
+
+/* ===== переезд из подсказки: дата отправления — первый из двух дней (последний день первого города), с какой стороны ни открывай ===== */
+var _moveSheetPD = A.moveSheet;
+A.moveSheet = function(d){ _moveSheetPD(d); var t = trip(), pm = pendingMove(t, d.k);
+  if (!pm || ro() || !(d.i == null || +d.i < 0) || legs(t, d.k).length) return;
+  var dd = $("fMdD"); if (dd && pm.prev) dd.value = pm.prev; };
+
+/* ===== место и отель: одно поле «название, адрес» — название берётся до первой запятой, отдельного поля нет ===== */
+function splitNA(v){ v = (v || "").trim(); var i = v.indexOf(","); return i < 0 ? {n:v, a:""} : {n:v.slice(0, i).trim(), a:v.slice(i+1).trim()}; }
+function joinNA(n, a){ n = (n || "").trim(); a = (a || "").trim(); if (!a) return n; if (!n || a.indexOf(n) === 0) return a; return n+", "+a; }
+function hideFld(id){ var e = $(id); if (e){ var f = e.closest(".fld"); if (f) f.hidden = true; } }
+function noPin(){ [].forEach.call(document.querySelectorAll("#fBody .pin-add"), function(b){ b.remove(); }); }
+var _hotelOpenNA = A.hotelOpen;
+A.hotelOpen = function(d, el, e){ _hotelOpenNA(d, el, e); noPin(); if (ro() || !$("fHn")) return;
+  var h = trip().hotels[d.c] || {}, a = $("fHa"); hideFld("fHn"); if (a){ a.value = joinNA(h.name, h.addr); a.placeholder = "Название и адрес отеля"; } };
+var _hotelSaveNA = A.hotelSave;
+A.hotelSave = function(){ var a = $("fHa"), n = $("fHn"); if (a && n){ var s = splitNA(a.value); if (!s.n){ toast("Введите название отеля"); return; } n.value = s.n; a.value = s.a; } _hotelSaveNA(); };
+function placeNA(p){ noPin(); var q = $("fPq"); hideFld("fPn"); if (!q) return; q.placeholder = "Название или адрес места"; if (p && p.n) q.value = joinNA(p.n, p.addr); }
+var _addPlaceNA = A.addPlace;
+A.addPlace = function(){ _addPlaceNA(); placeNA(null); };
+var _placeSheetNA = A.placeSheet;
+A.placeSheet = function(d){ _placeSheetNA(d); if (ro()) return; var t = trip(), arr = d.day === "_nodate" ? t.nodate : t.places[d.day], p = arr && arr.filter(function(x){ return x.id === d.id; })[0]; placeNA(p); };
+function placeFromQ(){ var q = $("fPq"), n = $("fPn"); if (!q || !n) return true; var s = splitNA(q.value); if (!s.n){ toast("Введите название или адрес места"); return false; }
+  n.value = s.n; var city = (S.map && S.map.city) || ""; S.pq = q.value.trim() + (city && q.value.indexOf(city) < 0 ? ", "+city : "");
+  var l = $("fPl"); if (l && !l.value) l.value = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(S.pq); return true; }
+var _placeAddNewNA = A.placeAddNew;
+A.placeAddNew = function(){ if (placeFromQ()) _placeAddNewNA(); };
+var _placeSaveNA = A.placeSave;
+A.placeSave = function(){ var q = $("fPq"), e = editedPlace(), before = e && e.p ? joinNA(e.p.n, e.p.addr) : null;
+  if (q && before !== null && q.value.trim() === before){ var n = $("fPn"); if (n) n.value = e.p.n; _placeSaveNA(); return; }
+  if (placeFromQ()) _placeSaveNA(); };
 
 </script>
 </body>
