@@ -1499,6 +1499,9 @@ html[data-tabs="A"] .chips .chip .chip__seg,html[data-tabs="A"] .chips--seg .chi
 html[data-tabs="A"] .chips .chip.is-active,html[data-tabs="A"] .chips--seg .chip.is-active,html[data-tabs="A"] .mconv__cur .chip.is-active{background:var(--tg-ink)!important;box-shadow:none!important}
 html[data-tabs="A"] .chip.is-active .chip__seg,html[data-tabs="A"] .chip.is-active .chip__n,html[data-tabs="A"] .chip.is-active svg{color:var(--white,#fff)!important}
 @media (prefers-color-scheme: dark){html[data-tabs="A"] .chip.is-active .chip__seg,html[data-tabs="A"] .chip.is-active .chip__n,html[data-tabs="A"] .chip.is-active svg{color:#000!important}}
+
+.fld--seg{display:flex;flex-direction:column;gap:6px}
+#trailing{display:flex;gap:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4479,6 +4482,23 @@ sugRun = function(field, city, v){ SUG.field = field; SUG.city = city; clearTime
 
 /* табы: ?tabs=A или ?tabs=D переключает вид и запоминает выбор на этом устройстве */
 (function(){ try { var m = location.search.match(/[?&]tabs=([AD])/); if (m) localStorage.setItem("tabsStyle", m[1]); var v = localStorage.getItem("tabsStyle"); if (v === "A") document.documentElement.setAttribute("data-tabs", "A"); } catch(_){} })();
+
+
+/* ===== заметка: «＋» — только добавить блок; «⋯» — переименовать и удалить. Текстовый блок называется «Заметка» ===== */
+NATIVE_TRIG.push("noteMore");
+var _SCRnoteM = SCR.note;
+SCR.note = function(r){ var v = _SCRnoteM(r); if (!ro() && memo(trip(r.trip), S.noteId)) v.right = gbtn("noteMore", SVG.dots, "Ещё")+gbtn("noteMenu", SVG.plus, "Добавить", "btn-acc"); return v; };
+A.noteMenu = function(){ var m = $("addMenu"); if (!m.hidden){ m.hidden = true; return; }
+  menu(m, [["blkAdd","Заметка",' data-type="text"'],["blkAdd","Список с задачами",' data-type="checks"'],["blkAdd","Нумерованный список",' data-type="steps"'],["blkAdd","Документ",' data-type="doc"']]); };
+A.noteMore = function(){ var m = $("tMenu"); if (!m.hidden){ m.hidden = true; return; } menu(m, [["noteRename","Переименовать заметку"],["noteDelAsk","Удалить заметку",' class="is-danger"']]); };
+BLK.text = "Заметка";
+var _blkAddT = A.blkAdd;
+A.blkAdd = function(d){ _blkAddT(d); if (d.type === "text" && $("fTitle")) $("fTitle").textContent = "Заметка"; };
+var _blkEditT = A.blkEdit;
+A.blkEdit = function(d){ _blkEditT(d); if ($("fTitle")) $("fTitle").textContent = "Заметка"; };
+/* место: подпись над типом места */
+var _placeFormT = placeForm;
+placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r.html = r.html.replace('<div class="chips chips--seg" id="catSeg"', '<div class="fld fld--seg"><p class="label">Тип места</p><div class="chips chips--seg" id="catSeg"').replace(/(<div class="chips chips--seg" id="catSeg"[^]*?<\/div>)/, '$1</div>'); return r; };
 
 </script>
 </body>
