@@ -1378,6 +1378,9 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .check__box{position:relative}
 .check__box::after{content:"";position:absolute;inset:-12px}
 .check__item[data-act='check']{cursor:pointer}
+/* выбор страны: поиск прилипает сверху при прокрутке списка */
+.pg--form > .sq:has(#fQ){position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px);z-index:5}
+.pg--form > .sq:has(#fQ)::before{content:"";position:absolute;left:-16px;right:-16px;top:-12px;bottom:-12px;background:var(--white);z-index:-1}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3410,14 +3413,16 @@ var _listSelA = A.listSel; A.listSel = function(d){ keepChips(function(){ _listS
 
 /* ===== шторка дня: пустые блоки не занимают место ===== */
 var _openDayH = openDay;
-openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), acts = [];
+openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), keepMove = false;
   var map = {moveSheet:["Переезд", "plane"], addTask:["Задача", "check"], addDocDay:["Документ", "doc"]};
   [].slice.call(b.children).forEach(function(sec){ var st = sec.querySelector(":scope > .stops"); if (!st) return;
-    var items = st.children, add = st.querySelector(".stop--add"); if (!add || items.length !== 1) return;
+    var add = st.querySelector(":scope > .stop--add"); if (!add) return;
     var act = add.getAttribute("data-act"); if (!map[act]) return;
-    if (act === "moveSheet" && add.textContent.indexOf("→") >= 0) return;   /* ожидаемый переезд между городами — оставляем на виду */
-    acts.push('<button class="qadd glass" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'); sec.remove(); });
-  if (acts.length) b.insertAdjacentHTML("beforeend", '<div><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
+    if (act === "moveSheet" && add.textContent.indexOf("→") >= 0){ keepMove = true; return; }   /* ожидаемый переезд между городами — подсказка остаётся */
+    add.remove(); if (!st.children.length) sec.remove(); });
+  var acts = Object.keys(map).filter(function(a){ return !(a === "moveSheet" && keepMove); }).map(function(act){
+    return '<button class="qadd glass" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'; });
+  b.insertAdjacentHTML("beforeend", '<div class="qadds-wrap"><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
 };
 
 /* ===== шторка документа: плашка файла сверху, поля как при создании ===== */
@@ -3745,6 +3750,26 @@ A.checkDel = function(){
 };
 var _addCheck5 = A.addCheck;
 A.addCheck = function(pre){ _addCheck5(pre); requestAnimationFrame(function(){ taFit($("fCs")); }); setTimeout(function(){ taFit($("fCs")); }, 350); };
+
+/* «⋯» шторки: пункты всегда берутся заново (у документа — «Скрыть от попутчиков» и «Удалить») */
+var _formMore = form;
+form = function(){ var r = _formMore.apply(this, arguments); var sel = $("fMore")._nsel; if (sel) sel._items = null; return r; };
+var _closeFormC = closeForm;
+closeForm = function(){ S.cEdit = null; return _closeFormC.apply(this, arguments); };
+
+/* задача: «Скрыть от попутчиков» в «⋯» — видит только тот, кто скрыл */
+function checkHidden(c){ return c && c.vis === "me" && c.owner && c.owner !== S.me; }
+var _checkItemV = checkItem;
+checkItem = function(t, c, meta){ if (checkHidden(c)) return ""; var h = _checkItemV(t, c, meta);
+  if (c.vis === "me") h = /<small>/.test(h) ? h.replace("<small>", "<small>Видите только вы · ") : h.replace("</b>", "</b><small>Видите только вы</small>");
+  return h; };
+var _addCheck6 = A.addCheck;
+A.addCheck = function(pre){ _addCheck6(pre);
+  if (S.cEdit){ var c = trip().checks.filter(function(x){ return x.id === S.cEdit; })[0];
+    S.fMore = [["checkVis", c && c.vis === "me" ? "Показать попутчикам" : "Скрыть от попутчиков"],["checkDel","Удалить"]]; } };
+A.checkVis = function(){ var t = trip(), id = S.cEdit, c = t.checks.filter(function(x){ return x.id === id; })[0]; if (!c) return;
+  if (c.vis === "me"){ c.vis = ""; toast("Задачу видят все"); } else { c.vis = "me"; c.owner = S.me; toast("Задачу видите только вы"); }
+  refresh(); A.addCheck({edit:id}); };
 
 </script>
 </body>
