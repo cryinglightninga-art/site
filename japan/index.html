@@ -4039,6 +4039,19 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
   document.addEventListener("touchend", end); document.addEventListener("touchcancel", function(){ if (st && st.el){ st.el.style.transform = ""; st.el.style.opacity = ""; } st = null; });
 })();
 
+/* табы-чипы: при возврате на экран — та же прокрутка, что была; активный таб всегда в зоне видимости */
+(function(){
+  var CHS = {}, q = "#chipsSlot .chips, #chipsSlot .chipsc";
+  function key(){ var r = cur(); return r ? r.s+":"+(r.trip||"") : ""; }
+  document.addEventListener("scroll", function(e){ var el = e.target; if (el && el.matches && el.matches(q)){ var k = key(), all = [].slice.call(document.querySelectorAll(q)); CHS[k] = CHS[k] || []; CHS[k][all.indexOf(el)] = el.scrollLeft; } }, true);
+  function reveal(el, smooth){ var a = el.querySelector(".chip.is-active"); if (!a) return; var nb = el.getBoundingClientRect(), cb = a.getBoundingClientRect(), x0 = cb.left - nb.left + el.scrollLeft, l = x0 - 16, r = x0 + cb.width + 16 - el.clientWidth;
+    var to = el.scrollLeft > l ? l : (el.scrollLeft < r ? r : null); if (to != null){ if (smooth) el.scrollTo({left:to, behavior:"smooth"}); else el.scrollLeft = to; } }
+  var _r = render, last = "";
+  render = function(){ var res = _r.apply(this, arguments), k = key(), changed = k !== last; last = k;
+    [].forEach.call(document.querySelectorAll(q), function(el, i){ if (changed && CHS[k] && CHS[k][i] != null) el.scrollLeft = CHS[k][i]; reveal(el, !changed); });
+    return res; };
+})();
+
 </script>
 </body>
 </html>
