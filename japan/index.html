@@ -1805,14 +1805,16 @@ function catSummaryRows(ps){
   }).join("");
 }
 function city(s){ return String(s||"").split(",")[0].trim(); }
-function legSpan(v){ return v.dep+'–'+v.arr+(v.arr < v.dep ? '\u00a0+1' : ''); }
+function legSpan(v, k){ var x = v.dep+'–'+v.arr; if (v.arrD && k && v.arrD !== k) x += ', прибытие '+dm(v.arrD); return x; }
 function nextK(k){ var d = D(k); d.setDate(d.getDate()+1); return K(d); }
 function prevK(k){ var d = D(k); d.setDate(d.getDate()-1); return K(d); }
-function overnight(t, k){ return legs(t, k).filter(function(v){ return v.dep && v.arr && v.arr < v.dep; }); }
-function arrRows(t, k){ return overnight(t, prevK(k)).map(function(v){ return li(moveIc(v.type), 'Прибытие · '+esc(city(v.to)), 'в '+v.arr); }).join(""); }
-function nightWarn(t, k, cityName){ var ov = overnight(t, k), h = cityName && t.hotels[cityName]; if (!ov.length || !h || h.inD !== nextK(k)) return "";
-  var v = ov[ov.length-1]; return '<p class="daywarn">Приезжаете '+dm(nextK(k))+' в '+esc(v.arr)+', а заезд в отель тоже '+dm(nextK(k))+' — ночь без жилья</p>'; }
-function legRow(v){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? legSpan(v) : v.dep ? 'в '+v.dep : ''); }
+function overnight(t, k){ return legs(t, k).filter(function(v){ return v.arrD && v.arrD > k; }); }
+function arriving(t, k){ var out = []; Object.keys(t.moves).forEach(function(kk){ if (kk === k) return; legs(t, kk).forEach(function(v, i){ if (v.arrD === k) out.push({v:v, k:kk, i:i}); }); }); return out; }
+function arrRows(t, k){ return arriving(t, k).map(function(a){ return legRow(a.v, a.k); }).join(""); }
+function moveDay(t, k){ var mv = moveFor(t, k); return (mv && mv.kind === "mid") || overnight(t, k).length > 0 || arriving(t, k).length > 0; }
+function nightWarn(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) return ""; var v = ov[ov.length-1], ad = tripDays(t).filter(function(x){ return x.k === v.arrD; })[0], h = t.hotels[(ad && ad.city) || cityName]; if (!h || h.inD !== v.arrD) return "";
+  return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд в отель тоже '+dm(v.arrD)+' — ночь без жилья</p>'; }
+function legRow(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), v.dep&&v.arr ? legSpan(v, k) : v.dep ? 'в '+v.dep : ''); }
 function stopQ(p){ if (p.near) return ""; if (p.q) return p.q; if (p.addr) return p.addr; var n = String(p.n||"").trim(); if (!n || !/[A-Za-z\u3040-\u30ff\u4e00-\u9faf]/.test(n)) return ""; return /japan/i.test(n) ? n : n+", Japan"; }
 function dayHotels(t, k, city){
   var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(Boolean);
@@ -1845,8 +1847,8 @@ function dayCard(t, d){
       '<div class="dashbox dashbox--day">'+(m?'<button class="li" data-act="moveSheet" data-k="'+d.k+'"><span class="li__lead">'+ill(m.kind==="mid"?"train":"airplane")+'</span><span class="li__tx sub2">'+esc(moveTitle(m))+'</span><span class="plus">＋</span></button>':'')+
       '<button class="li" data-act="dayAddPlace" data-k="'+d.k+'"><span class="li__lead">'+ill("sightseeing")+'</span><span class="li__tx sub2">Добавить место</span><span class="plus">＋</span></button></div>')+'</section>';
   }
-  return '<section class="dayw">'+lbl+'<article class="day" data-act="openDay" data-k="'+d.k+'">'+(function(){ var mv = moveFor(t, d.k); return mv && mv.kind === "mid" ? '<span class="day__badge">'+badge("Переезд")+'</span>' : (d.city ? '<span class="day__badge">'+badge(d.city)+'</span>' : ''); })()+
-    '<div class="sum">'+nt+ar+ls.map(legRow).join("")+catSummaryRows(ps)+'</div>'+wr+
+  return '<section class="dayw">'+lbl+'<article class="day" data-act="openDay" data-k="'+d.k+'">'+(function(){ return moveDay(t, d.k) ? '<span class="day__badge">'+badge("Переезд")+'</span>' : (d.city ? '<span class="day__badge">'+badge(d.city)+'</span>' : ''); })()+
+    '<div class="sum">'+nt+ar+ls.map(function(v){ return legRow(v, d.k); }).join("")+catSummaryRows(ps)+'</div>'+wr+
     (ts.length ? '<div class="check tasks">'+ts.map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+
     ds.map(function(x){ return attRow(t, x); }).join("")+
     (ps.length ? '<a class="btn-route" href="'+routeUrl(t, d.k)+'" target="_blank" rel="noopener">'+MAPS_IMG+'Маршрут дня</a>' : '')+'</article></section>';
@@ -2005,7 +2007,7 @@ function render(){
 function positionPill(){ var a = document.querySelector(".tab.is-active"), p = $("tabPill"); if (!a || !p) return; p.style.width = a.offsetWidth+"px"; p.style.transform = "translateX("+a.offsetLeft+"px)"; }
 
 /* шторка дня — как в гайде */
-function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[when, v.no, v.dep&&v.arr?legSpan(v):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></div>'; }
+function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[when, v.no, v.dep&&v.arr?legSpan(v, null):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></div>'; }
 function openDay(k){
   S.day = k;
   var t = trip(), d = tripDays(t).filter(function(x){ return x.k === k; })[0], ps = t.places[k] = t.places[k] || [], g = ro();
@@ -2016,7 +2018,7 @@ function openDay(k){
   var addRow = function(act, label, extra){ return '<button class="stop stop--add" data-act="'+act+'"'+(extra||'')+'><span class="stop__n">＋</span><span class="stop__tx">'+label+'</span></button>'; };
   if (ls.length || !g){
     h += '<div><p class="label">'+'Переезд'+'</p><div class="stops">'+
-      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+
+      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+
       (g ? '' : addRow("moveSheet", ls.length ? 'Переезд' : mk ? esc(moveTitle(mk)) : 'Добавить переезд', ' data-k="'+k+'" data-i="-1"'))+'</div></div>';
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
@@ -2235,7 +2237,7 @@ A.moveSheet = function(d){
   var t = trip(), k = d.k; S.day = S.day || k;
   var m = moveFor(t, k) || {kind:"mid", from:"", to:""}, ls = legs(t, k), i = d.i == null ? (ls.length ? 0 : -1) : +d.i, last = ls[ls.length-1];
   var v = i >= 0 ? ls[i] : {type: last || m.kind==="mid" ? "Поезд" : "Самолёт", from: last ? last.to : m.from, to: m.to, dep:"", arr:"", no:""};
-  if (ro()){ if (i >= 0) form(v.from+" → "+v.to, '<p class="hint" style="font-size:15px;line-height:20px">'+[v.type, v.no, v.dep&&v.arr?legSpan(v):v.dep].filter(Boolean).map(esc).join(" · ")+'</p>'); return; }
+  if (ro()){ if (i >= 0) form(v.from+" → "+v.to, '<p class="hint" style="font-size:15px;line-height:20px">'+[v.type, v.no, v.dep&&v.arr?legSpan(v, k):v.dep].filter(Boolean).map(esc).join(" · ")+'</p>'); return; }
   S.moveK = k; S.moveI = i;
   form(i < 0 && ls.length ? "Пересадка" : moveTitle(m), '<div class="pg" style="padding:0">'+(i < 0 && ls.length ? '<p class="hint">Встанет после «'+esc(last.from)+' → '+esc(last.to)+'». Начнём оттуда, где закончился прошлый участок.</p>' : '')+
     seg("mvSeg", Object.keys(MOVE).map(function(x){ return [x, x]; }), v.type)+
@@ -3185,11 +3187,12 @@ A.moveSheet = function(d){
   var m = moveFor(t, k) || {kind:"mid", from:"", to:""}, ls = legs(t, k), i = d.i == null ? (ls.length ? 0 : -1) : +d.i, last = ls[ls.length-1];
   var v = i >= 0 ? ls[i] : {type: last || m.kind==="mid" ? "Поезд" : "Самолёт", from: last ? last.to : m.from, to: m.to, dep:"", arr:"", no:""};
   var title = i >= 0 ? (city(v.from) && city(v.to) ? city(v.from)+" → "+city(v.to) : "Переезд") : ls.length ? "Переезд" : m.kind === "mid" ? m.from+" → "+m.to : moveTitle(m);
-  if (ro()){ if (i >= 0) form(title, '<p class="hint">'+[v.type, v.no, v.dep&&v.arr?v.dep+'–'+v.arr:v.dep].filter(Boolean).map(esc).join(" · ")+'</p>'); return; }
+  if (ro()){ if (i >= 0) form(title, '<p class="hint">'+[v.type, v.no, v.dep&&v.arr?legSpan(v, k):v.dep].filter(Boolean).map(esc).join(" · ")+'</p>'); return; }
   S.moveK = k; S.moveI = i;
   form(title, '<div class="pg pg--sheet">'+seg("mvSeg", Object.keys(MOVE).map(function(x){ return [x, x]; }), v.type)+
     '<div class="inline">'+fld("Откуда", '<input class="in" id="fMf" value="'+esc(v.from)+'" placeholder="Вокзал, аэропорт">')+fld("Куда", '<input class="in" id="fMt" value="'+esc(v.to)+'">')+'</div>'+
-    '<div class="inline">'+fld("Отправление", '<input class="in" id="fMd" type="time" value="'+esc(v.dep)+'">')+fld("Прибытие", '<input class="in" id="fMa" type="time" value="'+esc(v.arr)+'">')+'</div>'+
+    '<div class="inline">'+fld("Отправление", '<input class="in" id="fMdD" type="date" min="'+t.from+'" max="'+t.to+'" value="'+k+'">')+fld("Время", '<input class="in" id="fMd" type="time" value="'+esc(v.dep)+'">')+'</div>'+
+    '<div class="inline">'+fld("Прибытие", '<input class="in" id="fMaD" type="date" min="'+t.from+'" max="'+t.to+'" value="'+esc(v.arrD || k)+'">')+fld("Время", '<input class="in" id="fMa" type="time" value="'+esc(v.arr)+'">')+'</div>'+
     fld("Рейс, поезд, место", '<input class="in" id="fMn" value="'+esc(v.no)+'">')+fld("Билет — уйдёт и в «Документы»", '<input class="in" type="file" id="fMfile">')+
     '<div class="stack"><button class="primary" data-act="moveSave">Сохранить</button>'+(i >= 0 ? '<button class="btn2 is-danger" data-act="moveDel">Удалить поездку</button>' : '')+'</div></div>');
 };
@@ -4069,16 +4072,33 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     return res; };
 })();
 
-/* шторка дня: ночное прибытие предыдущего дня и предупреждение о ночи без жилья */
+/* переезд с датой прибытия: в день прибытия та же строка в блоке «Переезд», та же шторка; предупреждение о ночи без жилья */
+A.moveSave = function(){
+  var t = trip(), k = S.moveK, f = $("fMfile"), dk = val("fMdD") || k, ak = val("fMaD") || dk;
+  if (ak < dk){ toast("Прибытие не раньше отправления"); return; }
+  var v = {type:segVal("mvSeg"), from:val("fMf"), to:val("fMt"), dep:val("fMd"), arr:val("fMa"), no:val("fMn")}; if (ak !== dk) v.arrD = ak;
+  var ls = legs(t, k).slice(); if (S.moveI >= 0) ls.splice(S.moveI, 1); if (ls.length) t.moves[k] = ls; else delete t.moves[k];
+  var to = t.moves[dk] = legs(t, dk).slice(); to.push(v); to.sort(function(a, b){ return a.dep && b.dep ? (a.dep < b.dep ? -1 : 1) : 0; });
+  if (f && f.files[0]) t.docs.push({id:uid(), title:"Билет "+v.from+" → "+v.to, type:"Билет", owner:null, vis:"all", day:dk});
+  closeForm(); refresh();
+};
 var _openDayArr = openDay;
 openDay = function(k){ _openDayArr(k);
   var t = trip(), b = $("sheetBody"); if (!t || !b) return;
-  var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {}, html = "";
-  var ar = overnight(t, prevK(k)); if (ar.length) html += '<div class="arrsec"><p class="label">Прибытие</p><div class="stops">'+ar.map(function(v){ return '<div class="stop"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.to)+'</b><small>в '+esc(v.arr)+' · '+esc(v.from)+' → '+esc(v.to)+'</small></span></div>'; }).join("")+'</div></div>';
-  var w = nightWarn(t, k, d.city); if (w) html += w;
-  if (!html) return;
-  var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0];
-  if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html);
+  var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {};
+  var arr = arriving(t, k);
+  if (arr.length){
+    var rows = arr.map(function(a){ var v = a.v; return '<button class="stop" data-act="moveSheet" data-k="'+a.k+'" data-i="'+a.i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, a.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span><span class="stop__go">'+(SVG.chev||"")+'</span></button>'; }).join("");
+    var sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0];
+    if (sec){ sec.querySelector(".stops").insertAdjacentHTML("afterbegin", rows); }
+    else { var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0]; var html = '<div><p class="label">Переезд</p><div class="stops">'+rows+'</div></div>'; if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html); }
+  }
+  var ov = overnight(t, k), leg = (ov[0] && {v:ov[0], dk:k}) || (arr[0] && {v:arr[0].v, dk:arr[0].k});
+  if (leg){ var days = tripDays(t), cOf = function(x){ var q = days.filter(function(y){ return y.k === x; })[0]; return q && q.city; };
+    var fc = cOf(leg.dk), tc = cOf(leg.v.arrD); var head = b.querySelector(".sh-head .wrap") || document.querySelector("#sheet .sh-head .wrap");
+    if (head && fc && tc && fc !== tc){ head.className = "wrap wrap--move"; head.innerHTML = badge(fc)+'<span class="badge-arrow">'+SVG_ARR+'</span>'+badge(tc); }
+    if (arr.length) [].forEach.call(b.querySelectorAll(".stop--add[data-act='moveSheet']"), function(x){ if (x.textContent.indexOf("→") >= 0){ var tx = x.querySelector(".stop__tx"); if (tx) tx.textContent = "Добавить переезд"; } }); }
+  var w = nightWarn(t, k, d.city); if (w){ var f2 = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0]; if (f2) f2.insertAdjacentHTML("beforebegin", w); }
 };
 
 </script>
