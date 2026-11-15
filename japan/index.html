@@ -1413,6 +1413,19 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .mconv__cur{overflow:visible!important;flex-wrap:wrap}
 /* невидимый алерт не должен перехватывать касания в середине экрана */
 #alert:not(.is-open){pointer-events:none!important}
+/* чек: зубчики как в Figma (круги 23,3, шаг 30,3, 12 на ширину карточки) */
+.mbal::after{bottom:-11px!important;height:11px!important;
+  -webkit-mask:radial-gradient(circle 11.65px at 50% calc(100% + .6px),transparent 11.2px,#000 11.65px) 3.5px 0/30.3px 11px repeat-x!important;
+  mask:radial-gradient(circle 11.65px at 50% calc(100% + .6px),transparent 11.2px,#000 11.65px) 3.5px 0/30.3px 11px repeat-x!important}
+/* конвертация: отступ над строкой = отступу под ней; курс сразу под суммой */
+.mconv{padding-top:0!important}
+.mconv__body .mbal__res .stay__meta{margin-top:0!important;padding:0!important}
+.mconv__body .mbal__res{padding-top:0!important}
+/* пункты списков: без подзаголовка — 52 и по центру, с подзаголовком — 62 (кнопка удаления 36 влезает с отступом 8) */
+.check__item,.stop,.li,.mrow{min-height:52px;box-sizing:border-box}
+.check__item:has(small){min-height:62px}
+.check__item:not(:has(small)){align-items:center;padding-top:5px;padding-bottom:5px;margin-top:0}
+.stop,.li,.mrow{align-items:center!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1877,11 +1890,11 @@ SCR.money = function(r){
     t.cur.forEach(function(x){ transfers(t, x).forEach(function(tr){ lines.push({from:tr.from, to:tr.to, sum:money(tr.v, x), cur:x}); }); });
     if (c !== "orig") transfers(t).forEach(function(tr){ conv.push({from:tr.from, to:tr.to, sum:money(fromBase(tr.v, c), c)}); });
     var rc = lsGet("trips.rates", null), used = {}; lines.forEach(function(l){ if (l.cur !== c) used[l.cur] = 1; });
-    var rate = function(x){ var v = fromBase(toBase(1, x), c); return "1 "+x+" = "+v.toLocaleString("ru-RU", v < 1 ? {maximumSignificantDigits:3} : {maximumFractionDigits:2}).replace(/ /g," ")+" "+c; };
+    var rate = function(x){ var v = fromBase(toBase(1, x), c); if (v < 1){ var iv = 1 / v; return "1\u00a0"+c+"\u00a0=\u00a0"+iv.toLocaleString("ru-RU", {maximumFractionDigits: iv < 10 ? 2 : 0}).replace(/ /g,"\u00a0")+"\u00a0"+x; } return "1 "+x+" = "+v.toLocaleString("ru-RU", v < 1 ? {maximumSignificantDigits:3} : {maximumFractionDigits:2}).replace(/ /g," ")+" "+c; };
     h += '<p class="mday">Кто кому должен</p><div class="stay mbal">'+
       '<div class="stay__tx mbal__res">'+(lines.length ? lines.map(function(l){ return '<p class="mbal__row"><span>'+who(l)+'</span><b>'+l.sum+'</b></p>'; }).join("") : '<p class="stay__meta">Всё ровно</p>')+'</div>'+
       (lines.length && t.cur.length > 1 ? '<hr class="dash"><div class="mconv"><span class="mconv__l">Конвертация</span><button type="button" class="tgl'+(c !== "orig" ? ' is-on' : '')+'" role="switch" aria-checked="'+(c !== "orig")+'" aria-label="Конвертация" data-act="convToggle"></button></div>'+
-        (c !== "orig" ? '<div class="mconv__body"><div class="chips mconv__cur">'+t.cur.map(function(x){ return chip(x, null, x === c, 'type="button" data-act="setCur" data-c="'+x+'"'); }).join("")+'</div>'+
+        (c !== "orig" ? '<div class="mconv__body"><div class="chips mconv__cur">'+curOrd(t).map(function(x){ return chip(x, null, x === c, 'type="button" data-act="setCur" data-c="'+x+'"'); }).join("")+'</div>'+
           '<div class="stay__tx mbal__res">'+(conv.length ? conv.map(function(l){ return '<p class="mbal__row"><span>'+who(l)+'</span><b>'+l.sum+'</b></p>'; }).join("") : '<p class="mbal__row"><span>Все в расчёте</span></p>')+
           (Object.keys(used).length ? '<p class="stay__meta">'+(rc && rc.t ? 'По курсу на '+dm(K(new Date(rc.t))) : 'По примерному курсу')+': '+Object.keys(used).map(rate).join(" · ")+'</p>' : '')+'</div></div>' : '') : '')+
       '</div>';
@@ -2288,7 +2301,8 @@ A.visaDel = function(){ var t = trip(); t.visa = t.visa.filter(function(x){ retu
 A.addMoneyMenu = function(){ var m = $("addMenu"); if (!m.hidden){ m.hidden = true; return; } menu(m, [["addExp","Добавить трату"],["addRef","Добавить возврат"]]); };
 A.curMenu = function(){ var m = $("mMenu"); m.hidden = !m.hidden; };
 A.setCur = function(d){ S.sumCur = d.c; if ($("mMenu")) $("mMenu").hidden = true; render(); };
-A.convToggle = function(){ var t = trip(); S.sumCur = S.sumCur === "orig" ? t.cur[0] : "orig"; render(); };
+A.convToggle = function(){ var t = trip(); S.sumCur = S.sumCur === "orig" ? curOrd(t)[0] : "orig"; render(); };
+function curOrd(t){ return t.cur.filter(function(x){ return x === "$"; }).concat(t.cur.filter(function(x){ return x !== "$"; })); }
 A.addExp = function(){
   closeMenus(); var t = trip();
   form("Трата", '<div class="pg" style="padding:0">'+fld("За что", '<input class="in" id="fEt" placeholder="Например, ужин">')+
@@ -3915,7 +3929,7 @@ A.convToggle = function(){
     var done = function(){ S.sumCur = "orig"; render(); };
     if (a) a.onfinish = done; else done(); return;
   }
-  S.sumCur = t.cur[0]; render();
+  S.sumCur = curOrd(t)[0]; render();
   tg = document.querySelector("#view .tgl"); body = document.querySelector("#view .mconv__body");
   if (tg && !REDUCE){ tg.classList.remove("is-on"); void tg.offsetWidth; tg.classList.add("is-on"); }
   if (body){ var h = body.offsetHeight;
