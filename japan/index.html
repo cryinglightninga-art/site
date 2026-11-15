@@ -1516,6 +1516,11 @@ html[data-tabs="A"] .tg-thumb{display:none}
 html:not([data-tabs="A"]) body .tg-has-thumb .chip.is-active{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none;backdrop-filter:none}
 html:not([data-tabs="A"]) .tg-has-thumb .chip,html:not([data-tabs="A"]) .tg-has-thumb .chipw{position:relative;z-index:1}
 html:not([data-tabs="A"]) body #chipsSlot .chipsc .chips{max-width:calc(100% - 16px)!important}
+/* «＋ Добавить …» внутри списков — цветом текста, как пункты и пунктирные плашки, а не синим; без разделителя, если над ним ничего нет */
+html body .addrow,html body .stop--add,html body .stop--add .stop__tx{color:var(--label)!important}
+html body .addrow > span:first-child,html body .addrow > span:first-child svg,html body .stop--add .stop__n,html body .stop--add .stop__n svg{color:var(--label)!important}
+.addrow:first-child::before,.stop--add:first-child::before{display:none!important}
+.addrow:first-child,.stop--add:first-child{border-top:0!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4541,6 +4546,13 @@ placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r
   new MutationObserver(function(){ requestAnimationFrame(syncAll); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
   window.addEventListener("load", syncAll);
 })();
+
+/* ===== заметка: список без пунктов — заголовок и пунктирная плашка «＋ Добавить пункт/шаг» вместо пустой карточки ===== */
+var _blockHtmlE = blockHtml;
+blockHtml = function(t, m, b, g){ if ((b.type === "checks" || b.type === "steps") && !(b.items || []).length){
+    var lbl = b.title ? '<p class="label">'+esc(b.title)+'</p>' : '';
+    return '<div'+swAttr("mblk", b.id)+'>'+lbl+(g ? '<p class="hint">Пусто</p>' : dash('<b>＋ '+(b.type === "steps" ? "Добавить шаг" : "Добавить пункт")+'</b>', "itemAdd", ' data-b="'+b.id+'"'))+'</div>'; }
+  return _blockHtmlE(t, m, b, g); };
 
 </script>
 </body>
