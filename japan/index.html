@@ -3827,12 +3827,12 @@ S.mEdit = null;
 A.moneyEdit = function(d){
   var t = trip(), e = t.money.filter(function(x){ return x.id === d.id; })[0]; if (!e || ro()) return;
   if (e.kind === "ref"){
-    A.addRef(); $("fRf").value = e.payer; $("fRt").value = e.to; $("fRa").value = String(e.amt); $("fRc").value = e.cur;
+    A.addRef(); $("fRf").value = e.payer; $("fRt").value = e.to; $("fRa").value = numFmt(String(e.amt)); $("fRc").value = e.cur;
   } else {
-    A.addExp(); $("fEt").value = e.title; $("fEa").value = String(e.amt); $("fEc").value = e.cur; $("fEp").value = e.payer;
+    A.addExp(); $("fEt").value = e.title; $("fEa").value = numFmt(String(e.amt)); $("fEc").value = e.cur; $("fEp").value = e.payer;
     var sp = e.split || {mode:"all"}; A.segPick({seg:"splitSeg", v:sp.mode});
     if (sp.mode === "sel") [].forEach.call(document.querySelectorAll(".spSel"), function(x){ x.checked = sp.ids.indexOf(x.value) >= 0; });
-    if (sp.mode === "shares") [].forEach.call(document.querySelectorAll(".spSh"), function(x){ var v = sp.shares[x.getAttribute("data-id")]; x.value = v ? String(v) : ""; });
+    if (sp.mode === "shares") [].forEach.call(document.querySelectorAll(".spSh"), function(x){ var v = sp.shares[x.getAttribute("data-id")]; x.value = v ? numFmt(String(v)) : ""; });
   }
   S.mEdit = e.id;
   var btn = $("fBody").querySelector(".primary"); if (btn) btn.textContent = "Сохранить";
@@ -3840,8 +3840,11 @@ A.moneyEdit = function(d){
 };
 function moneySaveWrap(orig){ return function(){
   var id = S.mEdit, t = trip(), n = t.money.length;
-  if (!id) return orig.apply(this, arguments);
+  var dec = document.querySelectorAll('#fBody input[inputmode="decimal"]');
+  [].forEach.call(dec, function(x){ x.value = numRaw(x.value); });
+  if (!id){ orig.apply(this, arguments); [].forEach.call(dec, function(x){ x.value = numFmt(x.value); }); return; }
   orig.apply(this, arguments);
+  [].forEach.call(dec, function(x){ x.value = numFmt(x.value); });
   if (t.money.length === n) return;               /* не прошла проверка — шторка осталась открытой */
   var nw = t.money.pop(), i = t.money.findIndex(function(x){ return x.id === id; });
   if (i >= 0){ nw.id = id; nw.date = t.money[i].date; if (t.money[i].kind === "ref") nw.title = t.money[i].title; t.money[i] = nw; }
@@ -3856,6 +3859,20 @@ A.moneyDel = function(){
 };
 var _closeFormM = closeForm;
 closeForm = function(){ var r = _closeFormM.apply(this, arguments); S.mEdit = null; return r; };
+
+/* суммы: разряды через пробел (15 000), при сохранении пробелы убираются */
+function numRaw(v){ return String(v || "").replace(/[\s\u00a0\u202f]/g, ""); }
+function numFmt(v){
+  v = numRaw(v).replace(/[^\d.,]/g, ""); var m = v.match(/^(\d*)([.,]?)(\d*)/), i = m[1].replace(/^0+(?=\d)/, "");
+  return i.replace(/\B(?=(\d{3})+(?!\d))/g, "\u00a0") + (m[2] ? "," : "") + m[3].replace(/[.,]/g, "").slice(0, 2);
+}
+document.addEventListener("input", function(e){
+  var x = e.target; if (!x.matches || !x.matches('input[inputmode="decimal"]')) return;
+  var pos = x.selectionStart, n = numRaw(x.value.slice(0, pos)).length, f = numFmt(x.value);
+  if (f === x.value) return; x.value = f;
+  var k = 0, c = 0; while (c < f.length && k < n){ if (!/\u00a0/.test(f[c])) k++; c++; }
+  try { x.setSelectionRange(c, c); } catch(_){}
+}, true);
 
 </script>
 </body>
