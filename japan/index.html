@@ -1406,6 +1406,13 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .mconv__cur{padding:8px 0 0!important}
 .mconv__body .mbal__res{padding-top:4px}
 .mconv__body .mbal__res .stay__meta{padding:0 0 4px!important;margin-top:-4px}
+/* кнопка удаления по свайпу — компактнее */
+.sw-del{width:52px!important;height:36px!important;margin-top:-18px!important;border-radius:18px!important;right:-56px!important}
+.sw-del svg{width:18px!important;height:18px!important}
+/* табы валют не обрезаются при появлении */
+.mconv__cur{overflow:visible!important;flex-wrap:wrap}
+/* невидимый алерт не должен перехватывать касания в середине экрана */
+#alert:not(.is-open){pointer-events:none!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2350,7 +2357,7 @@ A.deleteTrip = function(){ var t = trip(); ask("Удалить «"+t.country+"»
 /* ===== свайп влево — удалить, как в гайде ===== */
 var swOpen = null;
 var PENCIL = '<svg viewBox="0 0 24 24" style="width:20px;height:20px" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
-function swW(el){ return el.querySelector(".sw-edit") ? 152 : 80; }
+function swW(el){ return el.querySelector(".sw-edit") ? 152 : 72; }
 function swSet(el, open){ el._open = open; el.classList.remove("sw-drag"); el.style.setProperty("--sx", open ? -swW(el)+"px" : "0px"); if (open){ if (swOpen && swOpen !== el) swSet(swOpen, false); swOpen = el; } else if (swOpen === el) swOpen = null; }
 (function(){
   var sx = null, sy = 0, el = null, drag = null, base = 0, dx = 0;
@@ -2358,6 +2365,7 @@ function swSet(el, open){ el._open = open; el.classList.remove("sw-drag"); el.st
     if (swOpen && !swOpen.contains(e.target)) swSet(swOpen, false);
     var x = e.target.closest("[data-sw]"); if (!x || e.target.closest(".grip,.sw-del")) return;
     if (!x.querySelector(".sw-del")) x.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить" data-swdel>'+TRASH+'</span>');
+    [].forEach.call(document.querySelectorAll("[data-sw].sw-drag"), function(o){ if (o !== x) swSet(o, !!o._open); });
     el = x; sx = e.clientX; sy = e.clientY; drag = null; base = x._open ? -swW(x) : 0; dx = base;
   }, true);
   document.addEventListener("pointermove", function(e){
@@ -2365,6 +2373,7 @@ function swSet(el, open){ el._open = open; el.classList.remove("sw-drag"); el.st
     if (drag === null){ if (Math.abs(x) > 8 && Math.abs(x) > Math.abs(y)) drag = true; else if (Math.abs(y) > 8){ sx = null; return; } }
     if (drag){ dx = Math.max(-swW(el)-24, Math.min(0, base + x)); el.classList.add("sw-drag"); el.style.setProperty("--sx", dx+"px"); }
   });
+  document.addEventListener("pointercancel", function(){ if (drag && el) swSet(el, base < 0); sx = null; drag = null; el = null; });
   document.addEventListener("pointerup", function(){ if (drag && el){ el._swiped = true; var e2 = el; setTimeout(function(){ e2._swiped = false; }, 80); swSet(el, dx < -40); } sx = null; drag = null; });
 })();
 function swDelete(el){
@@ -3765,10 +3774,14 @@ ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=3"; keepImg(src); ret
 ["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=3"); });
 
 /* задача: кружок — отметить, сам пункт — открыть шторку редактирования; удаление в «⋯» шторки */
+/* правило компонента «пункт с кружком»: отмечается только по кружку; тап по пункту — шторка редактирования (если есть), иначе ничего */
+var CHECK_EDIT = {check:function(id){ A.checkEdit({id:id}); }, vdoc:function(id){ A.vdocEdit({id:id}); }};
 document.addEventListener("click", function(e){
-  var it = e.target.closest && e.target.closest(".check__item[data-act='check']"); if (!it || ro()) return;
-  if (e.target.closest(".check__box") || it._open || it._swiped) return;
-  e.preventDefault(); e.stopPropagation(); A.checkEdit({id: it.getAttribute("data-id")});
+  var box = e.target.closest && e.target.closest(".check__box"), it = e.target.closest && e.target.closest(".check__item[data-act]");
+  if (!it || !it.querySelector(":scope > .check__box") || box) return;
+  if (it._open || it._swiped) return;
+  e.preventDefault(); e.stopPropagation(); if (ro()) return;
+  var f = CHECK_EDIT[it.getAttribute("data-act")]; if (f) f(it.getAttribute("data-id"));
 }, true);
 var _addCheck4 = A.addCheck;
 A.addCheck = function(pre){
@@ -3897,7 +3910,8 @@ A.convToggle = function(){
   var t = trip(), tg = document.querySelector("#view .tgl"), body = document.querySelector("#view .mconv__body");
   if (S.sumCur !== "orig"){
     if (tg){ tg.classList.remove("is-on"); tg.setAttribute("aria-checked", "false"); }
-    var a = body && anim(body, [{height:body.offsetHeight+"px", opacity:1},{height:"0px", opacity:0}], {duration:320, easing:"cubic-bezier(.3,.8,.4,1)", fill:"forwards"});
+    var gap = body ? parseFloat(getComputedStyle(body.parentNode).rowGap) || 0 : 0;
+    var a = body && anim(body, [{height:body.offsetHeight+"px", opacity:1, marginTop:"0px"},{height:"0px", opacity:0, marginTop:-gap+"px"}], {duration:320, easing:"cubic-bezier(.3,.8,.4,1)", fill:"forwards"});
     var done = function(){ S.sumCur = "orig"; render(); };
     if (a) a.onfinish = done; else done(); return;
   }
@@ -3905,8 +3919,10 @@ A.convToggle = function(){
   tg = document.querySelector("#view .tgl"); body = document.querySelector("#view .mconv__body");
   if (tg && !REDUCE){ tg.classList.remove("is-on"); void tg.offsetWidth; tg.classList.add("is-on"); }
   if (body){ var h = body.offsetHeight;
-    anim(body, [{height:"0px", opacity:0},{height:h+"px", opacity:1}], {duration:420, easing:SPRING});
-    [].forEach.call(body.querySelectorAll(".chip, .mbal__row, .stay__meta"), function(el, i){
+    var gap2 = parseFloat(getComputedStyle(body.parentNode).rowGap) || 0;
+    anim(body, [{height:"0px", opacity:0, marginTop:-gap2+"px"},{height:h+"px", opacity:1, marginTop:"0px"}], {duration:420, easing:SPRING});
+    [].forEach.call(body.querySelectorAll(".chip"), function(el, i){ anim(el, [{opacity:0, transform:"scale(.8)"},{opacity:1, transform:"none"}], {duration:500, delay:40+i*35, easing:SPRING, fill:"backwards"}); });
+    [].forEach.call(body.querySelectorAll(".mbal__row, .stay__meta"), function(el, i){
       anim(el, [{opacity:0, transform:"translate3d(0,10px,0) scale(.96)"},{opacity:1, transform:"none"}], {duration:600, delay:60+i*40, easing:SPRING, fill:"backwards"}); }); }
 };
 A.setCur = function(d){
@@ -3953,6 +3969,13 @@ A.setCur = function(d){
   document.addEventListener("pointermove", function(e){ if (e.pointerType === "mouse" && st) move(e.clientX, e.clientY, e); });
   document.addEventListener("pointerup", function(e){ if (e.pointerType === "mouse") end(); });
 })();
+
+/* документ визы: шторка редактирования, удаление в «⋯» */
+A.vdocEdit = function(d){ var v = (trip().visaDocs || []).filter(function(x){ return x.id === d.id; })[0]; if (!v) return; S.vdEdit = v.id;
+  form("Документ", '<div class="pg pg--sheet">'+fld("Название", '<input class="in" id="fVd" value="'+esc(v.t)+'" placeholder="Например, справка о доходах">')+'<button class="primary" data-act="vdocSave">Сохранить</button></div>', "Виза и въезд", [["vdocDel","Удалить"]]); };
+A.vdocSave = function(){ var t = trip(), v = (t.visaDocs || []).filter(function(x){ return x.id === S.vdEdit; })[0], n = val("fVd"); if (!v) return; if (!n){ toast("Введите название"); return; } v.t = n; closeForm(); render(); };
+A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).filter(function(x){ return x.id === id; })[0]; if (!v) return;
+  ask("Удалить документ?", "«"+v.t+"» пропадёт из списка.", null, "Удалить", function(){ t.visaDocs = t.visaDocs.filter(function(x){ return x.id !== id; }); closeForm(); render(); }, true); };
 
 </script>
 </body>
