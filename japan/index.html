@@ -1441,6 +1441,7 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 /* конвертация: «Конвертация» → табы 12, табы → строки 16 (как в Figma) */
 .mconv__cur{padding-top:0!important}
 .mconv__body .mbal__res{padding:8px 0 6px!important}
+.label + .chips--seg{margin-top:6px!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1890,7 +1891,7 @@ SCR.docs = function(r){
   var t = trip(r.trip), vis = t.docs.filter(function(d){ return d.vis === "all" || d.owner === S.me; });
   var mine = vis.filter(function(d){ return d.owner === S.me; }), shared = vis.filter(function(d){ return d.owner !== S.me; }), hid = t.docs.length - vis.length;
   var h = '<div class="pg">';
-  if (!vis.length) h += ro() ? '<p class="hint">Документов нет</p>' : dash('<b>＋ Документ</b><span class="hint">билеты, брони, полис, паспорт</span>', "addDoc");
+  if (!vis.length) h += ro() ? '<p class="hint">Документов нет</p>' : dash('<b>＋ Документ</b><span class="hint">билеты и полис</span>', "addDoc");
   else h += (mine.length?'<div><p class="label">Мои</p><div class="stack">'+mine.map(function(d){ return attRow(t, d); }).join("")+'</div></div>':'')+
     (shared.length?'<div><p class="label">Общие и попутчиков</p><div class="stack">'+shared.map(function(d){ return attRow(t, d); }).join("")+'</div></div>':'');
   if (hid) h += '<p class="hint">Ещё '+hid+' '+pl(hid,"документ","документа","документов")+' попутчики скрыли</p>';
@@ -2253,13 +2254,13 @@ A.hotelSave = function(){ var n = val("fHn"); if (!n){ toast("Введите н�
 A.addDoc = function(pre){
   var t = trip(); pre = pre && pre.day ? pre : {};
   form("Документ"+(pre.day?" на "+dm(pre.day):""), '<div class="pg" style="padding:0">'+fld("Файл", '<input class="in" type="file" id="fDf">')+fld("Название", '<input class="in" id="fDt" placeholder="Например, билеты в музей">')+
-    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Билет","Бронь","Паспорт","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
+    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Билет","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
     '<div class="inline">'+fld("К какому дню", '<select class="in" id="fDd">'+dayOpts(t, pre.day||"", "Без дня")+'</select>')+fld("Кто видит", '<select class="in" id="fDv"><option value="all">Все</option><option value="me">Только я</option></select>')+'</div>'+
-    '<p class="hint">Паспорт и полис по умолчанию видите только вы.</p><button class="primary" data-act="docSave">Добавить</button></div>');
+    '<p class="hint">Полис по умолчанию видите только вы.</p><button class="primary" data-act="docSave">Добавить</button></div>');
 };
 INP.docTitle = function(v){ var d = trip().docs.filter(function(x){ return x.id === S.docId; })[0]; if (v.trim()){ d.title = v.trim(); render(); } };
 INP.docSubT = function(v){ var d = trip().docs.filter(function(x){ return x.id === S.docId; })[0]; d.sub = v.trim(); render(); };
-INP.docType = function(v){ $("fDv").value = (v === "Паспорт" || v === "Полис") ? "me" : "all"; };
+INP.docType = function(v){ $("fDv").value = v === "Полис" ? "me" : "all"; };
 A.docSave = function(){ var f = $("fDf"), title = val("fDt") || (f && f.files[0] ? f.files[0].name : ""); if (!title){ toast("Выберите файл или введите название"); return; }
   trip().docs.push({id:uid(), title:title, type:val("fDty"), owner:val("fDo") || (val("fDv")==="me"?S.me:null), vis:val("fDv"), day:val("fDd")}); closeForm(); refresh(); };
 A.docSheet = function(d){
@@ -3138,9 +3139,9 @@ SCR.summary = (function(orig){ return function(r){ var v = orig(r); v.sub = esc(
 A.addDoc = function(pre){
   var t = trip(); pre = pre && pre.day ? pre : {};
   form("Документ", '<div class="pg pg--sheet">'+fld("Файл", '<input class="in" type="file" id="fDf">')+fld("Название", '<input class="in" id="fDt" placeholder="Например, билеты в музей">')+
-    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Билет","Бронь","Паспорт","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
+    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Билет","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
     '<div class="inline">'+fld("К какому дню", '<select class="in" id="fDd">'+dayOpts(t, pre.day||"", "Без дня")+'</select>')+fld("Кто видит", '<select class="in" id="fDv"><option value="all">Все</option><option value="me">Только я</option></select>')+'</div>'+
-    '<p class="hint">Паспорт и полис по умолчанию видите только вы</p><button class="primary" data-act="docSave">Добавить</button></div>', pre.day ? "на "+dm(pre.day) : "");
+    '<p class="hint">Полис по умолчанию видите только вы</p><button class="primary" data-act="docSave">Добавить</button></div>', pre.day ? "на "+dm(pre.day) : "");
 };
 A.addCheck = function(pre){
   var t = trip(); pre = pre || {};
@@ -3366,7 +3367,7 @@ SCR.trip = function(r){ var v = _SCRtripF(r), t = trip(r.trip);
 var _addDoc2 = A.addDoc;
 A.addDoc = function(pre){ _addDoc2(pre); var f = $("fDf"); if (!f) return; var lab = f.closest(".fld");
   var card = document.createElement("label"); card.className = "addcard"; card.id = "fDfCard";
-  card.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span>';
+  card.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты и полис</small></span>';
   var inp = document.createElement("input"); inp.type = "file"; inp.id = "fDf"; inp.hidden = true; card.appendChild(inp); lab.parentNode.replaceChild(card, lab);
   inp.onchange = function(){ var x = inp.files[0]; if (x){ card.querySelector("b").textContent = x.name; var t = $("fDt"); if (t && !t.value){ t.value = x.name.replace(/\.[^.]+$/, ""); t.dispatchEvent(new Event("input", {bubbles:true})); } } }; };
 /* задача: по умолчанию «Всем» */
@@ -3501,7 +3502,7 @@ openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), k
 /* ===== шторка документа: плашка файла сверху, поля как при создании ===== */
 function docCard(t, doc){
   var has = doc.file || doc.link, host = ""; try { host = doc.link ? new URL(doc.link).hostname.replace(/^www\./, "") : ""; } catch(_){}
-  if (!has) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span><input type="file" id="fDf" hidden></label>';
+  if (!has) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты и полис</small></span><input type="file" id="fDf" hidden></label>';
   return '<div class="att att--card" id="fDfCard"><button class="att__main" data-act="docOpen" type="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+(doc.file ? "файл" : esc(host))+'</small></span></button>'+
     (S._docCan ? '<label class="att__rep glass gbtn-s">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 }
@@ -3509,7 +3510,7 @@ A.docSheet = function(d){
   var t = trip(), doc = t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return;
   var can = S._docCan = !ro() && (doc.owner === S.me || !doc.owner); S.docId = doc.id;
   var sel = function(v, o){ return o.replace('value="'+esc(v||"")+'"', 'value="'+esc(v||"")+'" selected'); };
-  var types = ["Билет","Бронь","Паспорт","Полис","Другое"].map(function(x){ return '<option value="'+x+'"'+(x === doc.type ? ' selected' : '')+'>'+x+'</option>'; }).join("");
+  var types = ["Билет","Полис","Другое"].concat(doc.type && ["Билет","Полис","Другое"].indexOf(doc.type) < 0 ? [doc.type] : []).map(function(x){ return '<option value="'+x+'"'+(x === doc.type ? ' selected' : '')+'>'+x+'</option>'; }).join("");
   var h = '<div class="pg pg--sheet">'+docCard(t, doc);
   if (can){
     h += fld("Название", '<input class="in" id="fDt" value="'+esc(doc.title)+'" placeholder="Например, билеты в музей">')+
@@ -3598,7 +3599,7 @@ var _prepViewH = prepView;
 prepView = function(t){ if (t.cities.length) return _prepViewH(t); var saved = t.cities; t.cities = [{n:t.country, nights:diff(t.from, t.to)}]; try { return _prepViewH(t); } finally { t.cities = saved; } };
 /* плашка документа в шторке — ровно как строка в списке документов */
 docCard = function(t, doc){
-  if (!doc.file && !doc.link) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты, брони, полис, паспорт</small></span><input type="file" id="fDf" hidden></label>';
+  if (!doc.file && !doc.link) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты и полис</small></span><input type="file" id="fDf" hidden></label>';
   return '<div class="att" id="fDfCard" data-act="docOpen" role="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+esc(docSub(t, doc))+'</small></span>'+
     (S._docCan ? '<label class="att__rep glass gbtn-s" onclick="event.stopPropagation()">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 };
