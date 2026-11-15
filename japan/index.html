@@ -1454,6 +1454,8 @@ textarea.in{min-height:52px;padding-top:14px;padding-bottom:14px;line-height:22p
 .pin-add{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:3;display:flex;align-items:center;gap:6px;height:40px;padding:0 16px 0 12px;border-radius:20px;font:600 15px/20px "Inter",sans-serif;color:var(--label);white-space:nowrap}
 .pin-add svg{width:18px;height:18px}
 .pin-add[hidden]{display:none}
+.sh-facts{margin:8px 0 0;font-size:14px;line-height:19px;color:var(--secondary)}
+.addcard--big{width:100%;min-height:72px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3382,7 +3384,7 @@ function dli(act, attr, title, sub){ return '<button class="dli" data-act="'+act
 var _dayCardF = dayCard;
 dayCard = function(t, d){
   var h = _dayCardF(t, d); if (h.indexOf("dashbox--day") < 0) return h;
-  var m = moveFor(t, d.k), lbl = '<p class="day__lbl">'+dm(d.k)+', '+WD[D(d.k).getDay()]+'</p>';
+  var m = moveFor(t, d.k), pm = pendingMove(t, d.k), lbl = '<p class="day__lbl">'+dm(d.k)+', '+WD[D(d.k).getDay()]+'</p>'; if (m && m.kind === "mid" && !pm) m = null; if (!m && pm) m = {kind:"mid", from:pm.from, to:pm.to};
   return '<section class="dayw">'+lbl+'<div class="dashl">'+(m ? dli("moveSheet", ' data-k="'+d.k+'"', m.kind === "mid" ? esc(moveTitle(m)) : "Как добираетесь", "перелёт, поезд или автобус") : '')+
     dli("dayAddPlace", ' data-k="'+d.k+'"', "Добавить место", "что посмотреть, где поесть")+'</div></section>';
 };
@@ -4141,6 +4143,37 @@ var _placeAddPickG = A.placeAddPick;
 A.placeAddPick = function(){ if (S.map && S.map.pick === "g" && S.map.g){ var g = S.map.g; pushPlace({n:g.n, c:S.pcat || "sight", q:g.q, link:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(g.q)}); return; } _placeAddPickG(); };
 var _hotelSavePin = A.hotelSave;
 A.hotelSave = function(){ var c = S.hcity, hq = S.hq; _hotelSavePin(); var t = trip(); if (hq && t.hotels[c]){ t.hotels[c].q = hq; S.hq = null; refresh(); } };
+
+/* ===== пустой день: «Запланировать день» открывает шторку дня; в шторке — крупная «Добавить место» ===== */
+var _dayCardE = dayCard;
+dayCard = function(t, d){ return _dayCardE(t, d).replace(/<button class="dli" data-act="dayAddPlace"/, '<button class="dli" data-act="openDay"'); };
+function hotelFacts(t, k){ var out = [];
+  Object.keys(t.hotels).forEach(function(c){ var h = t.hotels[c]; if (!h || !h.name) return;
+    if (h.outD === k) out.push("Выезд из «"+esc(h.name)+"»"+(h.outT ? " до "+esc(h.outT) : ""));
+    if (h.inD === k) out.push("Заезд в «"+esc(h.name)+"»"+(h.inT ? " с "+esc(h.inT) : "")); });
+  return out; }
+var _openDayE = openDay;
+openDay = function(k){ _openDayE(k); var t = trip(), b = $("sheetBody"); if (!t || !b) return;
+  var f = hotelFacts(t, k), head = b.querySelector(".sh-head");
+  if (f.length && head && !head.querySelector(".sh-facts")) head.insertAdjacentHTML("beforeend", '<p class="sh-facts">'+f.join(" · ")+'</p>');
+  if (ro() || (t.places[k] || []).length) return;
+  var pl = $("plist"); if (!pl) return; var sec = pl.parentNode;
+  sec.innerHTML = '<button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
+};
+
+/* ===== карта: без подсказок OpenStreetMap — Google ищет в городе дня, «Добавить эту метку» добавляет сразу ===== */
+INP.mapQ = function(v){ S.map.q = v; var r = $("mapRes"); if (r) r.hidden = true; pinShow(v); };
+INP.hotQ = function(v){ var r = $("hotRes"); if (r) r.hidden = true; clearTimeout(hotT); pinShow(v);
+  hotT = setTimeout(function(){ var f = $("mapFrame"); if (f && v.trim().length >= 2) f.src = gmap(v + (S.hcity ? ", "+S.hcity : ""), 16); }, 600); };
+var _addPlaceNoSug = A.addPlace;
+A.addPlace = function(){ _addPlaceNoSug(); ["mapAdd", "catBox", "mapRes"].forEach(function(id){ var e = $(id); if (e){ e.hidden = true; e.style.display = "none"; } });
+  S.fSave = function(){ if (!$("pmLink").hidden) A.placeAddLink(); else if (!$("pmOwn").hidden) A.placeAddMan(); else if (val("fPq").length >= 2) A.mapPinAdd(); else toast("Найдите место на карте"); }; };
+A.mapPinAdd = function(){
+  var pq = $("fPq");
+  if (pq){ var q = pq.value.trim(); if (q.length < 2) return; var city = S.map.city || "", qq = q + (city ? ", "+city : "");
+    pushPlace({n:q, c:guessCat(q), q:qq, link:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(qq)}); toast("«"+q+"» добавлено"); return; }
+  var ha = $("fHa"); if (ha){ var v = ha.value.trim(); if (v.length < 2) return; S.hq = v + (S.hcity ? ", "+S.hcity : ""); $("fHl").value = "https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(S.hq); toast("Адрес взят с карты"); }
+};
 
 </script>
 </body>
