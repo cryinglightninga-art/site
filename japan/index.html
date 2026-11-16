@@ -1567,6 +1567,10 @@ html:not([data-tabs="A"]) #chipsSlot > .chips{max-width:calc(100% - 32px)!import
 .dashl--plate{position:relative}
 
 .day__lbl--tr{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14px}
+.seg--doc{display:inline-flex;gap:0;background:var(--fill, rgba(120,120,128,.12));border-radius:999px;padding:3px}
+.seg--doc .seg__b{border:0;background:transparent;padding:8px 14px;border-radius:999px;font:inherit;color:var(--sec)}
+.seg--doc .seg__b.is-on{background:var(--card, #fff);color:var(--label);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4928,6 +4932,38 @@ function trLabel(x){ var A = x.from || (x.legs.length ? city(x.legs[0].v.from) :
   var f = x.legs[0], l = x.legs[x.legs.length-1], d0 = f.v.depD || f.k, d1 = l.v.arrD || l.k;
   var x0 = D(d0), x1 = D(d1), dt = d0 === d1 ? _dmTr(d0) : (x0.getMonth() === x1.getMonth() ? x0.getDate()+"–"+_dmTr(d1) : _dmTr(d0)+" – "+_dmTr(d1));
   return dt+", "+A+" → "+B; }
+
+/* ===== единый вид форм-шторок (по макетам «Шторки и формы») ===== */
+(function(){
+  function fl(id){ var e = $(id); return e && e.closest(".fld"); }
+  function blk(id){ var f = fl(id); if (!f) return null; var p = f.parentNode; return p && p.classList && p.classList.contains("inline") ? p : f; }
+  function lab(id, t){ var f = fl(id), l = f && f.querySelector(".label"); if (l) l.textContent = t; }
+  function pair(a, b){ var fa = fl(a), fb = fl(b); if (!fa || !fb) return null; var row = document.createElement("div"); row.className = "inline"; var pa = fa.parentNode, pb = fb.parentNode; fa.parentNode.insertBefore(row, fa); row.appendChild(fa); row.appendChild(fb); [pa, pb].forEach(function(p){ if (p !== row && p.classList && p.classList.contains("inline") && !p.children.length) p.remove(); }); return row; }
+  function after(node, ref){ if (node && ref && ref.parentNode) ref.parentNode.insertBefore(node, ref.nextSibling); }
+  function last(node){ if (node && node.parentNode) node.parentNode.appendChild(node); }
+  function longText(id){ var e = $(id); if (!e) return; if (e.tagName !== "TEXTAREA"){ var ta = document.createElement("textarea"); ta.className = e.className; ta.id = e.id; ta.value = e.value; e.parentNode.replaceChild(ta, e); e = ta; }
+    e.classList.add("in--long"); e.rows = 4; e.placeholder = "Можно подробно: детали, ссылки, заметки"; }
+  function seg2(selId, label){ var s = $(selId); if (!s) return; var f = s.closest(".fld"); var w = document.createElement("div"); w.className = "fld fld--seg";
+    w.innerHTML = '<p class="label">'+label+'</p>'+seg("docTySeg", [].map.call(s.options, function(o){ return [o.value, o.textContent]; }), s.value);
+    w.addEventListener("click", function(e){ var c = e.target.closest("[data-v]"); if (!c) return; s.value = c.getAttribute("data-v"); s.dispatchEvent(new Event("change", {bubbles:true})); });
+    var row = f.parentNode.classList.contains("inline") ? f.parentNode : null; (row || f).parentNode.insertBefore(w, row || f); w.appendChild(f); f.hidden = true; }
+  function unify(){ var b = $("fBody"); if (!b) return;
+    if ($("fEt") && $("fEp")){ after(blk("fEp"), blk("fEt")); }
+    if ($("fCt") && $("fCw") && $("fCd")){ lab("fCt", "Название"); lab("fCw", "Для кого"); lab("fCd", "Дата"); lab("fCg", "Добавить в раздел");
+      var r = pair("fCd", "fCw"); after(r, blk("fCt")); var g = blk("fCg"); after(g, r); var nw = $("fCnew") && blk("fCnew"); if (nw && nw !== g) after(nw, g); longText("fCs"); last(blk("fCs")); }
+    if ($("fDt") && $("fDty")){ lab("fDo", "Для кого"); lab("fDd", "Дата"); lab("fDv", "Видимость");
+      var v = $("fDv"); if (v) [].forEach.call(v.options, function(o){ if (o.value === "all") o.textContent = "Видно всем"; if (o.value === "me") o.textContent = "Только мне"; });
+      var r2 = pair("fDd", "fDo"); seg2("fDty", "Тип документа"); var sg = b.querySelector(".fld--seg"); after(sg, blk("fDt")); after(r2, sg); var vv = fl("fDv"); after(vv, r2); after(blk("fDl"), vv);
+      [].forEach.call(b.querySelectorAll(".hint"), function(h){ if (/Полис/.test(h.textContent)) h.remove(); }); }
+    if ($("fPday") && $("fPt")){ lab("fPday", "Дата"); var r3 = pair("fPday", "fPt"); longText("fPnote"); last(blk("fPnote")); }
+    if ($("fMdD") && $("fMaD")){ lab("fMdD", "Дата отправления"); lab("fMaD", "Дата прибытия"); longText("fMn"); var fc = $("fMfCard") || ($("fMfile") && blk("fMfile")); last(blk("fMn"));
+      var del = b.querySelector('[data-act="moveDel"]'); if (del){ var st = del.parentNode; del.remove(); if (st && st.classList.contains("stack") && !st.querySelector("button")) st.remove(); S.fMore = [["moveDel", "Удалить"]]; $("fMore").hidden = false; if (typeof nativeSync === "function") nativeSync(); } }
+    if ($("fHid") && $("fHod")){ lab("fHid", "Дата заезда"); lab("fHod", "Дата выезда"); }
+    [].forEach.call(b.querySelectorAll(".inline"), function(r){ if (![].some.call(r.children, function(c){ return !c.hidden && getComputedStyle(c).display !== "none"; })) r.remove(); });
+    [].forEach.call(b.querySelectorAll("textarea.in--long"), function(t){ if (typeof taFit === "function"){ taFit(t); t.addEventListener("input", function(){ taFit(t); }); } }); }
+  var _formU = form; form = function(){ var r = _formU.apply(this, arguments); try { unify(); } catch(e){ console.warn(e); } return r; };
+  window.formUnify = unify;
+})();
 
 </script>
 </body>
