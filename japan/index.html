@@ -1587,6 +1587,9 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .att{min-width:0}
 .att__tx{min-width:0;flex:1 1 auto;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .att__tx small{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.fld--seg .chips--seg{max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex-wrap:nowrap}
+.fld--seg .chips--seg::-webkit-scrollbar{display:none}
+.fld--seg .chips--seg .chip{flex:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1827,8 +1830,9 @@ function checkItem(t, c, meta){
   return '<div class="check__item" data-act="check" data-id="'+c.id+'"'+swAttr("check", c.id)+' role="checkbox" aria-checked="'+c.done+'"><span class="check__box'+(c.done?' is-done':'')+'">'+(c.done?SVG.tick:'')+'</span>'+
     '<span class="check__text'+(c.done?' is-done':'')+'"><b>'+esc(c.t)+'</b>'+(parts.length?'<small>'+parts.join(" · ")+'</small>':'')+'</span></div>';
 }
+function docIll(tp){ return tp === "Транспорт" ? "transport" : (tp === "Развлечение" || tp === "Билет") ? "ticket" : "doc"; }
 function attRow(t, d){
-  return '<button class="att" data-act="docSheet" data-id="'+d.id+'"><span class="att__thumb">'+ill(d.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(d.title)+
+  return '<button class="att" data-act="docSheet" data-id="'+d.id+'"><span class="att__thumb">'+ill(docIll(d.type))+'</span><span class="att__tx">'+esc(d.title)+
     '<small>'+esc(docSub(t, d))+'</small></span><span class="att__go">'+SVG.chev+'</span></button>';
 }
 function dash(inner, act, attr){ return '<button class="dashbox" data-act="'+act+'"'+(attr||'')+'>'+inner+'</button>'; }
@@ -2165,7 +2169,7 @@ function openDay(k){
       (g ? '' : addRow("moveSheet", ls.length ? 'Добавить переезд' : pendingMove(t, k) ? esc("Переезд "+pendingMove(t, k).from+" → "+pendingMove(t, k).to) : mk && mk.kind !== "mid" ? esc(moveTitle(mk)) : 'Добавить переезд', ' data-k="'+k+'" data-i="-1"'))+'</div></div>';
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
-  if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
+  if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(docIll(x.type))+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
   /* точка прибытия — первой, если день не начинается в отеле; точка отправления — последней, если день не заканчивается в отеле */
   var arrX = null, depX = null;
   if (!ho){ var ins = arriving(t, k).concat(ls.map(function(v, i){ return {v:v, k:k, i:i}; }).filter(function(x){ return !x.v.arrD || x.v.arrD === k; })); if (ins.length) arrX = ins[ins.length-1]; }
@@ -2291,7 +2295,7 @@ A.wCreate = function(){
   var W = S.W, cc = COUNTRIES.filter(function(c){ return c.n === W.country; })[0];
   var t = {id:"t"+uid(), country:W.country, flag:cc.f, from:W.from, to:W.to, owner:S.me, archived:false, cities:W.cities, cur:[cc.cur].concat(cc.cur===S.home?[]:[S.home]),
     members:[{id:S.me, name:S.users[S.me]}], hotels:{}, moves:W.moves || {}, places:{}, nodate:[], notes:{}, lists:[], visa:[], visaDocs:[], checks:[], money:[],
-    docs:(W.docs || []).map(function(d){ return {id:uid(), title:d.title, type:"Билет", owner:null, vis:"all", day:d.day}; })};
+    docs:(W.docs || []).map(function(d){ return {id:uid(), title:d.title, type:"Транспорт", owner:null, vis:"all", day:d.day}; })};
   S.trips.push(t); S.W = null; S.stack = [{s:"trips"},{s:"created", trip:t.id}]; render();
 };
 A.editTrip = function(){ closeMenus(); var t = trip(); S.W = {country:t.country, from:t.from, to:t.to, cities:JSON.parse(JSON.stringify(t.cities)), edit:true}; go("wizard", {step:1}); };
@@ -2399,7 +2403,7 @@ A.moveSave = function(){
   var t = trip(), k = S.moveK, f = $("fMfile"), v = {type:segVal("mvSeg"), from:val("fMf"), to:val("fMt"), dep:val("fMd"), arr:val("fMa"), no:val("fMn")};
   var ls = t.moves[k] = legs(t, k).slice(); if (S.moveI >= 0) ls[S.moveI] = v; else ls.push(v);
   ls.sort(function(a, b){ return a.dep && b.dep ? (a.dep < b.dep ? -1 : 1) : 0; });
-  if (f && f.files[0]) t.docs.push({id:uid(), title:"Билет "+v.from+" → "+v.to, type:"Билет", owner:null, vis:"all", day:k});
+  if (f && f.files[0]) t.docs.push({id:uid(), title:"Билет "+v.from+" → "+v.to, type:"Транспорт", owner:null, vis:"all", day:k});
   closeForm(); refresh();
 };
 A.moveDel = function(){ var t = trip(), ls = legs(t, S.moveK).slice(); ls.splice(S.moveI, 1); if (ls.length) t.moves[S.moveK] = ls; else delete t.moves[S.moveK]; closeForm(); refresh(); };
@@ -2421,7 +2425,7 @@ A.hotelSave = function(){ var n = val("fHn"); if (!n){ toast("Введите н�
 A.addDoc = function(pre){
   var t = trip(); pre = pre && pre.day ? pre : {};
   form("Документ"+(pre.day?" на "+dm(pre.day):""), '<div class="pg" style="padding:0">'+fld("Файл", '<input class="in" type="file" id="fDf">')+fld("Название", '<input class="in" id="fDt" placeholder="Например, билеты в музей">')+
-    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Билет","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
+    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Транспорт","Развлечение","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
     '<div class="inline">'+fld("К какому дню", '<select class="in" id="fDd">'+dayOpts(t, pre.day||"", "Без дня")+'</select>')+fld("Кто видит", '<select class="in" id="fDv"><option value="all">Все</option><option value="me">Только я</option></select>')+'</div>'+
     '<p class="hint">Полис по умолчанию видите только вы.</p><button class="primary" data-act="docSave">Добавить</button></div>');
 };
@@ -2858,7 +2862,7 @@ A.moveSave = async function(){
   var v = {from:val("fMf"), to:val("fMt")};
   if (file) f.value = "";
   _moveSave();
-  if (file){ var id = uid(); if (await putFile(t, id, file)){ t.docs.push({id:id, title:"Билет "+v.from+" → "+v.to, type:"Билет", owner:null, vis:"all", day:k, file:id}); refresh(); } }
+  if (file){ var id = uid(); if (await putFile(t, id, file)){ t.docs.push({id:id, title:"Билет "+v.from+" → "+v.to, type:"Транспорт", owner:null, vis:"all", day:k, file:id}); refresh(); } }
 };
 var _hotelSave = A.hotelSave;
 A.hotelSave = async function(){
@@ -3310,7 +3314,7 @@ SCR.summary = (function(orig){ return function(r){ var v = orig(r); v.sub = esc(
 A.addDoc = function(pre){
   var t = trip(); pre = pre && pre.day ? pre : {};
   form("Документ", '<div class="pg pg--sheet">'+fld("Файл", '<input class="in" type="file" id="fDf">')+fld("Название", '<input class="in" id="fDt" placeholder="Например, билеты в музей">')+
-    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Билет","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
+    '<div class="inline">'+fld("Тип", '<select class="in" id="fDty" data-input="docType">'+["Транспорт","Развлечение","Полис","Другое"].map(function(x){ return '<option>'+x+'</option>'; }).join("")+'</select>')+fld("Чей", '<select class="in" id="fDo">'+memberOpts(t, "", "Общий")+'</select>')+'</div>'+
     '<div class="inline">'+fld("К какому дню", '<select class="in" id="fDd">'+dayOpts(t, pre.day||"", "Без дня")+'</select>')+fld("Кто видит", '<select class="in" id="fDv"><option value="all">Все</option><option value="me">Только я</option></select>')+'</div>'+
     '<p class="hint">Полис по умолчанию видите только вы</p><button class="primary" data-act="docSave">Добавить</button></div>', pre.day ? "на "+dm(pre.day) : "");
 };
@@ -3675,14 +3679,14 @@ openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), k
 function docCard(t, doc){
   var has = doc.file || doc.link, host = ""; try { host = doc.link ? new URL(doc.link).hostname.replace(/^www\./, "") : ""; } catch(_){}
   if (!has) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты и полис</small></span><input type="file" id="fDf" hidden></label>';
-  return '<div class="att att--card" id="fDfCard"><button class="att__main" data-act="docOpen" type="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+(doc.file ? "файл" : esc(host))+'</small></span></button>'+
+  return '<div class="att att--card" id="fDfCard"><button class="att__main" data-act="docOpen" type="button"><span class="att__thumb">'+ill(docIll(doc.type))+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+(doc.file ? "файл" : esc(host))+'</small></span></button>'+
     (S._docCan ? '<label class="att__rep glass gbtn-s">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 }
 A.docSheet = function(d){
   var t = trip(), doc = t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return;
   var can = S._docCan = !ro() && (doc.owner === S.me || !doc.owner); S.docId = doc.id;
   var sel = function(v, o){ return o.replace('value="'+esc(v||"")+'"', 'value="'+esc(v||"")+'" selected'); };
-  var types = ["Билет","Полис","Другое"].concat(doc.type && ["Билет","Полис","Другое"].indexOf(doc.type) < 0 ? [doc.type] : []).map(function(x){ return '<option value="'+x+'"'+(x === doc.type ? ' selected' : '')+'>'+x+'</option>'; }).join("");
+  var types = ["Транспорт","Развлечение","Полис","Другое"].concat(doc.type && ["Транспорт","Развлечение","Полис","Другое"].indexOf(doc.type) < 0 ? [doc.type] : []).map(function(x){ return '<option value="'+x+'"'+(x === doc.type ? ' selected' : '')+'>'+x+'</option>'; }).join("");
   var h = '<div class="pg pg--sheet">'+docCard(t, doc);
   if (can){
     h += fld("Название", '<input class="in" id="fDt" value="'+esc(doc.title)+'" placeholder="Например, билеты в музей">')+
@@ -3772,7 +3776,7 @@ prepView = function(t){ if (t.cities.length) return _prepViewH(t); var saved = t
 /* плашка документа в шторке — ровно как строка в списке документов */
 docCard = function(t, doc){
   if (!doc.file && !doc.link) return '<label class="addcard" id="fDfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить документ</b><small>билеты и полис</small></span><input type="file" id="fDf" hidden></label>';
-  return '<div class="att" id="fDfCard" data-act="docOpen" role="button"><span class="att__thumb">'+ill(doc.type === "Билет" ? "ticket" : "doc")+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+esc(docSub(t, doc))+'</small></span>'+
+  return '<div class="att" id="fDfCard" data-act="docOpen" role="button"><span class="att__thumb">'+ill(docIll(doc.type))+'</span><span class="att__tx">'+esc(doc.title)+'<small>'+esc(docSub(t, doc))+'</small></span>'+
     (S._docCan ? '<label class="att__rep glass gbtn-s" onclick="event.stopPropagation()">Заменить<input type="file" id="fDf" hidden></label>' : '')+'</div>';
 };
 
@@ -3892,7 +3896,7 @@ var _polaroidC = polaroid;
 polaroid = function(img, flag, from, to, cap){ var t = trip(); return _polaroidC((t && CIMG[t.country]) || img, flag, from, to, cap); };
 
 /* переход внутрь поездки без микрозадержки: весь экран едет одновременно, картинки декодируются не в основном потоке */
-ill = function(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp?v=3" alt="" decoding="async">'; };
+ill = function(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp?v=4" alt="" decoding="async">'; };
 slide = function(dir){
   if (S._tabSwitch){ S._tabSwitch = false; enterView(); return; }
   enterAll([{opacity:0, transform:"translate3d("+(dir*40)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING, delay:0});
@@ -3973,11 +3977,11 @@ render = function(){
   return r;
 };
 
-/* картинки: одна ссылка (с ?v=3), держим декодированными в памяти — без моргания при возврате на экран */
+/* картинки: одна ссылка (с ?v=4), держим декодированными в памяти — без моргания при возврате на экран */
 var IMGK = {};
 function keepImg(src){ if (IMGK[src]) return; var i = new Image(); i.src = src; IMGK[src] = i; if (i.decode) i.decode().catch(function(){}); }
-ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=3"; keepImg(src); return '<img class="'+(cls||'')+'" src="'+src+'" alt="">'; };
-["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=3"); });
+ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=4"; keepImg(src); return '<img class="'+(cls||'')+'" src="'+src+'" alt="">'; };
+["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=4"); });
 
 /* задача: кружок — отметить, сам пункт — открыть шторку редактирования; удаление в «⋯» шторки */
 /* правило компонента «пункт с кружком»: отмечается только по кружку; тап по пункту — шторка редактирования (если есть), иначе ничего */
@@ -4232,7 +4236,7 @@ A.moveSave = function(){
   var sd = dk < t.from ? t.from : dk > t.to ? t.to : dk; if (sd !== dk) v.depD = dk; dk = sd;   /* вылет до/после дат поездки — показываем в первом/последнем дне с датой */
   var ls = legs(t, k).slice(); if (S.moveI >= 0) ls.splice(S.moveI, 1); if (ls.length) t.moves[k] = ls; else delete t.moves[k];
   var to = t.moves[dk] = legs(t, dk).slice(); to.push(v); to.sort(function(a, b){ return a.dep && b.dep ? (a.dep < b.dep ? -1 : 1) : 0; });
-  if (f && f.files[0]) t.docs.push({id:uid(), title:"Билет "+v.from+" → "+v.to, type:"Билет", owner:null, vis:"all", day:dk});
+  if (f && f.files[0]) t.docs.push({id:uid(), title:"Билет "+v.from+" → "+v.to, type:"Транспорт", owner:null, vis:"all", day:dk});
   closeForm(); refresh();
 };
 var _openDayArr = openDay;
@@ -4457,7 +4461,7 @@ A.blkAdd = function(d){ closeMenus(); var t = trip(), m = memo(t, S.noteId); m.b
   if (d.type === "checks" || d.type === "steps"){ S.blkType = d.type; form(BLK[d.type], '<div class="pg pg--sheet">'+fld("Заголовок списка", '<input class="in" id="fBh" placeholder="Необязательно, например «Документы»">')+'<button class="primary" data-act="blkSaveList">Добавить</button></div>'); return; }
   if (d.type === "doc"){ var used = {}; m.blocks.forEach(function(b){ if (b.docId) used[b.docId] = 1; });
     var ds = t.docs.filter(function(x){ return (x.vis === "all" || x.owner === S.me) && !used[x.id]; });
-    form("Документ", '<div class="pg pg--sheet">'+(ds.length ? '<div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="blkDocPick" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(x.type||"")+'</small></span></button>'; }).join("")+'</div>' : '<p class="hint">Документов пока нет</p>')+
+    form("Документ", '<div class="pg pg--sheet">'+(ds.length ? '<div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="blkDocPick" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(docIll(x.type))+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(x.type||"")+'</small></span></button>'; }).join("")+'</div>' : '<p class="hint">Документов пока нет</p>')+
       '<button class="addcard" data-act="blkDocNew"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Новый документ</b><small>билеты и полис</small></span></button></div>'); }
 };
 A.blkSaveText = function(){ var v = val("fBt"); if (!v){ toast("Введите текст"); return; } var m = memo(trip(), S.noteId);
@@ -4924,7 +4928,7 @@ function openTrans(key){ var t = trip(); if (!t) return; var tr = transitions(t)
   h += '<div><p class="label">Переезд</p><div class="stops" id="trList">'+(function(){ var rs = trRows(t, x), gr = !g && rs.length > 1 ? '<span class="tgrip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>' : ""; return rs.map(function(r, n){ var hh = r.kind === "leg" ? lrow(r.l) : hrow(r.h, r.kind); return hh.replace(/<\/button>$/, gr+"</button>").replace("<button ", '<button data-tr="'+r.key+'" '); }).join(""); })()+
     (g ? '' : add("moveSheet", ' data-k="'+(x.m || x.kB)+'" data-i="-1"', "Добавить переезд")+(key === "end" ? '' : add("hotelOpen", ' data-c="'+esc(x.to)+'" data-k="'+x.arr+'"', "Добавить отель")))+'</div></div>';
   if (it.ts.length) h += '<div><p class="label">Задачи</p><div class="stops"><div class="check tasks tasks--in">'+it.ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>'+(g ? '' : add("addTask", "", "Добавить задачу"))+'</div></div>';
-  if (it.ds.length) h += '<div><p class="label">Документы</p><div class="stops">'+it.ds.map(function(d){ return '<button class="stop" data-act="docSheet" data-id="'+d.id+'"'+(g ? '' : swAttr("doc", d.id))+'><span class="stop__n is-home">'+ill(d.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(d.title)+'</b><small>'+esc(docSub(t, d))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g ? '' : add("addDocDay", "", "Добавить документ"))+'</div></div>';
+  if (it.ds.length) h += '<div><p class="label">Документы</p><div class="stops">'+it.ds.map(function(d){ return '<button class="stop" data-act="docSheet" data-id="'+d.id+'"'+(g ? '' : swAttr("doc", d.id))+'><span class="stop__n is-home">'+ill(docIll(d.type))+'</span><span class="stop__tx"><b>'+esc(d.title)+'</b><small>'+esc(docSub(t, d))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g ? '' : add("addDocDay", "", "Добавить документ"))+'</div></div>';
   var qc = (it.ts.length ? '' : '<button class="qadd glass" data-act="addTask">'+IC.add+'Задача</button>')+(it.ds.length ? '' : '<button class="qadd glass" data-act="addDocDay">'+IC.add+'Документ</button>');
   if (!g && qc) h += '<div class="qadds-wrap"><p class="label">Дополнительно</p><div class="qadds">'+qc+'</div></div>';
   $("sheetBody").innerHTML = h; var m = $("sheetMap"); if (m) m.hidden = true; if ($("sheetAdd")) $("sheetAdd").hidden = true;
@@ -5016,7 +5020,7 @@ A.shareSheet = function(){ return A.inviteSheet.apply(this, arguments); };
     if (!file) return _mv.apply(this, arguments);
     var id = uid(); if (!(await putFile(t, id, file))) return; try { f.value = ""; } catch(e){}
     var n0 = t.docs.length; _mv.apply(this, arguments); if (t.docs.length > n0) t.docs.splice(n0);
-    t.docs.push({id:id, title:"Билет "+city(from)+" → "+city(to), type:"Билет", owner:null, vis:"all", day:trKeyFor(t, from, to), file:id}); refresh(); };
+    t.docs.push({id:id, title:"Билет "+city(from)+" → "+city(to), type:"Транспорт", owner:null, vis:"all", day:trKeyFor(t, from, to), file:id}); refresh(); };
   var _hs = A.hotelSave;
   A.hotelSave = async function(){ if ($("fsheet").classList.contains("is-busy")) return; var f = $("fHf"), file = f && f.files[0], t = trip(), c = S.hcity;
     if (!file) return _hs.apply(this, arguments);
@@ -5041,13 +5045,13 @@ dayCard = function(t, d){ var h = _dayCardPlan(t, d); if (ro() || (t.places[d.k]
   S.pre = null;
   var _addDocPre = A.addDoc; A.addDoc = function(){ S.docMode = "new"; return _addDocPre.apply(this, arguments); };
   var _docSheetPre = A.docSheet; A.docSheet = function(){ S.docMode = "edit"; return _docSheetPre.apply(this, arguments); };
-  function done(ic, ok, type){ if (!ic) return; ic.removeAttribute("data-was"); ic.innerHTML = ok ? ill(type === "Билет" ? "ticket" : "doc") : IC.add; ic.classList.toggle("is-ill", !!ok); }
+  function done(ic, ok, type){ if (!ic) return; ic.removeAttribute("data-was"); ic.innerHTML = ok ? ill(docIll(type)) : IC.add; ic.classList.toggle("is-ill", !!ok); }
   document.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.type !== "file" || !inp.closest("#fBody") || ["fDf","fMfile","fHf"].indexOf(inp.id) < 0) return; var f = inp.files[0]; if (!f) return;
     var t = trip(), id = inp.id === "fDf" && S.docMode === "edit" && S.docId ? S.docId : _uid();
     var card = (inp.id === "fDf" && $("fDfCard")) || inp.closest(".addcard, .att") || $("fDfCard") || $("fMfCard") || $("fHfCard"), ic = card && card.querySelector(".addcard__ic, .att__thumb, .li__lead");
     if (ic){ if (ic.getAttribute("data-was") == null) ic.setAttribute("data-was", ic.innerHTML); ic.innerHTML = '<span class="upl-spin" aria-label="Загрузка"></span>'; }
     $("fsheet").classList.add("is-busy");
-    var type = inp.id === "fMfile" ? "Билет" : inp.id === "fDf" ? ($("fDty") ? $("fDty").value : "") : "Бронь";
+    var type = inp.id === "fMfile" ? "Транспорт" : inp.id === "fDf" ? ($("fDty") ? $("fDty").value : "") : "Бронь";
     var pr = { file:f, id:id, ok:null }; S.pre = pr;
     pr.promise = (async function(){ var ok = false; try { ok = await window._putRaw(t, id, f); } catch(err){} pr.ok = ok; if (S.pre === pr){ $("fsheet").classList.remove("is-busy"); done(ic, ok, type); } if (!ok && S.pre === pr) S.pre = null; return ok; })(); }, true);
   window._putRaw = function(t, id, f){ return _putBase(t, id, f); };
