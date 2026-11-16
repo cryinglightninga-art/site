@@ -2134,11 +2134,11 @@ function openDay(k){
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
   if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
   if (ps.length || !g){
-    h += '<div><p class="label">Маршрут дня</p><div class="stops" id="plist">'+(ho && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
+    h += '<div><p class="label">Маршрут дня</p><div class="stops" id="plist">'+(ho?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
       ps.map(function(p, i){ return '<div class="stop prow" data-i="'+i+'"'+swAttr("place", p.id)+'><span class="stop__n">'+(i+1)+'</span><button class="stop__tx" data-act="placeSheet" data-day="'+k+'" data-id="'+p.id+'"><b>'+esc(p.n)+'</b><small>'+(p.t?'<b style="display:inline;color:var(--label);font-weight:600">'+esc(p.t)+'</b>'+(p.note?' · ':''):'')+esc(p.note||'')+'</small></button>'+
         (g?'':'<span class="grip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>')+'</div>'; }).join("")+
       (g?'':addRow("addPlace", "Добавить место"))+
-      (hoE && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш'+(hoE.inD === k && hoE.inT ? ' · заезд с '+esc(hoE.inT) : '')+'</small></span></div>':'')+'</div>'+
+      (hoE?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш'+(hoE.inD === k && hoE.inT ? ' · заезд с '+esc(hoE.inT) : '')+'</small></span></div>':'')+'</div>'+
       ''+'</div>';
   }
   $("sheetBody").innerHTML = nb(h);
@@ -3592,7 +3592,7 @@ var _dayCardG = dayCard;
 dayCard = function(t, d){ var h = _dayCardG(t, d);
   return h.replace(/<button class="dli" data-act="dayAddPlace"([^>]*)>[^]*?<\/button>/, function(_, a){ return sunRow("dayAddPlace", a); }); };
 var _openDayG = openDay;
-openDay = function(k){ _openDayG(k); var t = trip(), pl = $("plist"); if (!pl || ro() || (t.places[k] || []).length) return;
+openDay = function(k){ _openDayG(k); var t = trip(), pl = $("plist"); if (!pl || ro() || (t.places[k] || []).length || pl.querySelector(".stop.is-home")) return;
   pl.className = "dashl"; pl.innerHTML = sunRow("addPlace"); };
 
 /* «Проверьте почту»: только код и одна строка про повторную отправку */
@@ -4259,7 +4259,7 @@ openDay = function(k){ _openDayE(k); var t = trip(), b = $("sheetBody"); if (!t 
   var f = hotelFacts(t, k), head = b.querySelector(".sh-head");
   if (false && f.length && head && !head.querySelector(".sh-facts")){ var anchor = head.querySelector(".wrap") || head.querySelector(".sh-title"); var html2 = '<p class="sh-facts">'+f.join(" · ")+'</p>'; if (anchor) anchor.insertAdjacentHTML("afterend", html2); else head.insertAdjacentHTML("beforeend", html2); }
   if (ro() || (t.places[k] || []).length) return;
-  var pl = $("plist"); if (!pl) return; var sec = pl.parentNode;
+  var pl = $("plist"); if (!pl) return; var sec = pl.parentNode; if (pl.querySelector(".stop.is-home")) return;
   sec.innerHTML = '<p class="label">Маршрут дня</p><button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
 };
 
