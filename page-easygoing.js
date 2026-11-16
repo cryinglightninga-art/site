@@ -22,12 +22,13 @@
       meta: [
         { label: 'Роль', value: 'Creator & Product Designer' },
         { label: 'Год', value: '2026' },
-        { label: 'Команда', value: 'Личный проект' },
         { label: 'Задача', value: 'Собрать план поездки и работу над ним в одном месте' }
       ],
       problemLabel: 'Проблема',
-      problemText: 'Поездка в несколько городов разваливается на десятки источников: билеты в почте, брони в приложениях отелей, маршрут в заметках, траты в чате. Существующие планировщики либо хранят брони списком без привязки к дням, либо строят маршрут и не учитывают, как ты добираешься между городами. EasyGoing собирает всё это в маршрут по дням, который можно вести вместе с попутчиками: приглашение по ссылке, роль гостя только для просмотра, личные документы видны только владельцу.',
-      hardLabel: 'Главная сложность — переезд между городами',
+      problemText: 'Поездка в несколько городов разваливается на десятки источников: билеты в почте, брони в приложениях отелей, маршрут в заметках, траты в чате. Существующие планировщики либо хранят брони списком без привязки к дням, либо строят маршрут и не учитывают, как ты добираешься между городами. А общие деньги в компании почти всегда превращаются в «потом посчитаем»: кто за что платил, забывается, а траты идут в двух-трёх валютах сразу.',
+      problemText2: 'EasyGoing собирает всё это в маршрут по дням, который можно вести вместе с попутчиками: приглашение по ссылке, роль гостя только для просмотра, личные документы видны только владельцу.',
+
+      hardLabel: 'Сложность 1 — переезд между городами',
       hardText: 'Места в дне спланировать легко. Сложнее всего стык между городами: когда выезжать из отеля, каким рейсом лететь, где заселяться и не остаёшься ли ты без жилья.',
       researchLabel: 'Что показали интервью',
       researchText: 'Я собрала кликабельный прототип и провела 3 интервью с людьми, которые за последний год ездили в 2+ города за поездку. Попросила добавить перелёт с пересадкой и отель в новом городе.',
@@ -47,6 +48,19 @@
         'полный маршрут: первая плашка — дорога в первый город, последняя — обратно домой.'
       ],
       solutionText2: 'Из этого выросло общее правило продукта: создать можно откуда удобно, но у каждой сущности одна шторка, и любая её строка открывает именно её. Карточка дня только показывает, а редактируется всё в шторках.',
+
+      moneyLabel: 'Сложность 2 — общие деньги в разных валютах',
+      moneyText: 'В поездке траты копятся быстро и в разных валютах: билеты покупают дома в рублях, отель платят в иенах, такси — в тенге. К концу никто не помнит, кто за что платил, а пересчитывать всё вручную по курсу никто не хочет. Из-за этого деньги делят «примерно» или откладывают разговор, пока он не станет неловким.',
+      moneySolutionLabel: 'Решение',
+      moneySolutionText: 'Раздел «Деньги» отвечает на один вопрос: кто кому сколько должен.',
+      moneyList: [
+        'трата за пару секунд: за что, кто платил, сколько и в какой валюте; делим на всех или выбираем, на кого;',
+        'долги в исходной валюте: по умолчанию долги считаются отдельно в каждой валюте — так, как люди и возвращают деньги, без искажений от курса;',
+        'конвертация по запросу: один переключатель сводит все долги в одну валюту по актуальному курсу; дата курса видна, поэтому понятно, откуда цифра;',
+        'минимум переводов: приложение сводит взаимные долги и показывает самый короткий способ рассчитаться — сколько переводов и кому;',
+        'возврат закрывает долг: перевод отмечается возвратом, и баланс сразу пересчитывается; траты сгруппированы по дням, поэтому легко вспомнить, за что платили.'
+      ],
+
       systemLabel: 'Дизайн-система',
       systemText: 'Компоненты и цвета — на переменных Figma со светлой и тёмной темой: шапки, шторки, строки списков, поля, чипсы, бейджи, пустые состояния. Поведенческие правила зашиты в сами компоненты, поэтому работают везде, где компонент используется.',
       galleryLabel: 'Галерея',
@@ -60,31 +74,45 @@
       meta: [
         { label: 'Role', value: 'Creator & Product Designer' },
         { label: 'Year', value: '2026' },
-        { label: 'Team', value: 'Personal project' },
         { label: 'Task', value: 'Bring a trip plan and planning it together into one app' }
       ],
       problemLabel: 'Problem',
-      problemText: 'A multi-city trip falls apart into dozens of sources: tickets in email, bookings in hotel apps, the route in notes, expenses in a group chat. Existing planners either keep bookings as a flat list with no link to days, or build a route that ignores how you get between cities. EasyGoing pulls it all into a day-by-day route you can run with travel companions: invites by link, a view-only guest role, and personal documents visible only to their owner.',
-      hardLabel: 'The core challenge — getting between cities',
+      problemText: 'A multi-city trip falls apart into dozens of sources: tickets in email, bookings in hotel apps, the route in notes, expenses in a group chat. Existing planners either keep bookings as a flat list with no link to days, or build a route that ignores how you get between cities. And shared money almost always becomes \u201cwe\u2019ll sort it out later\u201d: nobody remembers who paid for what, and spending happens in two or three currencies at once.',
+      problemText2: 'EasyGoing pulls it all into a day-by-day route you can run with travel companions: invites by link, a view-only guest role, and personal documents visible only to their owner.',
+
+      hardLabel: 'Challenge 1 — getting between cities',
       hardText: 'Planning places within a day is easy. The hard part is the seam between cities: when to check out, which flight to take, where to check in, and whether you\u2019ll be left without a place to stay.',
       researchLabel: 'What the interviews showed',
       researchText: 'I built a clickable prototype and ran 3 interviews with people who had visited 2+ cities on one trip in the past year. I asked them to add a flight with a layover and a hotel in the next city.',
       researchList: [
         '2 of 3 couldn\u2019t tell where a ticket belongs — the departure day or the arrival day. One added it twice.',
-        'All three looked for the hotel under “transfer”, not under the day.',
+        'All three looked for the hotel under \u201ctransfer\u201d, not under the day.',
         'An overnight flight with a layover showed up in the wrong order, and the participant assumed the data was broken.',
-        'The “night without a place to stay” warning fired when check-in matched arrival, so people stopped trusting it.'
+        'The \u201cnight without a place to stay\u201d warning fired when check-in matched arrival, so people stopped trusting it.'
       ],
       solutionLabel: 'Solution',
       solutionText: 'The transfer became its own entity — a card between days rather than part of a day:',
       solutionList: [
-        'one flow: check-out → tickets → check-in in a single sheet; tasks and documents such as “buy shinkansen tickets” attach to the transfer itself;',
-        'clear dates: the title carries the ticket dates — “27 November, Kyoto → Tokyo”, or “21–22 November, Moscow → Osaka” for overnight flights;',
+        'one flow: check-out → tickets → check-in in a single sheet; tasks and documents such as \u201cbuy shinkansen tickets\u201d attach to the transfer itself;',
+        'clear dates: the title carries the ticket dates — \u201c27 November, Kyoto → Tokyo\u201d, or \u201c21–22 November, Moscow → Osaka\u201d for overnight flights;',
         'correct order: rows sort by departure date and time, and can be dragged when the trip\u2019s logic differs;',
-        'an honest warning: “without a place to stay” appears only when check-in is later than arrival; if the check-in time is unknown, the app stays quiet;',
+        'an honest warning: \u201cwithout a place to stay\u201d appears only when check-in is later than arrival; if the check-in time is unknown, the app stays quiet;',
         'the whole journey: the first card is the way to the first city, the last one is the way home.'
       ],
       solutionText2: 'This turned into a product-wide rule: you can create things wherever it\u2019s convenient, but every entity has one sheet, and any of its rows opens that sheet. The day card only shows; everything is edited in sheets.',
+
+      moneyLabel: 'Challenge 2 — shared money in several currencies',
+      moneyText: 'On a trip, expenses pile up fast and in different currencies: flights are bought at home in roubles, the hotel is paid in yen, taxis in tenge. By the end nobody remembers who paid for what, and nobody wants to convert everything by hand. So money gets split \u201croughly\u201d, or the conversation is put off until it gets awkward.',
+      moneySolutionLabel: 'Solution',
+      moneySolutionText: 'The \u201cMoney\u201d section answers one question: who owes whom, and how much.',
+      moneyList: [
+        'an expense in seconds: what for, who paid, how much and in which currency; split between everyone or chosen people;',
+        'debts in the original currency: by default debts are kept separately per currency — the way people actually pay each other back, with no exchange-rate distortion;',
+        'conversion on demand: one toggle brings all debts into a single currency at the current rate; the rate date is shown, so it\u2019s clear where the number comes from;',
+        'fewest transfers: the app nets out mutual debts and shows the shortest way to settle — how many transfers and to whom;',
+        'a refund closes the debt: a transfer is logged as a refund and the balance updates at once; expenses are grouped by day, which makes it easy to remember what they were for.'
+      ],
+
       systemLabel: 'Design system',
       systemText: 'Components and colours run on Figma variables with light and dark themes: headers, sheets, list rows, fields, chips, badges and empty states. Behaviour rules are built into the components themselves, so they work everywhere a component is used.',
       galleryLabel: 'Gallery',
@@ -321,16 +349,19 @@
     content.appendChild(buildStage());
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
-    content.appendChild(ui.metaGrid(t.meta));
+    content.appendChild(ui.metaGrid(t.meta, 'cols-3'));
 
     content.appendChild(ui.block(t.problemLabel, t.problemText));
-    content.appendChild(ui.block(t.hardLabel, t.hardText));
+    content.appendChild(ui.block(null, t.problemText2));
 
+    content.appendChild(ui.block(t.hardLabel, t.hardText));
     // Цифры интервью пока выдуманные — блок помечен, пока их не заменят.
     content.appendChild(section(t.researchLabel, t.researchText, t.researchList, 'is-draft'));
-
     content.appendChild(section(t.solutionLabel, t.solutionText, t.solutionList));
     content.appendChild(ui.block(null, t.solutionText2));
+
+    content.appendChild(ui.block(t.moneyLabel, t.moneyText));
+    content.appendChild(section(t.moneySolutionLabel, t.moneySolutionText, t.moneyList));
 
     content.appendChild(ui.block(t.systemLabel, t.systemText));
 

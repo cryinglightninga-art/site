@@ -114,7 +114,8 @@ img.is-swapping {
   margin-bottom: 40px;
 }
 
-.meta-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+/* Три колонки — только на широком экране: на телефоне длинная роль или
+   задача рассыпались бы по три слова в строку, поэтому там две. */
 
 .meta-label {
   font-size: 11px;

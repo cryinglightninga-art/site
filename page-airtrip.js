@@ -17,7 +17,6 @@
       meta: [
         { label: 'Роль', value: 'Product Designer' },
         { label: 'Год', value: '2024' },
-        { label: 'Команда', value: 'Концептуальный проект' },
         { label: 'Задача', value: 'Упростить планирование путешествий' }
       ],
       process: [
@@ -33,7 +32,6 @@
       meta: [
         { label: 'Role', value: 'Product Designer' },
         { label: 'Year', value: '2024' },
-        { label: 'Team', value: 'Concept project' },
         { label: 'Task', value: 'Simplify travel planning' }
       ],
       process: [
@@ -103,7 +101,7 @@
     content.appendChild(buildStage());
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
-    content.appendChild(ui.metaGrid(t.meta));
+    content.appendChild(ui.metaGrid(t.meta, 'cols-3'));
 
     t.process.forEach(function (p) {
       content.appendChild(ui.block(p.heading, p.text));

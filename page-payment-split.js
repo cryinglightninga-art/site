@@ -17,7 +17,6 @@
       meta: [
         { label: 'Роль', value: 'Product Designer' },
         { label: 'Год', value: '2023' },
-        { label: 'Команда', value: 'Концептуальный проект' },
         { label: 'Задача', value: 'Разделить счёт после оплаты' }
       ],
       failedLabel: 'не загрузилось',
@@ -33,7 +32,6 @@
       meta: [
         { label: 'Role', value: 'Product Designer' },
         { label: 'Year', value: '2023' },
-        { label: 'Team', value: 'Concept project' },
         { label: 'Task', value: 'Split a bill after payment' }
       ],
       failedLabel: 'failed to load',
@@ -93,7 +91,7 @@
     content.appendChild(buildScreens());
     content.appendChild(ui.badge(t.typeLabel));
     content.appendChild(ui.title(t.title));
-    content.appendChild(ui.metaGrid(t.meta));
+    content.appendChild(ui.metaGrid(t.meta, 'cols-3'));
 
     content.appendChild(ui.block(t.contextLabel, t.contextText));
     content.appendChild(ui.block(t.designLabel, t.designEqual));
