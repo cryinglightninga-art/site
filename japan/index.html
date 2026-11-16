@@ -1542,6 +1542,8 @@ html:not([data-tabs="A"]) body .chips .chip,html:not([data-tabs="A"]) body .chip
 html:not([data-tabs="A"]) body .chips .chip.is-active,html:not([data-tabs="A"]) body .chips--seg .chip.is-active,html:not([data-tabs="A"]) body .mconv__cur .chip.is-active{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 /* таб-бар: от выбранной плашки до края фона — 4px со всех сторон */
 html body .tabbar__bg{inset:-4px -2px!important}
+/* план: города подряд одной лентой */
+.days--all .city-sec{display:flex;flex-direction:column;gap:24px;scroll-margin-top:120px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4154,8 +4156,7 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     var list = chipsCities(), i = list.indexOf(S.city), j = s.dx < 0 ? i + 1 : i - 1, go = Math.abs(s.dx) > 60 && j >= 0 && j < list.length;
     if (s.el){ s.el.style.transition = "transform .35s cubic-bezier(.3,1.2,.5,1), opacity .25s"; s.el.style.transform = ""; s.el.style.opacity = ""; }
     if (!go) return;
-    A.city({c:list[j]}); var sc = $("scroll"); if (sc) sc.scrollTop = 0;
-    var n = box(); if (n) anim(n, [{transform:"translate3d("+(s.dx < 0 ? 60 : -60)+"px,0,0)", opacity:0},{transform:"none", opacity:1}], {duration:450, easing:SPRING});
+    A.city({c:list[j]}); if (window.tgMoveTo) window.tgMoveTo(document.querySelector('#chipsSlot [data-act="city"][data-c="'+list[j].replace(/"/g, '\\"')+'"]'));
   }
   document.addEventListener("touchend", end); document.addEventListener("touchcancel", function(){ if (st && st.el){ st.el.style.transform = ""; st.el.style.opacity = ""; } st = null; });
 })();
@@ -4575,7 +4576,8 @@ placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r
     Object.keys(keep).forEach(function(k){ var el = byKey(k); if (el){ el.scrollLeft = keep[k]; var an = ANIM[k]; if (an){ var q = an.t0 == null ? 0 : Math.min(1, (performance.now() - an.t0) / DUR), e = ease(q); put(el, an.from.x + (an.to.x - an.from.x) * e, an.from.w + (an.to.w - an.from.w) * e); } } });
     syncAll(); return res; };
   var sched = false; new MutationObserver(function(){ if (sched) return; sched = true; requestAnimationFrame(function(){ sched = false; syncAll(); }); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
-  window.addEventListener("load", syncAll); window.tgSync = syncAll; window.tgBusy = function(){ return Object.keys(ANIM).length > 0; };
+  window.addEventListener("load", syncAll); window.tgSync = syncAll; window.tgBusy = function(){ return Object.keys(ANIM).length > 0; }; window.tgMoveTo = function(c){ if (!c || !on()) return; var el = c.closest(SEL); if (!el) return; var a = act(el); if (a === c) return; var k = keyOf(el), t = el.querySelector(":scope > .tg-thumb"), from = t && t._x != null ? {x:t._x, w:t._w} : (a ? pos(el, a) : pos(el, c));
+    [].forEach.call(el.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === c); }); ANIM[k] = {from:from, to:pos(el, c), t0:null, sl0:el.scrollLeft}; start(); };
 })();
 
 /* ===== заметка: список без пунктов — заголовок и пунктирная плашка «＋ Добавить пункт/шаг» вместо пустой карточки ===== */
@@ -4615,6 +4617,45 @@ openDay = function(k){ _openDayDocSW(k); if (ro()) return; var t = trip();
   [].forEach.call(document.querySelectorAll("#sheetBody .stop[data-act='docSheet']"), function(r){ var d = t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; if (d && (d.owner === S.me || !d.owner)) r.setAttribute("data-sw", "doc:"+d.id); }); };
 /* табы: нажатие не должно само прокручивать ряд (фокус кнопки) — прокрутку делает анимация */
 document.addEventListener("mousedown", function(e){ var c = e.target.closest && e.target.closest(".chips .chip, .chips--seg .chip, .mconv__cur .chip"); if (c) e.preventDefault(); }, true);
+
+
+/* ===== План: все дни поездки одной лентой, по городам подряд. Таб города переключается сам при прокрутке; по нажатию на таб — прокрутка к началу города ===== */
+(function(){
+  var lock = 0;
+  function slotBottom(){ var c = $("chipsSlot"); return c && c.offsetHeight ? c.getBoundingClientRect().bottom : ($("scroll").getBoundingClientRect().top + 100); }
+  function secs(){ return [].slice.call(document.querySelectorAll("#view .city-sec")); }
+  var _SCRtripAll = SCR.trip;
+  SCR.trip = function(r){ var t = trip(r.trip);
+    if (S.tab === "prep" || S.city === "_nodate") return _SCRtripAll(r);
+    var cities = t.cities.map(function(c){ return c.n; }); if (!cities.length) return _SCRtripAll(r);
+    if (cities.indexOf(S.city) < 0) S.city = cities[0];
+    var keep = S.city, days = tripDays(t), order = [], seen = {};
+    days.forEach(function(d){ if (d.city && cities.indexOf(d.city) >= 0 && !seen[d.city]){ seen[d.city] = 1; order.push(d.city); } });
+    cities.forEach(function(c){ if (!seen[c]) order.push(c); });
+    var base = null, body = "";
+    order.forEach(function(c, i){ S.city = c; var v = _SCRtripAll(r); if (!base) base = v;
+      var inner = v.view.replace(/^<div class="days days--home">/, "").replace(/<\/div>$/, ""); if (i > 0) inner = inner.replace(/^<p class="hint">[^]*?<\/p>/, "");
+      body += '<section class="city-sec" data-city="'+esc(c)+'">'+inner+'</section>'; });
+    S.city = keep; var v0 = _SCRtripAll(r); base.chips = v0.chips;
+    base.view = '<div class="days days--home days--all">'+body+'</div>';
+    return base; };
+  function setActive(c, animate){ if (S.city === c) return; S.city = c; var row = document.querySelector('#chipsSlot .chips'); if (!row) return;
+    var b = row.querySelector('[data-act="city"][data-c="'+c.replace(/"/g, '\\"')+'"]'); if (!b) return;
+    if (animate && window.tgMoveTo) window.tgMoveTo(b); else { [].forEach.call(row.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === b); }); if (window.tgSync) window.tgSync(); } }
+  function spy(){ if (Date.now() < lock) return; var r = cur(); if (!r || r.s !== "trip" || S.tab === "prep" || S.city === "_nodate") return;
+    var ss = secs(); if (!ss.length) return; var sc = $("scroll"), lim = slotBottom() + 48, c = ss[0].getAttribute("data-city");
+    ss.forEach(function(x){ if (x.getBoundingClientRect().top <= lim) c = x.getAttribute("data-city"); });
+    if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) c = ss[ss.length - 1].getAttribute("data-city");
+    setActive(c, true); }
+  function scrollToCity(c){ var sec = secs().filter(function(x){ return x.getAttribute("data-city") === c; })[0], sc = $("scroll"); if (!sec || !sc) return;
+    var to = secs()[0] === sec ? 0 : sc.scrollTop + sec.getBoundingClientRect().top - slotBottom() - 8; to = Math.max(0, Math.min(to, sc.scrollHeight - sc.clientHeight));
+    lock = Date.now() + 900; sc.scrollTo({top:to, behavior:"smooth"}); }
+  A.city = function(d){ var r = cur(); if (!r || r.s !== "trip") return;
+    if (d.c === "_nodate" || S.city === "_nodate"){ S.city = d.c; render(); if (d.c !== "_nodate") setTimeout(function(){ scrollToCity(d.c); }, 30); else $("scroll").scrollTop = 0; return; }
+    if (S.city !== d.c){ S.city = d.c; var row = document.querySelector('#chipsSlot .chips'); if (row) [].forEach.call(row.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x.getAttribute("data-c") === d.c); }); }
+    scrollToCity(d.c); };
+  document.addEventListener("scroll", function(e){ if (e.target && e.target.id === "scroll") spy(); }, true);
+})();
 
 </script>
 </body>
