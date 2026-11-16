@@ -4805,7 +4805,7 @@ openDay = function(k){ _openDayMoveBlock(k);
   var hs = Object.keys(t.hotels).map(function(c){ return [c, t.hotels[c]]; }).filter(function(x){ return x[1] && x[1].name; });
   var out = hs.filter(function(x){ return x[1].outD === k; })[0], inn = hs.filter(function(x){ return x[1].inD === k; })[0], add = hotelAddFor(t, d);
   function hRow(x, kind){ var h = x[1], sub = kind === "out" ? 'Выезд'+(h.outT ? ' до '+h.outT : '') : 'Заезд'+(h.inT ? ' с '+h.inT : '');
-    return '<button class="stop" data-act="hotelOpen" data-c="'+esc(x[0])+'"><span class="stop__n is-home">'+ill("hotel")+'</span><span class="stop__tx"><b>'+esc(h.name)+'</b><small>'+esc(sub)+'</small></span></button>'; }
+    return '<button class="stop" data-act="hotelOpen" data-c="'+esc(x[0])+'"'+(g ? '' : swAttr("hotel", x[0]))+'><span class="stop__n is-home">'+ill("hotel")+'</span><span class="stop__tx"><b>'+esc(h.name)+'</b><small>'+esc(sub)+'</small></span></button>'; }
   var sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0];
   if (!sec && (out || inn || add)){ var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head") && !c.classList.contains("warn"); })[0];
     var html = '<div><p class="label">Переезд</p><div class="stops">'+(g ? '' : '<button class="stop stop--add" data-act="moveSheet" data-k="'+k+'" data-i="-1"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить переезд</span></button>')+'</div></div>';
@@ -4822,6 +4822,16 @@ openDay = function(k){ _openDayMoveBlock(k);
 
 /* загрузки билетов пока нет — «Новая поездка» сразу открывает мастер (без экранов «Загрузить билеты» / «Нашли в билетах») */
 A.newTrip = function(){ S.W = {q:"", country:null, from:"", to:"", cities:[], edit:false}; go("wizard", {step:0}); };
+
+/* отель удаляется свайпом влево — в блоке «Переезд» шторки дня и в списке «Отели»; с подтверждением */
+var _SCRhotelsSw = SCR.hotels;
+SCR.hotels = function(r){ var v = _SCRhotelsSw(r); if (!ro() && v && v.view) v.view = v.view.replace(/<(div|button) class="(hotel|stay)" data-act="hotelOpen" data-c="([^"]*)"/g, function(m, tg, cl, c){ var t = trip(r.trip), key = c.replace(/&quot;/g, '"').replace(/&amp;/g, "&"); var hk = t.hotels[key] ? key : (t.cities.length ? null : Object.keys(t.hotels)[0]); return hk && t.hotels[hk].name ? '<'+tg+' class="'+cl+'" data-act="hotelOpen" data-c="'+c+'" data-sw="hotel:'+esc(hk)+'"' : m; }); return v; };
+var _swDelHotel = swDelete;
+swDelete = function(el){ var k = el.getAttribute("data-sw").split(":"); if (k[0] !== "hotel") return _swDelHotel(el);
+  var c = k.slice(1).join(":"), t = trip(), h = t.hotels[c]; if (!h) return;
+  ask("Удалить отель?", "«"+h.name+"» пропадёт у всех участников поездки.", null, "Удалить", function(){
+    delete t.hotels[c]; swOpen = null; refresh(); if ($("sheet") && $("sheet").classList.contains("is-open") && S.day) openDay(S.day); toast("Отель удалён"); }, true);
+  swSet(el, false); };
 
 </script>
 </body>
