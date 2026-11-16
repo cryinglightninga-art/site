@@ -2111,7 +2111,7 @@ function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-hom
 function openDay(k){
   S.day = k;
   var t = trip(), d = tripDays(t).filter(function(x){ return x.k === k; })[0], ps = t.places[k] = t.places[k] || [], g = ro();
-  var dh = dayHotels(t, k, d.city), ho = dh.s, hoE = dh.e, ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
+  var dh = dayHotels(t, k, d.city), ho = dh.s && dh.s.inD === k ? null : dh.s, hoE = dh.e && dh.e.outD === k ? null : dh.e, ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
   var ls = legs(t, k), mk = moveFor(t, k);
   var h = '<div class="sh-head"><p class="sh-kicker">'+WDF[D(k).getDay()]+'</p><h2 class="sh-title">'+dm(k)+'</h2>'+(mk && mk.kind === "mid" ? '<div class="wrap wrap--move">'+badge(mk.from)+'<span class="badge-arrow" aria-label="в">'+SVG_ARR+'</span>'+badge(mk.to)+'</div>' : (d.city?'<div class="wrap">'+badge(d.city)+'</div>':''))+'</div>';
   var nt = notesRows(t, k); if (nt) h += '<div class="check">'+nt+'</div>';
@@ -4685,7 +4685,7 @@ openDay = function(k){ _openDayHotelRows(k); var t = trip(), pl0 = $("plist"); i
     if (kind === "s" && h.outD === k) sub += ' · выезд'+(h.outT ? ' до '+h.outT : ''); if (kind === "e" && h.inD === k) sub += ' · заезд'+(h.inT ? ' с '+h.inT : '');
     var sm = r.querySelector(".stop__tx small"), b = r.querySelector(".stop__tx b"); if (b) b.textContent = h.name; if (sm) sm.textContent = sub;
     if (c && !ro()){ r.setAttribute("data-act", "hotelOpen"); r.setAttribute("data-c", c); r.setAttribute("role", "button"); } }
-  fix(rows[0], dh.s, "s"); if (rows.length > 1) fix(rows[rows.length - 1], dh.e || dh.s, "e"); };
+  var first = pl0.firstElementChild; rows.forEach(function(r){ if (r === first) fix(r, dh.s, "s"); else fix(r, dh.e || dh.s, "e"); }); };
 /* лента: отдельная карточка отеля в начале города больше не нужна — отель виден в днях (оставляем только «Добавить отель», если его нет) */
 var _SCRtripNoStay = SCR.trip;
 SCR.trip = function(r){ var v = _SCRtripNoStay(r); if (S.tab !== "prep" && v.view) v.view = v.view.replace(/<button class="stay"[^]*?<\/button>/g, ""); return v; };
