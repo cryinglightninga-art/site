@@ -5099,6 +5099,12 @@ function trRows(t, x){
     b.querySelector(".fbox__clr").addEventListener("mousedown", function(e){ e.preventDefault(); });
     b.querySelector(".fbox__clr").onclick = function(e){ e.preventDefault(); e.stopPropagation(); ta.value = ""; ta.dispatchEvent(new Event("input", {bubbles:true})); ta.focus(); sync(); }; }); }).observe(document.body, {childList:true, subtree:true}); })();
 
+/* «Ночь без жилья»: только если заезд позже прибытия (оба времени известны) */
+nightWarn = function(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) return ""; var v = ov[ov.length-1], ad = tripDays(t).filter(function(x){ return x.k === v.arrD; })[0], h = t.hotels[(ad && ad.city) || cityName];
+  if (!h || h.inD !== v.arrD || !v.arr || !h.inT || v.arr >= h.inT) return "";
+  var tail = v.arr < "06:00" ? "ночь без жилья" : (function(){ var a = v.arr.split(":"), b = h.inT.split(":"), m = (+b[0]*60 + +b[1]) - (+a[0]*60 + +a[1]), hh = Math.floor(m/60), mm = m % 60; return (hh ? hh+" ч" : "")+(mm ? (hh ? " " : "")+mm+" мин" : "")+" без жилья"; })();
+  return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд с '+esc(h.inT)+' — '+tail+'</p>'; };
+
 </script>
 </body>
 </html>
