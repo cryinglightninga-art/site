@@ -3054,7 +3054,7 @@ async function afterLogin(){
   if (S.invite){
     var already = await sb.from("tp_members").select("id,left_at").eq("trip_id", S.invite.trip).eq("user_id", S.uid).maybeSingle();
     if (already.data && !already.data.left_at){ var tid = S.invite.trip; S.invite = null; await enter(tid); return; }
-    if (S.invite.free.length && !already.data){ reset("whoami"); return; }
+    /* участники — только по приглашению, каждый сам вводит своё имя; выбора «Кто вы?» нет */
     if (!S.profile){ reset("profile"); return; }
     await acceptInvite(null, S.profile.name); return;
   }
