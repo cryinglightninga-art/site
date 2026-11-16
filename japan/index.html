@@ -1554,6 +1554,9 @@ html body .tabbar__bg{inset:-4px -2px!important}
 .li__lead .addcard__ic svg, .dli .addcard__ic svg{width:28px;height:28px}
 .dli .addcard__ic{width:22px;min-width:22px;overflow:visible}
 .dli .addcard__ic svg{width:24px;height:24px;flex:none}
+
+/* трек табов в шапке: не шире экрана с учётом отступов 16 — длинные названия прокручиваются внутри */
+html:not([data-tabs="A"]) #chipsSlot > .chips{max-width:calc(100% - 32px)!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
