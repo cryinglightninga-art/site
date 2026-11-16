@@ -1540,6 +1540,8 @@ html body .fld--seg > .label + .chips--seg,html body .fld > .label + .chips--seg
 /* табы D: выделение рисует только плашка — у самих табов фона и анимации фона нет (иначе при перерисовке мигает вторая плашка) */
 html:not([data-tabs="A"]) body .chips .chip,html:not([data-tabs="A"]) body .chips--seg .chip,html:not([data-tabs="A"]) body .mconv__cur .chip{transition:color .2s!important}
 html:not([data-tabs="A"]) body .chips .chip.is-active,html:not([data-tabs="A"]) body .chips--seg .chip.is-active,html:not([data-tabs="A"]) body .mconv__cur .chip.is-active{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* таб-бар: от выбранной плашки до края фона — 4px со всех сторон */
+html body .tabbar__bg{inset:-4px -2px!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
