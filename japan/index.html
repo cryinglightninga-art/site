@@ -1571,6 +1571,10 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .seg--doc{display:inline-flex;gap:0;background:var(--fill, rgba(120,120,128,.12));border-radius:999px;padding:3px}
 .seg--doc .seg__b{border:0;background:transparent;padding:8px 14px;border-radius:999px;font:inherit;color:var(--sec)}
 .seg--doc .seg__b.is-on{background:var(--card, #fff);color:var(--label);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.upl-spin{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--sec);border-top-color:transparent;display:inline-block;animation:uplspin .8s linear infinite}
+@keyframes uplspin{to{transform:rotate(360deg)}}
+#fsheet.is-busy [data-act$="Save"], #fsheet.is-busy .fsh__save{opacity:.4;pointer-events:none}
+.att--pass{pointer-events:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4982,6 +4986,35 @@ A.moveSheet = function(d, el, e){ _moveSheetHd(d, el, e); if (!$("fsheet").class
   if (x) $("fTitle").textContent = trTitle(x); else if (v) $("fTitle").textContent = city(v.from)+" → "+city(v.to);
   var r = v ? dmRange(v.depD || k, v.arrD || v.depD || k) : _dmTr(k); $("fSub").textContent = r; $("fSub").hidden = !r; };
 A.shareSheet = function(){ return A.inviteSheet.apply(this, arguments); };
+
+/* ===== загрузка файлов: лоадер в карточке, билет переезда — в переезд ===== */
+(function(){
+  var SPIN = '<span class="upl-spin" aria-label="Загрузка"></span>';
+  function cardIc(){ var b = $("fBody"); if (!b) return null; var inp = b.querySelector('input[type="file"]'); var card = inp && (inp.closest(".addcard, .att, label") || null); if (!card) card = b.querySelector("#fMfCard, #fHfCard, #fDfCard"); return card && card.querySelector(".addcard__ic, .att__thumb, .li__lead"); }
+  function busy(on){ var ic = cardIc(); if (!ic) return; if (on){ if (ic.getAttribute("data-was") == null) ic.setAttribute("data-was", ic.innerHTML); ic.innerHTML = SPIN; } else if (ic.getAttribute("data-was") != null){ ic.innerHTML = ic.getAttribute("data-was"); ic.removeAttribute("data-was"); }
+    var sv = document.querySelector('[data-act="moveSave"], [data-act="hotelSave"], [data-act="docSave"]'); $("fsheet").classList.toggle("is-busy", !!on); }
+  var _put = putFile; putFile = async function(){ var open = $("fsheet").classList.contains("is-open"); if (open) busy(true); try { return await _put.apply(this, arguments); } finally { if (open) busy(false); } };
+  window.uplBusy = busy;
+  function trKeyFor(t, from, to){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(function(z){ return z.legs.some(function(l){ return l.v.from === from && l.v.to === to; }); })[0];
+    if (x) return trKey(x); var k = Object.keys(t.moves).filter(function(kk){ return legs(t, kk).some(function(l){ return l.from === from && l.to === to; }); })[0]; return k || S.moveK; }
+  var _mv = A.moveSave;
+  A.moveSave = async function(){ if ($("fsheet").classList.contains("is-busy")) return; var f = $("fMfile"), file = f && f.files[0], t = trip(), from = val("fMf"), to = val("fMt");
+    if (!file) return _mv.apply(this, arguments);
+    var id = uid(); if (!(await putFile(t, id, file))) return; try { f.value = ""; } catch(e){}
+    var n0 = t.docs.length; _mv.apply(this, arguments); if (t.docs.length > n0) t.docs.splice(n0);
+    t.docs.push({id:id, title:"Билет "+city(from)+" → "+city(to), type:"Билет", owner:null, vis:"all", day:trKeyFor(t, from, to), file:id}); refresh(); };
+  var _hs = A.hotelSave;
+  A.hotelSave = async function(){ if ($("fsheet").classList.contains("is-busy")) return; var f = $("fHf"), file = f && f.files[0], t = trip(), c = S.hcity;
+    if (!file) return _hs.apply(this, arguments);
+    var id = uid(); if (!(await putFile(t, id, file))) return; try { f.value = ""; } catch(e){}
+    await _hs.apply(this, arguments); var h = t.hotels[c]; if (!h) return;
+    var tr = transitions(t), x = tr.filter(function(z){ return z.inn.some(function(q){ return q[0] === c; }); })[0];
+    t.docs.push({id:id, title:"Бронь · "+h.name, type:"Бронь", owner:null, vis:"all", day:x ? trKey(x) : h.inD, file:id}); refresh(); };
+})();
+/* карточка дня и плашка: документ не перехватывает тап — открывается день/переезд */
+var _dayCardAttTap = dayCard; dayCard = function(t, d){ return _dayCardAttTap(t, d).replace(/<button class="att" data-act="docSheet"/g, '<button class="att att--pass" type="button"'); };
+var _plateAttTap = plateHtml; plateHtml = function(t, x, key){ return _plateAttTap(t, x, key).replace(/<button class="att" data-act="docSheet"/g, '<button class="att att--pass" type="button"'); };
+var _wBack = back; back = A.back = function(){ var r = cur(); if (r && r.s === "wizard" && r.step > (S.W && S.W.edit ? 1 : 0)){ r.step--; closeAll(); render(); $("scroll").scrollTop = 0; if (typeof slide === "function") slide(-1); return; } return _wBack.apply(this, arguments); };
 
 </script>
 </body>
