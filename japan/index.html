@@ -2124,7 +2124,7 @@ function openDay(k){
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
   if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
   if (ps.length || !g){
-    h += '<div><p class="label">Места по порядку</p><div class="stops" id="plist">'+(ho && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
+    h += '<div><p class="label">Маршрут дня</p><div class="stops" id="plist">'+(ho && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
       ps.map(function(p, i){ return '<div class="stop prow" data-i="'+i+'"'+swAttr("place", p.id)+'><span class="stop__n">'+(i+1)+'</span><button class="stop__tx" data-act="placeSheet" data-day="'+k+'" data-id="'+p.id+'"><b>'+esc(p.n)+'</b><small>'+(p.t?'<b style="display:inline;color:var(--label);font-weight:600">'+esc(p.t)+'</b>'+(p.note?' · ':''):'')+esc(p.note||'')+'</small></button>'+
         (g?'':'<span class="grip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>')+'</div>'; }).join("")+
       (g?'':addRow("addPlace", "Добавить место"))+
@@ -4249,7 +4249,7 @@ openDay = function(k){ _openDayE(k); var t = trip(), b = $("sheetBody"); if (!t 
   if (false && f.length && head && !head.querySelector(".sh-facts")){ var anchor = head.querySelector(".wrap") || head.querySelector(".sh-title"); var html2 = '<p class="sh-facts">'+f.join(" · ")+'</p>'; if (anchor) anchor.insertAdjacentHTML("afterend", html2); else head.insertAdjacentHTML("beforeend", html2); }
   if (ro() || (t.places[k] || []).length) return;
   var pl = $("plist"); if (!pl) return; var sec = pl.parentNode;
-  sec.innerHTML = '<p class="label">Места по порядку</p><button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
+  sec.innerHTML = '<p class="label">Маршрут дня</p><button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
 };
 
 /* ===== карта: без подсказок OpenStreetMap — Google ищет в городе дня, «Добавить эту метку» добавляет сразу ===== */
@@ -4682,7 +4682,8 @@ openDay = function(k){ _openDayHotelRows(k); var t = trip(), pl0 = $("plist"); i
   var rows = [].filter.call(pl0.children, function(r){ return r.classList.contains("stop") && r.classList.contains("is-home") && !r.hasAttribute("data-act"); }); if (!rows.length) return;
   var d = tripDays(t).filter(function(x){ return x.k === k; })[0], dh = dayHotels(t, k, d && d.city) || {};
   function fix(r, h, kind){ if (!h || !h.name) return; var c = hotelCity(t, h); var sub = hotelStaySub(h);
-    if (kind === "s" && h.outD === k) sub += ' · выезд'+(h.outT ? ' до '+h.outT : ''); if (kind === "e" && h.inD === k) sub += ' · заезд'+(h.inT ? ' с '+h.inT : '');
+    if (kind === "s") sub = h.outD === k ? sub+' · выезд'+(h.outT ? ' до '+h.outT : '') : 'Старт';
+    if (kind === "e") sub = h.inD === k ? sub+' · заезд'+(h.inT ? ' с '+h.inT : '') : 'Возвращение в отель';
     var sm = r.querySelector(".stop__tx small"), b = r.querySelector(".stop__tx b"); if (b) b.textContent = h.name; if (sm) sm.textContent = sub;
     if (c && !ro()){ r.setAttribute("data-act", "hotelOpen"); r.setAttribute("data-c", c); r.setAttribute("role", "button"); } }
   var first = pl0.firstElementChild; rows.forEach(function(r){ if (r === first) fix(r, dh.s, "s"); else fix(r, dh.e || dh.s, "e"); }); };
