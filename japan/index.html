@@ -1548,6 +1548,12 @@ html body .tabbar__bg{inset:-4px -2px!important}
 /* бейдж «Переезд» на карточке дня — оранжевый */
 .badge--move{--badge-bg:#ff8c00;--badge-hl:rgba(255,208,40,1);--badge-edge:#ca3200;--badge-fg:#fff}
 @media (prefers-color-scheme:dark){.badge--move{--badge-bg:#d97400;--badge-hl:rgba(255,190,60,.45);--badge-edge:rgba(0,0,0,.45);--badge-fg:#fff3e0}}
+
+/* плюс в строках добавления рядом с иллюстрациями — крупнее, под размер картинок */
+.li__lead .addcard__ic, .dli .addcard__ic{width:auto;min-width:22px}
+.li__lead .addcard__ic svg, .dli .addcard__ic svg{width:28px;height:28px}
+.dli .addcard__ic{width:22px;min-width:22px;overflow:visible}
+.dli .addcard__ic svg{width:24px;height:24px;flex:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
