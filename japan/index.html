@@ -1563,6 +1563,8 @@ html:not([data-tabs="A"]) #chipsSlot > .chips{max-width:calc(100% - 32px)!import
 
 /* таб-бар: неактивная иконка — серая, активная — основного цвета */
 .tab:not(.is-active){color:var(--sec)!important}
+
+.dashl--plate{position:relative}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4798,7 +4800,7 @@ dayCard = function(t, d){ return _dayCardNoSw(t, d).replace(/<button class="att"
   var busy = false; new MutationObserver(function(){ if (busy) return; busy = true; try { fix(document); } finally { busy = false; } }).observe(document.body, {childList:true, subtree:true});
   fix(document); })();
 /* блок чипов в шторке дня — «Добавить» вместо «Ещё в этот день» */
-(function(){ new MutationObserver(function(){ [].forEach.call(document.querySelectorAll("#sheetBody .label"), function(l){ if (l.textContent === "Ещё в этот день") l.textContent = "Добавить"; }); }).observe(document.body, {childList:true, subtree:true}); })();
+(function(){ new MutationObserver(function(){ [].forEach.call(document.querySelectorAll("#sheetBody .label"), function(l){ if (l.textContent === "Ещё в этот день") l.textContent = "Дополнительно"; }); }).observe(document.body, {childList:true, subtree:true}); })();
 
 /* шторка дня: один блок «Переезд» — выезд из отеля → транспорт → заезд в отель (+ «Добавьте отель» в день прибытия); «Маршрут дня» перед «Документами» */
 var _openDayMoveBlock = openDay;
@@ -4864,9 +4866,9 @@ function trHotelRow(x, kind){ var h = x[1], sub = kind === "out" ? 'Выезд'+
 function plateHtml(t, x, key){ if (!x) return "";
   var filled = x.legs.length || x.out.length || x.inn.length;
   var lbl = '<p class="day__lbl">'+esc(trTitle(x))+'</p>';
-  if (!filled){ if (ro()) return ""; return '<section class="dayw dayw--plate">'+lbl+'<div class="dashbox dashbox--day"><div class="dashl">'+dli("transOpen", ' data-t="'+key+'"', "Заполните переезд", "билеты, отели, документы")+'</div></div></section>'; }
+  if (!filled){ if (ro()) return ""; return '<section class="dayw dayw--plate">'+lbl+'<div class="dashl dashl--plate"><span class="day__badge">'+badge("Переезд").replace('class="badge"', 'class="badge badge--move"')+'</span>'+dli("transOpen", ' data-t="'+key+'"', "Заполните переезд", "билеты, отели, документы")+'</div></section>'; }
   var rows = x.out.map(function(h){ return trHotelRow(h, "out"); }).join("")+x.legs.map(function(l){ return legRow(l.v, l.k); }).join("")+x.inn.map(function(h){ return trHotelRow(h, "in"); }).join("");
-  return '<section class="dayw dayw--plate">'+lbl+'<article class="day" data-act="transOpen" data-t="'+key+'"><span class="day__badge">'+badge("Переезд")+'</span><div class="sum">'+rows+'</div>'+(x.m ? nightWarn(t, x.m, x.to) : "")+'</article></section>'; }
+  return '<section class="dayw dayw--plate">'+lbl+'<article class="day" data-act="transOpen" data-t="'+key+'"><span class="day__badge"><span class="badge badge--move">Переезд</span></span><div class="sum">'+rows+'</div>'+(x.m ? nightWarn(t, x.m, x.to) : "")+'</article></section>'; }
 /* карточка дня: без переездов между городами, отелей и предупреждения — всё это в плашке */
 var _dayCardPl = dayCard;
 dayCard = function(t, d){ var t2 = Object.assign({}, t, {moves:movesWithout(t)}); var h = _dayCardPl(t2, d);
@@ -4893,7 +4895,7 @@ function openTrans(key){ var t = trip(); if (!t) return; var tr = transitions(t)
   var add = function(act, attr, label){ return '<button class="stop stop--add" data-act="'+act+'"'+attr+'><span class="stop__n">'+IC.add+'</span><span class="stop__tx">'+label+'</span></button>'; };
   h += '<div><p class="label">Переезд</p><div class="stops">'+x.out.map(function(hh){ return hrow(hh, "out"); }).join("")+x.legs.map(lrow).join("")+x.inn.map(function(hh){ return hrow(hh, "in"); }).join("")+
     (g ? '' : add("moveSheet", ' data-k="'+(x.m || x.kB)+'" data-i="-1"', "Добавить переезд")+(key === "end" ? '' : add("hotelOpen", ' data-c="'+esc(x.to)+'" data-k="'+x.arr+'"', "Добавить отель")))+'</div></div>';
-  if (!g) h += '<div class="qadds-wrap"><p class="label">Добавить</p><div class="qadds"><button class="qadd glass" data-act="addTask">'+IC.add+'Задача</button><button class="qadd glass" data-act="addDocDay">'+IC.add+'Документ</button></div></div>';
+  if (!g) h += '<div class="qadds-wrap"><p class="label">Дополнительно</p><div class="qadds"><button class="qadd glass" data-act="addTask">'+IC.add+'Задача</button><button class="qadd glass" data-act="addDocDay">'+IC.add+'Документ</button></div></div>';
   $("sheetBody").innerHTML = h; var m = $("sheetMap"); if (m) m.hidden = true; if ($("sheetAdd")) $("sheetAdd").hidden = true;
   if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; } }
 A.transOpen = function(d){ openTrans(d.t); };
