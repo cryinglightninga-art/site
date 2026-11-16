@@ -3206,7 +3206,8 @@ SCR.wizard = function(r){
   if (st === 2){
     var total = diff(W.from, W.to), sum = W.cities.reduce(function(a,c){ return a + c.nights; }, 0);
     h += '<p class="lead">По порядку маршрута. Распределено '+sum+' из '+total+' '+pl(total,"ночи","ночей","ночей")+'</p>'+
-      (W.cities.length ? '<div class="stops">'+W.cities.map(function(c, i){ return '<div class="stop" data-sw="city:'+i+'"><span class="stop__n">'+(i+1)+'</span><span class="stop__tx"><b>'+esc(c.n)+'</b><small>'+c.nights+' '+pl(c.nights,"ночь","ночи","ночей")+'</small></span>'+
+      (W.cities.length ? '<div class="stops">'+W.cities.map(function(c, i){ var c0 = W.cities.slice(0, i).reduce(function(a, x){ return a + x.nights; }, 0), d0 = W.from ? addD(W.from, c0) : "", d1 = d0 ? addD(d0, c.nights) : "";
+        return '<div class="stop" data-sw="city:'+i+'"><span class="stop__n">'+(i+1)+'</span><span class="stop__tx"><b>'+esc(c.n)+'</b><small>'+c.nights+' '+pl(c.nights,"ночь","ночи","ночей")+(d0 ? ' · <span style="white-space:nowrap">'+rangeS(d0, d1)+'</span>' : '')+'</small></span>'+
         '<span class="stepper"><button data-act="cityN" data-i="'+i+'" data-d="-1" aria-label="Меньше">−</button><i></i><button data-act="cityN" data-i="'+i+'" data-d="1" aria-label="Больше">+</button></span></div>'; }).join("")+'</div>' : '')+
       '<div class="inline inline--c"><input class="in" id="fCity" placeholder="Город"><button class="btn2" data-act="cityAdd">Добавить</button></div>'+
       (sum && sum !== total ? '<p class="hint" style="color:var(--danger)">Ночей по городам '+(sum<total?'меньше':'больше')+', чем в поездке</p>' : '')+
