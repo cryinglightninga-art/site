@@ -1560,6 +1560,9 @@ html:not([data-tabs="A"]) #chipsSlot > .chips{max-width:calc(100% - 32px)!import
 
 /* карточка дня: у билетов и документов без стрелки вправо */
 .dayw .att__go{display:none}
+
+/* таб-бар: неактивная иконка — серая, активная — основного цвета */
+.tab:not(.is-active){color:var(--sec)!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -3630,18 +3633,18 @@ var _listSelA = A.listSel; A.listSel = function(d){ keepChips(function(){ _listS
 
 /* ===== шторка дня: пустые блоки не занимают место ===== */
 var _openDayH = openDay;
-openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), keepMove = false;
+openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), keepMove = false, present = {};
   var map = {moveSheet:["Переезд", "plane"], addTask:["Задача", "check"], addDocDay:["Документ", "doc"]};
   [].slice.call(b.children).forEach(function(sec){ var st = sec.querySelector(":scope > .stops"); if (!st) return;
     var add = st.querySelector(":scope > .stop--add"); if (!add) return;
     var act = add.getAttribute("data-act"); if (!map[act]) return;
     if (act === "moveSheet" && add.textContent.indexOf("→") >= 0){ keepMove = true; return; }   /* ожидаемый переезд между городами — подсказка остаётся */
     if (act === "moveSheet"){ var tx = add.querySelector(".stop__tx b, b, .stop__tx") || add; if (/^\s*Переезд\s*$/.test(tx.textContent)) tx.textContent = "Добавить переезд"; }
-    if (st.children.length === 1) sec.remove();   /* пустой блок прячем — добавление внизу «Ещё в этот день»; в непустом блоке строка «＋» остаётся */
+    if (st.children.length === 1) sec.remove(); else present[act] = 1;   /* пустой блок прячем — добавление внизу; в непустом блоке строка «＋» остаётся */
   });
-  var acts = Object.keys(map).filter(function(a){ return !(a === "moveSheet" && keepMove); }).map(function(act){
+  var acts = Object.keys(map).filter(function(a){ return !(a === "moveSheet" && keepMove) && !present[a]; }).map(function(act){
     return '<button class="qadd glass" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'; });
-  b.insertAdjacentHTML("beforeend", '<div class="qadds-wrap"><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
+  if (acts.length) b.insertAdjacentHTML("beforeend", '<div class="qadds-wrap"><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
 };
 
 /* ===== шторка документа: плашка файла сверху, поля как при создании ===== */
@@ -4813,8 +4816,12 @@ openDay = function(k){ _openDayMoveBlock(k);
     if (inn){ if (addMove) addMove.insertAdjacentHTML("beforebegin", hRow(inn, "in")); else st.insertAdjacentHTML("beforeend", hRow(inn, "in")); }
     if (add && !g) st.insertAdjacentHTML("beforeend", '<button class="stop stop--add" data-act="hotelOpen" data-c="'+esc(add.key)+'"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить отель'+(add.sub ? '<small>'+esc(add.sub)+'</small>' : '')+'</span></button>'); }
   var lab = function(name){ return [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === name; })[0]; };
+  if (sec){ var qm = b.querySelector('.qadds [data-act="moveSheet"]'); if (qm){ var qw = qm.closest(".qadds-wrap"); qm.remove(); if (qw && !qw.querySelector(".qadd")) qw.remove(); } }
   var route = lab("Маршрут дня"), docs = lab("Документы"); if (route && docs && docs.compareDocumentPosition(route) & Node.DOCUMENT_POSITION_FOLLOWING) b.insertBefore(route, docs);
 };
+
+/* загрузки билетов пока нет — «Новая поездка» сразу открывает мастер (без экранов «Загрузить билеты» / «Нашли в билетах») */
+A.newTrip = function(){ S.W = {q:"", country:null, from:"", to:"", cities:[], edit:false}; go("wizard", {step:0}); };
 
 </script>
 </body>
