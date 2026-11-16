@@ -1933,7 +1933,7 @@ function dayHotels(t, k, city){
   var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(Boolean);
   var stay = hs.filter(function(h){ return h.inD && h.outD && h.inD <= k && k < h.outD; })[0];
   var out = hs.filter(function(h){ return h.outD === k; })[0], inn = hs.filter(function(h){ return h.inD === k; })[0];
-  var def = city && t.hotels[city];
+  var def = city && t.hotels[city]; if (def && def.inD && def.outD && (k < def.inD || k > def.outD)) def = null; /* у отеля с датами вне его дат — не «домашний» отель */
   return {s: out || stay || def || inn || null, e: inn || stay || def || out || null};
 }
 function hq(h){ return h ? (h.q || h.addr || h.name) : ""; }
@@ -2136,16 +2136,21 @@ function openDay(k){
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
   if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
+  /* точка прибытия — первой, если день не начинается в отеле; точка отправления — последней, если день не заканчивается в отеле */
+  var arrX = null, depX = null;
+  if (!ho){ var ins = arriving(t, k).concat(ls.map(function(v, i){ return {v:v, k:k, i:i}; }).filter(function(x){ return !x.v.arrD || x.v.arrD === k; })); if (ins.length) arrX = ins[ins.length-1]; }
+  if (!hoE){ var outs = ls.map(function(v, i){ return {v:v, k:k, i:i}; }).filter(function(x){ return x.v.arrD && x.v.arrD > k; }); if (!outs.length && !arrX && ls.length) outs = [{v:ls[0], k:k, i:0}]; if (outs.length) depX = outs[0]; }
+  function ptRow(x, arr){ var v = x.v, tm = arr ? v.arr : v.dep; return '<button class="stop is-home is-pt" data-act="moveSheet" data-k="'+x.k+'" data-i="'+x.i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(arr ? v.to : v.from)+'</b><small>'+(arr ? 'прибытие' : 'отправление')+(tm ? ' в '+esc(tm) : '')+'</small></span></button>'; }
   if (ps.length || !g){
-    h += '<div><p class="label">Маршрут дня</p><div class="stops" id="plist">'+(ho?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
+    h += '<div><p class="label">Маршрут дня</p><div class="stops" id="plist">'+(arrX ? ptRow(arrX, true) : '')+(ho?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
       ps.map(function(p, i){ return '<div class="stop prow" data-i="'+i+'"'+swAttr("place", p.id)+'><span class="stop__n">'+(i+1)+'</span><button class="stop__tx" data-act="placeSheet" data-day="'+k+'" data-id="'+p.id+'"><b>'+esc(p.n)+'</b><small>'+(p.t?'<b style="display:inline;color:var(--label);font-weight:600">'+esc(p.t)+'</b>'+(p.note?' · ':''):'')+esc(p.note||'')+'</small></button>'+
         (g?'':'<span class="grip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>')+'</div>'; }).join("")+
       (g?'':addRow("addPlace", "Добавить место"))+
-      (hoE?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш'+(hoE.inD === k && hoE.inT ? ' · заезд с '+esc(hoE.inT) : '')+'</small></span></div>':'')+'</div>'+
+      (hoE?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш'+(hoE.inD === k && hoE.inT ? ' · заезд с '+esc(hoE.inT) : '')+'</small></span></div>':'')+(depX ? ptRow(depX, false) : '')+'</div>'+
       ''+'</div>';
   }
   $("sheetBody").innerHTML = nb(h);
-  var m = $("sheetMap"), du = dirUrl(hq(ho), ps, hq(hoE));
+  var m = $("sheetMap"), du = dirUrl(arrX ? arrX.v.to : hq(ho), ps, depX ? depX.v.from : hq(hoE));
   if (du){ m.hidden = false; m.href = du; m.innerHTML = MAPS_IMG; } else m.hidden = true;
   $("sheetAdd").hidden = true;
   if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; }
@@ -4737,7 +4742,10 @@ dayCard = function(t, d){ return _dayCardMove(t, d).replace('<span class="day__b
 
 /* «Добавить отель» — внутри карточки первого дня города (и в пустой поездке тоже), а не отдельной плашкой над лентой */
 function hotelAddFor(t, d){ if (ro() || !d) return null; var key = t.cities.length ? d.city : t.country; if (!key) return null; var h = t.hotels[key]; if (h && h.name) return null;
-  var first = tripDays(t).filter(function(x){ return t.cities.length ? x.city === key : true; })[0]; if (!first || first.k !== d.k) return null;
+  var first = tripDays(t).filter(function(x){ return t.cities.length ? x.city === key : true; })[0]; if (!first) return null;
+  /* день прибытия в город — по переезду (дата прибытия или день переезда); без переезда — первый день города */
+  var target = first.k, arr = null; Object.keys(t.moves).sort().forEach(function(mk){ legs(t, mk).forEach(function(l){ var c = city(l.to) || l.to; if (arr == null && t.cities.length && (c === key || l.to === key)){ var a = l.arrD || mk; if (a >= t.from && a <= t.to) arr = a; } }); });
+  if (arr) target = arr; if (target !== d.k) return null;
   var n = t.cities.length ? ((t.cities.filter(function(c){ return c.n === key; })[0] || {}).nights || 0) : diff(t.from, t.to);
   return {key:key, sub: n ? n+' '+pl(n,"ночь","ночи","ночей") : ''}; }
 var _dayCardHAdd = dayCard;
