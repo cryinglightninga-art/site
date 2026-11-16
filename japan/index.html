@@ -4744,6 +4744,12 @@ dayCard = function(t, d){ var h = _dayCardHAdd(t, d), a = hotelAddFor(t, d); if 
 var _SCRtripNoAdd = SCR.trip;
 SCR.trip = function(r){ var v = _SCRtripNoAdd(r); if (S.tab !== "prep" && v.view) v.view = v.view.replace(/<button class="addcard addcard--hotel"[^]*?<\/button>/g, ""); return v; };
 
+/* подсказки адреса: если в рамке города ничего не нашлось (рамка города определилась неверно — например «Шарм» без страны), ищем без рамки */
+var _gAutoBox = gAuto;
+gAuto = function(q, city){ return _gAutoBox(q, city).then(function(res){ if (res && res.length || !city) return res; return _gAutoBox(q, ""); }); };
+var _nomiInBox = _nomiInG;
+_nomiInG = function(q, city){ return _nomiInBox(q, city).then(function(r){ if (r && r.length || !city) return r; return _nomiInBox(q, ""); }); };
+
 </script>
 </body>
 </html>
