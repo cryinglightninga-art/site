@@ -4147,7 +4147,7 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     var t = e.target, r = cur(); if (!r || r.s !== "trip" || !$("view").contains(t)) return;
     if ($("sheet").classList.contains("is-open") || $("fsheet").classList.contains("is-open")) return;
     if (t.closest("[data-sw],.chips,.chipsc,#chipsSlot,input,textarea,select,iframe,.mapbox,.sets,.hscroll,[data-noswipe]")) return;
-    if (chipsCities().length < 2) return;
+    return; /* свайп влево/вправо по ленте больше не переключает города */
     st = {x:e.touches[0].clientX, y:e.touches[0].clientY, dx:0, on:false, el:box()};
   }, {passive:true});
   document.addEventListener("touchmove", function(e){
@@ -4713,6 +4713,22 @@ dayCard = function(t, d){ return _dayCardMove(t, d).replace('<span class="day__b
 (function(){ function linkLast(){ var b = $("fBody"); if (!b) return; var l = b.querySelector('#fDl, [data-input="docLink"]'); if (!l) return; var f = l.closest(".fld"), btn = [].filter.call(b.querySelectorAll(".primary"), function(x){ return x.tagName === "BUTTON"; }).pop();
     if (!f) return; if (btn && btn.parentNode){ if (f.nextElementSibling !== btn) btn.parentNode.insertBefore(f, btn); } else if (f.parentNode.lastElementChild !== f) f.parentNode.appendChild(f); }
   new MutationObserver(linkLast).observe(document.getElementById("fBody") || document.body, {childList:true, subtree:true}); })();
+
+/* «Добавить отель» — внутри карточки первого дня города (и в пустой поездке тоже), а не отдельной плашкой над лентой */
+function hotelAddFor(t, d){ if (ro() || !d) return null; var key = t.cities.length ? d.city : t.country; if (!key) return null; var h = t.hotels[key]; if (h && h.name) return null;
+  var first = tripDays(t).filter(function(x){ return t.cities.length ? x.city === key : true; })[0]; if (!first || first.k !== d.k) return null;
+  var n = t.cities.length ? ((t.cities.filter(function(c){ return c.n === key; })[0] || {}).nights || 0) : diff(t.from, t.to);
+  return {key:key, sub: n ? n+' '+pl(n,"ночь","ночи","ночей") : ''}; }
+var _dayCardHAdd = dayCard;
+dayCard = function(t, d){ var h = _dayCardHAdd(t, d), a = hotelAddFor(t, d); if (!a) return h;
+  if (h.indexOf('<div class="dashl">') >= 0) return h.replace('<div class="dashl">', '<div class="dashl">'+dli("hotelOpen", ' data-c="'+esc(a.key)+'"', "Добавить отель", a.sub || "где ночуете"));
+  if (h.indexOf('<div class="sum">') < 0) return h;
+  var row = li(ill("hotel"), "Добавить отель", a.sub, ' data-act="hotelOpen" data-c="'+esc(a.key)+'"');
+  var legsH = legs(t, d.k).map(function(v){ return legRow(v, d.k); }).join("");
+  if (legsH && h.indexOf(legsH) >= 0){ var i = h.indexOf(legsH) + legsH.length; return h.slice(0, i)+row+h.slice(i); }
+  return h.replace('<div class="sum">', '<div class="sum">'+row); };
+var _SCRtripNoAdd = SCR.trip;
+SCR.trip = function(r){ var v = _SCRtripNoAdd(r); if (S.tab !== "prep" && v.view) v.view = v.view.replace(/<button class="addcard addcard--hotel"[^]*?<\/button>/g, ""); return v; };
 
 </script>
 </body>
