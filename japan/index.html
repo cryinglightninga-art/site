@@ -4756,6 +4756,14 @@ gAuto = function(q, city){ return _gAutoBox(q, city).then(function(res){ if (res
 var _nomiInBox = _nomiInG;
 _nomiInG = function(q, city){ return _nomiInBox(q, city).then(function(r){ if (r && r.length || !city) return r; return _nomiInBox(q, ""); }); };
 
+/* отель без дат: в форме подставляем даты визита города (заезд — день прибытия, выезд — день отъезда), чтобы заезд/выезд появились в днях */
+function cityStay(t, c){ var vs = window.cityVisits ? cityVisits(t) : []; var v = vs.filter(function(x){ return x.c === c && x.days.length; })[0]; if (!v) return null;
+  var a = v.days[0], b = addD(v.days[v.days.length - 1], 1);
+  if (b > t.to) b = t.to; return {inD:a, outD:b}; }
+var _hotelOpenDates = A.hotelOpen;
+A.hotelOpen = function(d, el, e){ _hotelOpenDates(d, el, e); if (ro()) return; var t = trip(), s = cityStay(t, d.c), i = $("fHid"), o = $("fHod"); if (!s) return;
+  if (i && !i.value) i.value = s.inD; if (o && !o.value) o.value = s.outD; };
+
 </script>
 </body>
 </html>
