@@ -4778,6 +4778,10 @@ var _hotelOpenDates = A.hotelOpen;
 A.hotelOpen = function(d, el, e){ _hotelOpenDates(d, el, e); if (ro()) return; var t = trip(), s = cityStay(t, d.c), i = $("fHid"), o = $("fHod"); if (!s) return;
   if (i && !i.value) i.value = s.inD; if (o && !o.value) o.value = s.outD; };
 
+/* карточка дня: свайпом удаляются только задачи — билеты и документы не свайпаются (правятся в своей шторке) */
+var _dayCardNoSw = dayCard;
+dayCard = function(t, d){ return _dayCardNoSw(t, d).replace(/<button class="att" data-sw="[^"]*"/g, '<button class="att"'); };
+
 </script>
 </body>
 </html>
