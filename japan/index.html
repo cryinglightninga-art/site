@@ -4782,6 +4782,16 @@ A.hotelOpen = function(d, el, e){ _hotelOpenDates(d, el, e); if (ro()) return; v
 var _dayCardNoSw = dayCard;
 dayCard = function(t, d){ return _dayCardNoSw(t, d).replace(/<button class="att" data-sw="[^"]*"/g, '<button class="att"'); };
 
+/* строки и карточки добавления — призыв к действию: «Добавьте …», «Запланируйте …» (меню и кнопки форм не трогаем) */
+(function(){ var SEL = ".stop--add, .addrow, .addcard, .dli, .dashbox, [data-act='dayAddPlace'], [data-act='hotelOpen'].li";
+  var MAP = [[/^Добавить /, "Добавьте "], [/^Запланировать /, "Запланируйте "]];
+  function fix(root){ [].forEach.call((root.querySelectorAll ? root : document).querySelectorAll(SEL), function(el){
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n; while ((n = w.nextNode())){ var s = n.nodeValue, t = s; MAP.forEach(function(m){ t = t.replace(m[0], m[1]); }); if (t !== s) n.nodeValue = t; } }); }
+  var busy = false; new MutationObserver(function(){ if (busy) return; busy = true; try { fix(document); } finally { busy = false; } }).observe(document.body, {childList:true, subtree:true});
+  fix(document); })();
+/* блок чипов в шторке дня — «Добавить» вместо «Ещё в этот день» */
+(function(){ new MutationObserver(function(){ [].forEach.call(document.querySelectorAll("#sheetBody .label"), function(l){ if (l.textContent === "Ещё в этот день") l.textContent = "Добавить"; }); }).observe(document.body, {childList:true, subtree:true}); })();
+
 </script>
 </body>
 </html>
