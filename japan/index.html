@@ -4629,40 +4629,51 @@ document.addEventListener("mousedown", function(e){ var c = e.target.closest && 
   function slotBottom(){ var c = $("chipsSlot"); return c && c.offsetHeight ? c.getBoundingClientRect().bottom : ($("scroll").getBoundingClientRect().top + 100); }
   function secs(){ return [].slice.call(document.querySelectorAll("#view .city-sec")); }
   var _SCRtripAll = SCR.trip;
+  /* визиты: город может встречаться в поездке дважды (вернулись) — у каждого визита свой таб и своя секция */
+  function visits(t){ var cities = t.cities.map(function(c){ return c.n; }), vs = [], last = null;
+    tripDays(t).forEach(function(d){ if (!d.city || cities.indexOf(d.city) < 0) return; if (!last || last.c !== d.city){ last = {c:d.city, days:[]}; vs.push(last); } last.days.push(d.k); });
+    cities.forEach(function(c){ if (!vs.some(function(v){ return v.c === c; })) vs.push({c:c, days:[]}); });
+    return vs; }
+  window.cityVisits = visits;
+  var _dayCardVis = dayCard; var only = null;
+  dayCard = function(t, d){ if (only && !only[d.k]) return ""; return _dayCardVis(t, d); };
+  function curV(vs){ var i = S.cityV; if (i == null || !vs[i] || vs[i].c !== S.city){ i = -1; vs.forEach(function(v, j){ if (i < 0 && v.c === S.city) i = j; }); } return Math.max(0, i); }
   SCR.trip = function(r){ var t = trip(r.trip);
     if (S.tab === "prep" || S.city === "_nodate") return _SCRtripAll(r);
     var cities = t.cities.map(function(c){ return c.n; }); if (!cities.length) return _SCRtripAll(r);
     if (cities.indexOf(S.city) < 0) S.city = cities[0];
-    var keep = S.city, days = tripDays(t), order = [], seen = {};
-    days.forEach(function(d){ if (d.city && cities.indexOf(d.city) >= 0 && !seen[d.city]){ seen[d.city] = 1; order.push(d.city); } });
-    cities.forEach(function(c){ if (!seen[c]) order.push(c); });
-    var base = null, body = "";
-    order.forEach(function(c, i){ S.city = c; var v = _SCRtripAll(r); if (!base) base = v;
-      var inner = v.view.replace(/^<div class="days days--home">/, "").replace(/<\/div>$/, ""); if (i > 0) inner = inner.replace(/^<p class="hint">[^]*?<\/p>/, "");
-      body += '<section class="city-sec" data-city="'+esc(c)+'">'+inner+'</section>'; });
-    S.city = keep; var v0 = _SCRtripAll(r); base.chips = v0.chips;
+    var vs = visits(t), act = curV(vs); S.cityV = act;
+    var keep = S.city, base = null, body = "";
+    vs.forEach(function(v, i){ S.city = v.c; only = {}; v.days.forEach(function(k){ only[k] = 1; }); var vv; try { vv = _SCRtripAll(r); } finally { only = null; } if (!base) base = vv;
+      var inner = vv.view.replace(/^<div class="days days--home">/, "").replace(/<\/div>$/, ""); if (i > 0) inner = inner.replace(/^<p class="hint">[^]*?<\/p>/, "");
+      body += '<section class="city-sec" data-city="'+esc(v.c)+'" data-v="'+i+'">'+inner+'</section>'; });
+    S.city = keep;
+    var nd = t.nodate.length ? chip("Без даты", t.nodate.length, false, 'data-act="city" data-c="_nodate"') : '';
+    base.chips = '<div class="chips">'+vs.map(function(v, i){ return chip(v.c, v.days.length, i === act, 'data-act="city" data-c="'+esc(v.c)+'" data-v="'+i+'"'); }).join("")+nd+'</div>';
     base.view = '<div class="days days--home days--all">'+body+'</div>';
     return base; };
-  function setActive(c, animate){ if (S.city === c) return; S.city = c; var row = document.querySelector('#chipsSlot .chips'); if (!row) return;
-    var b = row.querySelector('[data-act="city"][data-c="'+c.replace(/"/g, '\\"')+'"]'); if (!b) return;
-    if (animate && window.tgMoveTo) window.tgMoveTo(b); else { [].forEach.call(row.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === b); }); if (window.tgSync) window.tgSync(); } }
+  function chipFor(i){ var row = document.querySelector('#chipsSlot .chips'); return row && row.querySelector('[data-act="city"][data-v="'+i+'"]'); }
+  function setActive(i, animate){ var b = chipFor(i); if (!b) return; if (S.cityV === i && b.classList.contains("is-active")) return; S.cityV = i; S.city = b.getAttribute("data-c");
+    if (animate && window.tgMoveTo) window.tgMoveTo(b); else { [].forEach.call(b.parentNode.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === b); }); if (window.tgSync) window.tgSync(); } }
   function spy(){ if (Date.now() < lock) return; var r = cur(); if (!r || r.s !== "trip" || S.tab === "prep" || S.city === "_nodate") return;
-    var ss = secs(); if (!ss.length) return; var sc = $("scroll"), lim = slotBottom() + 48, c = ss[0].getAttribute("data-city");
-    ss.forEach(function(x){ if (x.getBoundingClientRect().top <= lim) c = x.getAttribute("data-city"); });
-    if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) c = ss[ss.length - 1].getAttribute("data-city");
-    setActive(c, true); }
-  function scrollToCity(c){ var sec = secs().filter(function(x){ return x.getAttribute("data-city") === c; })[0], sc = $("scroll"); if (!sec || !sc) return;
+    var ss = secs(); if (!ss.length) return; var sc = $("scroll"), lim = slotBottom() + 48, v = +ss[0].getAttribute("data-v");
+    ss.forEach(function(x){ if (x.getBoundingClientRect().top <= lim) v = +x.getAttribute("data-v"); });
+    if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) v = +ss[ss.length - 1].getAttribute("data-v");
+    setActive(v, true); }
+  function scrollToV(i){ var sec = secs().filter(function(x){ return +x.getAttribute("data-v") === i; })[0], sc = $("scroll"); if (!sec || !sc) return;
     var to = secs()[0] === sec ? 0 : sc.scrollTop + sec.getBoundingClientRect().top - slotBottom() - 8; to = Math.max(0, Math.min(to, sc.scrollHeight - sc.clientHeight));
-    lock = Date.now() + 900; var from = sc.scrollTop, t0 = null, DUR = 420, id = ++scrollToCity.id;
+    lock = Date.now() + 900; var from = sc.scrollTop, t0 = null, DUR = 420, id = ++scrollToV.id;
     if (Math.abs(to - from) < 2) return;
-    (function step(now){ if (id !== scrollToCity.id) return; if (t0 == null) t0 = now; var q = Math.min(1, (now - t0)/DUR), e = 1 - Math.pow(1 - q, 3);
+    (function step(now){ if (id !== scrollToV.id) return; if (t0 == null) t0 = now; var q = Math.min(1, (now - t0)/DUR), e = 1 - Math.pow(1 - q, 3);
       var tgt = secs()[0] === sec ? 0 : Math.max(0, Math.min(sc.scrollTop + sec.getBoundingClientRect().top - slotBottom() - 8, sc.scrollHeight - sc.clientHeight));
       sc.scrollTop = from + (tgt - from)*e; lock = Date.now() + 300; if (q < 1) requestAnimationFrame(step); else spy(); })(performance.now()); }
-  scrollToCity.id = 0;
-  A.city = function(d){ var r = cur(); if (!r || r.s !== "trip") return;
-    if (d.c === "_nodate" || S.city === "_nodate"){ S.city = d.c; render(); if (d.c !== "_nodate") setTimeout(function(){ scrollToCity(d.c); }, 30); else $("scroll").scrollTop = 0; return; }
-    if (S.city !== d.c){ S.city = d.c; var row = document.querySelector('#chipsSlot .chips'); if (row) [].forEach.call(row.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x.getAttribute("data-c") === d.c); }); }
-    scrollToCity(d.c); };
+  scrollToV.id = 0;
+  A.city = function(d, el){ var r = cur(); if (!r || r.s !== "trip") return;
+    var i = el && el.getAttribute && el.getAttribute("data-v") != null ? +el.getAttribute("data-v") : (d.v != null ? +d.v : null);
+    if (i == null){ var vs = visits(trip()); vs.forEach(function(v, j){ if (i == null && v.c === d.c) i = j; }); }
+    if (d.c === "_nodate" || S.city === "_nodate"){ S.city = d.c; S.cityV = i; render(); if (d.c !== "_nodate") setTimeout(function(){ scrollToV(i || 0); }, 30); else $("scroll").scrollTop = 0; return; }
+    S.city = d.c; S.cityV = i; var b = chipFor(i); if (b) [].forEach.call(b.parentNode.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === b); });
+    scrollToV(i || 0); };
   document.addEventListener("scroll", function(e){ if (e.target && e.target.id === "scroll") spy(); }, true);
 })();
 
