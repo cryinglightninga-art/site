@@ -4691,6 +4691,12 @@ openDay = function(k){ _openDayHotelRows(k); var t = trip(), pl0 = $("plist"); i
 var _SCRtripNoStay = SCR.trip;
 SCR.trip = function(r){ var v = _SCRtripNoStay(r); if (S.tab !== "prep" && v.view) v.view = v.view.replace(/<button class="stay"[^]*?<\/button>/g, ""); return v; };
 
+/* свайп: кнопка удаления существует только пока строка сдвинута — после закрытия убираем, чтобы не торчала за краем карточки */
+var _swSetClean = swSet;
+swSet = function(el, open){ _swSetClean(el, open); if (!open) setTimeout(function(){ if (!el._open && !el.classList.contains("sw-drag")){ var d = el.querySelector(":scope > .sw-del"); if (d) d.remove(); } }, 320); };
+function swClean(){ setTimeout(function(){ [].forEach.call(document.querySelectorAll("[data-sw]"), function(x){ if (!x._open && !x.classList.contains("sw-drag")){ var d = x.querySelector(":scope > .sw-del"); if (d) d.remove(); } }); }, 400); }
+document.addEventListener("pointerup", swClean, true); document.addEventListener("pointercancel", swClean, true);
+
 </script>
 </body>
 </html>
