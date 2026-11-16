@@ -1565,6 +1565,8 @@ html:not([data-tabs="A"]) #chipsSlot > .chips{max-width:calc(100% - 32px)!import
 .tab:not(.is-active){color:var(--sec)!important}
 
 .dashl--plate{position:relative}
+
+.day__lbl--tr{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4846,10 +4848,10 @@ function rawVisits(t){ var cities = t.cities.map(function(c){ return c.n; }), vs
 function transitions(t){
   var vs = rawVisits(t), cities = t.cities.map(function(c){ return c.n; }), out = [], hs = Object.keys(t.hotels).map(function(c){ return [c, t.hotels[c]]; }).filter(function(x){ return x[1] && x[1].name; });
   vs.forEach(function(v, i){ var A = i ? vs[i-1].c : null, B = v.c, kB = v.days[0], w0 = i ? vs[i-1].days[vs[i-1].days.length-1] : kB;
-    var win = Object.keys(t.moves).filter(function(k){ return k >= w0 && k <= kB; }).sort(), legsAll = [], m = null;
+    var kUp = i ? kB : addD(kB, 1), win = Object.keys(t.moves).filter(function(k){ return k >= (i ? w0 : "0") && k <= kUp; }).sort(), legsAll = [], m = null;
     var exact = win.filter(function(k){ return legs(t, k).some(function(l){ return city(l.to) === B; }); });
     var useDays = exact.length ? exact : win.filter(function(k){ return legs(t, k).some(function(l){ return !A || city(l.to) !== A; }); });
-    if (!i && !exact.length) useDays = useDays.filter(function(k){ return k === kB; });
+    if (!i){ exact = exact.filter(function(k){ return k <= kB || legs(t, k).some(function(l){ return city(l.from) !== B && l.depD && l.depD <= kB; }) || k === addD(kB, 1) && legs(t, k).every(function(l){ return city(l.from) !== B; }); }); useDays = exact.length ? exact : useDays.filter(function(k){ return k === kB; }); }
     useDays.forEach(function(k){ legs(t, k).forEach(function(l, j){ if (!exact.length && A && city(l.to) === A && city(l.from) !== A) return; legsAll.push({v:l, k:k, i:j}); }); if (!m) m = k; });
     var arr = legsAll.reduce(function(a, x){ return x.v.arrD && x.v.arrD > a ? x.v.arrD : a; }, m || kB);
     var outH = A ? hs.filter(function(x){ return x[1].outD && x[1].outD >= w0 && x[1].outD <= kB; }) : [];
@@ -4868,7 +4870,7 @@ function plateHtml(t, x, key){ if (!x) return "";
   var it = trItems(t, x), its = it.ts.filter(function(c){ return !c.done || (S.jd && S.jd[c.id]); });
   var extra = (its.length ? '<div class="check tasks">'+its.map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+it.ds.map(function(d){ return attRow(t, d).replace(/ data-sw="[^"]*"/, ""); }).join("");
   var filled = x.legs.length || x.out.length || x.inn.length || extra;
-  var lbl = '<p class="day__lbl">'+esc(trTitle(x))+'</p>';
+  var lbl = '<p class="day__lbl day__lbl--tr">'+esc(trLabel(x))+'</p>';
   if (!filled){ if (ro()) return ""; return '<section class="dayw dayw--plate">'+lbl+'<div class="dashl dashl--plate"><span class="day__badge">'+badge("Переезд").replace('class="badge"', 'class="badge badge--move"')+'</span>'+dli("transOpen", ' data-t="'+key+'"', "Заполните переезд", "билеты, отели, документы")+'</div></section>'; }
   var rows = x.out.map(function(h){ return trHotelRow(h, "out"); }).join("")+x.legs.map(function(l){ return legRow(l.v, l.k); }).join("")+x.inn.map(function(h){ return trHotelRow(h, "in"); }).join("");
   return '<section class="dayw dayw--plate">'+lbl+'<article class="day" data-act="transOpen" data-t="'+key+'"><span class="day__badge"><span class="badge badge--move">Переезд</span></span>'+(rows ? '<div class="sum">'+rows+'</div>' : '')+(x.m ? nightWarn(t, x.m, x.to) : "")+extra+'</article></section>'; }
@@ -4879,9 +4881,11 @@ dayCard = function(t, d){ var t2 = Object.assign({}, t, {moves:movesWithout(t)})
   return h.replace(/<button class="dli" data-act="moveSheet"[^]*?<\/button>/g, "").replace(/<button class="li" data-act="moveSheet"[^]*?<\/button>/g, ""); };
 /* шторка дня: только поездки внутри дня; переезд между городами — в шторке переезда */
 var _openDayPl = openDay;
-openDay = function(k){ if (S.trans != null) return openTrans(S.trans); var t = trip(); if (!t) return _openDayPl(k); var saved = t.moves; t.moves = movesWithout(t);
-  try { _openDayPl(k); } finally { t.moves = saved; }
-  var b = $("sheetBody"); if (!b) return;
+openDay = function(k){ if (S.trans != null) return openTrans(S.trans); var t = trip(); if (!t) return _openDayPl(k);
+  _openDayPl(k); /* данные не трогаем: строки переезда между городами убираем из разметки */
+  var b = $("sheetBody"); if (!b) return; var tk = transLegKeys(t);
+  [].forEach.call(b.querySelectorAll('[data-act="moveSheet"][data-k][data-i]'), function(x){ if (tk[x.getAttribute("data-k")+"|"+x.getAttribute("data-i")]) x.remove(); });
+  [].forEach.call(b.querySelectorAll(".stops"), function(st){ var sec = st.parentNode, l = sec && sec.querySelector(":scope > .label"); if (l && l.textContent === "Переезд" && !st.querySelector('.stop:not(.stop--add)')){ var only = !st.querySelector('.stop--add:not([data-act="moveSheet"])'); if (only) sec.remove(); } });
   var hd = b.querySelector(".sh-head .wrap--move"), dd = tripDays(t).filter(function(x){ return x.k === k; })[0]; if (hd){ if (dd && dd.city){ hd.outerHTML = '<div class="wrap">'+badge(dd.city)+'</div>'; } else hd.remove(); }
   [].forEach.call(b.querySelectorAll('.stop--add[data-act="moveSheet"], .addcard[data-act="moveSheet"]'), function(x){ if (x.textContent.indexOf("→") >= 0) x.remove(); });
   [].slice.call(b.children).forEach(function(sec){ var l = sec.querySelector(":scope > .label"); if (l && l.textContent === "Переезд" && sec.children.length === 1) sec.remove(); });
@@ -4916,6 +4920,13 @@ var _dayOptsTr = dayOpts; dayOpts = function(t, sel, none){ var h = _dayOptsTr(t
   if (tr.end){ var ke = trKey(tr.end); h += '<option value="'+ke+'"'+(ke === sel ? ' selected' : '')+'>'+esc(trOpt(tr.end))+'</option>'; }
   return h; };
 function trOpt(x){ var n = trTitle(x); return /^Переезд/.test(n) ? n : "Переезд "+n; }
+
+var MON3 = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+function dShort(k){ var d = D(k); return d.getDate()+" "+MON3[d.getMonth()]; }
+function trLabel(x){ var A = x.from || (x.legs.length ? city(x.legs[0].v.from) : null), B = x.to;
+  if (!x.legs.length) return A ? A+" → "+B : "Переезд в "+B;
+  var f = x.legs[0], l = x.legs[x.legs.length-1], d0 = f.v.depD || f.k, d1 = l.v.arrD || l.k;
+  return d0 === d1 ? dShort(d0)+" "+A+" → "+B : dShort(d0)+" "+A+" → "+dShort(d1)+" "+B; }
 
 </script>
 </body>
