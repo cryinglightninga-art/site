@@ -4737,7 +4737,7 @@ dayCard = function(t, d){ var h = _dayCardHAdd(t, d), a = hotelAddFor(t, d); if 
     if (h.substr(j, 40).indexOf('data-act="moveSheet"') >= 0){ var e = h.indexOf('</button>', j) + 9; return h.slice(0, e)+hr+h.slice(e); }
     return h.slice(0, j)+hr+h.slice(j); }
   if (h.indexOf('<div class="sum">') < 0) return h;
-  var row = li(ill("hotel"), "Добавить отель", a.sub, ' data-act="hotelOpen" data-c="'+esc(a.key)+'"');
+  var row = li('<span class="addcard__ic">'+IC.add+'</span>', "Добавить отель", a.sub, ' data-act="hotelOpen" data-c="'+esc(a.key)+'"');
   var legsH = legs(t, d.k).map(function(v){ return legRow(v, d.k); }).join("");
   if (legsH && h.indexOf(legsH) >= 0){ var i = h.indexOf(legsH) + legsH.length; return h.slice(0, i)+row+h.slice(i); }
   return h.replace('<div class="sum">', '<div class="sum">'+row); };
