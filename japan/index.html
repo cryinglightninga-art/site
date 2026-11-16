@@ -4926,7 +4926,8 @@ function dShort(k){ var d = D(k); return d.getDate()+" "+MON3[d.getMonth()]; }
 function trLabel(x){ var A = x.from || (x.legs.length ? city(x.legs[0].v.from) : null), B = x.to;
   if (!x.legs.length) return A ? A+" → "+B : "Переезд в "+B;
   var f = x.legs[0], l = x.legs[x.legs.length-1], d0 = f.v.depD || f.k, d1 = l.v.arrD || l.k;
-  return d0 === d1 ? dShort(d0)+" "+A+" → "+B : dShort(d0)+" "+A+" → "+dShort(d1)+" "+B; }
+  var x0 = D(d0), x1 = D(d1), dt = d0 === d1 ? _dmTr(d0) : (x0.getMonth() === x1.getMonth() ? x0.getDate()+"–"+_dmTr(d1) : _dmTr(d0)+" – "+_dmTr(d1));
+  return dt+", "+A+" → "+B; }
 
 </script>
 </body>
