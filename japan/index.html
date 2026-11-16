@@ -3896,7 +3896,7 @@ var _polaroidC = polaroid;
 polaroid = function(img, flag, from, to, cap){ var t = trip(); return _polaroidC((t && CIMG[t.country]) || img, flag, from, to, cap); };
 
 /* переход внутрь поездки без микрозадержки: весь экран едет одновременно, картинки декодируются не в основном потоке */
-ill = function(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp?v=3" alt="" decoding="async">'; };
+ill = function(n, cls){ return '<img class="'+(cls||'')+'" src="/japan/ill/'+n+'.webp?v=4" alt="" decoding="async">'; };
 slide = function(dir){
   if (S._tabSwitch){ S._tabSwitch = false; enterView(); return; }
   enterAll([{opacity:0, transform:"translate3d("+(dir*40)+"px,0,0)"},{opacity:1, transform:"none"}], {duration:520, easing:SPRING, delay:0});
@@ -3977,11 +3977,11 @@ render = function(){
   return r;
 };
 
-/* картинки: одна ссылка (с ?v=3), держим декодированными в памяти — без моргания при возврате на экран */
+/* картинки: одна ссылка (с ?v=4), держим декодированными в памяти — без моргания при возврате на экран */
 var IMGK = {};
 function keepImg(src){ if (IMGK[src]) return; var i = new Image(); i.src = src; IMGK[src] = i; if (i.decode) i.decode().catch(function(){}); }
-ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=3"; keepImg(src); return '<img class="'+(cls||'')+'" src="'+src+'" alt="">'; };
-["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=3"); });
+ill = function(n, cls){ var src = "/japan/ill/"+n+".webp?v=4"; keepImg(src); return '<img class="'+(cls||'')+'" src="'+src+'" alt="">'; };
+["airplane","sun","moon","house","hotel","checklist","docs","folder","money","visa","bag","calendar","ticket","doc","travelers","baggage","sightseeing"].concat(Object.keys(CIMG).map(function(k){ return CIMG[k]; })).forEach(function(n){ keepImg("/japan/ill/"+n+".webp?v=4"); });
 
 /* задача: кружок — отметить, сам пункт — открыть шторку редактирования; удаление в «⋯» шторки */
 /* правило компонента «пункт с кружком»: отмечается только по кружку; тап по пункту — шторка редактирования (если есть), иначе ничего */
