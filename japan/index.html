@@ -1544,6 +1544,10 @@ html:not([data-tabs="A"]) body .chips .chip.is-active,html:not([data-tabs="A"]) 
 html body .tabbar__bg{inset:-4px -2px!important}
 /* план: города подряд одной лентой */
 .days--all .city-sec{display:flex;flex-direction:column;gap:24px;scroll-margin-top:120px}
+
+/* бейдж «Переезд» на карточке дня — оранжевый */
+.badge--move{--badge-bg:#ff8c00;--badge-hl:rgba(255,208,40,1);--badge-edge:#ca3200;--badge-fg:#fff}
+@media (prefers-color-scheme:dark){.badge--move{--badge-bg:#d97400;--badge-hl:rgba(255,190,60,.45);--badge-edge:rgba(0,0,0,.45);--badge-fg:#fff3e0}}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4696,6 +4700,19 @@ var _swSetClean = swSet;
 swSet = function(el, open){ _swSetClean(el, open); if (!open) setTimeout(function(){ if (!el._open && !el.classList.contains("sw-drag")){ var d = el.querySelector(":scope > .sw-del"); if (d) d.remove(); } }, 320); };
 function swClean(){ setTimeout(function(){ [].forEach.call(document.querySelectorAll("[data-sw]"), function(x){ if (!x._open && !x.classList.contains("sw-drag")){ var d = x.querySelector(":scope > .sw-del"); if (d) d.remove(); } }); }, 400); }
 document.addEventListener("pointerup", swClean, true); document.addEventListener("pointercancel", swClean, true);
+
+/* карточка дня: бейдж «Переезд» оранжевый */
+var _dayCardMove = dayCard;
+dayCard = function(t, d){ return _dayCardMove(t, d).replace('<span class="day__badge"><span class="badge">Переезд</span>', '<span class="day__badge"><span class="badge badge--move">Переезд</span>'); };
+
+/* место и отель: поле «Ссылка на Google Maps» убрано — ссылка заполняется сама из найденного места и хранится скрыто */
+(function(){ function hideLink(id){ var i = $(id); if (!i) return; var f = i.closest(".fld"); if (f){ f.parentNode.insertBefore(i, f); f.remove(); } i.type = "hidden"; }
+  new MutationObserver(function(){ hideLink("fPl"); hideLink("fHl"); }).observe(document.getElementById("fBody") || document.body, {childList:true, subtree:true}); })();
+
+/* документ: «Ссылка» — последним полем, перед кнопкой */
+(function(){ function linkLast(){ var b = $("fBody"); if (!b) return; var l = b.querySelector('#fDl, [data-input="docLink"]'); if (!l) return; var f = l.closest(".fld"), btn = [].filter.call(b.querySelectorAll(".primary"), function(x){ return x.tagName === "BUTTON"; }).pop();
+    if (!f) return; if (btn && btn.parentNode){ if (f.nextElementSibling !== btn) btn.parentNode.insertBefore(f, btn); } else if (f.parentNode.lastElementChild !== f) f.parentNode.appendChild(f); }
+  new MutationObserver(linkLast).observe(document.getElementById("fBody") || document.body, {childList:true, subtree:true}); })();
 
 </script>
 </body>
