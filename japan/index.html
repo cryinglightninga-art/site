@@ -1540,6 +1540,53 @@ html body .fld--seg > .label + .chips--seg,html body .fld > .label + .chips--seg
 /* табы D: выделение рисует только плашка — у самих табов фона и анимации фона нет (иначе при перерисовке мигает вторая плашка) */
 html:not([data-tabs="A"]) body .chips .chip,html:not([data-tabs="A"]) body .chips--seg .chip,html:not([data-tabs="A"]) body .mconv__cur .chip{transition:color .2s!important}
 html:not([data-tabs="A"]) body .chips .chip.is-active,html:not([data-tabs="A"]) body .chips--seg .chip.is-active,html:not([data-tabs="A"]) body .mconv__cur .chip.is-active{background:transparent!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+/* таб-бар: от выбранной плашки до края фона — 4px со всех сторон */
+html body .tabbar__bg{inset:-4px -2px!important}
+/* план: города подряд одной лентой */
+.days--all .city-sec{display:flex;flex-direction:column;gap:24px;scroll-margin-top:120px}
+
+/* бейдж «Переезд» на карточке дня — оранжевый */
+.badge--move{--badge-bg:#ff8c00;--badge-hl:rgba(255,208,40,1);--badge-edge:#ca3200;--badge-fg:#fff}
+@media (prefers-color-scheme:dark){.badge--move{--badge-bg:#d97400;--badge-hl:rgba(255,190,60,.45);--badge-edge:rgba(0,0,0,.45);--badge-fg:#fff3e0}}
+
+/* плюс в строках добавления рядом с иллюстрациями — крупнее, под размер картинок */
+.li__lead .addcard__ic, .dli .addcard__ic{width:auto;min-width:22px}
+.li__lead .addcard__ic svg, .dli .addcard__ic svg{width:28px;height:28px}
+.dli .addcard__ic{width:22px;min-width:22px;overflow:visible}
+.dli .addcard__ic svg{width:24px;height:24px;flex:none}
+
+/* трек табов в шапке: не шире экрана с учётом отступов 16 — длинные названия прокручиваются внутри */
+html:not([data-tabs="A"]) #chipsSlot > .chips{max-width:calc(100% - 32px)!important}
+
+/* карточка дня: у билетов и документов без стрелки вправо */
+.dayw .att__go{display:none}
+
+/* таб-бар: неактивная иконка — серая, активная — основного цвета */
+.tab:not(.is-active){color:var(--sec)!important}
+
+.dashl--plate{position:relative}
+
+.day__lbl--tr{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14px}
+.seg--doc{display:inline-flex;gap:0;background:var(--fill, rgba(120,120,128,.12));border-radius:999px;padding:3px}
+.seg--doc .seg__b{border:0;background:transparent;padding:8px 14px;border-radius:999px;font:inherit;color:var(--sec)}
+.seg--doc .seg__b.is-on{background:var(--card, #fff);color:var(--label);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.upl-spin{width:22px;height:22px;border-radius:50%;border:2.5px solid var(--sec);border-top-color:transparent;display:inline-block;animation:uplspin .8s linear infinite}
+@keyframes uplspin{to{transform:rotate(360deg)}}
+#fsheet.is-busy [data-act$="Save"], #fsheet.is-busy .fsh__save{opacity:.4;pointer-events:none}
+.att--pass{pointer-events:none}
+.att__go{display:none!important}
+.stop[data-act="docSheet"] .stop__go{display:none!important}
+.tgrip{display:grid;grid-template-columns:4px 4px;gap:3px 4px;padding:8px 2px 8px 10px;cursor:grab;touch-action:none;flex:none;margin-left:auto}
+.tgrip i{width:4px;height:4px;border-radius:50%;background:var(--tertiary);display:block}
+#trList > .is-drag{position:relative;z-index:5;background:var(--raised, var(--card));box-shadow:0 6px 18px rgba(0,0,0,.18);border-radius:14px}
+.fbox--ta .fbox__clr{top:14px;margin-top:0}
+.fbox--ta textarea{padding-right:44px}
+.li--plan{width:100%}
+.stops > div.stop:not([data-act]):not([data-sw]),.stops > div.stop:not([data-act]):not([data-sw]):active,.stops > div.stop:not([data-act]):not([data-sw]):hover{background:transparent!important;cursor:default;-webkit-tap-highlight-color:transparent}
+.att{min-width:0}
+.att__tx{min-width:0;flex:1 1 auto;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.att__tx small{display:block;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1916,7 +1963,7 @@ function dayHotels(t, k, city){
   var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(Boolean);
   var stay = hs.filter(function(h){ return h.inD && h.outD && h.inD <= k && k < h.outD; })[0];
   var out = hs.filter(function(h){ return h.outD === k; })[0], inn = hs.filter(function(h){ return h.inD === k; })[0];
-  var def = city && t.hotels[city];
+  var def = city && t.hotels[city]; if (def && def.inD && def.outD && (k < def.inD || k > def.outD)) def = null; /* у отеля с датами вне его дат — не «домашний» отель */
   return {s: out || stay || def || inn || null, e: inn || stay || def || out || null};
 }
 function hq(h){ return h ? (h.q || h.addr || h.name) : ""; }
@@ -2055,7 +2102,7 @@ SCR.checklist = function(r){
     h += items.length ? '<div class="check">'+items.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>' : (g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Пункт</b><span class="hint">можно назначить человеку и привязать к дню</span>', "addCheckHere"));
     if (!g && l) h += '<button class="linkbtn" data-act="listMenu">Переименовать или удалить раздел «'+esc(l.name)+'»</button>';
   }
-  if (!g && !all) h += '<button class="stay" data-act="suggestList">'+ill("checklist","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">Подсказать пункты</p><p class="stay__meta">Типовые для страны '+esc(t.country)+' — лишнее удалите</p></div></button>';
+  /* «Подсказать пункты» убрано */
   return {title:"Чек-лист", ill:"checklist", sub:all?done+' из '+all:'', back:true, right:g?'':gbtn("addCheckHere", SVG.plus, "Добавить", "btn-acc"), chips:chips, tabs:false, view:h+'</div>'};
 };
 SCR.visa = function(r){
@@ -2107,7 +2154,7 @@ function stopLeg(v, when){ return '<div class="stop"><span class="stop__n is-hom
 function openDay(k){
   S.day = k;
   var t = trip(), d = tripDays(t).filter(function(x){ return x.k === k; })[0], ps = t.places[k] = t.places[k] || [], g = ro();
-  var dh = dayHotels(t, k, d.city), ho = dh.s, hoE = dh.e, ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
+  var dh = dayHotels(t, k, d.city), ho = dh.s && dh.s.inD === k ? null : dh.s, hoE = dh.e && dh.e.outD === k ? null : dh.e, ts = t.checks.filter(function(c){ return c.day === k; }), ds = t.docs.filter(function(x){ return x.day === k && (x.vis === "all" || x.owner === S.me); });
   var ls = legs(t, k), mk = moveFor(t, k);
   var h = '<div class="sh-head"><p class="sh-kicker">'+WDF[D(k).getDay()]+'</p><h2 class="sh-title">'+dm(k)+'</h2>'+(mk && mk.kind === "mid" ? '<div class="wrap wrap--move">'+badge(mk.from)+'<span class="badge-arrow" aria-label="в">'+SVG_ARR+'</span>'+badge(mk.to)+'</div>' : (d.city?'<div class="wrap">'+badge(d.city)+'</div>':''))+'</div>';
   var nt = notesRows(t, k); if (nt) h += '<div class="check">'+nt+'</div>';
@@ -2119,16 +2166,22 @@ function openDay(k){
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
   if (ds.length || !g) h += '<div><p class="label">Документы</p><div class="stops">'+ds.map(function(x){ return '<button class="stop" data-act="docSheet" data-id="'+x.id+'"><span class="stop__n is-home">'+ill(x.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(x.title)+'</b><small>'+esc(docSub(t, x))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g?'':addRow("addDocDay", "Добавить документ"))+'</div></div>';
+  /* точка прибытия — первой, если день не начинается в отеле; точка отправления — последней, если день не заканчивается в отеле */
+  var arrX = null, depX = null;
+  if (!ho){ var ins = arriving(t, k).concat(ls.map(function(v, i){ return {v:v, k:k, i:i}; }).filter(function(x){ return !x.v.arrD || x.v.arrD === k; })); if (ins.length) arrX = ins[ins.length-1]; }
+  if (!hoE){ var outs = ls.map(function(v, i){ return {v:v, k:k, i:i}; }).filter(function(x){ return x.v.arrD && x.v.arrD > k; }); if (!outs.length && !arrX && ls.length) outs = [{v:ls[0], k:k, i:0}]; if (outs.length) depX = outs[0]; }
+  ho = hoE = arrX = depX = null; /* «Маршрут дня» — только места; отель и транспорт живут в блоке «Переезд» */
+  function ptRow(x, arr){ var v = x.v, tm = arr ? v.arr : v.dep; return '<button class="stop is-home is-pt" data-act="moveSheet" data-k="'+x.k+'" data-i="'+x.i+'"><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(arr ? v.to : v.from)+'</b><small>'+(arr ? 'прибытие' : 'отправление')+(tm ? ' в '+esc(tm) : '')+'</small></span></button>'; }
   if (ps.length || !g){
-    h += '<div><p class="label">Места по порядку</p><div class="stops" id="plist">'+(ho && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
+    h += '<div><p class="label">Маршрут дня</p><div class="stops" id="plist">'+(arrX ? ptRow(arrX, true) : '')+(ho?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(ho.name)+'</b><small>старт'+(ho.outD === k && ho.outT ? ' · выезд до '+esc(ho.outT) : '')+'</small></span></div>':'')+
       ps.map(function(p, i){ return '<div class="stop prow" data-i="'+i+'"'+swAttr("place", p.id)+'><span class="stop__n">'+(i+1)+'</span><button class="stop__tx" data-act="placeSheet" data-day="'+k+'" data-id="'+p.id+'"><b>'+esc(p.n)+'</b><small>'+(p.t?'<b style="display:inline;color:var(--label);font-weight:600">'+esc(p.t)+'</b>'+(p.note?' · ':''):'')+esc(p.note||'')+'</small></button>'+
         (g?'':'<span class="grip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>')+'</div>'; }).join("")+
       (g?'':addRow("addPlace", "Добавить место"))+
-      (hoE && ps.length?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш'+(hoE.inD === k && hoE.inT ? ' · заезд с '+esc(hoE.inT) : '')+'</small></span></div>':'')+'</div>'+
+      (hoE?'<div class="stop is-home"><span class="stop__n is-home">'+ill("house")+'</span><span class="stop__tx"><b>'+esc(hoE.name)+'</b><small>финиш'+(hoE.inD === k && hoE.inT ? ' · заезд с '+esc(hoE.inT) : '')+'</small></span></div>':'')+(depX ? ptRow(depX, false) : '')+'</div>'+
       ''+'</div>';
   }
   $("sheetBody").innerHTML = nb(h);
-  var m = $("sheetMap"), du = dirUrl(hq(ho), ps, hq(hoE));
+  var m = $("sheetMap"), du = dirUrl("", ps, "");
   if (du){ m.hidden = false; m.href = du; m.innerHTML = MAPS_IMG; } else m.hidden = true;
   $("sheetAdd").hidden = true;
   if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; }
@@ -3025,7 +3078,7 @@ async function afterLogin(){
   if (S.invite){
     var already = await sb.from("tp_members").select("id,left_at").eq("trip_id", S.invite.trip).eq("user_id", S.uid).maybeSingle();
     if (already.data && !already.data.left_at){ var tid = S.invite.trip; S.invite = null; await enter(tid); return; }
-    if (S.invite.free.length && !already.data){ reset("whoami"); return; }
+    /* участники — только по приглашению, каждый сам вводит своё имя; выбора «Кто вы?» нет */
     if (!S.profile){ reset("profile"); return; }
     await acceptInvite(null, S.profile.name); return;
   }
@@ -3198,7 +3251,8 @@ SCR.wizard = function(r){
   if (st === 2){
     var total = diff(W.from, W.to), sum = W.cities.reduce(function(a,c){ return a + c.nights; }, 0);
     h += '<p class="lead">По порядку маршрута. Распределено '+sum+' из '+total+' '+pl(total,"ночи","ночей","ночей")+'</p>'+
-      (W.cities.length ? '<div class="stops">'+W.cities.map(function(c, i){ return '<div class="stop" data-sw="city:'+i+'"><span class="stop__n">'+(i+1)+'</span><span class="stop__tx"><b>'+esc(c.n)+'</b><small>'+c.nights+' '+pl(c.nights,"ночь","ночи","ночей")+'</small></span>'+
+      (W.cities.length ? '<div class="stops">'+W.cities.map(function(c, i){ var c0 = W.cities.slice(0, i).reduce(function(a, x){ return a + x.nights; }, 0), d0 = W.from ? addD(W.from, c0) : "", d1 = d0 ? addD(d0, c.nights) : "";
+        return '<div class="stop" data-sw="city:'+i+'"><span class="stop__n">'+(i+1)+'</span><span class="stop__tx"><b>'+esc(c.n)+'</b><small>'+c.nights+' '+pl(c.nights,"ночь","ночи","ночей")+(d0 ? ' · <span style="white-space:nowrap">'+rangeS(d0, d1)+'</span>' : '')+'</small></span>'+
         '<span class="stepper"><button data-act="cityN" data-i="'+i+'" data-d="-1" aria-label="Меньше">−</button><i></i><button data-act="cityN" data-i="'+i+'" data-d="1" aria-label="Больше">+</button></span></div>'; }).join("")+'</div>' : '')+
       '<div class="inline inline--c"><input class="in" id="fCity" placeholder="Город"><button class="btn2" data-act="cityAdd">Добавить</button></div>'+
       (sum && sum !== total ? '<p class="hint" style="color:var(--danger)">Ночей по городам '+(sum<total?'меньше':'больше')+', чем в поездке</p>' : '')+
@@ -3577,7 +3631,7 @@ var _dayCardG = dayCard;
 dayCard = function(t, d){ var h = _dayCardG(t, d);
   return h.replace(/<button class="dli" data-act="dayAddPlace"([^>]*)>[^]*?<\/button>/, function(_, a){ return sunRow("dayAddPlace", a); }); };
 var _openDayG = openDay;
-openDay = function(k){ _openDayG(k); var t = trip(), pl = $("plist"); if (!pl || ro() || (t.places[k] || []).length) return;
+openDay = function(k){ _openDayG(k); var t = trip(), pl = $("plist"); if (!pl || ro() || (t.places[k] || []).length || pl.querySelector(".stop.is-home")) return;
   pl.className = "dashl"; pl.innerHTML = sunRow("addPlace"); };
 
 /* «Проверьте почту»: только код и одна строка про повторную отправку */
@@ -3603,18 +3657,18 @@ var _listSelA = A.listSel; A.listSel = function(d){ keepChips(function(){ _listS
 
 /* ===== шторка дня: пустые блоки не занимают место ===== */
 var _openDayH = openDay;
-openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), keepMove = false;
+openDay = function(k){ _openDayH(k); if (ro()) return; var b = $("sheetBody"), keepMove = false, present = {};
   var map = {moveSheet:["Переезд", "plane"], addTask:["Задача", "check"], addDocDay:["Документ", "doc"]};
   [].slice.call(b.children).forEach(function(sec){ var st = sec.querySelector(":scope > .stops"); if (!st) return;
     var add = st.querySelector(":scope > .stop--add"); if (!add) return;
     var act = add.getAttribute("data-act"); if (!map[act]) return;
     if (act === "moveSheet" && add.textContent.indexOf("→") >= 0){ keepMove = true; return; }   /* ожидаемый переезд между городами — подсказка остаётся */
     if (act === "moveSheet"){ var tx = add.querySelector(".stop__tx b, b, .stop__tx") || add; if (/^\s*Переезд\s*$/.test(tx.textContent)) tx.textContent = "Добавить переезд"; }
-    if (st.children.length === 1) sec.remove();   /* пустой блок прячем — добавление внизу «Ещё в этот день»; в непустом блоке строка «＋» остаётся */
+    if (st.children.length === 1) sec.remove(); else present[act] = 1;   /* пустой блок прячем — добавление внизу; в непустом блоке строка «＋» остаётся */
   });
-  var acts = Object.keys(map).filter(function(a){ return !(a === "moveSheet" && keepMove); }).map(function(act){
+  var acts = Object.keys(map).filter(function(a){ return !(a === "moveSheet" && keepMove) && !present[a]; }).map(function(act){
     return '<button class="qadd glass" data-act="'+act+'"'+(act === "moveSheet" ? ' data-k="'+k+'" data-i="-1"' : '')+'>'+IC.add+map[act][0]+'</button>'; });
-  b.insertAdjacentHTML("beforeend", '<div class="qadds-wrap"><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
+  if (acts.length) b.insertAdjacentHTML("beforeend", '<div class="qadds-wrap"><p class="label">Ещё в этот день</p><div class="qadds">'+acts.join("")+'</div></div>');
 };
 
 /* ===== шторка документа: плашка файла сверху, поля как при создании ===== */
@@ -4139,7 +4193,7 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     var t = e.target, r = cur(); if (!r || r.s !== "trip" || !$("view").contains(t)) return;
     if ($("sheet").classList.contains("is-open") || $("fsheet").classList.contains("is-open")) return;
     if (t.closest("[data-sw],.chips,.chipsc,#chipsSlot,input,textarea,select,iframe,.mapbox,.sets,.hscroll,[data-noswipe]")) return;
-    if (chipsCities().length < 2) return;
+    return; /* свайп влево/вправо по ленте больше не переключает города */
     st = {x:e.touches[0].clientX, y:e.touches[0].clientY, dx:0, on:false, el:box()};
   }, {passive:true});
   document.addEventListener("touchmove", function(e){
@@ -4152,8 +4206,7 @@ A.vdocDel = function(){ var t = trip(), id = S.vdEdit, v = (t.visaDocs || []).fi
     var list = chipsCities(), i = list.indexOf(S.city), j = s.dx < 0 ? i + 1 : i - 1, go = Math.abs(s.dx) > 60 && j >= 0 && j < list.length;
     if (s.el){ s.el.style.transition = "transform .35s cubic-bezier(.3,1.2,.5,1), opacity .25s"; s.el.style.transform = ""; s.el.style.opacity = ""; }
     if (!go) return;
-    A.city({c:list[j]}); var sc = $("scroll"); if (sc) sc.scrollTop = 0;
-    var n = box(); if (n) anim(n, [{transform:"translate3d("+(s.dx < 0 ? 60 : -60)+"px,0,0)", opacity:0},{transform:"none", opacity:1}], {duration:450, easing:SPRING});
+    A.city({c:list[j]}); if (window.tgMoveTo) window.tgMoveTo(document.querySelector('#chipsSlot [data-act="city"][data-c="'+list[j].replace(/"/g, '\\"')+'"]'));
   }
   document.addEventListener("touchend", end); document.addEventListener("touchcancel", function(){ if (st && st.el){ st.el.style.transform = ""; st.el.style.opacity = ""; } st = null; });
 })();
@@ -4183,7 +4236,7 @@ A.moveSave = function(){
   closeForm(); refresh();
 };
 var _openDayArr = openDay;
-openDay = function(k){ _openDayArr(k);
+openDay = function(k){ _openDayArr(k); if (window.PLATES) return;
   var t = trip(), b = $("sheetBody"); if (!t || !b) return;
   var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {};
   var arr = arriving(t, k);
@@ -4191,7 +4244,7 @@ openDay = function(k){ _openDayArr(k);
     var rows = arr.map(function(a){ var v = a.v; return '<button class="stop" data-act="moveSheet" data-k="'+a.k+'" data-i="'+a.i+'"'+swAttr("move", a.k+"|"+a.i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, a.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("");
     var sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0];
     if (sec){ sec.querySelector(".stops").insertAdjacentHTML("afterbegin", rows); }
-    else { var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0]; var html = '<div><p class="label">Переезд</p><div class="stops">'+rows+'<button class="stop stop--add" data-act="moveSheet" data-k="'+k+'" data-i="-1"><span class="stop__n">＋</span><span class="stop__tx">Добавить переезд</span></button></div></div>'; if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html); }
+    else { var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0]; var html = '<div><p class="label">Переезд</p><div class="stops">'+rows+'<button class="stop stop--add" data-act="moveSheet" data-k="'+k+'" data-i="-1"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить переезд</span></button></div></div>'; if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html); }
   }
   var ov = overnight(t, k), leg = (ov[0] && {v:ov[0], dk:k}) || (arr[0] && {v:arr[0].v, dk:arr[0].k});
   if (leg){ var days = tripDays(t), cOf = function(x){ var q = days.filter(function(y){ return y.k === x; })[0]; return q && q.city; };
@@ -4245,8 +4298,8 @@ openDay = function(k){ _openDayE(k); var t = trip(), b = $("sheetBody"); if (!t 
   var f = hotelFacts(t, k), head = b.querySelector(".sh-head");
   if (false && f.length && head && !head.querySelector(".sh-facts")){ var anchor = head.querySelector(".wrap") || head.querySelector(".sh-title"); var html2 = '<p class="sh-facts">'+f.join(" · ")+'</p>'; if (anchor) anchor.insertAdjacentHTML("afterend", html2); else head.insertAdjacentHTML("beforeend", html2); }
   if (ro() || (t.places[k] || []).length) return;
-  var pl = $("plist"); if (!pl) return; var sec = pl.parentNode;
-  sec.innerHTML = '<p class="label">Места по порядку</p><button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
+  var pl = $("plist"); if (!pl) return; var sec = pl.parentNode; if (pl.querySelector(".stop.is-home")) return;
+  sec.innerHTML = '<p class="label">Маршрут дня</p><button class="addcard addcard--big" data-act="addPlace"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить место</b><small>что посмотреть, где поесть</small></span></button>';
 };
 
 /* ===== карта: без подсказок OpenStreetMap — Google ищет в городе дня, «Добавить эту метку» добавляет сразу ===== */
@@ -4388,7 +4441,7 @@ function blockHtml(t, m, b, g){
   if (b.type === "steps") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="steps">'+(b.items || []).map(function(it){
       return '<button class="step" data-act="itemEdit" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><div>'+esc(it.t)+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</div></button>'; }).join("")+
     (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить шаг</button>')+'</div></div>';
-  if (b.type === "doc"){ var d = t.docs.filter(function(x){ return x.id === b.docId; })[0]; if (!d) return ''; return '<div'+swAttr("mblk", b.id)+'>'+attRow(t, d)+'</div>'; }
+  if (b.type === "doc"){ var d = t.docs.filter(function(x){ return x.id === b.docId; })[0]; if (!d) return ''; return '<div'+swAttr("mblk", b.id)+'>'+attRow(t, d).replace(/ data-sw="[^"]*"/, "")+'</div>'; }
   return '';
 }
 SCR.note = function(r){ var t = trip(r.trip), g = ro(), m = memo(t, S.noteId); if (!m){ return {title:"Заметка", back:true, tabs:false, view:'<div class="pg"><p class="hint">Список удалён</p></div>'}; }
@@ -4546,7 +4599,7 @@ placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r
   function keyOf(el){ if (el.id) return "#"+el.id; if (el.classList.contains("mconv__cur")) return ".mconv__cur"; if (el.closest("#chipsSlot")) return el.closest(".chipsc") ? "chk" : "city"; var all = [].slice.call(document.querySelectorAll(SEL)); return "i"+all.indexOf(el); }
   function byKey(k){ if (k === "city") return [].filter.call(document.querySelectorAll("#chipsSlot .chips"), function(x){ return !x.closest(".chipsc"); })[0]; if (k === "chk") return document.querySelector("#chipsSlot .chipsc .chips"); if (k.charAt(0) === "i") return document.querySelectorAll(SEL)[+k.slice(1)]; return document.querySelector(k); }
   function act(el){ return el.querySelector(".chip.is-active"); }
-  function pos(el, a){ var r = a.getBoundingClientRect(), e = el.getBoundingClientRect(); return {x:Math.round(r.left - e.left + el.scrollLeft - el.clientLeft), w:Math.round(r.width)}; }
+  function pos(el, a){ if (a.offsetParent === el) return {x:Math.round(a.offsetLeft), w:Math.round(a.offsetWidth)}; var r = a.getBoundingClientRect(), e = el.getBoundingClientRect(), k = el.offsetWidth ? e.width / el.offsetWidth : 1; k = k || 1; return {x:Math.round((r.left - e.left)/k + el.scrollLeft - el.clientLeft), w:Math.round(r.width/k)}; }
   function thumb(el){ var t = el.querySelector(":scope > .tg-thumb"); if (!t){ t = document.createElement("span"); t.className = "tg-thumb"; el.insertBefore(t, el.firstChild); el.classList.add("tg-has-thumb"); } t.style.transition = "opacity .2s"; return t; }
   function put(el, x, w){ var t = thumb(el); t.style.width = w+"px"; t.style.transform = "translateX("+x+"px)"; t._x = x; t._w = w; }
   function ease(q){ return 1 - Math.pow(1 - q, 3); }
@@ -4573,7 +4626,8 @@ placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r
     Object.keys(keep).forEach(function(k){ var el = byKey(k); if (el){ el.scrollLeft = keep[k]; var an = ANIM[k]; if (an){ var q = an.t0 == null ? 0 : Math.min(1, (performance.now() - an.t0) / DUR), e = ease(q); put(el, an.from.x + (an.to.x - an.from.x) * e, an.from.w + (an.to.w - an.from.w) * e); } } });
     syncAll(); return res; };
   var sched = false; new MutationObserver(function(){ if (sched) return; sched = true; requestAnimationFrame(function(){ sched = false; syncAll(); }); }).observe(document.body, {childList:true, subtree:true, attributes:true, attributeFilter:["class"]});
-  window.addEventListener("load", syncAll); window.tgSync = syncAll; window.tgBusy = function(){ return Object.keys(ANIM).length > 0; };
+  window.addEventListener("load", syncAll); window.tgSync = syncAll; window.tgBusy = function(){ return Object.keys(ANIM).length > 0; }; window.tgMoveTo = function(c){ if (!c || !on()) return; var el = c.closest(SEL); if (!el) return; var a = act(el); if (a === c) return; var k = keyOf(el), t = el.querySelector(":scope > .tg-thumb"), from = t && t._x != null ? {x:t._x, w:t._w} : (a ? pos(el, a) : pos(el, c));
+    [].forEach.call(el.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === c); }); ANIM[k] = {from:from, to:pos(el, c), t0:null, sl0:el.scrollLeft}; start(); };
 })();
 
 /* ===== заметка: список без пунктов — заголовок и пунктирная плашка «＋ Добавить пункт/шаг» вместо пустой карточки ===== */
@@ -4613,6 +4667,443 @@ openDay = function(k){ _openDayDocSW(k); if (ro()) return; var t = trip();
   [].forEach.call(document.querySelectorAll("#sheetBody .stop[data-act='docSheet']"), function(r){ var d = t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; if (d && (d.owner === S.me || !d.owner)) r.setAttribute("data-sw", "doc:"+d.id); }); };
 /* табы: нажатие не должно само прокручивать ряд (фокус кнопки) — прокрутку делает анимация */
 document.addEventListener("mousedown", function(e){ var c = e.target.closest && e.target.closest(".chips .chip, .chips--seg .chip, .mconv__cur .chip"); if (c) e.preventDefault(); }, true);
+
+
+/* ===== План: все дни поездки одной лентой, по городам подряд. Таб города переключается сам при прокрутке; по нажатию на таб — прокрутка к началу города ===== */
+(function(){
+  var lock = 0;
+  function slotBottom(){ var c = $("chipsSlot"); return c && c.offsetHeight ? c.getBoundingClientRect().bottom : ($("scroll").getBoundingClientRect().top + 100); }
+  function secs(){ return [].slice.call(document.querySelectorAll("#view .city-sec")); }
+  var _SCRtripAll = SCR.trip;
+  /* визиты: город может встречаться в поездке дважды (вернулись) — у каждого визита свой таб и своя секция */
+  function visits(t){ var cities = t.cities.map(function(c){ return c.n; }), vs = [], last = null;
+    tripDays(t).forEach(function(d){ if (!d.city || cities.indexOf(d.city) < 0) return; if (!last || last.c !== d.city){ last = {c:d.city, days:[]}; vs.push(last); } last.days.push(d.k); });
+    cities.forEach(function(c){ if (!vs.some(function(v){ return v.c === c; })) vs.push({c:c, days:[]}); });
+    vs.forEach(function(v){ v.n = v.days.length; });
+    return vs; }
+  window.cityVisits = visits;
+  var _dayCardVis = dayCard; var only = null;
+  dayCard = function(t, d){ if (only && !only[d.k]) return ""; return _dayCardVis(t, d); };
+  function curV(vs){ var i = S.cityV; if (i == null || !vs[i] || vs[i].c !== S.city){ i = -1; vs.forEach(function(v, j){ if (i < 0 && v.c === S.city) i = j; }); } return Math.max(0, i); }
+  SCR.trip = function(r){ var t = trip(r.trip);
+    if (S.tab === "prep" || S.city === "_nodate") return _SCRtripAll(r);
+    var cities = t.cities.map(function(c){ return c.n; }); if (!cities.length) return _SCRtripAll(r);
+    if (cities.indexOf(S.city) < 0) S.city = cities[0];
+    var vs = visits(t), act = curV(vs); S.cityV = act;
+    var keep = S.city, base = null, body = "";
+    vs.forEach(function(v, i){ S.city = v.c; only = {}; v.days.forEach(function(k){ only[k] = 1; }); var vv; try { vv = _SCRtripAll(r); } finally { only = null; } if (!base) base = vv;
+      var inner = vv.view.replace(/^<div class="days days--home">/, "").replace(/<\/div>$/, ""); if (i > 0) inner = inner.replace(/^<p class="hint">[^]*?<\/p>/, "");
+      if (window.PLATES && window.plateHtml){ var trs = transitions(t); inner = plateHtml(t, trs[i], i) + inner; if (i === vs.length - 1 && trs.end) inner += plateHtml(t, trs.end, "end"); }
+      body += '<section class="city-sec" data-city="'+esc(v.c)+'" data-v="'+i+'">'+inner+'</section>'; });
+    S.city = keep;
+    var nd = t.nodate.length ? chip("Без даты", t.nodate.length, false, 'data-act="city" data-c="_nodate"') : '';
+    base.chips = '<div class="chips">'+vs.map(function(v, i){ return chip(v.c, v.n != null ? v.n : v.days.length, i === act, 'data-act="city" data-c="'+esc(v.c)+'" data-v="'+i+'"'); }).join("")+nd+'</div>';
+    base.view = '<div class="days days--home days--all">'+body+'</div>';
+    return base; };
+  function chipFor(i){ var row = document.querySelector('#chipsSlot .chips'); return row && row.querySelector('[data-act="city"][data-v="'+i+'"]'); }
+  function setActive(i, animate){ var b = chipFor(i); if (!b) return; if (S.cityV === i && b.classList.contains("is-active")) return; S.cityV = i; S.city = b.getAttribute("data-c");
+    if (animate && window.tgMoveTo) window.tgMoveTo(b); else { [].forEach.call(b.parentNode.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === b); }); if (window.tgSync) window.tgSync(); } }
+  function spy(){ if (Date.now() < lock) return; var r = cur(); if (!r || r.s !== "trip" || S.tab === "prep" || S.city === "_nodate") return;
+    var ss = secs(); if (!ss.length) return; var sc = $("scroll"), lim = slotBottom() + 48, v = +ss[0].getAttribute("data-v");
+    ss.forEach(function(x){ if (x.getBoundingClientRect().top <= lim) v = +x.getAttribute("data-v"); });
+    if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 4) v = +ss[ss.length - 1].getAttribute("data-v");
+    setActive(v, true); }
+  function scrollToV(i){ var sec = secs().filter(function(x){ return +x.getAttribute("data-v") === i; })[0], sc = $("scroll"); if (!sec || !sc) return;
+    var to = secs()[0] === sec ? 0 : sc.scrollTop + sec.getBoundingClientRect().top - slotBottom() - 8; to = Math.max(0, Math.min(to, sc.scrollHeight - sc.clientHeight));
+    lock = Date.now() + 900; var from = sc.scrollTop, t0 = null, DUR = 420, id = ++scrollToV.id;
+    if (Math.abs(to - from) < 2) return;
+    (function step(now){ if (id !== scrollToV.id) return; if (t0 == null) t0 = now; var q = Math.min(1, (now - t0)/DUR), e = 1 - Math.pow(1 - q, 3);
+      var tgt = secs()[0] === sec ? 0 : Math.max(0, Math.min(sc.scrollTop + sec.getBoundingClientRect().top - slotBottom() - 8, sc.scrollHeight - sc.clientHeight));
+      sc.scrollTop = from + (tgt - from)*e; lock = Date.now() + 300; if (q < 1) requestAnimationFrame(step); else spy(); })(performance.now()); }
+  scrollToV.id = 0;
+  A.city = function(d, el){ var r = cur(); if (!r || r.s !== "trip") return;
+    var i = el && el.getAttribute && el.getAttribute("data-v") != null ? +el.getAttribute("data-v") : (d.v != null ? +d.v : null);
+    if (i == null){ var vs = visits(trip()); vs.forEach(function(v, j){ if (i == null && v.c === d.c) i = j; }); }
+    if (d.c === "_nodate" || S.city === "_nodate"){ S.city = d.c; S.cityV = i; render(); if (d.c !== "_nodate") setTimeout(function(){ scrollToV(i || 0); }, 30); else $("scroll").scrollTop = 0; return; }
+    S.city = d.c; S.cityV = i; var b = chipFor(i); if (b) [].forEach.call(b.parentNode.querySelectorAll(".chip"), function(x){ x.classList.toggle("is-active", x === b); });
+    scrollToV(i || 0); };
+  document.addEventListener("scroll", function(e){ if (e.target && e.target.id === "scroll") spy(); }, true);
+})();
+
+/* ===== отель: на карточке дня — строки «Выезд до …» / «Заезд с …» в дни выезда и заезда; в шторке — только в «Местах по порядку», как карточка отеля (даты · ночи), по нажатию — шторка отеля ===== */
+function hotelCity(t, h){ var c = null; Object.keys(t.hotels).forEach(function(k){ if (t.hotels[k] === h) c = k; }); return c; }
+function hotelStaySub(h){ return h.inD && h.outD ? rangeS(h.inD, h.outD)+' · '+diff(h.inD, h.outD)+' '+pl(diff(h.inD, h.outD),"ночь","ночи","ночей") : (h.addr || ""); }
+var _dayCardHotel = dayCard;
+dayCard = function(t, d){ var h = _dayCardHotel(t, d); if (window.PLATES) return h; if (h.indexOf('<div class="sum">') < 0) return h;
+  var hs = Object.keys(t.hotels).map(function(c){ return t.hotels[c]; }).filter(function(x){ return x && x.name; });
+  var out = hs.filter(function(x){ return x.outD === d.k; })[0], inn = hs.filter(function(x){ return x.inD === d.k; })[0];
+  if (!out && !inn) return h;
+  var oRow = out ? li(ill("hotel"), esc(out.name), 'Выезд'+(out.outT ? ' до '+esc(out.outT) : '')) : '';
+  var iRow = inn ? li(ill("hotel"), esc(inn.name), 'Заезд'+(inn.inT ? ' с '+esc(inn.inT) : '')) : '';
+  var legsH = (arrRows(t, d.k) || "")+legs(t, d.k).map(function(v){ return legRow(v, d.k); }).join("");
+  h = h.replace('<div class="sum">', '<div class="sum">'+oRow);
+  if (legsH && h.indexOf(legsH) >= 0){ var i = h.indexOf(legsH) + legsH.length; h = h.slice(0, i)+iRow+h.slice(i); }
+  else h = h.replace('<div class="sum">'+oRow, '<div class="sum">'+oRow+iRow);
+  return h; };
+var _openDayHotelRows = openDay;
+openDay = function(k){ _openDayHotelRows(k); var t = trip(), pl0 = $("plist"); if (!t || !pl0) return;
+  var rows = [].filter.call(pl0.children, function(r){ return r.classList.contains("stop") && r.classList.contains("is-home") && !r.hasAttribute("data-act"); }); if (!rows.length) return;
+  var d = tripDays(t).filter(function(x){ return x.k === k; })[0], dh = dayHotels(t, k, d && d.city) || {};
+  function fix(r, h, kind){ if (!h || !h.name) return; var c = hotelCity(t, h); var sub = hotelStaySub(h);
+    if (kind === "s") sub = h.outD === k ? sub+' · выезд'+(h.outT ? ' до '+h.outT : '') : 'Старт';
+    if (kind === "e") sub = h.inD === k ? sub+' · заезд'+(h.inT ? ' с '+h.inT : '') : 'Возвращение в отель';
+    var sm = r.querySelector(".stop__tx small"), b = r.querySelector(".stop__tx b"); if (b) b.textContent = h.name; if (sm) sm.textContent = sub;
+    if (c && !ro()){ r.setAttribute("data-act", "hotelOpen"); r.setAttribute("data-c", c); r.setAttribute("role", "button"); } }
+  var first = pl0.firstElementChild; rows.forEach(function(r){ if (r === first) fix(r, dh.s, "s"); else fix(r, dh.e || dh.s, "e"); }); };
+/* лента: отдельная карточка отеля в начале города больше не нужна — отель виден в днях (оставляем только «Добавить отель», если его нет) */
+var _SCRtripNoStay = SCR.trip;
+SCR.trip = function(r){ var v = _SCRtripNoStay(r); if (S.tab !== "prep" && v.view) v.view = v.view.replace(/<button class="stay"[^]*?<\/button>/g, ""); return v; };
+
+/* свайп: кнопка удаления существует только пока строка сдвинута — после закрытия убираем, чтобы не торчала за краем карточки */
+var _swSetClean = swSet;
+swSet = function(el, open){ _swSetClean(el, open); if (!open) setTimeout(function(){ if (!el._open && !el.classList.contains("sw-drag")){ var d = el.querySelector(":scope > .sw-del"); if (d) d.remove(); } }, 320); };
+function swClean(){ setTimeout(function(){ [].forEach.call(document.querySelectorAll("[data-sw]"), function(x){ if (!x._open && !x.classList.contains("sw-drag")){ var d = x.querySelector(":scope > .sw-del"); if (d) d.remove(); } }); }, 400); }
+document.addEventListener("pointerup", swClean, true); document.addEventListener("pointercancel", swClean, true);
+
+/* карточка дня: бейдж «Переезд» оранжевый */
+var _dayCardMove = dayCard;
+dayCard = function(t, d){ return _dayCardMove(t, d).replace('<span class="day__badge"><span class="badge">Переезд</span>', '<span class="day__badge"><span class="badge badge--move">Переезд</span>'); };
+
+/* место и отель: поле «Ссылка на Google Maps» убрано — ссылка заполняется сама из найденного места и хранится скрыто */
+(function(){ function hideLink(id){ var i = $(id); if (!i) return; var f = i.closest(".fld"); if (f){ f.parentNode.insertBefore(i, f); f.remove(); } i.type = "hidden"; }
+  new MutationObserver(function(){ hideLink("fPl"); hideLink("fHl"); }).observe(document.getElementById("fBody") || document.body, {childList:true, subtree:true}); })();
+
+/* документ: «Ссылка» — последним полем, перед кнопкой */
+(function(){ function linkLast(){ var b = $("fBody"); if (!b) return; var l = b.querySelector('#fDl, [data-input="docLink"]'); if (!l) return; var f = l.closest(".fld"), btn = [].filter.call(b.querySelectorAll(".primary"), function(x){ return x.tagName === "BUTTON"; }).pop();
+    if (!f) return; if (btn && btn.parentNode){ if (f.nextElementSibling !== btn) btn.parentNode.insertBefore(f, btn); } else if (f.parentNode.lastElementChild !== f) f.parentNode.appendChild(f); }
+  new MutationObserver(linkLast).observe(document.getElementById("fBody") || document.body, {childList:true, subtree:true}); })();
+
+/* «Добавить отель» — внутри карточки первого дня города (и в пустой поездке тоже), а не отдельной плашкой над лентой */
+function hotelAddFor(t, d){ if (ro() || !d) return null; var key = t.cities.length ? d.city : t.country; if (!key) return null; var h = t.hotels[key]; if (h && h.name) return null;
+  var first = tripDays(t).filter(function(x){ return t.cities.length ? x.city === key : true; })[0]; if (!first) return null;
+  /* день прибытия в город — по переезду (дата прибытия или день переезда); без переезда — первый день города */
+  var target = first.k, arr = null; Object.keys(t.moves).sort().forEach(function(mk){ legs(t, mk).forEach(function(l){ var c = city(l.to) || l.to; if (arr == null && t.cities.length && (c === key || l.to === key)){ var a = l.arrD || mk; if (a >= t.from && a <= t.to) arr = a; } }); });
+  if (arr) target = arr; if (target !== d.k) return null;
+  var cs = window.cityStay ? cityStay(t, key) : null; if (cs && cs.outD > target){ var nn = diff(target, cs.outD); return {key:key, sub: nn+' '+pl(nn,"ночь","ночи","ночей")+' · '+rangeS(target, cs.outD)}; }
+  var n = t.cities.length ? ((t.cities.filter(function(c){ return c.n === key; })[0] || {}).nights || 0) : diff(t.from, t.to);
+  return {key:key, sub: n ? n+' '+pl(n,"ночь","ночи","ночей") : ''}; }
+var _dayCardHAdd = dayCard;
+dayCard = function(t, d){ var h = _dayCardHAdd(t, d), a = window.PLATES ? null : hotelAddFor(t, d); if (!a) return h;
+  if (h.indexOf('<div class="dashl">') >= 0){ var hr = dli("hotelOpen", ' data-c="'+esc(a.key)+'" data-k="'+d.k+'"', "Добавить отель", a.sub || "где ночуете"), j = h.indexOf('<div class="dashl">') + 19;
+    if (h.substr(j, 40).indexOf('data-act="moveSheet"') >= 0){ var e = h.indexOf('</button>', j) + 9; return h.slice(0, e)+hr+h.slice(e); }
+    return h.slice(0, j)+hr+h.slice(j); }
+  if (h.indexOf('<div class="sum">') < 0) return h;
+  var row = li('<span class="addcard__ic">'+IC.add+'</span>', "Добавить отель", a.sub, ' data-act="hotelOpen" data-c="'+esc(a.key)+'" data-k="'+d.k+'"');
+  var legsH = (arrRows(t, d.k) || "")+legs(t, d.k).map(function(v){ return legRow(v, d.k); }).join("");
+  if (legsH && h.indexOf(legsH) >= 0){ var i = h.indexOf(legsH) + legsH.length; return h.slice(0, i)+row+h.slice(i); }
+  return h.replace('<div class="sum">', '<div class="sum">'+row); };
+var _SCRtripNoAdd = SCR.trip;
+SCR.trip = function(r){ var v = _SCRtripNoAdd(r); if (S.tab !== "prep" && v.view) v.view = v.view.replace(/<button class="addcard addcard--hotel"[^]*?<\/button>/g, ""); return v; };
+
+/* подсказки адреса: если в рамке города ничего не нашлось (рамка города определилась неверно — например «Шарм» без страны), ищем без рамки */
+var _gAutoBox = gAuto;
+gAuto = function(q, city){ return _gAutoBox(q, city).then(function(res){ if (res && res.length || !city) return res; return _gAutoBox(q, ""); }); };
+var _nomiInBox = _nomiInG;
+_nomiInG = function(q, city){ return _nomiInBox(q, city).then(function(r){ if (r && r.length || !city) return r; return _nomiInBox(q, ""); }); };
+
+/* отель без дат: в форме подставляем даты визита города (заезд — день прибытия, выезд — день отъезда), чтобы заезд/выезд появились в днях */
+function cityStay(t, c){ var vs = window.cityVisits ? cityVisits(t) : []; var v = vs.filter(function(x){ return x.c === c && x.days.length; })[0]; if (!v) return null;
+  var a = v.days[0], b = addD(v.days[v.days.length - 1], 1);
+  if (b > t.to) b = t.to; return {inD:a, outD:b}; }
+var _hotelOpenDates = A.hotelOpen;
+A.hotelOpen = function(d, el, e){ _hotelOpenDates(d, el, e); if (ro()) return; var t = trip(), s = cityStay(t, d.c), i = $("fHid"), o = $("fHod"); if (!s) return;
+  var k0 = d.k || ""; if (k0 && k0 >= t.from && k0 < t.to){ s = {inD:k0, outD: s.outD > k0 ? s.outD : addD(k0, 1)}; }
+  if (i && !i.value) i.value = s.inD; if (o && !o.value) o.value = s.outD; };
+
+/* карточка дня: свайпом удаляются только задачи — билеты и документы не свайпаются (правятся в своей шторке) */
+var _dayCardNoSw = dayCard;
+dayCard = function(t, d){ return _dayCardNoSw(t, d).replace(/<button class="att" data-sw="[^"]*"/g, '<button class="att"'); };
+
+/* строки и карточки добавления — призыв к действию: «Добавьте …», «Запланируйте …» (меню и кнопки форм не трогаем) */
+(function(){ var SEL = ".stop--add, .addrow, .addcard, .dli, .dashbox, [data-act='dayAddPlace'], [data-act='hotelOpen'].li";
+  var MAP = [[/^Добавить /, "Добавьте "], [/^Запланировать /, "Запланируйте "]];
+  function fix(root){ [].forEach.call((root.querySelectorAll ? root : document).querySelectorAll(SEL), function(el){
+    var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n; while ((n = w.nextNode())){ var s = n.nodeValue, t = s; MAP.forEach(function(m){ t = t.replace(m[0], m[1]); }); if (t !== s) n.nodeValue = t; } }); }
+  var busy = false; new MutationObserver(function(){ if (busy) return; busy = true; try { fix(document); } finally { busy = false; } }).observe(document.body, {childList:true, subtree:true});
+  fix(document); })();
+/* блок чипов в шторке дня — «Добавить» вместо «Ещё в этот день» */
+(function(){ new MutationObserver(function(){ [].forEach.call(document.querySelectorAll("#sheetBody .label"), function(l){ if (l.textContent === "Ещё в этот день") l.textContent = "Дополнительно"; }); }).observe(document.body, {childList:true, subtree:true}); })();
+
+/* шторка дня: один блок «Переезд» — выезд из отеля → транспорт → заезд в отель (+ «Добавьте отель» в день прибытия); «Маршрут дня» перед «Документами» */
+var _openDayMoveBlock = openDay;
+openDay = function(k){ _openDayMoveBlock(k); if (window.PLATES) return;
+  var t = trip(), b = $("sheetBody"); if (!t || !b) return; var g = ro();
+  var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {k:k};
+  var hs = Object.keys(t.hotels).map(function(c){ return [c, t.hotels[c]]; }).filter(function(x){ return x[1] && x[1].name; });
+  var out = hs.filter(function(x){ return x[1].outD === k; })[0], inn = hs.filter(function(x){ return x[1].inD === k; })[0], add = hotelAddFor(t, d);
+  function hRow(x, kind){ var h = x[1], sub = kind === "out" ? 'Выезд'+(h.outT ? ' до '+h.outT : '') : 'Заезд'+(h.inT ? ' с '+h.inT : '');
+    return '<button class="stop" data-act="hotelOpen" data-c="'+esc(x[0])+'"'+(g ? '' : swAttr("hotel", x[0]))+'><span class="stop__n is-home">'+ill("hotel")+'</span><span class="stop__tx"><b>'+esc(h.name)+'</b><small>'+esc(sub)+'</small></span></button>'; }
+  var sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0];
+  if (!sec && (out || inn || add)){ var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head") && !c.classList.contains("warn"); })[0];
+    var html = '<div><p class="label">Переезд</p><div class="stops">'+(g ? '' : '<button class="stop stop--add" data-act="moveSheet" data-k="'+k+'" data-i="-1"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить переезд</span></button>')+'</div></div>';
+    if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html);
+    sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0]; }
+  if (sec){ var st = sec.querySelector(".stops"), addMove = st.querySelector(".stop--add");
+    if (out) st.insertAdjacentHTML("afterbegin", hRow(out, "out"));
+    if (inn){ if (addMove) addMove.insertAdjacentHTML("beforebegin", hRow(inn, "in")); else st.insertAdjacentHTML("beforeend", hRow(inn, "in")); }
+    if (add && !g) st.insertAdjacentHTML("beforeend", '<button class="stop stop--add" data-act="hotelOpen" data-c="'+esc(add.key)+'" data-k="'+k+'"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить отель'+(add.sub ? '<small>'+esc(add.sub)+'</small>' : '')+'</span></button>'); }
+  var lab = function(name){ return [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === name; })[0]; };
+  if (sec){ var qm = b.querySelector('.qadds [data-act="moveSheet"]'); if (qm){ var qw = qm.closest(".qadds-wrap"); qm.remove(); if (qw && !qw.querySelector(".qadd")) qw.remove(); } }
+  var route = lab("Маршрут дня"), docs = lab("Документы"); if (route && docs && docs.compareDocumentPosition(route) & Node.DOCUMENT_POSITION_FOLLOWING) b.insertBefore(route, docs);
+};
+
+/* загрузки билетов пока нет — «Новая поездка» сразу открывает мастер (без экранов «Загрузить билеты» / «Нашли в билетах») */
+A.newTrip = function(){ S.W = {q:"", country:null, from:"", to:"", cities:[], edit:false}; go("wizard", {step:0}); };
+
+/* отель удаляется свайпом влево — в блоке «Переезд» шторки дня и в списке «Отели»; с подтверждением */
+var _SCRhotelsSw = SCR.hotels;
+SCR.hotels = function(r){ var v = _SCRhotelsSw(r); if (!ro() && v && v.view) v.view = v.view.replace(/<(div|button) class="(hotel|stay)" data-act="hotelOpen" data-c="([^"]*)"/g, function(m, tg, cl, c){ var t = trip(r.trip), key = c.replace(/&quot;/g, '"').replace(/&amp;/g, "&"); var hk = t.hotels[key] ? key : (t.cities.length ? null : Object.keys(t.hotels)[0]); return hk && t.hotels[hk].name ? '<'+tg+' class="'+cl+'" data-act="hotelOpen" data-c="'+c+'" data-sw="hotel:'+esc(hk)+'"' : m; }); return v; };
+var _swDelHotel = swDelete;
+swDelete = function(el){ var k = el.getAttribute("data-sw").split(":"); if (k[0] !== "hotel") return _swDelHotel(el);
+  var c = k.slice(1).join(":"), t = trip(), h = t.hotels[c]; if (!h) return;
+  ask("Удалить отель?", "«"+h.name+"» пропадёт у всех участников поездки.", null, "Удалить", function(){
+    delete t.hotels[c]; swOpen = null; refresh(); if ($("sheet") && $("sheet").classList.contains("is-open") && S.day) openDay(S.day); toast("Отель удалён"); }, true);
+  swSet(el, false); };
+
+/* ===== переезды между днями: плашка в ленте + шторка переезда ===== */
+window.PLATES = true;
+function rawVisits(t){ var cities = t.cities.map(function(c){ return c.n; }), vs = [], last = null;
+  tripDays(t).forEach(function(d){ var c = t.cities.length ? d.city : t.country; if (!c) return; if (!last || last.c !== c){ last = {c:c, days:[]}; vs.push(last); } last.days.push(d.k); });
+  return vs; }
+function transitions(t){
+  var vs = rawVisits(t), cities = t.cities.map(function(c){ return c.n; }), out = [], hs = Object.keys(t.hotels).map(function(c){ return [c, t.hotels[c]]; }).filter(function(x){ return x[1] && x[1].name; });
+  vs.forEach(function(v, i){ var A = i ? vs[i-1].c : null, B = v.c, kB = v.days[0], w0 = i ? vs[i-1].days[vs[i-1].days.length-1] : kB;
+    var kUp = i ? kB : addD(kB, 1), win = Object.keys(t.moves).filter(function(k){ return k >= (i ? w0 : "0") && k <= kUp; }).sort(), legsAll = [], m = null;
+    var exact = win.filter(function(k){ return legs(t, k).some(function(l){ return city(l.to) === B; }); });
+    var useDays = exact.length ? exact : win.filter(function(k){ return legs(t, k).some(function(l){ return !A || city(l.to) !== A; }); });
+    if (!i){ exact = exact.filter(function(k){ return k <= kB || legs(t, k).some(function(l){ return city(l.from) !== B && l.depD && l.depD <= kB; }) || k === addD(kB, 1) && legs(t, k).every(function(l){ return city(l.from) !== B; }); }); useDays = exact.length ? exact : useDays.filter(function(k){ return k === kB; }); }
+    useDays.forEach(function(k){ legs(t, k).forEach(function(l, j){ if (!exact.length && A && city(l.to) === A && city(l.from) !== A) return; legsAll.push({v:l, k:k, i:j}); }); if (!m) m = k; });
+    var arr = legsAll.reduce(function(a, x){ return x.v.arrD && x.v.arrD > a ? x.v.arrD : a; }, m || kB);
+    var outH = A ? hs.filter(function(x){ return x[1].outD && x[1].outD >= w0 && x[1].outD <= kB; }) : [];
+    var inH = hs.filter(function(x){ return x[1].inD && x[1].inD >= (i ? w0 : kB) && x[1].inD <= addD(arr, 0) && x[0] === B; });
+    out.push({i:i, from:A, to:B, kB:kB, w0:w0, m:m, arr:arr, legs:legsAll, out:outH, inn:inH}); });
+  var lv = vs[vs.length-1]; if (lv){ var lk = lv.days[lv.days.length-1], dl = legs(t, lk).map(function(l, j){ return {v:l, k:lk, i:j}; }).filter(function(x){ return cities.indexOf(city(x.v.to)) < 0; });
+    dl.sort(function(a, b){ var ka = (a.v.depD || a.k)+" "+(a.v.dep || ""), kb = (b.v.depD || b.k)+" "+(b.v.dep || ""); return ka < kb ? -1 : ka > kb ? 1 : 0; });
+    if (dl.length || true){ var lastTo = dl.length ? city(dl[dl.length-1].v.to) : ""; out.end = {i:"end", from:lv.c, to:lastTo, kB:lk, w0:lk, m:lk, arr:lk, legs:dl, out:hs.filter(function(x){ return x[1].outD === lk || x[1].outD === t.to; }), inn:[]}; } }
+  return out; }
+function transLegKeys(t){ var tr = transitions(t), map = {}; tr.concat(tr.end ? [tr.end] : []).forEach(function(x){ x.legs.forEach(function(l){ map[l.k+"|"+l.i] = 1; }); }); return map; }
+function movesWithout(t){ var keys = transLegKeys(t), mv = {}; Object.keys(t.moves).forEach(function(k){ var ls = (t.moves[k] || []).filter(function(l, j){ return !keys[k+"|"+j]; }); if (ls.length) mv[k] = ls; }); return mv; }
+function trTitle(x){ if (!x.to) return x.from+' → домой'; return x.from ? x.from+' → '+x.to : (x.legs.length ? city(x.legs[0].v.from)+' → '+x.to : 'Переезд в '+x.to); }
+function trHotelRow(x, kind){ var h = x[1], sub = kind === "out" ? 'Выезд'+(h.outT ? ' до '+h.outT : '') : 'Заезд'+(h.inT ? ' с '+h.inT : ''); return li(ill("hotel"), esc(h.name), esc(sub)); }
+function trKey(x){ return "tr:"+(x.i === "end" ? "end" : x.kB); }
+function trItems(t, x){ var k = trKey(x); return {ts:t.checks.filter(function(c){ return c.day === k; }), ds:t.docs.filter(function(d){ return d.day === k && (d.vis === "all" || d.owner === S.me); })}; }
+function plateHtml(t, x, key){ if (!x) return "";
+  var it = trItems(t, x), its = it.ts.filter(function(c){ return !c.done || (S.jd && S.jd[c.id]); });
+  var extra = (its.length ? '<div class="check tasks">'+its.map(function(c){ return checkItem(t, c, false); }).join("")+'</div>' : '')+it.ds.map(function(d){ return attRow(t, d).replace(/ data-sw="[^"]*"/, ""); }).join("");
+  var filled = x.legs.length || x.out.length || x.inn.length || extra;
+  var lbl = '<p class="day__lbl day__lbl--tr">'+esc(trLabel(x))+'</p>';
+  if (!filled){ if (ro()) return ""; return '<section class="dayw dayw--plate">'+lbl+'<div class="dashl dashl--plate"><span class="day__badge">'+badge("Переезд").replace('class="badge"', 'class="badge badge--move"')+'</span>'+dli("transOpen", ' data-t="'+key+'"', "Заполните переезд", "билеты, отели, документы")+'</div></section>'; }
+  var rows = trRows(t, x).map(function(r){ return r.kind === "leg" ? legRow(r.l.v, r.l.k) : trHotelRow(r.h, r.kind); }).join("");
+  return '<section class="dayw dayw--plate">'+lbl+'<article class="day" data-act="transOpen" data-t="'+key+'"><span class="day__badge"><span class="badge badge--move">Переезд</span></span>'+(rows ? '<div class="sum">'+rows+'</div>' : '')+(x.m ? nightWarn(t, x.m, x.to) : "")+extra+'</article></section>'; }
+/* карточка дня: без переездов между городами, отелей и предупреждения — всё это в плашке */
+var _dayCardPl = dayCard;
+dayCard = function(t, d){ var t2 = Object.assign({}, t, {moves:movesWithout(t)}); var h = _dayCardPl(t2, d);
+  if (d.city) h = h.replace(/<span class="badge badge--move">Переезд<\/span>/, badge(d.city));
+  return h.replace(/<button class="dli" data-act="moveSheet"[^]*?<\/button>/g, "").replace(/<button class="li" data-act="moveSheet"[^]*?<\/button>/g, ""); };
+/* шторка дня: только поездки внутри дня; переезд между городами — в шторке переезда */
+var _openDayPl = openDay;
+openDay = function(k){ if (S.trans != null) return openTrans(S.trans); var t = trip(); if (!t) return _openDayPl(k);
+  _openDayPl(k); /* данные не трогаем: строки переезда между городами убираем из разметки */
+  var b = $("sheetBody"); if (!b) return; var tk = transLegKeys(t);
+  [].forEach.call(b.querySelectorAll('[data-act="moveSheet"][data-k][data-i]'), function(x){ if (tk[x.getAttribute("data-k")+"|"+x.getAttribute("data-i")]) x.remove(); });
+  [].forEach.call(b.querySelectorAll(".stops"), function(st){ var sec = st.parentNode, l = sec && sec.querySelector(":scope > .label"); if (l && l.textContent === "Переезд" && !st.querySelector('.stop:not(.stop--add)')){ var only = !st.querySelector('.stop--add:not([data-act="moveSheet"])'); if (only) sec.remove(); } });
+  var hd = b.querySelector(".sh-head .wrap--move"), dd = tripDays(t).filter(function(x){ return x.k === k; })[0]; if (hd){ if (dd && dd.city){ hd.outerHTML = '<div class="wrap">'+badge(dd.city)+'</div>'; } else hd.remove(); }
+  [].forEach.call(b.querySelectorAll('.stop--add[data-act="moveSheet"], .addcard[data-act="moveSheet"]'), function(x){ if (x.textContent.indexOf("→") >= 0) x.remove(); });
+  [].slice.call(b.children).forEach(function(sec){ var l = sec.querySelector(":scope > .label"); if (l && l.textContent === "Переезд" && sec.children.length === 1) sec.remove(); });
+  [].slice.call(b.children).forEach(function(sec){ var l = sec.querySelector(":scope > .label"); if (l && l.textContent === "Переезд"){ var st = sec.querySelector(".stops"); if (st && !st.querySelector(".stop:not(.stop--add)")) sec.remove(); } });
+  var qm = b.querySelector('.qadds [data-act="moveSheet"]'); if (qm){ var qw = qm.closest(".qadds-wrap"); qm.remove(); if (qw && !qw.querySelector(".qadd")) qw.remove(); }
+  [].forEach.call(b.querySelectorAll(".daywarn"), function(w){ w.remove(); }); };
+function openTrans(key){ var t = trip(); if (!t) return; var tr = transitions(t), x = key === "end" ? tr.end : tr[+key]; if (!x){ S.trans = null; return; }
+  S.trans = key; S.day = trKey(x); var g = ro(), it = trItems(t, x);
+  var dates = x.legs.length ? dmRange(x.legs.map(function(z){ return z.v.depD || z.k; }).sort()[0], x.legs.map(function(z){ return z.v.arrD || z.v.depD || z.k; }).sort().pop()) : _dmTr(x.m || x.kB);
+  var h = '<div class="sh-head"><p class="sh-kicker">'+dates+'</p><h2 class="sh-title">Переезд</h2><div class="wrap wrap--move">'+(x.from ? badge(x.from)+(x.to ? '<span class="badge-arrow" aria-label="в">'+SVG_ARR+'</span>' : '') : '')+(x.to ? badge(x.to) : '')+'</div></div>';
+  if (x.m){ var w = nightWarn(t, x.m, x.to); if (w) h += w; }
+  var hrow = function(hh, kind){ var hz = hh[1], sub = kind === "out" ? 'Выезд'+(hz.outT ? ' до '+hz.outT : '') : 'Заезд'+(hz.inT ? ' с '+hz.inT : ''); return '<button class="stop" data-act="hotelOpen" data-c="'+esc(hh[0])+'"'+(g ? '' : swAttr("hotel", hh[0]))+'><span class="stop__n is-home">'+ill("hotel")+'</span><span class="stop__tx"><b>'+esc(hz.name)+'</b><small>'+esc(sub)+'</small></span></button>'; };
+  var lrow = function(l){ var v = l.v; return '<button class="stop" data-act="moveSheet" data-k="'+l.k+'" data-i="'+l.i+'"'+(g ? '' : swAttr("move", l.k+"|"+l.i))+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, l.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; };
+  var add = function(act, attr, label){ return '<button class="stop stop--add" data-act="'+act+'"'+attr+'><span class="stop__n">'+IC.add+'</span><span class="stop__tx">'+label+'</span></button>'; };
+  h += '<div><p class="label">Переезд</p><div class="stops" id="trList">'+(function(){ var rs = trRows(t, x), gr = !g && rs.length > 1 ? '<span class="tgrip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>' : ""; return rs.map(function(r, n){ var hh = r.kind === "leg" ? lrow(r.l) : hrow(r.h, r.kind); return hh.replace(/<\/button>$/, gr+"</button>").replace("<button ", '<button data-tr="'+r.key+'" '); }).join(""); })()+
+    (g ? '' : add("moveSheet", ' data-k="'+(x.m || x.kB)+'" data-i="-1"', "Добавить переезд")+(key === "end" ? '' : add("hotelOpen", ' data-c="'+esc(x.to)+'" data-k="'+x.arr+'"', "Добавить отель")))+'</div></div>';
+  if (it.ts.length) h += '<div><p class="label">Задачи</p><div class="stops"><div class="check tasks tasks--in">'+it.ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>'+(g ? '' : add("addTask", "", "Добавить задачу"))+'</div></div>';
+  if (it.ds.length) h += '<div><p class="label">Документы</p><div class="stops">'+it.ds.map(function(d){ return '<button class="stop" data-act="docSheet" data-id="'+d.id+'"'+(g ? '' : swAttr("doc", d.id))+'><span class="stop__n is-home">'+ill(d.type === "Билет" ? "ticket" : "doc")+'</span><span class="stop__tx"><b>'+esc(d.title)+'</b><small>'+esc(docSub(t, d))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+(g ? '' : add("addDocDay", "", "Добавить документ"))+'</div></div>';
+  var qc = (it.ts.length ? '' : '<button class="qadd glass" data-act="addTask">'+IC.add+'Задача</button>')+(it.ds.length ? '' : '<button class="qadd glass" data-act="addDocDay">'+IC.add+'Документ</button>');
+  if (!g && qc) h += '<div class="qadds-wrap"><p class="label">Дополнительно</p><div class="qadds">'+qc+'</div></div>';
+  $("sheetBody").innerHTML = h; var m = $("sheetMap"); if (m) m.hidden = true; if ($("sheetAdd")) $("sheetAdd").hidden = true;
+  if (!$("sheet").classList.contains("is-open")){ $("sheet").classList.add("is-open"); $("sheetOverlay").classList.add("is-open"); $("sheetBody").scrollTop = 0; } }
+A.transOpen = function(d){ openTrans(d.t); };
+var _AopenDayPl = A.openDay; A.openDay = function(d, el, e){ S.trans = null; return _AopenDayPl(d, el, e); };
+var _closeDayPl = closeDay; closeDay = function(){ S.trans = null; return _closeDayPl.apply(this, arguments); };
+
+/* привязка задач и документов к переезду: day = "tr:<первый день города>" или "tr:end" */
+function trByKey(t, k){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []); return all.filter(function(x){ return trKey(x) === k; })[0]; }
+var _dmTr = dm; dm = function(s){ if (typeof s === "string" && s.indexOf("tr:") === 0){ var t = trip(), x = t && trByKey(t, s); return x ? trOpt(x).replace(/^П/, "п") : "переезд"; } return _dmTr.apply(this, arguments); };
+var _dayOptsTr = dayOpts; dayOpts = function(t, sel, none){ var h = _dayOptsTr(t, sel, none), tr = transitions(t);
+  tr.forEach(function(x){ var k = trKey(x), o = '<option value="'+k+'"'+(k === sel ? ' selected' : '')+'>'+esc(trOpt(x))+'</option>'; h = h.replace('<option value="'+x.kB+'"', o+'<option value="'+x.kB+'"'); });
+  if (tr.end){ var ke = trKey(tr.end); h += '<option value="'+ke+'"'+(ke === sel ? ' selected' : '')+'>'+esc(trOpt(tr.end))+'</option>'; }
+  return h; };
+function trOpt(x){ var n = trTitle(x); return /^Переезд/.test(n) ? n : "Переезд "+n; }
+
+var MON3 = ["янв","фев","мар","апр","мая","июн","июл","авг","сен","окт","ноя","дек"];
+function dShort(k){ var d = D(k); return d.getDate()+" "+MON3[d.getMonth()]; }
+function trLabel(x){ var A = x.from || (x.legs.length ? city(x.legs[0].v.from) : null), B = x.to; if (!B) return A+" → домой";
+  if (!x.legs.length) return A ? A+" → "+B : "Переезд в "+B;
+  var d0 = x.legs.map(function(z){ return z.v.depD || z.k; }).sort()[0], d1 = x.legs.map(function(z){ return z.v.arrD || z.v.depD || z.k; }).sort().pop();
+  var x0 = D(d0), x1 = D(d1), dt = d0 === d1 ? _dmTr(d0) : (x0.getMonth() === x1.getMonth() ? x0.getDate()+"–"+_dmTr(d1) : _dmTr(d0)+" – "+_dmTr(d1));
+  return dt+", "+A+" → "+B; }
+
+/* ===== единый вид форм-шторок (по макетам «Шторки и формы») ===== */
+(function(){
+  function fl(id){ var e = $(id); return e && e.closest(".fld"); }
+  function blk(id){ var f = fl(id); if (!f) return null; var p = f.parentNode; return p && p.classList && p.classList.contains("inline") ? p : f; }
+  function lab(id, t){ var f = fl(id), l = f && f.querySelector(".label"); if (l) l.textContent = t; }
+  function pair(a, b){ var fa = fl(a), fb = fl(b); if (!fa || !fb) return null; var row = document.createElement("div"); row.className = "inline"; var pa = fa.parentNode, pb = fb.parentNode; fa.parentNode.insertBefore(row, fa); row.appendChild(fa); row.appendChild(fb); [pa, pb].forEach(function(p){ if (p !== row && p.classList && p.classList.contains("inline") && !p.children.length) p.remove(); }); return row; }
+  function after(node, ref){ if (node && ref && ref.parentNode) ref.parentNode.insertBefore(node, ref.nextSibling); }
+  function last(node){ if (node && node.parentNode) node.parentNode.appendChild(node); }
+  function longText(id){ var e = $(id); if (!e) return; if (e.tagName !== "TEXTAREA"){ var ta = document.createElement("textarea"); ta.className = e.className; ta.id = e.id; ta.value = e.value; e.parentNode.replaceChild(ta, e); e = ta; }
+    e.classList.add("in--long"); e.rows = 4; e.placeholder = "Можно подробно: детали, ссылки, заметки"; }
+  function seg2(selId, label, segId){ var s = $(selId); if (!s) return; var f = s.closest(".fld"); var w = document.createElement("div"); w.className = "fld fld--seg";
+    w.innerHTML = '<p class="label">'+label+'</p>'+seg(segId || "docTySeg", [].map.call(s.options, function(o){ return [o.value, o.textContent]; }), s.value);
+    w.addEventListener("click", function(e){ var c = e.target.closest("[data-v]"); if (!c) return; s.value = c.getAttribute("data-v"); s.dispatchEvent(new Event("change", {bubbles:true})); setTimeout(function(){ [].forEach.call(document.querySelectorAll("#fBody .fld--seg"), function(w2){ var sl = w2.querySelector("select"), sg = w2.querySelector(".chips--seg"); if (sl && sg && sg.id) A.segPick({seg:sg.id, v:sl.value}); }); }, 0); });
+    var row = f.parentNode.classList.contains("inline") ? f.parentNode : null; (row || f).parentNode.insertBefore(w, row || f); w.appendChild(f); f.hidden = true; }
+  function unify(){ var b = $("fBody"); if (!b) return;
+    if ($("fEt") && $("fEp")){ after(blk("fEp"), blk("fEt")); }
+    if ($("fCt") && $("fCw") && $("fCd")){ lab("fCt", "Название"); lab("fCw", "Для кого"); lab("fCd", "Дата"); lab("fCg", "Добавить в раздел");
+      var r = pair("fCd", "fCw"); after(r, blk("fCt")); var g = blk("fCg"); after(g, r); var nw = $("fCnew") && blk("fCnew"); if (nw && nw !== g) after(nw, g); longText("fCs"); last(blk("fCs")); }
+    if ($("fDt") && $("fDty")){ lab("fDo", "Для кого"); lab("fDd", "Дата"); lab("fDv", "Видимость");
+      var v = $("fDv"); if (v) [].forEach.call(v.options, function(o){ if (o.value === "all") o.textContent = "Все"; if (o.value === "me") o.textContent = "Только я"; });
+      lab("fDo", "Чей документ");
+      var r2 = pair("fDd", "fDo"); seg2("fDty", "Тип документа"); var sg = b.querySelector(".fld--seg"); var nm = blk("fDt"); nm.parentNode.insertBefore(sg, nm); after(r2, nm);
+      seg2("fDv", "Кто видит", "docVisSeg"); var vs = b.querySelectorAll(".fld--seg")[1]; after(vs, r2); after(blk("fDl"), vs);
+      [].forEach.call(b.querySelectorAll(".hint"), function(h){ if (/Полис/.test(h.textContent)) h.remove(); }); }
+    if ($("fPday") && $("fPt")){ lab("fPday", "Дата");
+      var pd = $("fPday"); if (pd.tagName === "INPUT"){ var t0 = trip(), sl = document.createElement("select"); sl.className = "in"; sl.id = "fPday"; sl.innerHTML = (pd.value ? "" : '<option value="">Без даты</option>')+_dayOptsTr(t0, pd.value, ""); pd.parentNode.replaceChild(sl, pd); } var r3 = pair("fPday", "fPt"); longText("fPnote"); last(blk("fPnote")); }
+    if ($("fMdD") && $("fMaD")){ lab("fMdD", "Дата отправления"); lab("fMaD", "Дата прибытия"); longText("fMn"); var fc = $("fMfCard") || ($("fMfile") && blk("fMfile")); last(blk("fMn"));
+      var del = b.querySelector('[data-act="moveDel"]'); if (del){ var st = del.parentNode; del.remove(); if (st && st.classList.contains("stack") && !st.querySelector("button")) st.remove(); S.fMore = [["moveDel", "Удалить"]]; $("fMore").hidden = false; if (typeof nativeSync === "function") nativeSync(); } }
+    if ($("fHid") && $("fHod")){ lab("fHid", "Дата заезда"); lab("fHod", "Дата выезда"); }
+    [].forEach.call(b.querySelectorAll(".inline"), function(r){ if (![].some.call(r.children, function(c){ return !c.hidden && getComputedStyle(c).display !== "none"; })) r.remove(); });
+    [].forEach.call(b.querySelectorAll("textarea.in--long"), function(t){ if (typeof taFit === "function"){ taFit(t); t.addEventListener("input", function(){ taFit(t); }); } }); }
+  var _formU = form; form = function(){ var r = _formU.apply(this, arguments); try { unify(); } catch(e){ console.warn(e); } return r; };
+  window.formUnify = unify;
+})();
+
+/* шапки форм: даты в подзаголовке, отель — «Отель», переезд — по городам; удаление отеля в ⋯ */
+function dmRange(d0, d1){ if (!d0) return ""; if (!d1 || d1 === d0) return _dmTr(d0); var x0 = D(d0), x1 = D(d1); return x0.getMonth() === x1.getMonth() ? x0.getDate()+"–"+_dmTr(d1) : _dmTr(d0)+" – "+_dmTr(d1); }
+var _hotelOpenHd = A.hotelOpen;
+A.hotelOpen = function(d, el, e){ _hotelOpenHd(d, el, e); if (!$("fsheet").classList.contains("is-open")) return; var t = trip(), c = d.c, h = t.hotels[c];
+  var upd = function(){ var i = $("fHid"), o = $("fHod"), r = dmRange(i && i.value, o && o.value); $("fSub").textContent = c+(r ? " · "+r : ""); $("fSub").hidden = false; };
+  $("fTitle").textContent = "Отель"; upd(); [].forEach.call(["fHid","fHod"], function(id){ var x = $(id); if (x) x.addEventListener("change", upd); });
+  if (!ro() && h && h.name){ S.fMore = [["hotelDelF", "Удалить"]]; $("fMore").hidden = false; if (typeof nativeSync === "function") nativeSync(); } };
+A.hotelDelF = function(){ var t = trip(), c = S.hcity; closeMenus(); ask("Удалить отель?", "«"+((t.hotels[c] || {}).name || c)+"» пропадёт из поездки.", null, "Удалить", function(){ delete t.hotels[c]; closeForm(); refresh(); toast("Отель удалён"); }, true); };
+var _moveSheetHd = A.moveSheet;
+A.moveSheet = function(d, el, e){ _moveSheetHd(d, el, e); if (!$("fsheet").classList.contains("is-open")) return; var t = trip(), k = d.k, i = +d.i, v = i >= 0 ? legs(t, k)[i] : null;
+  var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(function(z){ return z.legs.some(function(l){ return l.k === k && l.i === i; }); })[0];
+  if (x) $("fTitle").textContent = trTitle(x); else if (v) $("fTitle").textContent = city(v.from)+" → "+city(v.to);
+  var r = v ? dmRange(v.depD || k, v.arrD || v.depD || k) : _dmTr(k); $("fSub").textContent = r; $("fSub").hidden = !r; };
+A.shareSheet = function(){ return A.inviteSheet.apply(this, arguments); };
+
+/* ===== загрузка файлов: лоадер в карточке, билет переезда — в переезд ===== */
+(function(){
+  var SPIN = '<span class="upl-spin" aria-label="Загрузка"></span>';
+  function cardIc(){ var b = $("fBody"); if (!b) return null; var card = b.querySelector("#fDfCard, #fMfCard, #fHfCard"); if (!card){ var inp = b.querySelector('input[type="file"]'); card = inp && inp.closest(".addcard, .att"); }
+    var ic = card && card.querySelector(".addcard__ic, .att__thumb, .li__lead"); return ic || b.querySelector(".att__thumb, .addcard__ic"); }
+  function busy(on){ var ic = cardIc(); if (!ic) return; if (on){ if (ic.getAttribute("data-was") == null) ic.setAttribute("data-was", ic.innerHTML); ic.innerHTML = SPIN; } else if (ic.getAttribute("data-was") != null){ ic.innerHTML = ic.getAttribute("data-was"); ic.removeAttribute("data-was"); }
+    var sv = document.querySelector('[data-act="moveSave"], [data-act="hotelSave"], [data-act="docSave"]'); $("fsheet").classList.toggle("is-busy", !!on); }
+  var _put = putFile; window._putBase = _put; putFile = async function(){ var open = $("fsheet").classList.contains("is-open"); if (open) busy(true); try { return await _put.apply(this, arguments); } finally { if (open) busy(false); } };
+  window.uplBusy = busy;
+  function trKeyFor(t, from, to){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(function(z){ return z.legs.some(function(l){ return l.v.from === from && l.v.to === to; }); })[0];
+    if (x) return trKey(x); var k = Object.keys(t.moves).filter(function(kk){ return legs(t, kk).some(function(l){ return l.from === from && l.to === to; }); })[0]; return k || S.moveK; }
+  var _mv = A.moveSave;
+  A.moveSave = async function(){ if ($("fsheet").classList.contains("is-busy")) return; var f = $("fMfile"), file = f && f.files[0], t = trip(), from = val("fMf"), to = val("fMt");
+    if (!file) return _mv.apply(this, arguments);
+    var id = uid(); if (!(await putFile(t, id, file))) return; try { f.value = ""; } catch(e){}
+    var n0 = t.docs.length; _mv.apply(this, arguments); if (t.docs.length > n0) t.docs.splice(n0);
+    t.docs.push({id:id, title:"Билет "+city(from)+" → "+city(to), type:"Билет", owner:null, vis:"all", day:trKeyFor(t, from, to), file:id}); refresh(); };
+  var _hs = A.hotelSave;
+  A.hotelSave = async function(){ if ($("fsheet").classList.contains("is-busy")) return; var f = $("fHf"), file = f && f.files[0], t = trip(), c = S.hcity;
+    if (!file) return _hs.apply(this, arguments);
+    var id = uid(); if (!(await putFile(t, id, file))) return; try { f.value = ""; } catch(e){}
+    await _hs.apply(this, arguments); var h = t.hotels[c]; if (!h) return;
+    var tr = transitions(t), x = tr.filter(function(z){ return z.inn.some(function(q){ return q[0] === c; }); })[0];
+    t.docs.push({id:id, title:"Бронь · "+h.name, type:"Бронь", owner:null, vis:"all", day:x ? trKey(x) : h.inD, file:id}); refresh(); };
+})();
+/* карточка дня и плашка: документ не перехватывает тап — открывается день/переезд */
+var _wBack = back; back = A.back = function(){ var r = cur(); if (r && r.s === "wizard" && r.step > (S.W && S.W.edit ? 1 : 0)){ r.step--; closeAll(); render(); $("scroll").scrollTop = 0; if (typeof slide === "function") slide(-1); return; } return _wBack.apply(this, arguments); };
+
+/* ===== маршрут дня без отеля ===== */
+routeUrl = function(t, k){ return dirUrl("", t.places[k] || [], ""); };
+/* ===== карточка дня без мест: «Запланируйте день» внутри серой карточки, ниже задачи и документы ===== */
+var _dayCardPlan = dayCard;
+dayCard = function(t, d){ var h = _dayCardPlan(t, d); if (ro() || (t.places[d.k] || []).length) return h; if (h.indexOf('<article class="day"') < 0) return h;
+  var row = '<button class="li li--plan" data-act="openDay" data-k="'+d.k+'"><span class="li__lead">'+ill("sun")+'</span><span class="li__tx"><b>Запланируйте день</b><small>что посмотреть, где поесть</small></span></button>';
+  return h.replace(/(<div class="sum">)/, '$1'+row); };
+/* ===== файлы грузятся сразу после выбора ===== */
+(function(){
+  var _uid = uid; uid = function(){ if (S.nextUid){ var x = S.nextUid; S.nextUid = null; return x; } return _uid(); };
+  S.pre = null;
+  var _addDocPre = A.addDoc; A.addDoc = function(){ S.docMode = "new"; return _addDocPre.apply(this, arguments); };
+  var _docSheetPre = A.docSheet; A.docSheet = function(){ S.docMode = "edit"; return _docSheetPre.apply(this, arguments); };
+  function done(ic, ok, type){ if (!ic) return; ic.removeAttribute("data-was"); ic.innerHTML = ok ? ill(type === "Билет" ? "ticket" : "doc") : IC.add; ic.classList.toggle("is-ill", !!ok); }
+  document.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.type !== "file" || !inp.closest("#fBody") || ["fDf","fMfile","fHf"].indexOf(inp.id) < 0) return; var f = inp.files[0]; if (!f) return;
+    var t = trip(), id = inp.id === "fDf" && S.docMode === "edit" && S.docId ? S.docId : _uid();
+    var card = (inp.id === "fDf" && $("fDfCard")) || inp.closest(".addcard, .att") || $("fDfCard") || $("fMfCard") || $("fHfCard"), ic = card && card.querySelector(".addcard__ic, .att__thumb, .li__lead");
+    if (ic){ if (ic.getAttribute("data-was") == null) ic.setAttribute("data-was", ic.innerHTML); ic.innerHTML = '<span class="upl-spin" aria-label="Загрузка"></span>'; }
+    $("fsheet").classList.add("is-busy");
+    var type = inp.id === "fMfile" ? "Билет" : inp.id === "fDf" ? ($("fDty") ? $("fDty").value : "") : "Бронь";
+    var pr = { file:f, id:id, ok:null }; S.pre = pr;
+    pr.promise = (async function(){ var ok = false; try { ok = await window._putRaw(t, id, f); } catch(err){} pr.ok = ok; if (S.pre === pr){ $("fsheet").classList.remove("is-busy"); done(ic, ok, type); } if (!ok && S.pre === pr) S.pre = null; return ok; })(); }, true);
+  window._putRaw = function(t, id, f){ return _putBase(t, id, f); };
+  /* putFile: если файл уже грузится/загружен с тем же id — ждём его, иначе обычная загрузка */
+  var _putFileWrapped = putFile;
+  putFile = async function(t, docId, f){ var pr = S.pre; if (pr && pr.file === f){ var ok = await pr.promise; if (ok && pr.id === docId){ S.pre = null; return true; } } return _putFileWrapped.apply(this, arguments); };
+  /* save-обработчики: используем id предзагрузки */
+  var _ms = A.moveSave; A.moveSave = function(){ var f = $("fMfile"), pr = S.pre; if (f && f.files[0] && pr && pr.file === f.files[0]) S.nextUid = pr.id; return _ms.apply(this, arguments); };
+  var _hs = A.hotelSave; A.hotelSave = function(){ var f = $("fHf"), pr = S.pre; if (f && f.files[0] && pr && pr.file === f.files[0]) S.nextUid = pr.id; return _hs.apply(this, arguments); };
+  var _ds = A.docSave; A.docSave = function(){ var f = $("fDf"), pr = S.pre; if (S.docMode !== "edit" && f && f.files[0] && pr && pr.file === f.files[0]) S.nextUid = pr.id; return _ds.apply(this, arguments); };
+  var _cf = closeForm; closeForm = function(){ $("fsheet").classList.remove("is-busy"); return _cf.apply(this, arguments); };
+})();
+
+/* ===== порядок строк в переезде: по времени, можно перетаскивать ===== */
+function trRows(t, x){
+  var lg = x.legs.slice().sort(function(a, b){ var ka = (a.v.depD || a.k)+" "+(a.v.dep || ""), kb = (b.v.depD || b.k)+" "+(b.v.dep || ""); return ka < kb ? -1 : ka > kb ? 1 : 0; });
+  var rs = x.out.map(function(h){ return {kind:"out", h:h, key:"out|"+h[0], o:h[1].oOut}; })
+    .concat(lg.map(function(l){ return {kind:"leg", l:l, key:"leg|"+l.k+"|"+l.i, o:l.v.o}; }))
+    .concat(x.inn.map(function(h){ return {kind:"in", h:h, key:"in|"+h[0], o:h[1].oIn}; }));
+  var has = rs.some(function(r){ return typeof r.o === "number"; });
+  if (!has) return rs;
+  var mx = Math.max.apply(null, rs.map(function(r){ return typeof r.o === "number" ? r.o : -1; }));
+  rs.forEach(function(r, i){ r.d = i; if (typeof r.o !== "number") r.o = mx + 1 + i; });
+  return rs.sort(function(a, b){ return a.o - b.o || a.d - b.d; });
+}
+(function(){
+  var drag = null, skipClick = false;
+  document.addEventListener("pointerdown", function(e){ var gp = e.target.closest && e.target.closest(".tgrip"); if (!gp) return; e.preventDefault(); e.stopPropagation();
+    var row = gp.closest("[data-tr]"), list = row && row.parentNode; if (!row) return;
+    var r0 = row.getBoundingClientRect(); drag = {row:row, list:list, y0:e.clientY, top:r0.top, h:r0.height}; row.classList.add("is-drag"); skipClick = true;
+    try { gp.setPointerCapture(e.pointerId); } catch(_){} }, true);
+  document.addEventListener("pointermove", function(e){ if (!drag) return; e.preventDefault(); var dy = e.clientY - drag.y0; drag.row.style.transform = "translateY("+dy+"px)";
+    var rows = [].slice.call(drag.list.querySelectorAll(":scope > [data-tr]")), cy = drag.top + drag.h/2 + dy;
+    rows.forEach(function(r){ if (r === drag.row) return; var b = r.getBoundingClientRect(), mid = b.top + b.height/2, idx = rows.indexOf(r), me = rows.indexOf(drag.row);
+      if (idx < me && cy < mid){ drag.list.insertBefore(drag.row, r); drag.top -= b.height; drag.y0 -= b.height; drag.row.style.transform = "translateY("+(e.clientY - drag.y0)+"px)"; }
+      else if (idx > me && cy > mid){ drag.list.insertBefore(drag.row, r.nextSibling); drag.top += b.height; drag.y0 += b.height; drag.row.style.transform = "translateY("+(e.clientY - drag.y0)+"px)"; } }); }, true);
+  function end(){ if (!drag) return; var d = drag; drag = null; d.row.style.transform = ""; d.row.classList.remove("is-drag");
+    var t = trip(); [].forEach.call(d.list.querySelectorAll(":scope > [data-tr]"), function(r, i){ var p = r.getAttribute("data-tr").split("|");
+      if (p[0] === "leg"){ var lv = legs(t, p[1])[+p[2]]; if (lv) lv.o = i; } else { var h = t.hotels[p.slice(1).join("|")]; if (h){ if (p[0] === "out") h.oOut = i; else h.oIn = i; } } });
+    if (typeof schedule === "function") schedule(); render(); setTimeout(function(){ skipClick = false; }, 50); }
+  document.addEventListener("pointerup", end, true); document.addEventListener("pointercancel", end, true);
+  document.addEventListener("click", function(e){ if (skipClick && e.target.closest && e.target.closest("#trList")){ e.stopPropagation(); e.preventDefault(); skipClick = false; } }, true);
+})();
+/* ===== крестик в большом поле описания ===== */
+(function(){ new MutationObserver(function(){ [].forEach.call(document.querySelectorAll("#fBody textarea.in--long:not([data-clr])"), function(ta){ ta.setAttribute("data-clr", "1");
+    var b = document.createElement("span"); b.className = "fbox fbox--ta"; ta.parentNode.insertBefore(b, ta); b.appendChild(ta);
+    b.insertAdjacentHTML("beforeend", '<button type="button" class="fbox__clr" tabindex="-1" aria-label="Очистить">'+IC.x+'</button>');
+    var sync = function(){ b.classList.toggle("is-filled", !!ta.value); }; sync(); ta.addEventListener("input", sync);
+    b.querySelector(".fbox__clr").addEventListener("mousedown", function(e){ e.preventDefault(); });
+    b.querySelector(".fbox__clr").onclick = function(e){ e.preventDefault(); e.stopPropagation(); ta.value = ""; ta.dispatchEvent(new Event("input", {bubbles:true})); ta.focus(); sync(); }; }); }).observe(document.body, {childList:true, subtree:true}); })();
+
+/* «Ночь без жилья»: только если заезд позже прибытия (оба времени известны) */
+nightWarn = function(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) return ""; var v = ov[ov.length-1], ad = tripDays(t).filter(function(x){ return x.k === v.arrD; })[0], h = t.hotels[(ad && ad.city) || cityName];
+  if (!h || h.inD !== v.arrD || !v.arr || !h.inT || v.arr >= h.inT) return "";
+  var tail = v.arr < "06:00" ? "ночь без жилья" : (function(){ var a = v.arr.split(":"), b = h.inT.split(":"), m = (+b[0]*60 + +b[1]) - (+a[0]*60 + +a[1]), hh = Math.floor(m/60), mm = m % 60; return (hh ? hh+" ч" : "")+(mm ? (hh ? " " : "")+mm+" мин" : "")+" без жилья"; })();
+  return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд с '+esc(h.inT)+' — '+tail+'</p>'; };
 
 </script>
 </body>
