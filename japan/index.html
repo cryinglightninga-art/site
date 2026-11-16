@@ -2078,7 +2078,7 @@ SCR.checklist = function(r){
     h += items.length ? '<div class="check">'+items.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>' : (g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Пункт</b><span class="hint">можно назначить человеку и привязать к дню</span>', "addCheckHere"));
     if (!g && l) h += '<button class="linkbtn" data-act="listMenu">Переименовать или удалить раздел «'+esc(l.name)+'»</button>';
   }
-  if (!g && !all) h += '<button class="stay" data-act="suggestList">'+ill("checklist","stay__ill")+'<div class="stay__tx"><p class="stay__hotel">Подсказать пункты</p><p class="stay__meta">Типовые для страны '+esc(t.country)+' — лишнее удалите</p></div></button>';
+  /* «Подсказать пункты» убрано */
   return {title:"Чек-лист", ill:"checklist", sub:all?done+' из '+all:'', back:true, right:g?'':gbtn("addCheckHere", SVG.plus, "Добавить", "btn-acc"), chips:chips, tabs:false, view:h+'</div>'};
 };
 SCR.visa = function(r){
