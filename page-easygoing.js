@@ -83,9 +83,13 @@
   var STAGE = ['trips', 'plan', 'day'];
 
   // The gallery, in the order a trip is actually made and then run.
-  var RAIL = ['01-trips', '13-new', '14-tickets', '15-country', '16-cities',
-              '17-mates', '18-created', '48-empty', '02-plan', '05-day',
-              '03-files', '08-hotels', '09-docs', '10-money', '11-checklist'];
+  // Каждый ключ — имя макета в Figma: 01 Мои поездки, 15 Мастер — Страна,
+  // 16 Города и ночи, 17 Попутчики, 18 Поездка создана, 48 Поездка — пусто,
+  // 02a Задача выполнена, 05 Шторка дня, 03 Мои файлы, 08 Отели,
+  // 09 Документы, 10a Деньги — конвертация, 11 Чек-лист, 06 Шторка места.
+  var RAIL = ['01-trips', '15-country', '16-cities', '17-mates', '18-created',
+              '48-empty', '02a-done', '05-day', '03-files', '08-hotels',
+              '09-docs', '10a-exchange', '11-checklist', '06-place'];
 
   // The promo clip opens the gallery. Set it when the file lands.
   var PROMO = null;
