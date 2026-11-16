@@ -20,16 +20,35 @@
       typeLabel: 'Проект',
       title: 'EasyGoing — планировщик совместных поездок',
       meta: [
-        { label: 'Роль', value: 'Product Designer' },
+        { label: 'Роль', value: 'Creator & Product Designer' },
         { label: 'Год', value: '2026' },
         { label: 'Команда', value: 'Личный проект' },
         { label: 'Задача', value: 'Собрать план поездки и работу над ним в одном месте' }
       ],
-      taskLabel: 'Задача',
-      taskText: 'Маршрут, отели, билеты, документы, виза и общие траты обычно разбросаны по заметкам, чатам и почте. Нужен продукт, где поездку в любую страну создаёшь за пару шагов, планируешь по дням и ведёшь вместе с попутчиками.',
-      designLabel: 'Дизайн',
-      designText: 'Начала не с экранов, а с того, как поездку собирают сейчас: маршрут живёт в заметках, билеты — в почте, брони — в чатах, а общие траты выясняются постфактум в переписке. Я разложила этот путь на доске как есть, рядом собрала целевой — вход, создание поездки, план по дням, приглашение попутчиков — и проверила его кликабельным прототипом без визуала, чтобы ошибки в логике вылезли до того, как появится первый макет.',
-      designText2: 'Главный экран — маршрут по дням с переключением между городами; день открывается шторкой, где собраны переезд, задачи, документы и места с картой Google. Пустые разделы не занимают место: сворачиваются в строку быстрых кнопок, а всё, что можно добавить, живёт в одном паттерне пунктирной плашки. То, что не привязано ко дню, ушло во вкладку «Мои файлы» — отели, виза по шагам, документы, чек-лист и общие траты в разных валютах. Совместная работа заложена в саму логику: приглашение по ссылке или QR с ролью «участник» или «гость», личные документы по умолчанию видны только владельцу, а при правке дат приложение предупреждает, какие планы пропадут. Держится всё это на дизайн-системе из переменных Figma со светлой и тёмной темой: шапки, шторки, строки списков, поля, чипсы, пустые состояния.',
+      problemLabel: 'Проблема',
+      problemText: 'Поездка в несколько городов разваливается на десятки источников: билеты в почте, брони в приложениях отелей, маршрут в заметках, траты в чате. Существующие планировщики либо хранят брони списком без привязки к дням, либо строят маршрут и не учитывают, как ты добираешься между городами. EasyGoing собирает всё это в маршрут по дням, который можно вести вместе с попутчиками: приглашение по ссылке, роль гостя только для просмотра, личные документы видны только владельцу.',
+      hardLabel: 'Главная сложность — переезд между городами',
+      hardText: 'Места в дне спланировать легко. Сложнее всего стык между городами: когда выезжать из отеля, каким рейсом лететь, где заселяться и не остаёшься ли ты без жилья.',
+      researchLabel: 'Что показали интервью',
+      researchText: 'Я собрала кликабельный прототип и провела 3 интервью с людьми, которые за последний год ездили в 2+ города за поездку. Попросила добавить перелёт с пересадкой и отель в новом городе.',
+      researchList: [
+        '2 из 3 не нашли, куда добавлять билет: в день вылета или в день прилёта. Один добавил дважды.',
+        'Все трое искали отель в «переезде», а не в дне.',
+        'Ночной рейс с пересадкой встал не в том порядке, и человек решил, что сломались данные.',
+        'Предупреждение «ночь без жилья» сработало там, где заезд совпадал с прилётом, — ему перестали верить.'
+      ],
+      solutionLabel: 'Решение',
+      solutionText: 'Переезд стал отдельной сущностью — плашкой между днями, а не частью дня:',
+      solutionList: [
+        'один сценарий: выезд из отеля → билеты → заезд, в одной шторке; задачи и документы вроде «купить билеты на синкансэн» прикрепляются к самому переезду;',
+        'понятная дата: в заголовке даты по билетам — «27 ноября, Киото → Токио» или «21–22 ноября, Москва → Осака» для ночных рейсов;',
+        'правильный порядок: строки сортируются по дате и времени отправления, а если логика другая, их можно перетащить;',
+        'честное предупреждение: «без жилья» появляется, только если заезд позже прибытия, а если время заезда неизвестно, приложение молчит;',
+        'полный маршрут: первая плашка — дорога в первый город, последняя — обратно домой.'
+      ],
+      solutionText2: 'Из этого выросло общее правило продукта: создать можно откуда удобно, но у каждой сущности одна шторка, и любая её строка открывает именно её. Карточка дня только показывает, а редактируется всё в шторках.',
+      systemLabel: 'Дизайн-система',
+      systemText: 'Компоненты и цвета — на переменных Figma со светлой и тёмной темой: шапки, шторки, строки списков, поля, чипсы, бейджи, пустые состояния. Поведенческие правила зашиты в сами компоненты, поэтому работают везде, где компонент используется.',
       galleryLabel: 'Галерея',
       failedLabel: 'не загрузилось',
       lightLabel: 'Светлая тема',
@@ -39,16 +58,35 @@
       typeLabel: 'Project',
       title: 'EasyGoing — a planner for shared trips',
       meta: [
-        { label: 'Role', value: 'Product Designer' },
+        { label: 'Role', value: 'Creator & Product Designer' },
         { label: 'Year', value: '2026' },
         { label: 'Team', value: 'Personal project' },
         { label: 'Task', value: 'Bring a trip plan and planning it together into one app' }
       ],
-      taskLabel: 'Task',
-      taskText: 'Routes, hotels, tickets, documents, visas and shared expenses are usually scattered across notes, chats and email. The goal was a product where you create a trip to any country in a few steps, plan it day by day, and run it together with your travel companions.',
-      designLabel: 'Design',
-      designText: 'I started not with screens but with how a trip actually gets put together today: the route lives in notes, tickets in email, bookings in chats, and who owes whom is worked out afterwards in a group thread. I mapped that path as it is, built the target flow beside it — sign-in, trip creation, the day-by-day plan, inviting companions — and tested it with a clickable prototype before any visuals, so the gaps in the logic surfaced before the first design did.',
-      designText2: 'The main screen is a day-by-day route with switching between cities; a day opens as a sheet holding transfers, tasks, documents and places with Google Maps. Empty sections take up no room: they collapse into a row of quick buttons, and everything you can add lives in one dashed-card pattern. What isn’t tied to a day moved into the “My files” tab — hotels, visa steps, documents, a checklist and shared expenses in several currencies. Collaboration is built into the logic itself: invites by link or QR as a “member” or a view-only “guest”, personal documents visible only to their owner by default, and a warning about which plans will be lost when the dates change. All of it rests on a design system of Figma variables with light and dark themes: headers, sheets, list rows, fields, chips and empty states.',
+      problemLabel: 'Problem',
+      problemText: 'A multi-city trip falls apart into dozens of sources: tickets in email, bookings in hotel apps, the route in notes, expenses in a group chat. Existing planners either keep bookings as a flat list with no link to days, or build a route that ignores how you get between cities. EasyGoing pulls it all into a day-by-day route you can run with travel companions: invites by link, a view-only guest role, and personal documents visible only to their owner.',
+      hardLabel: 'The core challenge — getting between cities',
+      hardText: 'Planning places within a day is easy. The hard part is the seam between cities: when to check out, which flight to take, where to check in, and whether you\u2019ll be left without a place to stay.',
+      researchLabel: 'What the interviews showed',
+      researchText: 'I built a clickable prototype and ran 3 interviews with people who had visited 2+ cities on one trip in the past year. I asked them to add a flight with a layover and a hotel in the next city.',
+      researchList: [
+        '2 of 3 couldn\u2019t tell where a ticket belongs — the departure day or the arrival day. One added it twice.',
+        'All three looked for the hotel under “transfer”, not under the day.',
+        'An overnight flight with a layover showed up in the wrong order, and the participant assumed the data was broken.',
+        'The “night without a place to stay” warning fired when check-in matched arrival, so people stopped trusting it.'
+      ],
+      solutionLabel: 'Solution',
+      solutionText: 'The transfer became its own entity — a card between days rather than part of a day:',
+      solutionList: [
+        'one flow: check-out → tickets → check-in in a single sheet; tasks and documents such as “buy shinkansen tickets” attach to the transfer itself;',
+        'clear dates: the title carries the ticket dates — “27 November, Kyoto → Tokyo”, or “21–22 November, Moscow → Osaka” for overnight flights;',
+        'correct order: rows sort by departure date and time, and can be dragged when the trip\u2019s logic differs;',
+        'an honest warning: “without a place to stay” appears only when check-in is later than arrival; if the check-in time is unknown, the app stays quiet;',
+        'the whole journey: the first card is the way to the first city, the last one is the way home.'
+      ],
+      solutionText2: 'This turned into a product-wide rule: you can create things wherever it\u2019s convenient, but every entity has one sheet, and any of its rows opens that sheet. The day card only shows; everything is edited in sheets.',
+      systemLabel: 'Design system',
+      systemText: 'Components and colours run on Figma variables with light and dark themes: headers, sheets, list rows, fields, chips, badges and empty states. Behaviour rules are built into the components themselves, so they work everywhere a component is used.',
       galleryLabel: 'Gallery',
       failedLabel: 'failed to load',
       lightLabel: 'Light theme',
@@ -59,20 +97,19 @@
   // key → the Figma frame it comes from, so a re-export is a one-line change.
   var SHOTS = {
     '01-trips':     'v2 01 Мои поездки',
-    '02-plan':      'v2 02 Поездка — План',
-    '03-files':     'v2 03 Мои файлы',
-    '05-day':       'v2 05 Шторка дня — 22 ноября',
-    '08-hotels':    'v2 08 Отели',
-    '09-docs':      'v2 09 Документы',
-    '10-money':     'v2 10 Деньги',
-    '11-checklist': 'v2 11 Чек-лист',
-    '13-new':       'v2 13 Новая поездка',
-    '14-tickets':   'v2 14 Нашли в билетах',
     '15-country':   'v2 15 Мастер — Страна',
     '16-cities':    'v2 16 Мастер — Города и ночи',
     '17-mates':     'v2 17 Мастер — Попутчики',
     '18-created':   'v2 18 Поездка создана',
-    '48-empty':     'v2 48 Поездка — пусто (только создана)'
+    '48-empty':     'v2 48 Поездка — пусто (только создана)',
+    '02a-done':     'v2 02a Поездка — задача выполнена',
+    '05-day':       'v2 05 Шторка дня — 22 ноября',
+    '03-files':     'v2 03 Мои файлы',
+    '08-hotels':    'v2 08 Отели',
+    '09-docs':      'v2 09 Документы',
+    '10a-exchange': 'v2 10a Деньги — конвертация',
+    '11-checklist': 'v2 11 Чек-лист',
+    '06-place':     'v2 06 Шторка места'
   };
 
   // The hero: the trip list, the plan, and the day sheet standing over it.
@@ -238,6 +275,34 @@
     };
   }
 
+  function list(items) {
+    var ul = el('ul', 'block-list');
+    items.forEach(function (text) {
+      var li = el('li');
+      li.textContent = text;
+      ul.appendChild(li);
+    });
+    return ul;
+  }
+
+  // Заголовок, абзац и список одним блоком, чтобы перечисление не отрывалось
+  // от текста, который его вводит.
+  function section(heading, text, items, extraClass) {
+    var wrap = el('div', 'block' + (extraClass ? ' ' + extraClass : ''));
+    if (heading) {
+      var h = el('h2', 'block-heading');
+      h.textContent = heading;
+      wrap.appendChild(h);
+    }
+    if (text) {
+      var para = el('p', 'para');
+      para.textContent = text;
+      wrap.appendChild(para);
+    }
+    if (items) wrap.appendChild(list(items));
+    return wrap;
+  }
+
   function buildPromo(failedLabel) {
     var video = el('video', 'clip', {
       autoplay: '', loop: '', muted: '', playsinline: '',
@@ -258,10 +323,16 @@
     content.appendChild(ui.title(t.title));
     content.appendChild(ui.metaGrid(t.meta));
 
-    content.appendChild(ui.block(t.taskLabel, t.taskText));
+    content.appendChild(ui.block(t.problemLabel, t.problemText));
+    content.appendChild(ui.block(t.hardLabel, t.hardText));
 
-    content.appendChild(ui.block(t.designLabel, t.designText));
-    content.appendChild(ui.block(null, t.designText2));
+    // Цифры интервью пока выдуманные — блок помечен, пока их не заменят.
+    content.appendChild(section(t.researchLabel, t.researchText, t.researchList, 'is-draft'));
+
+    content.appendChild(section(t.solutionLabel, t.solutionText, t.solutionList));
+    content.appendChild(ui.block(null, t.solutionText2));
+
+    content.appendChild(ui.block(t.systemLabel, t.systemText));
 
     // The clip opens the gallery; the rail of screens follows it.
     if (PROMO) content.appendChild(buildPromo(t.failedLabel));

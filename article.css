@@ -924,6 +924,20 @@ a.photo-cell { cursor: pointer; }
 .block-list li { margin-bottom: 6px; }
 .block-list li:last-child { margin-bottom: 0; }
 
+/* Список внутри блока уже отбит самим блоком, но от своего абзаца
+   отступает, чтобы перечисление не слипалось с текстом. */
+.block > .block-list:last-child { margin-bottom: 0; }
+.block > .para + .block-list { margin-top: 12px; }
+
+/* Данные, которых ещё нет: выдуманные цифры помечены, пока их не заменят
+   настоящими. Метка снимается вместе с классом. */
+.block.is-draft {
+  border-left: 3px solid #ff8a1f;
+  border-radius: 0 10px 10px 0;
+  background: rgba(255, 138, 31, 0.08);
+  padding: 14px 16px 16px;
+}
+
 /* A gallery shot with a line under it. */
 .shot-figure { margin-bottom: 24px; }
 .shot-figure .shot-caption { margin-bottom: 8px; }
