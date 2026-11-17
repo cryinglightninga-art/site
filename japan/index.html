@@ -1634,6 +1634,12 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .mfl{margin-bottom:0!important}
 .mfl + .addcard{margin-top:-8px}
 .wbar i{transition:width .6s cubic-bezier(.3,.8,.4,1)}
+
+/* «Открыть файл» — круглая кнопка ↗ (шторка документа и карточка дня) */
+.att__open{display:flex!important;align-items:center;justify-content:center;flex:none;width:36px;height:36px;padding:0;border-radius:50%;cursor:pointer;margin-left:8px}
+.att__openic{display:block;position:relative;z-index:1;width:18px;height:18px;background:var(--label);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2014.7974%2014.419%27%3E%3Cpath%20d%3D%27M0.27467%2014.148C0.635999%2014.4996%201.13405%2014.5191%201.50514%2014.148L11.4172%204.24565L13.4094%202.09722C13.7415%201.76519%2013.7415%201.32573%2013.4192%201.01323C13.0969%200.690967%2012.6477%200.681202%2012.3255%201.01323L10.177%203.00542L0.27467%2012.9175C-0.0964233%2013.2886-0.0866577%2013.7867%200.27467%2014.148ZM12.6575%207.2144L12.6575%2010.8179C12.6575%2011.2867%2013.0676%2011.7066%2013.5462%2011.7066C14.0149%2011.7066%2014.4348%2011.316%2014.4348%2010.7789L14.4251%200.964405C14.4251%200.397999%2014.054%200.0171393%2013.4778%200.0171393L3.65358%200.0171393C3.1067%200.0171393%202.73561%200.427296%202.73561%200.896046C2.73561%201.3648%203.15553%201.76519%203.61451%201.76519L7.01295%201.76519L12.8919%201.56987Z%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2014.7974%2014.419%27%3E%3Cpath%20d%3D%27M0.27467%2014.148C0.635999%2014.4996%201.13405%2014.5191%201.50514%2014.148L11.4172%204.24565L13.4094%202.09722C13.7415%201.76519%2013.7415%201.32573%2013.4192%201.01323C13.0969%200.690967%2012.6477%200.681202%2012.3255%201.01323L10.177%203.00542L0.27467%2012.9175C-0.0964233%2013.2886-0.0866577%2013.7867%200.27467%2014.148ZM12.6575%207.2144L12.6575%2010.8179C12.6575%2011.2867%2013.0676%2011.7066%2013.5462%2011.7066C14.0149%2011.7066%2014.4348%2011.316%2014.4348%2010.7789L14.4251%200.964405C14.4251%200.397999%2014.054%200.0171393%2013.4778%200.0171393L3.65358%200.0171393C3.1067%200.0171393%202.73561%200.427296%202.73561%200.896046C2.73561%201.3648%203.15553%201.76519%203.61451%201.76519L7.01295%201.76519L12.8919%201.56987Z%27/%3E%3C/svg%3E") center/contain no-repeat}
+#fDfCard .att__open + .att__rep{margin-left:0!important}
+.day .att .att__go{display:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5343,6 +5349,17 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
 })();
 /* после удаления файла из шторки — перерисовать список файлов */
 (function(){ var _rf = refresh; refresh = function(){ var r = _rf.apply(this, arguments); if ($("mfList") && window.mfDraw) mfDraw(); return r; }; })();
+
+/* ===== «Открыть файл» ↗: в шторке документа рядом с «Заменить» и в карточке дня для быстрого открытия ===== */
+(function(){
+  var BTN = function(extra){ return '<span class="att__open glass gbtn-s" role="button" aria-label="Открыть файл"'+extra+'><span class="att__openic"></span></span>'; };
+  A.docOpenNow = function(d){ var t = trip(), doc = t && t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return; if (doc.file) openDoc(doc.id); else if (doc.link) window.open(doc.link, "_blank", "noopener"); };
+  function put(){
+    var c = $("fDfCard"); if (c && !c.querySelector(".att__open") && (c.matches('[data-act="docOpen"]') || c.querySelector('[data-act="docOpen"]'))){ var rep = c.querySelector(".att__rep"); var w = document.createElement("span"); w.innerHTML = BTN(' data-act="docOpen"'); if (rep) c.insertBefore(w.firstChild, rep); else c.appendChild(w.firstChild); }
+    [].forEach.call(document.querySelectorAll('#view .day .att[data-act="docTap"]:not([data-op])'), function(r){ var t = trip(), d = t && t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; r.setAttribute("data-op", "1"); if (!d || !(d.file || d.link)) return; r.insertAdjacentHTML("beforeend", BTN(' data-act="docOpenNow" data-id="'+esc(d.id)+'"')); });
+  }
+  new MutationObserver(put).observe(document.body, {childList:true, subtree:true}); put();
+})();
 
 </script>
 </body>
