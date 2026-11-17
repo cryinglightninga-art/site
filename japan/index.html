@@ -1604,6 +1604,8 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 #fDfCard .att__thumb .addcard__ic{display:contents}
 #fDfCard .att__thumb img{width:32px;height:32px;object-fit:contain}
 #fDfCard .att__nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mfl__row{padding-right:12px}
+.mfl__row .att__rep{flex:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5153,19 +5155,19 @@ legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc
     var r = o.apply(this, arguments); var b = $("fBody"); if (b) [].forEach.call(b.querySelectorAll('input[type="file"]'), function(x){ if (on(x.id)) x.multiple = true; }); draw(); return r; }; });
   var _cf = closeForm; closeForm = function(){ reset(); S.mvOld = null; return _cf.apply(this, arguments); };
   var X = '<svg viewBox="0 0 12 12" fill="none"><path d="M3.5 3.5l5 5M8.5 3.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-  function row(c, title, sub, ill0, extra){ return '<div class="att att--card mfl__row"'+(extra||'')+'><span class="att__main"><span class="att__thumb">'+ill0+'</span><span class="att__tx"><span class="att__nm">'+esc(title)+'</span><small>'+esc(sub)+'</small></span></span>'+(c != null ? '<button type="button" class="mfl__x glass gbtn-s" data-mfx="'+c+'" aria-label="Убрать">'+X+'</button>' : '')+'</div>'; }
+  function row(c, title, sub, ill0, extra){ return '<div class="att att--card mfl__row"'+(extra||'')+'><span class="att__main"><span class="att__thumb">'+ill0+'</span><span class="att__tx"><span class="att__nm">'+esc(title)+'</span><small>'+esc(sub)+'</small></span></span>'+'<label class="att__rep glass gbtn-s">Заменить<input type="file" hidden data-mfr="'+c+'"></label></div>'; }
   function draw(){ var b = $("fBody"); if (!b) return; var inp = b.querySelector("#fMfile, #fHf"); if (!inp) return; var c = ctx(); if (!c) return;
     var card = inp.closest(".addcard, .att") || $("fMfCard") || $("fHfCard"); if (!card) return;
     var l = $("mfList"); if (!l){ l = document.createElement("div"); l.id = "mfList"; l.className = "mfl"; card.parentNode.insertBefore(l, card); }
     var n = c.have.length + S.mf.length, sub = docSub(c.t, {type:c.type, owner:null, vis:"all", day:c.day});
-    var h = c.have.map(function(d){ return row(null, d.title, [ext(d.fname), docSub(c.t, d)].filter(Boolean).join(" · "), ill(docIll(d.type)), ' data-mfo="'+esc(d.id)+'" role="button"'); }).join("");
+    var h = c.have.map(function(d){ var up = S.mfUp && S.mfUp[d.id]; return row("d:"+d.id, d.title, up ? "загружается…" : [ext(d.fname), docSub(c.t, d)].filter(Boolean).join(" · "), up ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(d.type)), ' data-mfo="'+esc(d.id)+'" role="button"'); }).join("");
     h += S.mf.map(function(x, i){ return row(i, nm(c.base, c.have.length + i, n), x.ok == null ? "загружается…" : x.ok ? [ext(x.file.name), sub].filter(Boolean).join(" · ") : "не загрузился — уберите и выберите снова", x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(c.type))); }).join("");
     l.innerHTML = h; l.hidden = !n;
     var bt = card.querySelector("b"), sm = card.querySelector("small"); card.classList.remove("is-file");
     var ic = card.querySelector(".addcard__ic"); if (ic){ ic.classList.remove("is-ill"); ic.innerHTML = IC.add; }
     if (bt) bt.textContent = n ? "Добавьте ещё" : inp.id === "fMfile" ? "Добавьте билет" : "Добавьте файл брони";
     if (sm) sm.textContent = "PDF или скриншот";
-    $("fsheet").classList.toggle("is-busy", S.mf.some(function(x){ return x.ok == null; })); }
+    $("fsheet").classList.toggle("is-busy", S.mf.some(function(x){ return x.ok == null; }) || !!(S.mfUp && Object.keys(S.mfUp).length)); }
   window.mfDraw = draw;
   document.addEventListener("input", function(e){ if (e.target && (e.target.id === "fMf" || e.target.id === "fMt" || e.target.id === "fHn")) draw(); }, true);
   document.addEventListener("change", function(e){ if (e.target && (e.target.id === "fMdD")) draw(); }, true);
@@ -5176,6 +5178,12 @@ legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc
     try { inp.value = ""; } catch(_){} draw(); }, true);
   document.addEventListener("click", function(e){ var b = e.target.closest && e.target.closest("[data-mfx]"); if (b){ e.preventDefault(); e.stopPropagation(); S.mf.splice(+b.getAttribute("data-mfx"), 1); draw(); return; }
     var o = e.target.closest && e.target.closest("[data-mfo]"); if (o && o.closest("#fBody")){ e.preventDefault(); e.stopPropagation(); var id = o.getAttribute("data-mfo"); if (typeof openDoc === "function") openDoc(id); } }, true);
+  document.addEventListener("change", function(e){ var inp = e.target; if (!inp || !inp.getAttribute || inp.getAttribute("data-mfr") == null) return; e.stopImmediatePropagation(); var f = inp.files && inp.files[0]; if (!f) return;
+    var r = inp.getAttribute("data-mfr"), t = trip();
+    if (r.indexOf("d:") === 0){ var d = t.docs.filter(function(z){ return z.id === r.slice(2); })[0]; if (!d) return; S.mfUp = (S.mfUp || {}); S.mfUp[d.id] = 1; draw();
+      window._putRaw(t, d.id, f).then(function(ok){ delete S.mfUp[d.id]; if (ok){ d.file = d.id; d.fname = f.name; if (typeof FILECACHE !== "undefined") delete FILECACHE[t.id+"/"+d.id]; if (typeof schedule === "function") schedule(); } else toast("Не получилось заменить файл"); draw(); }); return; }
+    var y = S.mf[+r]; if (!y) return; y.file = f; y.ok = null; y.id = uid();
+    y.promise = window._putRaw(t, y.id, f).then(function(ok){ y.ok = !!ok; draw(); return y.ok; }, function(){ y.ok = false; draw(); return false; }); draw(); }, true);
   async function ready(){ var all = S.mf.slice(); $("fsheet").classList.add("is-busy"); await Promise.all(all.map(function(x){ return x.promise; })); $("fsheet").classList.remove("is-busy"); return all.filter(function(x){ return x.ok; }); }
   function push(c, ok){ var n = c.have.length + ok.length;
     if (n > 1 && c.have.length === 1 && c.have[0].title === c.base) c.have[0].title = nm(c.base, 0, n);
