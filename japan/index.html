@@ -1656,6 +1656,11 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 
 /* Row Gray: same 24 radius as dashed add rows and doc card */
 #fsheet .att:not(.att--card){border-radius:24px}
+/* ↗ в шторке переезда: как в карточке дня — текст сжимается, справа 16 */
+#sheetBody .docstack .att[data-op]{padding-right:16px}
+#sheetBody .docstack .att[data-op] .att__tx{flex:1 1 auto;min-width:0}
+#sheetBody .docstack .att[data-op] .att__tx,#sheetBody .docstack .att[data-op] .att__tx small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sheetBody .docstack .att[data-op] .att__go{display:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -2483,7 +2488,7 @@ A.hotelOpen = function(d, el, e){
     fld("Ссылка на Google Maps — от отеля строится маршрут дня", '<input class="in" id="fHl" value="'+esc(h.link)+'" placeholder="https://maps.app.goo.gl/…">')+
     '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("с", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("до", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
-    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'">')+fld("Файл брони", '<input class="in" type="file" id="fHf">')+'<button class="primary" data-act="hotelSave">Сохранить</button></div>');
+    fld("Файл брони", '<input class="in" type="file" id="fHf">')+'<button class="primary" data-act="hotelSave">Сохранить</button></div>');
 };
 A.hotelSave = function(){ var n = val("fHn"); if (!n){ toast("Введите название"); return; } var oh = trip().hotels[S.hcity] || {}, nh = {name:n, addr:val("fHa"), link:val("fHl"), book:val("fHb"), inD:val("fHid"), inT:val("fHit"), outD:val("fHod"), outT:val("fHot")}; if (oh.q && oh.addr === nh.addr && oh.name === nh.name) nh.q = oh.q; trip().hotels[S.hcity] = nh; closeForm(); render(); };
 
@@ -3400,8 +3405,7 @@ A.hotelOpen = function(d, el, e){
     fld("Ссылка на Google Maps", '<input class="in" id="fHl" value="'+esc(h.link)+'" placeholder="https://maps.app.goo.gl/…">')+
     '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("Время", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("Время", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
-    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'" placeholder="Например, MF12BK">')+
-    '<label class="addcard" id="fHfCard">'+'<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот — ляжет и в «Документы»</small></span><input type="file" id="fHf" hidden></label>'+
+        '<label class="addcard" id="fHfCard">'+'<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот — ляжет и в «Документы»</small></span><input type="file" id="fHf" hidden></label>'+
     '<button class="primary" data-act="hotelSave">Сохранить</button></div>', "Проживание");
   $("fHf").onchange = function(){ var f = this.files[0]; if (f) $("fHfCard").querySelector("b").textContent = f.name; };
 };
@@ -3632,8 +3636,7 @@ A.hotelOpen = function(d, el, e){
     mapBox("fHa", h.addr, "Адрес отеля", "hotQ")+'<div class="stops" id="hotRes" hidden></div><input type="hidden" id="fHl" value="'+esc(h.link)+'">'+
     '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("Время", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("Время", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
-    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'" placeholder="Например, MF12BK">')+
-    '<label class="addcard" id="fHfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот</small></span><input type="file" id="fHf" hidden></label>'+
+        '<label class="addcard" id="fHfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот</small></span><input type="file" id="fHf" hidden></label>'+
     '<button class="primary" data-act="hotelSave">Сохранить</button></div>', "Проживание");
   $("fHf").onchange = function(){ var f = this.files[0]; if (f) $("fHfCard").querySelector("b").textContent = f.name; };
   $("mapFrame").src = gmap(h.addr || (h.name ? h.name+", "+c : c), h.addr ? 16 : 12);
@@ -5372,9 +5375,48 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
   A.docOpenNow = function(d){ var t = trip(), doc = t && t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return; if (doc.file) openDoc(doc.id); else if (doc.link) window.open(doc.link, "_blank", "noopener"); };
   function put(){
     var c = $("fDfCard"); if (c && !c.querySelector(".att__open") && (c.matches('[data-act="docOpen"]') || c.querySelector('[data-act="docOpen"]'))){ var rep = c.querySelector(".att__rep"); var w = document.createElement("span"); w.innerHTML = BTN(' data-act="docOpen"'); if (rep) c.insertBefore(w.firstChild, rep); else c.appendChild(w.firstChild); }
-    [].forEach.call(document.querySelectorAll('#view .day .att[data-act="docTap"]:not([data-op])'), function(r){ var t = trip(), d = t && t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; r.setAttribute("data-op", "1"); if (!d || !(d.file || d.link)) return; r.insertAdjacentHTML("beforeend", BTN(' data-act="docOpenNow" data-id="'+esc(d.id)+'"')); });
+    var sel = '#view .day .att[data-act="docTap"]:not([data-op])' + (S.trans != null ? ', #sheetBody .docstack .att[data-act="docTap"]:not([data-op])' : '');
+    [].forEach.call(document.querySelectorAll(sel), function(r){ var t = trip(), d = t && t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; r.setAttribute("data-op", "1"); if (!d || !(d.file || d.link)) return; r.insertAdjacentHTML("beforeend", BTN(' data-act="docOpenNow" data-id="'+esc(d.id)+'"')); });
   }
   new MutationObserver(put).observe(document.body, {childList:true, subtree:true}); put();
+})();
+
+/* ===== подзаголовок документа: сначала когда — «21 ноября 19:30 – 22 ноября 08:55», в один день «21 ноября 19:30 – 08:55» ===== */
+(function(){
+  function when(d0, t0, d1, t1){
+    if (!d0) return "";
+    var a = _dmTr(d0) + (t0 ? " "+t0 : "");
+    if (d1 && d1 !== d0) return t0 || t1 ? a+" – "+_dmTr(d1)+(t1 ? " "+t1 : "") : dmRange(d0, d1);
+    return t1 && t0 ? a+" – "+t1 : a;
+  }
+  function legOf(t, d){
+    var out = null;
+    Object.keys(t.moves || {}).forEach(function(k){ legs(t, k).forEach(function(l){ if (out) return;
+      var key = city(l.from)+"→"+city(l.to), base = "Билет "+city(l.from)+" → "+city(l.to);
+      if ((d.mv && d.mv === key) || (!d.mv && d.type === "Транспорт" && ((d.title||"") === base || (d.title||"").indexOf(base+" · ") === 0))) out = {l:l, k:k}; }); });
+    return out;
+  }
+  function hotelOf(t, d){
+    if (d.ht && t.hotels[d.ht]) return t.hotels[d.ht];
+    if (d.type !== "Бронь") return null;
+    var c = Object.keys(t.hotels || {}).filter(function(c){ var h = t.hotels[c]; return h && (d.title||"").indexOf("Бронь · "+h.name) === 0; })[0];
+    return c ? t.hotels[c] : null;
+  }
+  window.docWhen = function(t, d){
+    if (!t || !d) return "";
+    var m = legOf(t, d); if (m){ var l = m.l, d0 = l.depD || m.k; return when(d0, l.dep, l.arrD || d0, l.arr); }
+    var h = hotelOf(t, d); if (h) return when(h.inD, h.inT, h.outD, h.outT);
+    if (d.day && d.day.indexOf("tr:") === 0){ var x = trByKey(t, d.day); if (x && x.legs && x.legs.length){ var f = x.legs[0], z = x.legs[x.legs.length-1], f0 = f.v.depD || f.k, z0 = z.v.arrD || z.v.depD || z.k; return when(f0, f.v.dep, z0, z.v.arr); } return ""; }
+    if (d.day && d.day !== "_nodate") return _dmTr(d.day);
+    return "";
+  };
+  var _ds = docSub;
+  docSub = function(t, d){
+    var w = docWhen(t, d);
+    if (!w) return _ds.apply(this, arguments);
+    var rest = d.sub || [d.type, d.owner ? mName(t, d.owner) : "общий", d.vis === "me" ? "видите только вы" : ""].filter(Boolean).join(" · ");
+    return w + (rest ? " · "+rest : "");
+  };
 })();
 
 </script>
