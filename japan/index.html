@@ -4834,7 +4834,7 @@ dayCard = function(t, d){ return _dayCardNoSw(t, d).replace(/<button class="att"
 
 /* строки и карточки добавления — призыв к действию: «Добавьте …», «Запланируйте …» (меню и кнопки форм не трогаем) */
 (function(){ var SEL = ".stop--add, .addrow, .addcard, .dli, .dashbox, [data-act='dayAddPlace'], [data-act='hotelOpen'].li";
-  var MAP = [[/^Добавить /, "Добавьте "], [/^Запланировать /, "Запланируйте "]];
+  var MAP = [[/^Добавить /, "Добавьте "], [/^Запланировать /, "Запланируйте "], [/^Добавьте переезд$/, "Добавьте транспорт"]];
   function fix(root){ [].forEach.call((root.querySelectorAll ? root : document).querySelectorAll(SEL), function(el){
     var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n; while ((n = w.nextNode())){ var s = n.nodeValue, t = s; MAP.forEach(function(m){ t = t.replace(m[0], m[1]); }); if (t !== s) n.nodeValue = t; } }); }
   var busy = false; new MutationObserver(function(){ if (busy) return; busy = true; try { fix(document); } finally { busy = false; } }).observe(document.body, {childList:true, subtree:true});
@@ -5126,60 +5126,70 @@ nightWarn = function(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) 
 /* ===== карточка дня: подзаголовок переезда как в шторке — описание · время ===== */
 legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), [v.no, v.dep&&v.arr ? legSpan(v, k) : v.dep].filter(Boolean).map(esc).join(" · ")); };
 
-/* ===== несколько файлов: билеты переезда, брони отеля, новые документы ===== */
+/* ===== несколько файлов: билеты транспорта и брони отеля; прикреплённые остаются в форме ===== */
 (function(){
   var IDS = {fMfile:"Транспорт", fHf:"Бронь"};
-  function on(id){ return IDS.hasOwnProperty(id) && !(id === "fDf" && S.docMode === "edit"); }
+  function on(id){ return IDS.hasOwnProperty(id); }
   function reset(){ S.mf = []; }
   reset();
-  ["moveSheet","hotelOpen","addDoc"].forEach(function(n){ var o = A[n]; A[n] = function(){ reset(); var r = o.apply(this, arguments);
-    var b = $("fBody"); if (b) [].forEach.call(b.querySelectorAll('input[type="file"]'), function(i){ if (on(i.id)) i.multiple = true; }); return r; }; });
-  var _cf = closeForm; closeForm = function(){ reset(); return _cf.apply(this, arguments); };
-  function row(x, i){ var st = x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(x.type));
-    return '<div class="att att--card mfl__row"><span class="att__main"><span class="att__thumb">'+st+'</span><span class="att__tx">'+esc(x.file.name)+'<small>'+(x.ok == null ? "загружается…" : x.ok ? "загружен" : "не загрузился — удалите и выберите снова")+'</small></span></span>'+
-      '<button type="button" class="mfl__x glass gbtn-s" data-mfx="'+i+'" aria-label="Убрать"><svg viewBox="0 0 12 12" fill="none"><path d="M3.5 3.5l5 5M8.5 3.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>'; }
-  function draw(){ var b = $("fBody"); if (!b) return; var inp = b.querySelector("#fMfile, #fHf, #fDf"); if (!inp) return;
-    var card = inp.closest(".addcard, .att") || $("fMfCard") || $("fHfCard") || $("fDfCard"); if (!card) return;
+  function kind(){ return $("fMfile") ? "mv" : $("fHf") ? "ht" : null; }
+  function mvKey(from, to){ return city(from)+"→"+city(to); }
+  function trFor(t, pred){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(pred)[0]; return x ? trKey(x) : null; }
+  function ctx(){ var t = trip(), k = kind();
+    if (k === "mv"){ var from = val("fMf"), to = val("fMt"), key = mvKey(from, to), base = "Билет "+city(from)+" → "+city(to);
+      var day = trFor(t, function(z){ return z.legs.some(function(l){ return city(l.v.from) === city(from) && city(l.v.to) === city(to); }); }) || val("fMdD") || S.moveK;
+      var old = S.mvOld ? mvKey(S.mvOld.from, S.mvOld.to) : null, oldBase = S.mvOld ? "Билет "+city(S.mvOld.from)+" → "+city(S.mvOld.to) : null;
+      var have = S.mvOld ? t.docs.filter(function(d){ return d.mv === old || (!d.mv && d.file && (d.title === oldBase || d.title.indexOf(oldBase+" · ") === 0)); }) : [];
+      return {t:t, k:k, base:base, type:"Транспорт", day:day, key:key, have:have, from:from, to:to}; }
+    if (k === "ht"){ var c = S.hcity, h = t.hotels[c] || {}, nmH = val("fHn") || h.name || c, base2 = "Бронь · "+nmH;
+      var day2 = trFor(t, function(z){ return z.inn.some(function(q){ return q[0] === c; }); }) || h.inD;
+      var have2 = h.name ? t.docs.filter(function(d){ return d.ht === c || (!d.ht && d.file && (d.title === "Бронь · "+h.name || d.title.indexOf("Бронь · "+h.name+" · ") === 0)); }) : [];
+      return {t:t, k:k, base:base2, type:"Бронь", day:day2, key:c, have:have2}; }
+    return null; }
+  function nm(base, i, n){ return n > 1 ? base+" · "+(i+1) : base; }
+  function ext(name){ var m = /\.([a-z0-9]+)$/i.exec(name || ""); return m ? m[1].toUpperCase() : ""; }
+  ["moveSheet","hotelOpen"].forEach(function(n){ var o = A[n]; A[n] = function(d){ reset(); var t = trip();
+    if (n === "moveSheet"){ var i = d && d.i != null ? +d.i : -1, v = i >= 0 ? (legs(t, d.k)[i] || null) : null; S.mvOld = v ? {from:v.from, to:v.to} : null; }
+    var r = o.apply(this, arguments); var b = $("fBody"); if (b) [].forEach.call(b.querySelectorAll('input[type="file"]'), function(x){ if (on(x.id)) x.multiple = true; }); draw(); return r; }; });
+  var _cf = closeForm; closeForm = function(){ reset(); S.mvOld = null; return _cf.apply(this, arguments); };
+  var X = '<svg viewBox="0 0 12 12" fill="none"><path d="M3.5 3.5l5 5M8.5 3.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  function row(c, title, sub, ill0, extra){ return '<div class="att att--card mfl__row"'+(extra||'')+'><span class="att__main"><span class="att__thumb">'+ill0+'</span><span class="att__tx"><span class="att__nm">'+esc(title)+'</span><small>'+esc(sub)+'</small></span></span>'+(c != null ? '<button type="button" class="mfl__x glass gbtn-s" data-mfx="'+c+'" aria-label="Убрать">'+X+'</button>' : '')+'</div>'; }
+  function draw(){ var b = $("fBody"); if (!b) return; var inp = b.querySelector("#fMfile, #fHf"); if (!inp) return; var c = ctx(); if (!c) return;
+    var card = inp.closest(".addcard, .att") || $("fMfCard") || $("fHfCard"); if (!card) return;
     var l = $("mfList"); if (!l){ l = document.createElement("div"); l.id = "mfList"; l.className = "mfl"; card.parentNode.insertBefore(l, card); }
-    l.innerHTML = S.mf.map(row).join(""); l.hidden = !S.mf.length;
+    var n = c.have.length + S.mf.length, sub = docSub(c.t, {type:c.type, owner:null, vis:"all", day:c.day});
+    var h = c.have.map(function(d){ return row(null, d.title, [ext(d.fname), docSub(c.t, d)].filter(Boolean).join(" · "), ill(docIll(d.type)), ' data-mfo="'+esc(d.id)+'" role="button"'); }).join("");
+    h += S.mf.map(function(x, i){ return row(i, nm(c.base, c.have.length + i, n), x.ok == null ? "загружается…" : x.ok ? [ext(x.file.name), sub].filter(Boolean).join(" · ") : "не загрузился — уберите и выберите снова", x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(c.type))); }).join("");
+    l.innerHTML = h; l.hidden = !n;
     var bt = card.querySelector("b"), sm = card.querySelector("small"); card.classList.remove("is-file");
     var ic = card.querySelector(".addcard__ic"); if (ic){ ic.classList.remove("is-ill"); ic.innerHTML = IC.add; }
-    if (bt) bt.textContent = S.mf.length ? "Добавить ещё" : inp.id === "fMfile" ? "Добавить билет" : inp.id === "fHf" ? "Добавить файл брони" : "Добавить документ";
-    if (sm) sm.textContent = inp.id === "fDf" ? "билеты и полис" : "PDF или скриншот";
-    var busy = S.mf.some(function(x){ return x.ok == null; }); $("fsheet").classList.toggle("is-busy", busy); }
+    if (bt) bt.textContent = n ? "Добавьте ещё" : inp.id === "fMfile" ? "Добавьте билет" : "Добавьте файл брони";
+    if (sm) sm.textContent = "PDF или скриншот";
+    $("fsheet").classList.toggle("is-busy", S.mf.some(function(x){ return x.ok == null; })); }
+  window.mfDraw = draw;
+  document.addEventListener("input", function(e){ if (e.target && (e.target.id === "fMf" || e.target.id === "fMt" || e.target.id === "fHn")) draw(); }, true);
+  document.addEventListener("change", function(e){ if (e.target && (e.target.id === "fMdD")) draw(); }, true);
   window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.type !== "file" || !inp.closest || !inp.closest("#fBody") || !on(inp.id)) return;
     var fs = [].slice.call(inp.files || []); if (!fs.length) return; e.stopImmediatePropagation();
-    var t = trip(), type = inp.id === "fDf" ? ($("fDty") ? $("fDty").value : "") : IDS[inp.id];
-    fs.forEach(function(f){ var x = {file:f, id:uid(), ok:null, type:type}; S.mf.push(x);
+    var t = trip(); fs.forEach(function(f){ var x = {file:f, id:uid(), ok:null}; S.mf.push(x);
       x.promise = window._putRaw(t, x.id, f).then(function(ok){ x.ok = !!ok; draw(); return x.ok; }, function(){ x.ok = false; draw(); return false; }); });
-    try { inp.value = ""; } catch(_){}
-    if (inp.id === "fDf" && $("fDt") && !val("fDt")) $("fDt").placeholder = fs[0].name.replace(/\.[^.]+$/, "");
-    draw(); }, true);
-  document.addEventListener("click", function(e){ var b = e.target.closest && e.target.closest("[data-mfx]"); if (!b) return; e.preventDefault(); e.stopPropagation(); S.mf.splice(+b.getAttribute("data-mfx"), 1); draw(); }, true);
-  async function ready(){ var all = S.mf.slice(); $("fsheet").classList.add("is-busy"); await Promise.all(all.map(function(x){ return x.promise; })); $("fsheet").classList.remove("is-busy");
-    return all.filter(function(x){ return x.ok; }); }
-  function nm(base, i, n){ return n > 1 ? base+" · "+(i+1) : base; }
-  function trFor(t, pred){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(pred)[0]; return x ? trKey(x) : null; }
-  var _ms = A.moveSave; A.moveSave = async function(){ if (!S.mf.length) return _ms.apply(this, arguments);
-    var t = trip(), from = val("fMf"), to = val("fMt"), k = S.moveK, ok = await ready(); reset();
-    await _ms.apply(this, arguments);
-    var day = trFor(t, function(z){ return z.legs.some(function(l){ return l.v.from === from && l.v.to === to; }); }) || val("fMdD") || k;
-    ok.forEach(function(x, i){ t.docs.push({id:x.id, title:nm("Билет "+city(from)+" → "+city(to), i, ok.length), type:"Транспорт", owner:null, vis:"all", day:day, file:x.id}); }); refresh(); };
-  var _hs = A.hotelSave; A.hotelSave = async function(){ if (!S.mf.length) return _hs.apply(this, arguments);
-    var t = trip(), c = S.hcity, ok = await ready(); reset();
-    await _hs.apply(this, arguments); var h = t.hotels[c]; if (!h) return;
-    var day = trFor(t, function(z){ return z.inn.some(function(q){ return q[0] === c; }); }) || h.inD;
-    ok.forEach(function(x, i){ t.docs.push({id:x.id, title:nm("Бронь · "+h.name, i, ok.length), type:"Бронь", owner:null, vis:"all", day:day, file:x.id}); }); refresh(); };
-  var _ds = A.docSave; A.docSave = async function(){ if (!S.mf.length || S.docMode === "edit") return _ds.apply(this, arguments);
-    var t = trip(), ok = await ready(); reset(); if (!ok.length){ toast("Файлы не загрузились"); return; }
-    var tl = $("fDt"), own = val("fDt"), fn = function(x){ return x.file.name.replace(/\.[^.]+$/, ""); }, title = own || fn(ok[0]); if (tl) tl.value = title;
-    var n0 = t.docs.length; S.nextUid = ok[0].id; await _ds.apply(this, arguments); S.nextUid = null;
-    var d0 = t.docs.filter(function(d){ return d.id === ok[0].id; })[0]; if (!d0) return;
-    d0.file = d0.id; if (ok.length > 1 && own) d0.title = nm(own, 0, ok.length);
-    ok.slice(1).forEach(function(x, i){ var d = {id:x.id, title:own ? nm(own, i+1, ok.length) : fn(x), type:d0.type, owner:d0.owner, vis:d0.vis, day:d0.day, file:x.id}; t.docs.push(d); });
-    refresh(); };
+    try { inp.value = ""; } catch(_){} draw(); }, true);
+  document.addEventListener("click", function(e){ var b = e.target.closest && e.target.closest("[data-mfx]"); if (b){ e.preventDefault(); e.stopPropagation(); S.mf.splice(+b.getAttribute("data-mfx"), 1); draw(); return; }
+    var o = e.target.closest && e.target.closest("[data-mfo]"); if (o && o.closest("#fBody")){ e.preventDefault(); e.stopPropagation(); var id = o.getAttribute("data-mfo"); if (typeof openDoc === "function") openDoc(id); } }, true);
+  async function ready(){ var all = S.mf.slice(); $("fsheet").classList.add("is-busy"); await Promise.all(all.map(function(x){ return x.promise; })); $("fsheet").classList.remove("is-busy"); return all.filter(function(x){ return x.ok; }); }
+  function push(c, ok){ var n = c.have.length + ok.length;
+    if (n > 1 && c.have.length === 1 && c.have[0].title === c.base) c.have[0].title = nm(c.base, 0, n);
+    ok.forEach(function(x, i){ var d = {id:x.id, title:nm(c.base, c.have.length + i, n), type:c.type, owner:null, vis:"all", day:c.day, file:x.id, fname:x.file.name}; if (c.k === "mv") d.mv = c.key; else d.ht = c.key; c.t.docs.push(d); }); }
+  var _ms = A.moveSave; A.moveSave = async function(){ var c0 = ctx(); var ok = S.mf.length ? await ready() : []; var old = S.mvOld; reset();
+    await _ms.apply(this, arguments); var c = c0; if (!c) return;
+    c.day = trFor(c.t, function(z){ return z.legs.some(function(l){ return city(l.v.from) === city(c.from) && city(l.v.to) === city(c.to); }); }) || c.day;
+    var ob = old ? "Билет "+city(old.from)+" → "+city(old.to) : null;
+    c.have.forEach(function(d){ d.mv = c.key; d.day = c.day; if (ob && ob !== c.base && d.title.indexOf(ob) === 0) d.title = c.base + d.title.slice(ob.length); });
+    push(c, ok); refresh(); };
+  var _hs = A.hotelSave; A.hotelSave = async function(){ var c0 = ctx(); var ok = S.mf.length ? await ready() : []; reset();
+    await _hs.apply(this, arguments); var t = trip(), h = t.hotels[S.hcity]; if (!c0 || !h) return;
+    c0.base = "Бронь · "+h.name; c0.have.forEach(function(d){ d.ht = c0.key; }); push(c0, ok); refresh(); };
 })();
-
 /* ===== новый документ: один файл; после выбора — карточка как у сохранённого документа, с «Заменить» ===== */
 window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.id !== "fDf" || !inp.closest || !inp.closest("#fBody") || S.docMode === "edit") return;
   var x = inp.files && inp.files[0]; if (!x) return;
