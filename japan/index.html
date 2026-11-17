@@ -1606,6 +1606,12 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 #fDfCard .att__nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .mfl__row{padding-right:12px}
 .mfl__row .att__rep{flex:none}
+/* документ: свайп — карандаш и корзина */
+[data-sw^="doc:"] > .sw-edit{width:52px;height:36px;margin-top:-18px;border-radius:18px;right:-56px}
+[data-sw^="doc:"] > .sw-edit svg{width:18px!important;height:18px!important}
+[data-sw^="doc:"]:has(> .sw-edit) > .sw-del{right:-116px!important}
+.docstack{display:flex;flex-direction:column;gap:8px}
+.att[data-sw]{position:relative!important;overflow:hidden}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5218,6 +5224,38 @@ window.addEventListener("change", function(e){ var inp = e.target; if (!inp || i
   window.docCardSub = upd;
   ["change","input","click"].forEach(function(ev){ document.addEventListener(ev, function(e){ if (e.target && e.target.closest && e.target.closest("#fBody") && $("fDty")) requestAnimationFrame(upd); }, true); });
   var _ds = A.docSheet; A.docSheet = function(){ var r = _ds.apply(this, arguments); requestAnimationFrame(upd); return r; };
+})();
+
+/* ===== документы: тап открывает файл, свайп влево — карандаш и корзина; в шторках — карточки документов и пунктирная «Добавьте документ» ===== */
+(function(){
+  function docOf(id){ var t = trip(); return t && t.docs.filter(function(x){ return x.id === id; })[0]; }
+  function can(d){ return d && !ro() && (d.owner === S.me || !d.owner); }
+  A.docTap = function(dd){ var d = docOf(dd.id); if (!d) return; if (d.file) openDoc(d.id); else if (d.link) window.open(d.link, "_blank", "noopener"); else A.docSheet({id:d.id}); };
+  var _ar = attRow; attRow = function(t, d){ return _ar(t, d).replace('data-act="docSheet"', 'data-act="docTap"'); };
+  function addCard(src){ var b = document.createElement("button"); b.className = "addcard addcard--doc";
+    [].forEach.call(src.attributes, function(a){ if (a.name !== "class") b.setAttribute(a.name, a.value); });
+    b.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавьте документ</b><small>билеты и полис</small></span>'; return b; }
+  var busy = false;
+  function fix(){ if (busy) return; busy = true; try { var t = trip(); if (!t) return;
+    /* шторки: блок «Документы» — карточки как во вкладке «Документы» */
+    [].forEach.call(document.querySelectorAll("#sheetBody .label"), function(l){ if (l.textContent !== "Документы") return; var st = l.parentNode.querySelector(":scope > .stops"); if (!st) return;
+      var box = document.createElement("div"); box.className = "stack docstack";
+      [].forEach.call(st.children, function(r){ var id = r.getAttribute("data-id");
+        if (r.getAttribute("data-act") === "docSheet" && id){ var d = docOf(id); if (d){ var w = document.createElement("div"); w.innerHTML = attRow(t, d); box.appendChild(w.firstChild); } }
+        else if (/addDoc/.test(r.getAttribute("data-act") || "")) box.appendChild(addCard(r)); });
+      st.parentNode.replaceChild(box, st); });
+    /* свайп у всех строк документа (кроме блока заметки — там свайп удаляет блок) */
+    [].forEach.call(document.querySelectorAll('.att[data-id]:not([data-sw])'), function(r){ if (r.closest("[data-sw]") || r.closest("#fBody")) return; var d = docOf(r.getAttribute("data-id")); if (can(d)) r.setAttribute("data-sw", "doc:"+d.id); });
+    [].forEach.call(document.querySelectorAll('.att[data-act="docSheet"]'), function(r){ if (!r.closest("#fBody")) r.setAttribute("data-act", "docTap"); });
+  } finally { busy = false; } }
+  new MutationObserver(fix).observe(document.body, {childList:true, subtree:true});
+  window.docFix = fix;
+  /* карандаш рядом с корзиной */
+  document.addEventListener("pointerdown", function(e){ var x = e.target.closest && e.target.closest('[data-sw^="doc:"]'); if (!x || x.querySelector(":scope > .sw-edit")) return;
+    x.insertAdjacentHTML("beforeend", '<span class="sw-edit" role="button" aria-label="Изменить" data-swedit>'+PENCIL+'</span>'); }, true);
+  window.addEventListener("click", function(e){ var ed = e.target.closest && e.target.closest("[data-swedit]"); if (!ed) return; var row = ed.closest('[data-sw^="doc:"]'); if (!row) return;
+    e.preventDefault(); e.stopImmediatePropagation(); swSet(row, false); A.docSheet({id:row.getAttribute("data-sw").split(":")[1]}); }, true);
+  var _swW = swW; swW = function(el){ return el.getAttribute && /^doc:/.test(el.getAttribute("data-sw") || "") ? 124 : _swW(el); };
 })();
 
 </script>
