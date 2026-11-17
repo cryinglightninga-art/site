@@ -5205,7 +5205,7 @@ legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc
       x.promise = window._putRaw(t, x.id, f).then(function(ok){ x.ok = !!ok; draw(); return x.ok; }, function(){ x.ok = false; draw(); return false; }); });
     try { inp.value = ""; } catch(_){} draw(); }, true);
   document.addEventListener("click", function(e){ var b = e.target.closest && e.target.closest("[data-mfx]"); if (b){ e.preventDefault(); e.stopPropagation(); S.mf.splice(+b.getAttribute("data-mfx"), 1); draw(); return; }
-    var o = e.target.closest && e.target.closest("[data-mfo]"); if (o && o.closest("#fBody")){ e.preventDefault(); e.stopPropagation(); var id = o.getAttribute("data-mfo"); if (typeof openDoc === "function") openDoc(id); } }, true);
+    /* тап по файлу теперь открывает шторку документа — см. ниже */ }, true);
   document.addEventListener("change", function(e){ var inp = e.target; if (!inp || !inp.getAttribute || inp.getAttribute("data-mfr") == null) return; e.stopImmediatePropagation(); var f = inp.files && inp.files[0]; if (!f) return;
     var r = inp.getAttribute("data-mfr"), t = trip();
     if (r.indexOf("d:") === 0){ var d = t.docs.filter(function(z){ return z.id === r.slice(2); })[0]; if (!d) return; S.mfUp = (S.mfUp || {}); S.mfUp[d.id] = 1; draw();
@@ -5317,6 +5317,32 @@ SCR.summary = function(r){ return SCR.money(r); };
     return '<div class="wprog"><p class="hint">Шаг '+(st+1)+' из 3'+(extra||'')+'</p><div class="wbar"><i data-to="'+to+'" style="width:'+from+'%"></i></div></div>'; };
   var _nt = A.newTrip; if (_nt) A.newTrip = function(){ last = 0; return _nt.apply(this, arguments); };
 })();
+/* ===== свайп документов: без карандаша (иначе корзина уезжает за край) ===== */
+document.addEventListener("pointerdown", function(e){ var x = e.target.closest && e.target.closest('[data-sw^="doc:"]'); if (!x) return; var ed = x.querySelector(":scope > .sw-edit"); if (ed) ed.remove(); }, true);
+/* ===== Отели (Мои файлы): без свайпа — удалить отель можно только внутри шторки ===== */
+(function(){ var _h = SCR.hotels; SCR.hotels = function(r){ var v = _h.apply(this, arguments); if (v && v.view) v.view = v.view.replace(/ data-sw="hotel:[^"]*"/g, ""); return v; }; })();
+/* ===== файлы в шторках транспорта и отеля: тап — шторка документа, свайп — удалить, без «Заменить»;
+   после шторки документа возвращаемся в транспорт/отель с несохранёнными полями ===== */
+(function(){
+  var last = null;
+  ["moveSheet","hotelOpen"].forEach(function(n){ var o = A[n]; A[n] = function(d){ last = {n:n, d:Object.assign({}, d || {})}; return o.apply(this, arguments); }; });
+  function strip(){ var l = $("mfList"); if (!l) return; [].forEach.call(l.querySelectorAll(".mfl__row[data-mfo]"), function(r){ var rep = r.querySelector(".att__rep"); if (rep) rep.remove(); if (!r.getAttribute("data-sw") && !ro()) r.setAttribute("data-sw", "doc:"+r.getAttribute("data-mfo")); }); }
+  var _d = window.mfDraw; if (_d){ window.mfDraw = function(){ var r = _d.apply(this, arguments); strip(); return r; }; }
+  new MutationObserver(function(){ strip(); }).observe(document.body, {childList:true, subtree:true});
+  var ret = null;
+  document.addEventListener("click", function(e){ var o = e.target.closest && e.target.closest("[data-mfo]"); if (!o || !o.closest("#fBody") || !last || e.target.closest("[data-swdel]")) return;
+    if (o._swiped || o._open) return; e.preventDefault(); e.stopImmediatePropagation();
+    var vals = {}; [].forEach.call($("fBody").querySelectorAll("input[id],select[id],textarea[id]"), function(x){ if (x.type === "file") return; vals[x.id] = (x.type === "checkbox" || x.type === "radio") ? x.checked : x.value; });
+    ret = {n:last.n, d:last.d, vals:vals, mf:(S.mf || []).slice(), old:S.mvOld};
+    var id = o.getAttribute("data-mfo"); var keep = ret; closeForm(); ret = keep; setTimeout(function(){ A.docSheet({id:id}); }, 0); }, true);
+  var _cf = closeForm; closeForm = function(){ var r = _cf.apply(this, arguments); if (!ret || !S.docId) return r; var g = ret; ret = null;
+    setTimeout(function(){ A[g.n](g.d); S.mvOld = g.old; S.mf = g.mf; Object.keys(g.vals).forEach(function(k){ var x = $(k); if (!x) return; if (x.type === "checkbox" || x.type === "radio") x.checked = g.vals[k]; else x.value = g.vals[k]; x.dispatchEvent(new Event("input", {bubbles:true})); x.dispatchEvent(new Event("change", {bubbles:true})); }); if (window.mfDraw) mfDraw(); }, 30);
+    return r; };
+  /* свайп-удаление файла внутри шторки — перерисовать список */
+  var _sd = swDelete; swDelete = function(el){ var inForm = el && el.closest && el.closest("#fBody"); var r = _sd.apply(this, arguments); if (inForm && window.mfDraw) setTimeout(mfDraw, 0); return r; };
+})();
+/* после удаления файла из шторки — перерисовать список файлов */
+(function(){ var _rf = refresh; refresh = function(){ var r = _rf.apply(this, arguments); if ($("mfList") && window.mfDraw) mfDraw(); return r; }; })();
 
 </script>
 </body>
