@@ -1664,6 +1664,19 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 /* свайп-удаление = кнопка Danger · S · только иконка (36, круглая, иконка 20), как в Figma */
 .sw-del{width:36px!important;height:36px!important;margin-top:-18px!important;border-radius:50%!important;right:-48px!important}
 .sw-del svg{width:20px!important;height:20px!important}
+.sw-del{right:-36px!important}
+/* «Открыть» и «Заменить» ближе друг к другу — 4, как в Figma (Row › Actions) */
+#fDfCard .att__open + .att__rep,.att__open + .att__rep{margin-left:-8px!important}
+/* Hotel Card (Figma 11:104): бейдж города справа сверху, «На карте» — Button Surface L во всю ширину */
+.hotel--card{position:relative;overflow:visible!important;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:24px}
+.hotel--card .hotel__badge{position:absolute;top:-11px;right:16px;margin:0}
+.hotel--card .hotel__top{display:block}
+.hotel__map{display:flex;align-items:center;justify-content:center;gap:10px;height:52px;border-radius:1000px;background:var(--raised,#fff);color:var(--label);font:600 16px/21px "Inter",sans-serif;text-decoration:none}
+.hotel__map img{width:20px;height:20px;object-fit:contain}
+.addcard--hotel{position:relative;overflow:visible}
+.addcard--hotel > .badge{position:absolute;top:-11px;right:16px;margin:0}
+/* Row: скругление 24 во всех вариантах (серый, белый в карточке дня, пунктирный) — как в Figma */
+.att,.dayw .att,.day .att{border-radius:24px!important}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5354,11 +5367,12 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
 (function(){
   var last = null;
   ["moveSheet","hotelOpen"].forEach(function(n){ var o = A[n]; A[n] = function(d){ last = {n:n, d:Object.assign({}, d || {})}; return o.apply(this, arguments); }; });
-  function strip(){ var l = $("mfList"); if (!l) return; [].forEach.call(l.querySelectorAll(".mfl__row[data-mfo]"), function(r){ var rep = r.querySelector(".att__rep"); if (rep) rep.remove(); if (!r.getAttribute("data-sw") && !ro()) r.setAttribute("data-sw", "doc:"+r.getAttribute("data-mfo")); }); }
+  function strip(){ var l = $("mfList"); if (!l) return; [].forEach.call(l.querySelectorAll(".mfl__row[data-mfo]"), function(r){ var rep = r.querySelector(".att__rep"); if (rep) rep.remove(); if (!r.getAttribute("data-sw") && !ro()) r.setAttribute("data-sw", "doc:"+r.getAttribute("data-mfo"));
+    if (!r.querySelector(".att__open")){ var t = trip(), d = t && t.docs.filter(function(x){ return x.id === r.getAttribute("data-mfo"); })[0]; if (d && (d.file || d.link)) r.insertAdjacentHTML("beforeend", '<span class="att__open glass gbtn-s" role="button" aria-label="Открыть файл" data-act="docOpenNow" data-id="'+esc(d.id)+'"><span class="att__openic"></span></span>'); } }); }
   var _d = window.mfDraw; if (_d){ window.mfDraw = function(){ var r = _d.apply(this, arguments); strip(); return r; }; }
   new MutationObserver(function(){ strip(); }).observe(document.body, {childList:true, subtree:true});
   var ret = null;
-  document.addEventListener("click", function(e){ var o = e.target.closest && e.target.closest("[data-mfo]"); if (!o || !o.closest("#fBody") || !last || e.target.closest("[data-swdel]")) return;
+  document.addEventListener("click", function(e){ var o = e.target.closest && e.target.closest("[data-mfo]"); if (!o || !o.closest("#fBody") || !last || e.target.closest("[data-swdel]") || e.target.closest(".att__open")) return;
     if (o._swiped || o._open) return; e.preventDefault(); e.stopImmediatePropagation();
     var vals = {}; [].forEach.call($("fBody").querySelectorAll("input[id],select[id],textarea[id]"), function(x){ if (x.type === "file") return; vals[x.id] = (x.type === "checkbox" || x.type === "radio") ? x.checked : x.value; });
     ret = {n:last.n, d:last.d, vals:vals, mf:(S.mf || []).slice(), old:S.mvOld};
@@ -5421,6 +5435,20 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
     return w + (rest ? " · "+rest : "");
   };
 })();
+
+/* ===== свайп: кнопка удаления (Danger S, 36) вплотную к содержимому, 16 от края строки; появляется сразу ===== */
+(function(){
+  var _w = swW; swW = function(el){ var e = el && el.querySelector && el.querySelector(":scope > .sw-edit"); return e ? _w(el) : 52; };
+  document.addEventListener("pointermove", function(){
+    [].forEach.call(document.querySelectorAll("[data-sw].sw-drag"), function(x){ if (!x.querySelector(":scope > .sw-del")) x.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить" data-swdel>'+TRASH+'</span>'); });
+  }, true);
+})();
+
+/* ===== страница «Отели»: карточка отеля как компонент Hotel Card — город бейджем справа сверху, «На карте» кнопкой во всю ширину ===== */
+(function(){ var _h = SCR.hotels; SCR.hotels = function(r){ var v = _h.apply(this, arguments); if (!v || !v.view) return v;
+  v.view = v.view.replace(/<div class="hotel"([^>]*)><div class="hotel__top"><div><span style="display:flex;margin-bottom:8px">(<span class="badge[^"]*">[^<]*<\/span>)<\/span>([\s\S]*?)<\/div>(<a class="stay__map"([^>]*)>(<img[^>]*>)<\/a>)?<\/div>(<div class="hotel__dates">[\s\S]*?<\/div><\/div>)<\/div>/g,
+    function(m, at, badge, info, a, aat, img, dates){ return '<div class="hotel hotel--card"'+at+'>'+badge.replace('class="badge', 'class="badge hotel__badge')+'<div class="hotel__top"><div>'+info+'</div></div>'+dates+(a ? '<a class="hotel__map"'+aat+'>'+img+'<span>На карте</span></a>' : '')+'</div>'; });
+  return v; }; })();
 
 </script>
 </body>
