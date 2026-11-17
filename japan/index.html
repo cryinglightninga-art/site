@@ -5188,9 +5188,19 @@ window.addEventListener("change", function(e){ var inp = e.target; if (!inp || i
       var n = document.createElement("div"); n.className = "att att--card"; n.id = "fDfCard";
       n.innerHTML = '<span class="att__main"><span class="att__thumb"></span><span class="att__tx"><span class="att__nm"></span><small></small></span></span><label class="att__rep glass gbtn-s">Заменить</label>';
       if (ic) n.querySelector(".att__thumb").appendChild(ic); n.querySelector(".att__rep").appendChild(inp); card.parentNode.replaceChild(n, card); card = n; }
-    card.querySelector(".att__nm").textContent = x.name.replace(/\.[^.]+$/, ""); tx = card.querySelector(".att__tx small"); tx.textContent = "загружается…";
-    var pr = S.pre; if (pr && pr.file === x && pr.promise) pr.promise.then(function(ok){ if (S.pre === pr || ok) tx.textContent = ok ? "загружен" : "не загрузился — замените файл"; }); }, 0);
+    card.querySelector(".att__nm").textContent = x.name.replace(/\.[^.]+$/, ""); tx = card.querySelector(".att__tx small"); tx.setAttribute("data-up", "1"); tx.textContent = "загружается…";
+    var pr = S.pre, fin = function(ok){ if (ok){ tx.removeAttribute("data-up"); if (window.docCardSub) docCardSub(); } else tx.textContent = "не загрузился — замените файл"; };
+    if (pr && pr.file === x && pr.promise) pr.promise.then(fin); else fin(true); }, 0);
 }, true);
+/* ===== карточка файла в форме документа: подзаголовок живой — тип · чей · день · видимость ===== */
+(function(){
+  function upd(){ var b = $("fBody"), c = $("fDfCard"); if (!b || !c || !$("fDty") || !c.classList.contains("att")) return; var sm = c.querySelector(".att__tx small"); if (!sm) return;
+    if (S.docMode !== "edit" && sm.getAttribute("data-up") === "1") return;
+    var vis = val("fDv"), d = {type:val("fDty"), owner:val("fDo") || (vis === "me" ? S.me : null), day:val("fDd"), vis:vis}; sm.textContent = docSub(trip(), d); }
+  window.docCardSub = upd;
+  ["change","input","click"].forEach(function(ev){ document.addEventListener(ev, function(e){ if (e.target && e.target.closest && e.target.closest("#fBody") && $("fDty")) requestAnimationFrame(upd); }, true); });
+  var _ds = A.docSheet; A.docSheet = function(){ var r = _ds.apply(this, arguments); requestAnimationFrame(upd); return r; };
+})();
 
 </script>
 </body>
