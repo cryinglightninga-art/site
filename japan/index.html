@@ -1901,7 +1901,7 @@ SCR.trips = function(){
   var tile = function(t){ var debt = t.archived && transfers(t).length;
     return setTile("openTrip", ' data-trip="'+t.id+'"', '<span class="set__flag">'+t.flag+'</span>', esc(t.country), rangeS(t.from, t.to)+(debt?' · есть долг':''), false); };
   var h = '<div class="home">';
-  ended.forEach(function(t){ h += '<button class="stay" data-act="go" data-s="summary" data-trip="'+t.id+'"><span class="set__flag" style="font-size:34px">'+t.flag+'</span><div class="stay__tx"><p class="stay__hotel">«'+esc(t.country)+'» закончилась</p><p class="stay__meta">Подвести итог: траты и долги</p></div><span class="att__go">'+SVG.chev+'</span></button>'; });
+  ended.forEach(function(t){ h += '<button class="stay" data-act="go" data-s="money" data-trip="'+t.id+'"><span class="set__flag" style="font-size:34px">'+t.flag+'</span><div class="stay__tx"><p class="stay__hotel">«'+esc(t.country)+'» закончилась</p><p class="stay__meta">Траты и кто кому должен</p></div><span class="att__go">'+SVG.chev+'</span></button>'; });
   if (up.length) h += '<p class="label">Предстоящие</p><div class="sets sets--grid">'+up.map(tile).join("")+'</div>';
   if (past.length) h += '<p class="label">Прошедшие</p><div class="sets sets--grid">'+past.map(tile).join("")+'</div>';
   return {title:"Мои поездки", right:right, tabs:false, view:h+'</div>'};
@@ -4463,7 +4463,7 @@ function blockHtml(t, m, b, g){
   if (b.type === "text") return '<button class="memo-text" data-act="blkEdit" data-b="'+b.id+'"'+(g?' disabled':'')+'>'+esc(b.text || "").replace(/\n/g, "<br>")+'</button>';
   if (b.type === "checks") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="check">'+(b.items || []).map(function(it){
       return '<div class="check__item" data-act="memoCheck" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><span class="check__box'+(it.done?' is-done':'')+'">'+(it.done?SVG.tick:'')+'</span><span class="check__text'+(it.done?' is-done':'')+'"><b>'+esc(it.t)+'</b>'+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</span></div>'; }).join("")+
-    (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить пункт</button>')+'</div></div>';
+    (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить задачу</button>')+'</div></div>';
   if (b.type === "steps") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="steps">'+(b.items || []).map(function(it){
       return '<button class="step" data-act="itemEdit" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><div>'+esc(it.t)+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</div></button>'; }).join("")+
     (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить шаг</button>')+'</div></div>';
@@ -4499,9 +4499,9 @@ A.blkEdit = function(d){ if (ro()) return; var b = curBlk(d.b); S.blk = b.id;
   requestAnimationFrame(function(){ taFit($("fBt")); }); };
 A.blkDel = function(){ var m = memo(trip(), S.noteId), id = S.blk; ask("Удалить текст?", "", null, "Удалить", function(){ m.blocks = m.blocks.filter(function(b){ return b.id !== id; }); S.blk = null; closeForm(); render(); }, true); };
 A.itemAdd = function(d){ var b = curBlk(d.b); S.item = {b:b.id, id:null};
-  form(b.type === "steps" ? "Шаг" : "Пункт", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt">')+fld("Описание", '<textarea class="in" id="fIs" rows="2" placeholder="Подробности, если нужны"></textarea>')+'<button class="primary" data-act="itemSave">Добавить</button></div>', b.title || ""); };
+  form(b.type === "steps" ? "Шаг" : "Задача", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt">')+fld("Описание", '<textarea class="in" id="fIs" rows="2" placeholder="Подробности, если нужны"></textarea>')+'<button class="primary" data-act="itemSave">Добавить</button></div>', b.type === "steps" ? (b.title || "") : ""); };
 A.itemEdit = function(d){ if (ro()) return; var b = curBlk(d.b), it = (b.items || []).filter(function(x){ return x.id === d.id; })[0]; if (!it) return; S.item = {b:b.id, id:it.id};
-  form(b.type === "steps" ? "Шаг" : "Пункт", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt" value="'+esc(it.t)+'">')+fld("Описание", '<textarea class="in" id="fIs" rows="2">'+esc(it.s||"")+'</textarea>')+'<button class="primary" data-act="itemSave">Сохранить</button></div>', b.title || "", [["itemDel","Удалить"]]);
+  form(b.type === "steps" ? "Шаг" : "Задача", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt" value="'+esc(it.t)+'">')+fld("Описание", '<textarea class="in" id="fIs" rows="2">'+esc(it.s||"")+'</textarea>')+'<button class="primary" data-act="itemSave">Сохранить</button></div>', b.type === "steps" ? (b.title || "") : "", [["itemDel","Удалить"]]);
   requestAnimationFrame(function(){ taFit($("fIs")); }); };
 A.itemSave = function(){ var v = val("fIt"); if (!v){ toast("Введите название"); return; } var b = curBlk(S.item.b), s = val("fIs");
   if (S.item.id){ var it = b.items.filter(function(x){ return x.id === S.item.id; })[0]; it.t = v; it.s = s; } else b.items.push({id:"i"+uid(), t:v, s:s, done:false});
@@ -4660,7 +4660,7 @@ placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r
 var _blockHtmlE = blockHtml;
 blockHtml = function(t, m, b, g){ if ((b.type === "checks" || b.type === "steps") && !(b.items || []).length){
     var lbl = b.title ? '<p class="label">'+esc(b.title)+'</p>' : '';
-    return '<div'+swAttr("mblk", b.id)+'>'+lbl+(g ? '<p class="hint">Пусто</p>' : dash('<b>＋ '+(b.type === "steps" ? "Добавить шаг" : "Добавить пункт")+'</b>', "itemAdd", ' data-b="'+b.id+'"'))+'</div>'; }
+    return '<div'+swAttr("mblk", b.id)+'>'+lbl+(g ? '<p class="hint">Пусто</p>' : dash('<b>＋ '+(b.type === "steps" ? "Добавить шаг" : "Добавить задачу")+'</b>', "itemAdd", ' data-b="'+b.id+'"'))+'</div>'; }
   return _blockHtmlE(t, m, b, g); };
 
 
@@ -5267,6 +5267,13 @@ window.addEventListener("change", function(e){ var inp = e.target; if (!inp || i
 /* ===== новый документ: имя файла сразу подставляется в «Название», если оно пустое ===== */
 window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.id !== "fDf" || S.docMode === "edit") return; var x = inp.files && inp.files[0], t = $("fDt"); if (!x || !t || t.value) return;
   t.value = x.name.replace(/\.[^.]+$/, ""); t.dispatchEvent(new Event("input", {bubbles:true})); var bx = t.closest(".fbox"); if (bx) bx.classList.add("is-filled"); }, true);
+
+/* ===== шторка транспорта: в заголовке всегда города, не «Переезд» ===== */
+(function(){ var _ms = A.moveSheet; A.moveSheet = function(d){ var r = _ms.apply(this, arguments); var tt = $("fTitle"); if (!tt || tt.textContent !== "Переезд") return r;
+  var f = val("fMf"), t = val("fMt"), m = moveFor(trip(), S.moveK) || {}; var a = f || m.from, b = t || m.to;
+  if (a && b) tt.textContent = a+" → "+b; return r; }; })();
+/* ===== «Итог поездки» убран: закончившаяся поездка открывается как обычно, долги — во вкладке «Деньги» ===== */
+SCR.summary = function(r){ return SCR.money(r); };
 
 </script>
 </body>
