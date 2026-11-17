@@ -5280,6 +5280,10 @@ window.addEventListener("change", function(e){ var inp = e.target; if (!inp || i
   if (a && b) tt.textContent = a+" → "+b; return r; }; })();
 /* ===== «Итог поездки» убран: закончившаяся поездка открывается как обычно, долги — во вкладке «Деньги» ===== */
 SCR.summary = function(r){ return SCR.money(r); };
+/* ===== карточка дня: документы всегда в самом конце ===== */
+(function(){ var _dc = dayCard; dayCard = function(t, d){ var h = _dc(t, d); if (typeof h !== "string" || h.indexOf('class="att"') < 0) return h;
+  var atts = []; h = h.replace(/<button class="att"[^]*?<\/button>/g, function(m){ atts.push(m); return ""; });
+  var end = h.lastIndexOf("</article>"); return end < 0 ? h + atts.join("") : h.slice(0, end) + atts.join("") + h.slice(end); }; })();
 
 </script>
 </body>
