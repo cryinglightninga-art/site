@@ -5258,6 +5258,16 @@ window.addEventListener("change", function(e){ var inp = e.target; if (!inp || i
   var _swW = swW; swW = function(el){ return el.getAttribute && /^doc:/.test(el.getAttribute("data-sw") || "") ? 124 : _swW(el); };
 })();
 
+/* ===== шторка места: заголовок «Место», подзаголовок — дата (меняется вместе с полем) ===== */
+(function(){
+  var _ps = A.placeSheet; A.placeSheet = function(d){ var r = _ps.apply(this, arguments); if (!$("fsheet").classList.contains("is-open") || !$("fPday")) return r;
+    var upd = function(){ var v = val("fPday"); $("fSub").textContent = v ? _dmTr(v) : "Без даты"; $("fSub").hidden = false; };
+    $("fTitle").textContent = "Место"; upd(); $("fPday").addEventListener("change", upd); return r; };
+})();
+/* ===== новый документ: имя файла сразу подставляется в «Название», если оно пустое ===== */
+window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.id !== "fDf" || S.docMode === "edit") return; var x = inp.files && inp.files[0], t = $("fDt"); if (!x || !t || t.value) return;
+  t.value = x.name.replace(/\.[^.]+$/, ""); t.dispatchEvent(new Event("input", {bubbles:true})); var bx = t.closest(".fbox"); if (bx) bx.classList.add("is-filled"); }, true);
+
 </script>
 </body>
 </html>
