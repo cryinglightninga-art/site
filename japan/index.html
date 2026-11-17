@@ -1590,6 +1590,12 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .fld--seg .chips--seg{max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex-wrap:nowrap}
 .fld--seg .chips--seg::-webkit-scrollbar{display:none}
 .fld--seg .chips--seg .chip{flex:none}
+.mfl{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.mfl[hidden]{display:none}
+.mfl__row .att__main{cursor:default}
+.mfl__x{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;padding:0}
+.mfl__x{color:var(--label)}
+.mfl__x svg{width:20px;height:20px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5108,6 +5114,63 @@ nightWarn = function(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) 
   if (!h || h.inD !== v.arrD || !v.arr || !h.inT || v.arr >= h.inT) return "";
   var tail = v.arr < "06:00" ? "ночь без жилья" : (function(){ var a = v.arr.split(":"), b = h.inT.split(":"), m = (+b[0]*60 + +b[1]) - (+a[0]*60 + +a[1]), hh = Math.floor(m/60), mm = m % 60; return (hh ? hh+" ч" : "")+(mm ? (hh ? " " : "")+mm+" мин" : "")+" без жилья"; })();
   return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд с '+esc(h.inT)+' — '+tail+'</p>'; };
+
+/* ===== карточка дня: подзаголовок переезда как в шторке — описание · время ===== */
+legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), [v.no, v.dep&&v.arr ? legSpan(v, k) : v.dep].filter(Boolean).map(esc).join(" · ")); };
+
+/* ===== несколько файлов: билеты переезда, брони отеля, новые документы ===== */
+(function(){
+  var IDS = {fMfile:"Транспорт", fHf:"Бронь", fDf:""};
+  function on(id){ return IDS.hasOwnProperty(id) && !(id === "fDf" && S.docMode === "edit"); }
+  function reset(){ S.mf = []; }
+  reset();
+  ["moveSheet","hotelOpen","addDoc"].forEach(function(n){ var o = A[n]; A[n] = function(){ reset(); var r = o.apply(this, arguments);
+    var b = $("fBody"); if (b) [].forEach.call(b.querySelectorAll('input[type="file"]'), function(i){ if (on(i.id)) i.multiple = true; }); return r; }; });
+  var _cf = closeForm; closeForm = function(){ reset(); return _cf.apply(this, arguments); };
+  function row(x, i){ var st = x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(x.type));
+    return '<div class="att att--card mfl__row"><span class="att__main"><span class="att__thumb">'+st+'</span><span class="att__tx">'+esc(x.file.name)+'<small>'+(x.ok == null ? "загружается…" : x.ok ? "загружен" : "не загрузился — удалите и выберите снова")+'</small></span></span>'+
+      '<button type="button" class="mfl__x glass gbtn-s" data-mfx="'+i+'" aria-label="Убрать"><svg viewBox="0 0 12 12" fill="none"><path d="M3.5 3.5l5 5M8.5 3.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button></div>'; }
+  function draw(){ var b = $("fBody"); if (!b) return; var inp = b.querySelector("#fMfile, #fHf, #fDf"); if (!inp) return;
+    var card = inp.closest(".addcard, .att") || $("fMfCard") || $("fHfCard") || $("fDfCard"); if (!card) return;
+    var l = $("mfList"); if (!l){ l = document.createElement("div"); l.id = "mfList"; l.className = "mfl"; card.parentNode.insertBefore(l, card); }
+    l.innerHTML = S.mf.map(row).join(""); l.hidden = !S.mf.length;
+    var bt = card.querySelector("b"), sm = card.querySelector("small"); card.classList.remove("is-file");
+    var ic = card.querySelector(".addcard__ic"); if (ic){ ic.classList.remove("is-ill"); ic.innerHTML = IC.add; }
+    if (bt) bt.textContent = S.mf.length ? "Добавить ещё" : inp.id === "fMfile" ? "Добавить билет" : inp.id === "fHf" ? "Добавить файл брони" : "Добавить документ";
+    if (sm) sm.textContent = inp.id === "fDf" ? "билеты и полис" : "PDF или скриншот";
+    var busy = S.mf.some(function(x){ return x.ok == null; }); $("fsheet").classList.toggle("is-busy", busy); }
+  window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.type !== "file" || !inp.closest || !inp.closest("#fBody") || !on(inp.id)) return;
+    var fs = [].slice.call(inp.files || []); if (!fs.length) return; e.stopImmediatePropagation();
+    var t = trip(), type = inp.id === "fDf" ? ($("fDty") ? $("fDty").value : "") : IDS[inp.id];
+    fs.forEach(function(f){ var x = {file:f, id:uid(), ok:null, type:type}; S.mf.push(x);
+      x.promise = window._putRaw(t, x.id, f).then(function(ok){ x.ok = !!ok; draw(); return x.ok; }, function(){ x.ok = false; draw(); return false; }); });
+    try { inp.value = ""; } catch(_){}
+    if (inp.id === "fDf" && $("fDt") && !val("fDt")) $("fDt").placeholder = fs[0].name.replace(/\.[^.]+$/, "");
+    draw(); }, true);
+  document.addEventListener("click", function(e){ var b = e.target.closest && e.target.closest("[data-mfx]"); if (!b) return; e.preventDefault(); e.stopPropagation(); S.mf.splice(+b.getAttribute("data-mfx"), 1); draw(); }, true);
+  async function ready(){ var all = S.mf.slice(); $("fsheet").classList.add("is-busy"); await Promise.all(all.map(function(x){ return x.promise; })); $("fsheet").classList.remove("is-busy");
+    return all.filter(function(x){ return x.ok; }); }
+  function nm(base, i, n){ return n > 1 ? base+" · "+(i+1) : base; }
+  function trFor(t, pred){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(pred)[0]; return x ? trKey(x) : null; }
+  var _ms = A.moveSave; A.moveSave = async function(){ if (!S.mf.length) return _ms.apply(this, arguments);
+    var t = trip(), from = val("fMf"), to = val("fMt"), k = S.moveK, ok = await ready(); reset();
+    await _ms.apply(this, arguments);
+    var day = trFor(t, function(z){ return z.legs.some(function(l){ return l.v.from === from && l.v.to === to; }); }) || val("fMdD") || k;
+    ok.forEach(function(x, i){ t.docs.push({id:x.id, title:nm("Билет "+city(from)+" → "+city(to), i, ok.length), type:"Транспорт", owner:null, vis:"all", day:day, file:x.id}); }); refresh(); };
+  var _hs = A.hotelSave; A.hotelSave = async function(){ if (!S.mf.length) return _hs.apply(this, arguments);
+    var t = trip(), c = S.hcity, ok = await ready(); reset();
+    await _hs.apply(this, arguments); var h = t.hotels[c]; if (!h) return;
+    var day = trFor(t, function(z){ return z.inn.some(function(q){ return q[0] === c; }); }) || h.inD;
+    ok.forEach(function(x, i){ t.docs.push({id:x.id, title:nm("Бронь · "+h.name, i, ok.length), type:"Бронь", owner:null, vis:"all", day:day, file:x.id}); }); refresh(); };
+  var _ds = A.docSave; A.docSave = async function(){ if (!S.mf.length || S.docMode === "edit") return _ds.apply(this, arguments);
+    var t = trip(), ok = await ready(); reset(); if (!ok.length){ toast("Файлы не загрузились"); return; }
+    var tl = $("fDt"), own = val("fDt"), fn = function(x){ return x.file.name.replace(/\.[^.]+$/, ""); }, title = own || fn(ok[0]); if (tl) tl.value = title;
+    var n0 = t.docs.length; S.nextUid = ok[0].id; await _ds.apply(this, arguments); S.nextUid = null;
+    var d0 = t.docs.filter(function(d){ return d.id === ok[0].id; })[0]; if (!d0) return;
+    d0.file = d0.id; if (ok.length > 1 && own) d0.title = nm(own, 0, ok.length);
+    ok.slice(1).forEach(function(x, i){ var d = {id:x.id, title:own ? nm(own, i+1, ok.length) : fn(x), type:d0.type, owner:d0.owner, vis:d0.vis, day:d0.day, file:x.id}; t.docs.push(d); });
+    refresh(); };
+})();
 
 </script>
 </body>
