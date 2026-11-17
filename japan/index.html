@@ -1612,6 +1612,9 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 [data-sw^="doc:"]:has(> .sw-edit) > .sw-del{right:-116px!important}
 .docstack{display:flex;flex-direction:column;gap:8px}
 .att[data-sw]{position:relative!important;overflow:hidden}
+
+/* Заметки: каждая заметка — отдельный контейнер */
+.notes-list{display:flex;flex-direction:column;gap:8px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -4455,7 +4458,7 @@ prepView = function(t){ var h = _prepViewN(t), g = isGuest(), sec = function(n){
   return h; };
 SCR.notes = function(r){ var t = trip(r.trip), g = ro(), ms = memos(t), h = '<div class="pg">';
   if (!ms.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Список</b><span class="hint">заметки, задачи, шаги и документы</span>', "noteNew");
-  else h += '<div class="check">'+ms.map(function(m){ return '<button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+'</div>';
+  else h += '<div class="notes-list">'+ms.map(function(m){ return '<div class="check"><button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button></div>'; }).join("")+'</div>';
   return {title:"Заметки", ill:"notes", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новый список", "btn-acc"), tabs:false, view:h+'</div>'}; };
 A.noteNew = function(){ ask("Новый список", "", "", "Создать", function(n){ var t = trip(), m = {id:"m"+uid(), title:n, blocks:[]}; memos(t).push(m); S.noteId = m.id; go("note"); }); };
 A.noteOpen = function(d){ S.noteId = d.id; go("note"); };
