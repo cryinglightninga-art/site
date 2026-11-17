@@ -1596,6 +1596,10 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .mfl__x{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;padding:0}
 .mfl__x{color:var(--label)}
 .mfl__x svg{width:20px;height:20px}
+/* карточка дня и плашка: одна строка с троеточием (без -webkit-box — на iPhone он обрезает без точек) */
+.day .att__tx,.day .att__tx small,.day .li__tx small{display:block;-webkit-line-clamp:unset;-webkit-box-orient:initial;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.day .att__tx{flex:1 1 auto}
+.day .li__tx{min-width:0}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
