@@ -3359,7 +3359,7 @@ A.moveSheet = function(d){
   form(title, '<div class="pg pg--sheet">'+seg("mvSeg", Object.keys(MOVE).map(function(x){ return [x, x]; }), v.type)+
     '<div class="inline">'+fld("Откуда", '<input class="in" id="fMf" value="'+esc(v.from || (i < 0 ? ((tripDays(t).filter(function(x){ return x.k === k; })[0] || {}).city || "") : ""))+'" placeholder="Город">')+fld("Куда", '<input class="in" id="fMt" value="'+esc(v.to)+'" placeholder="Город">')+'</div>'+
     '<div class="inline">'+fld("Отправление", '<input class="in" id="fMdD" type="date" value="'+esc(v.depD || k)+'">')+fld("Время", '<input class="in" id="fMd" type="time" value="'+esc(v.dep)+'">')+'</div>'+
-    '<div class="inline">'+fld("Прибытие", '<input class="in" id="fMaD" type="date" value="'+esc(v.arrD || "")+'">')+fld("Время", '<input class="in" id="fMa" type="time" value="'+esc(v.arr)+'">')+'</div>'+
+    '<div class="inline">'+fld("Прибытие", '<input class="in" id="fMaD" type="date" value="'+esc(v.arrD || (i >= 0 ? (v.depD || k) : ""))+'">')+fld("Время", '<input class="in" id="fMa" type="time" value="'+esc(v.arr)+'">')+'</div>'+
     fld("Рейс, поезд, место", '<input class="in" id="fMn" value="'+esc(v.no)+'">')+fld("Билет — уйдёт и в «Документы»", '<input class="in" type="file" id="fMfile">')+
     '<div class="stack"><button class="primary" data-act="moveSave">Сохранить</button>'+(i >= 0 ? '<button class="btn2 is-danger" data-act="moveDel">Удалить поездку</button>' : '')+'</div></div>');
 };
