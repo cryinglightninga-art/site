@@ -1633,6 +1633,7 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 /* билеты → «Добавьте ещё»: 8, как в макете */
 .mfl{margin-bottom:0!important}
 .mfl + .addcard{margin-top:-8px}
+.wbar i{transition:width .6s cubic-bezier(.3,.8,.4,1)}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5309,6 +5310,13 @@ SCR.summary = function(r){ return SCR.money(r); };
 /* ===== «Заменить» — иконка внутри круглой кнопки ===== */
 (function(){ function put(){ [].forEach.call(document.querySelectorAll(".att__rep:not([data-ic])"), function(b){ b.setAttribute("data-ic", "1"); b.setAttribute("aria-label", "Заменить"); b.insertAdjacentHTML("afterbegin", '<span class="att__repic"></span>'); }); }
   new MutationObserver(put).observe(document.body, {childList:true, subtree:true}); put(); })();
+/* ===== мастер: прогресс-бар заполняется с анимацией от прошлого шага ===== */
+(function(){ var last = 0;
+  progress = function(st, extra){ var to = (st+1)/3*100, from = last; last = to;
+    setTimeout(function(){ var i = document.querySelector("#view .wbar i[data-to]"); if (i){ i.getBoundingClientRect(); i.style.width = i.getAttribute("data-to")+"%"; } }, 30);
+    return '<div class="wprog"><p class="hint">Шаг '+(st+1)+' из 3'+(extra||'')+'</p><div class="wbar"><i data-to="'+to+'" style="width:'+from+'%"></i></div></div>'; };
+  var _nt = A.newTrip; if (_nt) A.newTrip = function(){ last = 0; return _nt.apply(this, arguments); };
+})();
 
 </script>
 </body>
