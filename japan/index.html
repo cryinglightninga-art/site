@@ -5160,8 +5160,8 @@ legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc
     var card = inp.closest(".addcard, .att") || $("fMfCard") || $("fHfCard"); if (!card) return;
     var l = $("mfList"); if (!l){ l = document.createElement("div"); l.id = "mfList"; l.className = "mfl"; card.parentNode.insertBefore(l, card); }
     var n = c.have.length + S.mf.length, sub = docSub(c.t, {type:c.type, owner:null, vis:"all", day:c.day});
-    var h = c.have.map(function(d){ var up = S.mfUp && S.mfUp[d.id]; return row("d:"+d.id, d.title, up ? "загружается…" : [ext(d.fname), docSub(c.t, d)].filter(Boolean).join(" · "), up ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(d.type)), ' data-mfo="'+esc(d.id)+'" role="button"'); }).join("");
-    h += S.mf.map(function(x, i){ return row(i, nm(c.base, c.have.length + i, n), x.ok == null ? "загружается…" : x.ok ? [ext(x.file.name), sub].filter(Boolean).join(" · ") : "не загрузился — уберите и выберите снова", x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(c.type))); }).join("");
+    var h = c.have.map(function(d){ var up = S.mfUp && S.mfUp[d.id]; return row("d:"+d.id, d.title, up ? "загружается…" : docSub(c.t, d), up ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(d.type)), ' data-mfo="'+esc(d.id)+'" role="button"'); }).join("");
+    h += S.mf.map(function(x, i){ return row(i, nm(c.base, c.have.length + i, n), x.ok == null ? "загружается…" : x.ok ? sub : "не загрузился — уберите и выберите снова", x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(c.type))); }).join("");
     l.innerHTML = h; l.hidden = !n;
     var bt = card.querySelector("b"), sm = card.querySelector("small"); card.classList.remove("is-file");
     var ic = card.querySelector(".addcard__ic"); if (ic){ ic.classList.remove("is-ill"); ic.innerHTML = IC.add; }
