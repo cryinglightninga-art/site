@@ -5452,6 +5452,10 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
   legSpan = function(v, k){ var d0 = v.depD || (k && k.indexOf("tr:") !== 0 ? k : ""); return when(d0, v.dep, v.arrD || d0, v.arr); };
 })();
 
+/* ===== подпись переезда в плане: без дат, только города — откуда первый транспорт и куда последний ===== */
+(function(){ var _tl = trLabel; trLabel = function(x){ if (!x || !x.legs || !x.legs.length) return _tl.apply(this, arguments);
+  var f = x.legs[0].v, l = x.legs[x.legs.length-1].v; return city(f.from)+" → "+city(l.to); }; })();
+
 </script>
 </body>
 </html>
