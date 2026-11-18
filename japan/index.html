@@ -5537,6 +5537,48 @@ A.nrToggle = function(d, el){ var b = document.querySelector('#nrBox .tgl'); if 
   var _ap = A.addPlace; A.addPlace = function(){ autoNr(trip(), S.day); return _ap.apply(this, arguments); };
   var _ps = A.placeSheet; A.placeSheet = function(d){ autoNr(trip(), d && d.day); return _ps.apply(this, arguments); }; })();
 
+/* ===== маршрут дня по Google place_id: текст «ABC-MART …» Google понимает неоднозначно (в Сибуе несколько ABC-MART) и показывает выбор.
+   Ссылка api=1 с place_id ведёт ровно в выбранные места. place_id берём из подсказки Google при выборе, иначе находим через Places Text Search ===== */
+(function(){
+  var _du = dirUrl;
+  dirUrl = function(hs, ps, he){
+    var stops = (ps || []).filter(function(p){ return !p.nr; }).map(function(p){ return {q:stopQ(p), id:p.pid || ""}; }).filter(function(s){ return s.q; });
+    if (hs) stops.unshift({q:hs, id:""}); if (he) stops.push({q:he, id:""});
+    if (stops.length > 10) stops = stops.filter(function(s, i){ return !((hs && i === 0) || (he && i === stops.length - 1)); }).slice(0, 10);
+    if (!stops.length) return "";
+    if (!stops.some(function(s){ return s.id; })) return _du.call(this, hs, ps, he);
+    var o = stops[0], d = stops.length > 1 ? stops[stops.length - 1] : stops[0], w = stops.slice(1, -1), e = encodeURIComponent;
+    var u = "https://www.google.com/maps/dir/?api=1&origin="+e(o.q)+(o.id ? "&origin_place_id="+o.id : "")+"&destination="+e(d.q)+(d.id ? "&destination_place_id="+d.id : "");
+    if (w.length){ u += "&waypoints="+w.map(function(s){ return e(s.q); }).join("%7C"); if (w.every(function(s){ return s.id; })) u += "&waypoint_place_ids="+w.map(function(s){ return s.id; }).join("%7C"); }
+    return u; };
+  /* place_id из подсказки */
+  var _ga = gAuto;
+  gAuto = function(q, city){ return cityBox(city).then(function(b){
+    var body = {input:q, languageCode:"ru"}; if (b) body.locationRestriction = {rectangle:{low:{latitude:b.s, longitude:b.w}, high:{latitude:b.n, longitude:b.e}}};
+    return fetch("https://places.googleapis.com/v1/places:autocomplete", {method:"POST", headers:{"Content-Type":"application/json", "X-Goog-Api-Key":GPK}, body:JSON.stringify(body)})
+      .then(function(r){ if (!r.ok) throw new Error("places "+r.status); return r.json(); })
+      .then(function(j){ return (j.suggestions || []).map(function(s){ var p = s.placePrediction; if (!p) return null; var sf = p.structuredFormat || {};
+        return {n:(sf.mainText && sf.mainText.text) || (p.text && p.text.text) || "", a:(sf.secondaryText && sf.secondaryText.text) || "", id:p.placeId || ""}; }).filter(function(x){ return x && x.n; }); }); }); };
+  var _sp = A.sugPick; A.sugPick = function(d){ var x = SUG.res[+d.i]; _sp(d); if (SUG.field === "fPq") S.ppid = x && x.id || null; };
+  var _pq = INP.plQ; INP.plQ = function(v){ _pq(v); S.ppid = null; };
+  function resolvePid(p, city){ var q = stopQ(p); if (!q) return;
+    cityBox(city).then(function(b){ var body = {textQuery:q, maxResultCount:1}; if (b) body.locationBias = {rectangle:{low:{latitude:b.s, longitude:b.w}, high:{latitude:b.n, longitude:b.e}}};
+      return fetch("https://places.googleapis.com/v1/places:searchText", {method:"POST", headers:{"Content-Type":"application/json", "X-Goog-Api-Key":GPK, "X-Goog-FieldMask":"places.id,places.location"}, body:JSON.stringify(body)}); })
+      .then(function(r){ return r.ok ? r.json() : null; }).then(function(j){ var x = j && j.places && j.places[0]; if (!x || stopQ(p) !== q) return;
+        p.pid = x.id; if (x.location){ p.lat = x.location.latitude; p.lng = x.location.longitude; } if (typeof schedule === "function") schedule(); }).catch(function(){}); }
+  window.resolvePid = resolvePid;
+  function after(p, before, day){ if (!p) return; var t = trip();
+    if (S.ppid){ p.pid = S.ppid; delete p.lat; delete p.lng; }
+    else if (!p.pid || stopQ(p) !== before){ delete p.pid; delete p.lat; delete p.lng; resolvePid(p, dayCity(t, day || "_nodate")); }
+    S.ppid = null; if (typeof schedule === "function") schedule(); }
+  var _an = A.placeAddNew; A.placeAddNew = function(){ var t = trip(), ids = {}; Object.keys(t.places).forEach(function(k){ (t.places[k] || []).forEach(function(p){ ids[p.id] = 1; }); }); t.nodate.forEach(function(p){ ids[p.id] = 1; });
+    var ppid = S.ppid; _an.apply(this, arguments); S.ppid = ppid; var hit = null, hd = null;
+    Object.keys(t.places).forEach(function(k){ (t.places[k] || []).forEach(function(p){ if (!ids[p.id]){ hit = p; hd = k; } }); }); t.nodate.forEach(function(p){ if (!ids[p.id]) hit = p; });
+    if (hit) after(hit, null, hd); else S.ppid = null; };
+  var _sv = A.placeSave; A.placeSave = function(){ var e = editedPlace(), p = e && e.p, before = p ? stopQ(p) : null, ppid = S.ppid; _sv.apply(this, arguments); S.ppid = ppid;
+    var t = trip(), day = null; Object.keys(t.places).forEach(function(k){ if ((t.places[k] || []).indexOf(p) >= 0) day = k; }); after(p, before, day); };
+})();
+
 </script>
 </body>
 </html>
