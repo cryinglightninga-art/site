@@ -5610,7 +5610,7 @@ IC.clip = '<svg viewBox="0 0 20 20"><path fill="currentColor" d="M16.05 10.43l-6
 S.rc = null;
 function rcHtml(){ var r = S.rc;
   if (!r) return '<label class="addcard addcard--rc" id="rcBox"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавьте чек</b></span><input type="file" id="fRcF" accept="image/*,application/pdf" hidden></label>';
-  return '<div class="att att--card" id="rcBox"><span class="att__main"><span class="att__thumb">'+(r.ok === null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill("recipe"))+'</span><span class="att__tx"><span class="att__nm">'+esc(r.name || "Чек")+'</span>'+(r.ok === null ? '<small>загружается…</small>' : r.ok === false ? '<small>не загрузился — выберите снова</small>' : '')+'</span></span>'+
+  return '<div class="att att--card" id="rcBox"'+(r.ok === null ? '' : swAttr("rc", "1"))+'><span class="att__main"><span class="att__thumb">'+(r.ok === null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill("recipe"))+'</span><span class="att__tx"><span class="att__nm">'+esc(r.name || "Чек")+'</span>'+(r.ok === null ? '<small>загружается…</small>' : r.ok === false ? '<small>не загрузился — выберите снова</small>' : '')+'</span></span>'+
     (r.ok ? '<span class="att__open glass gbtn-s" role="button" aria-label="Открыть чек" data-act="rcOpen"><span class="att__openic"></span></span>' : '')+
     '<label class="att__rep glass gbtn-s">Заменить<input type="file" id="fRcF" accept="image/*,application/pdf" hidden></label></div>'; }
 function rcDraw(){ var b = $("rcBox"); if (b) b.outerHTML = rcHtml(); }
@@ -5652,6 +5652,10 @@ A.rcOpen = function(){ if (S.rc && S.rc.ok) openFileId(S.rc.id); };
       v.view = v.view.slice(0, j) + '<span class="mrow__clip" aria-label="Есть чек">'+IC.clip+'</span>' + v.view.slice(j); });
     return v; };
 })();
+
+/* чек: свайп влево — убрать чек (сохранится по «Готово») */
+(function(){ var _sd = swDelete; swDelete = function(el){ var k = (el.getAttribute("data-sw") || "").split(":"); if (k[0] !== "rc") return _sd.apply(this, arguments);
+  S.rc = null; swOpen = null; rcDraw(); }; })();
 
 </script>
 </body>
