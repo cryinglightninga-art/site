@@ -5500,6 +5500,14 @@ A.placeSave = function(){ var e = editedPlace(), nr = nrVal(), p = e && e.p; _pl
 /* маршрут дня — только места без «не включать» */
 (function(){ var _du = dirUrl; dirUrl = function(hs, ps, he){ return _du.call(this, hs, (ps || []).filter(function(p){ return !p.nr; }), he); }; })();
 
+/* места с «Не включать в маршрут» — та же оранжевая подпись в списке дня (без «i»: это выбор пользователя, а не лимит) */
+(function(){ var _ro = routeOff; routeOff = function(t, k){ var ps = t.places[k] || [], keep = ps.filter(function(p){ return !p.nr; }), off;
+  t.places[k] = keep; try { off = _ro(t, k); } finally { t.places[k] = ps; }
+  ps.forEach(function(p){ if (p.nr) off[p.id] = "nr"; }); return off; };
+  var _od = openDay; openDay = function(k){ _od(k); var t = trip(), ps = t.places[k] || [];
+    [].forEach.call(document.querySelectorAll("#plist .prow"), function(row){ var p = ps[+row.getAttribute("data-i")]; if (!p || !p.nr) return;
+      var ro_ = row.querySelector(".route-off"); if (ro_){ var i = ro_.querySelector(".info-i"); if (i) i.remove(); ro_.firstChild.textContent = "Не включено в маршрут дня"; } }); }; })();
+
 </script>
 </body>
 </html>
