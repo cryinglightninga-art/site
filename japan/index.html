@@ -1681,6 +1681,10 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .tgl[disabled]{opacity:.5;cursor:default}
 #nrBox .hint{margin-top:4px}
 .tgl.is-lock{opacity:.5}
+.mrow__clip{display:inline-flex;vertical-align:-2px;margin-left:6px;width:16px;height:16px;color:var(--label-2,#8a8a8e)}
+.mrow__clip svg{width:16px;height:16px}
+#rcBox{margin-bottom:4px}
+#splitBox:empty{display:none}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5599,6 +5603,54 @@ transfers = function(t, only){
   var _bl = balances; balances = function(t, only){ t.money.forEach(function(e){ if (typeof e.amt === "string") e.amt = parseFloat(e.amt.replace(",", ".")) || 0; }); return _bl(t, only); }; })();
 A.paid = function(d){ var t = trip(), x = transfers(t)[+d.i], c = S.sumCur; if (!x) return;
   t.money.push({id:uid(), kind:"ref", title:"Возврат долга", amt:Math.round(fromBase(x.v, c) * 100) / 100, cur:c, payer:x.from, to:x.to, date:S.today}); closeForm(); render(); toast("Записали возврат"); };
+
+/* ===== деньги: чек к трате/возврату, дата, скрепка в списке ===== */
+IC.clip = '<svg viewBox="0 0 20 20"><path fill="currentColor" d="M16.05 10.43l-6.94 6.86c-1.8 1.79-4.23 1.62-5.78.07-1.56-1.53-1.74-3.91.07-5.7l9.47-9.35c1.09-1.07 2.68-1.22 3.72-.21 1.03 1.04.88 2.6-.2 3.68l-9.25 9.15c-.47.47-1.03.34-1.35.02-.32-.33-.45-.87.01-1.35l6.47-6.37c.28-.29.3-.7.03-.97-.27-.26-.69-.24-.97.04L4.83 12.7c-.96.95-.92 2.41-.07 3.25.92.91 2.32.9 3.29-.07l9.29-9.18c1.77-1.75 1.69-4.04.15-5.56-1.5-1.49-3.86-1.6-5.63.15L2.35 10.7c-2.33 2.31-2.15 5.6-.05 7.68 2.11 2.07 5.44 2.25 7.77-.05l6.99-6.9c.27-.27.27-.77-.01-1.02-.27-.29-.72-.25-1-.02z"/></svg>';
+S.rc = null;
+function rcHtml(){ var r = S.rc;
+  if (!r) return '<label class="addcard addcard--rc" id="rcBox"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавьте чек</b></span><input type="file" id="fRcF" accept="image/*,application/pdf" hidden></label>';
+  return '<div class="att att--card" id="rcBox"><span class="att__main"><span class="att__thumb">'+(r.ok === null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill("recipe"))+'</span><span class="att__tx"><span class="att__nm">'+esc(r.name || "Чек")+'</span>'+(r.ok === null ? '<small>загружается…</small>' : r.ok === false ? '<small>не загрузился — выберите снова</small>' : '')+'</span></span>'+
+    (r.ok ? '<span class="att__open glass gbtn-s" role="button" aria-label="Открыть чек" data-act="rcOpen"><span class="att__openic"></span></span>' : '')+
+    '<label class="att__rep glass gbtn-s">Заменить<input type="file" id="fRcF" accept="image/*,application/pdf" hidden></label></div>'; }
+function rcDraw(){ var b = $("rcBox"); if (b) b.outerHTML = rcHtml(); }
+function moneyExtra(e){ var pg = $("fBody") && $("fBody").querySelector(".pg"); if (!pg) return;
+  pg.insertAdjacentHTML("afterbegin", rcHtml());
+  var btn = pg.querySelector(":scope > .primary"), d = fld("Дата", '<input class="in" id="fMd" type="date" value="'+esc((e && e.date) || S.today)+'">');
+  if (btn) btn.insertAdjacentHTML("beforebegin", d); else pg.insertAdjacentHTML("beforeend", d);
+  try { enhance($("fBody")); } catch(_){} }
+document.addEventListener("change", function(ev){ var inp = ev.target; if (!inp || inp.id !== "fRcF") return; ev.stopImmediatePropagation(); var f = inp.files && inp.files[0]; if (!f) return;
+  var t = trip(), r = {id:uid(), name:f.name, ok:null}; S.rc = r; rcDraw();
+  r.pending = window._putRaw(t, r.id, f).then(function(ok){ r.ok = !!ok; if (S.rc === r) rcDraw(); return r.ok; }, function(){ r.ok = false; if (S.rc === r) rcDraw(); return false; }); }, true);
+async function openFileId(fid){ var t = trip(); if (!fid) return; if (S.role === "guest"){ toast("Файл открывают участники поездки"); return; }
+  var w = null; try { w = window.open("", "_blank"); } catch(e){}
+  try { var key = t.id + "/" + fid, url = FILECACHE[key];
+    if (!url){ if (w) w.document.write('<p style="font:16px -apple-system,sans-serif;padding:24px;color:#888">Открываем…</p>');
+      var r = await sb.rpc("tp_file_get", {p_trip:t.id, p_id:fid}); if (r.error || !r.data) throw r.error || new Error("no file");
+      var bin = atob(r.data.b64), arr = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+      url = FILECACHE[key] = URL.createObjectURL(new Blob([arr], {type:r.data.mime || "application/octet-stream"})); }
+    if (w && !w.closed) w.location.href = url; else location.href = url;
+  } catch(e){ if (w) w.close(); console.warn(e); toast("Не получилось открыть чек"); } }
+A.rcOpen = function(){ if (S.rc && S.rc.ok) openFileId(S.rc.id); };
+(function(){
+  var _ae = A.addExp; A.addExp = function(){ var r = _ae.apply(this, arguments); if (!S.mEditing){ S.rc = null; moneyExtra(null); } return r; };
+  var _ar = A.addRef; A.addRef = function(){ var r = _ar.apply(this, arguments); if (!S.mEditing){ S.rc = null; moneyExtra(null); } return r; };
+  var _me = A.moneyEdit; A.moneyEdit = function(d){ var t = trip(), e = t.money.filter(function(x){ return x.id === d.id; })[0];
+    S.mEditing = true; try { _me.apply(this, arguments); } finally { S.mEditing = false; }
+    if (!e || ro()) return; S.rc = e.rc ? {id:e.rc, name:e.rcName || "Чек", ok:true} : null; moneyExtra(e); };
+  function wrap(orig){ return async function(){ var t = trip(), id = S.mEdit, n = t.money.length, date = val("fMd") || S.today, r = S.rc, fs = $("fsheet");
+    if (r && r.ok === null){ fs.classList.add("is-busy"); await r.pending; fs.classList.remove("is-busy"); }
+    orig.apply(this, arguments);
+    var e = id ? t.money.filter(function(x){ return x.id === id; })[0] : (t.money.length > n ? t.money[t.money.length - 1] : null);
+    if (!e || (fs.classList.contains("is-open") && $("fMd"))) return;
+    e.date = date; if (r && r.ok){ e.rc = r.id; e.rcName = r.name; } else if (!r){ delete e.rc; delete e.rcName; }
+    S.rc = null; render(); }; }
+  A.expSave = wrap(A.expSave); A.refSave = wrap(A.refSave);
+  var _cf = closeForm; closeForm = function(){ var x = _cf.apply(this, arguments); S.rc = null; return x; };
+  var _sm = SCR.money; SCR.money = function(r){ var v = _sm.apply(this, arguments), t = trip(r.trip); if (!v || !t) return v;
+    t.money.forEach(function(e){ if (!e.rc) return; var i = v.view.indexOf('data-id="'+e.id+'"'); if (i < 0) return; var j = v.view.indexOf('</b>', i); if (j < 0) return;
+      v.view = v.view.slice(0, j) + '<span class="mrow__clip" aria-label="Есть чек">'+IC.clip+'</span>' + v.view.slice(j); });
+    return v; };
+})();
 
 </script>
 </body>
