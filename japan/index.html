@@ -1677,6 +1677,9 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .addcard--hotel > .badge{position:absolute;top:-11px;right:16px;margin:0}
 /* Row: скругление 24 во всех вариантах (серый, белый в карточке дня, пунктирный) — как в Figma */
 .att,.dayw .att,.day .att{border-radius:24px!important}
+.mconv--nr{padding:4px 0}
+.tgl[disabled]{opacity:.5;cursor:default}
+#nrBox .hint{margin-top:4px}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5466,6 +5469,36 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
   var t = trip(), d = t && p.day ? tripDays(t).filter(function(x){ return x.k === p.day; })[0] : null, c = d && d.city;
   return c && q.indexOf(c) < 0 ? q.replace(/, Japan$/, "")+", "+c+(/, Japan$/.test(q) ? ", Japan" : "") : q; }; })();
 (function(){ var _ru = routeUrl; routeUrl = function(t, k){ var ps = t.places[k] || [], bak = ps.map(function(p){ return p.day; }); ps.forEach(function(p){ if (!p.day) p.day = k; }); try { return _ru.apply(this, arguments); } finally { ps.forEach(function(p, i){ if (bak[i] === undefined) delete p.day; }); } }; })();
+
+/* ===== место: «Не включать в маршрут». Google Maps открывает маршрут максимум из 10 точек — если в дне уже 10 мест в маршруте, новое место туда не встаёт ===== */
+var ROUTE_MAX = 10;
+function routeCount(t, day, exceptId){ return (t.places[day] || []).filter(function(p){ return !p.nr && p.id !== exceptId; }).length; }
+function nrState(t, day, p){ /* -> {on, lock} */
+  if (!day || day === "_nodate") return null;
+  var full = routeCount(t, day, p && p.id) >= ROUTE_MAX, inRoute = p && p.id && !p.nr && (t.places[day] || []).indexOf(p) >= 0;
+  if (full && !inRoute) return {on:true, lock:true};
+  return {on:!!(p && p.nr), lock:false};
+}
+function nrHtml(st){ if (!st) return '<div id="nrBox"></div>';
+  return '<div id="nrBox"><div class="mconv mconv--nr"><span class="mconv__l">Не включать в маршрут</span><button type="button" class="tgl'+(st.on?' is-on':'')+'" role="switch" aria-checked="'+st.on+'" aria-label="Не включать в маршрут" data-act="nrToggle"'+(st.lock?' disabled':'')+'></button></div>'+
+    (st.lock ? '<p class="hint">В маршруте дня уже '+ROUTE_MAX+' мест — больше Google Maps не откроет. Выключите маршрут у другого места этого дня, чтобы добавить это.</p>' : '')+'</div>'; }
+var _placeFormNR = placeForm;
+placeForm = function(t, p, isNew, day){ var r = _placeFormNR(t, p, isNew, day); S.nrP = isNew ? null : p;
+  r.html = r.html.replace(/(<button class="primary" data-act="(?:placeAddNew|placeSave)")/, nrHtml(nrState(t, day, isNew ? null : p))+'$1'); return r; };
+function nrRedraw(){ var b = $("nrBox"), t = trip(); if (!b || !t) return; var day = val("fPday") || "_nodate", p = S.nrP, cur = b.querySelector(".tgl"), keep = cur && !cur.disabled ? cur.classList.contains("is-on") : (p && p.nr);
+  var st = nrState(t, day, p); if (st && !st.lock) st.on = !!keep; b.outerHTML = nrHtml(st); }
+document.addEventListener("change", function(e){ if (e.target && e.target.id === "fPday") nrRedraw(); });
+A.nrToggle = function(){ var b = document.querySelector('#nrBox .tgl'); if (!b || b.disabled) return; var on = !b.classList.contains("is-on"); b.classList.toggle("is-on", on); b.setAttribute("aria-checked", on); };
+function nrVal(){ var b = document.querySelector('#nrBox .tgl'); return !!(b && b.classList.contains("is-on")); }
+function nrApply(p){ if (!p) return; if (nrVal()) p.nr = true; else delete p.nr; }
+var _placeAddNewNR = A.placeAddNew;
+A.placeAddNew = function(){ var t = trip(), nr = nrVal(), before = {}; Object.keys(t.places).forEach(function(k){ before[k] = (t.places[k] || []).length; });
+  _placeAddNewNR(); var day = Object.keys(t.places).filter(function(k){ return (t.places[k] || []).length > (before[k] || 0); })[0];
+  if (day && nr){ var arr = t.places[day]; arr[arr.length - 1].nr = true; refresh(); } };
+var _placeSaveNR = A.placeSave;
+A.placeSave = function(){ var e = editedPlace(), nr = nrVal(), p = e && e.p; _placeSaveNR(); if (p){ if (nr) p.nr = true; else delete p.nr; refresh(); } };
+/* маршрут дня — только места без «не включать» */
+(function(){ var _du = dirUrl; dirUrl = function(hs, ps, he){ return _du.call(this, hs, (ps || []).filter(function(p){ return !p.nr; }), he); }; })();
 
 </script>
 </body>
