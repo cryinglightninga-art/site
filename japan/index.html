@@ -2220,7 +2220,7 @@ SCR.summary = function(r){
   var t = trip(r.trip), tr = transfers(t), b = balances(t), c = S.home;
   var h = '<div class="pg"><div class="stay mbal"><div class="mcur"><span class="mcur__l">Потратили всего</span></div><p class="sh-title">'+money(fromBase(spent(t), c), c)+'</p><hr class="dash">'+
     '<div class="stay__tx mbal__res">'+t.members.map(function(m){ var v = fromBase(b[m.id]||0, c);
-      return '<p class="mbal__row"><span>'+esc(m.name)+'</span><b class="'+(v>0.5?'pos':v<-0.5?'neg':'')+'">'+(Math.abs(v)<0.5?'в расчёте':(v>0?'+':'−')+money(Math.abs(v), c))+'</b></p>'; }).join("")+'</div></div>';
+      return '<p class="mbal__row"><span>'+esc(m.name)+'</span><b class="'+(v>0.005?'pos':v<-0.005?'neg':'')+'">'+(Math.abs(v)<0.005?'в расчёте':(v>0?'+':'−')+money(Math.abs(v), c))+'</b></p>'; }).join("")+'</div></div>';
   h += tr.length ? '<p class="hint">Долг останется виден и в прошедших. Когда вернёте — добавьте возврат в «Деньгах».</p>' : '<p class="hint">Все в расчёте</p>';
   if (!t.archived) h += '<button class="primary" data-act="archive">В прошедшие</button>';
   return {title:"Итог поездки", sub:t.flag+' '+esc(t.country), back:true, tabs:false, view:h+'</div>'};
@@ -5584,6 +5584,21 @@ A.nrToggle = function(d, el){ var b = document.querySelector('#nrBox .tgl'); if 
   var sb = $("sheetBody"); if (sb){ var sec = function(t){ var l = [].filter.call(sb.querySelectorAll("p.label"), function(p){ return p.textContent.trim() === t; })[0]; return l && l.parentNode; };
     var d = sec("Документы"), m = sec("Маршрут дня"); if (d && m && d.parentNode === m.parentNode && (d.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_FOLLOWING)) m.parentNode.insertBefore(d, m.nextSibling); }
   return r; }; })();
+
+/* ===== деньги до копейки: суммы с дробной частью показываются с двумя знаками (36,61 $), долги считаются до 0,01 ===== */
+var EPS = 0.005;
+money = function(v, cur){ var r = Math.round((+v || 0) * 100) / 100, whole = Math.abs(r - Math.round(r)) < 1e-9;
+  return r.toLocaleString("ru-RU", {minimumFractionDigits: whole ? 0 : 2, maximumFractionDigits: whole ? 0 : 2}).replace(/\s/g, " ")+" "+cur; };
+transfers = function(t, only){
+  var b = balances(t, only), pos = [], neg = [], out = [];
+  Object.keys(b).forEach(function(id){ if (b[id] > EPS) pos.push({id:id, v:b[id]}); else if (b[id] < -EPS) neg.push({id:id, v:-b[id]}); });
+  pos.sort(function(a,b){return b.v-a.v;}); neg.sort(function(a,b){return b.v-a.v;});
+  while (pos.length && neg.length){ var p = pos[0], n = neg[0], v = Math.min(p.v, n.v); out.push({from:n.id, to:p.id, v:v}); p.v -= v; n.v -= v; if (p.v < EPS) pos.shift(); if (n.v < EPS) neg.shift(); }
+  return out; };
+(function(){ var _sh = shares; shares = function(t, e){ var p = _sh(t, e); Object.keys(p).forEach(function(k){ p[k] = +p[k] || 0; }); return p; };
+  var _bl = balances; balances = function(t, only){ t.money.forEach(function(e){ if (typeof e.amt === "string") e.amt = parseFloat(e.amt.replace(",", ".")) || 0; }); return _bl(t, only); }; })();
+A.paid = function(d){ var t = trip(), x = transfers(t)[+d.i], c = S.sumCur; if (!x) return;
+  t.money.push({id:uid(), kind:"ref", title:"Возврат долга", amt:Math.round(fromBase(x.v, c) * 100) / 100, cur:c, payer:x.from, to:x.to, date:S.today}); closeForm(); render(); toast("Записали возврат"); };
 
 </script>
 </body>
