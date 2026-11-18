@@ -5657,6 +5657,16 @@ A.rcOpen = function(){ if (S.rc && S.rc.ok) openFileId(S.rc.id); };
 (function(){ var _sd = swDelete; swDelete = function(el){ var k = (el.getAttribute("data-sw") || "").split(":"); if (k[0] !== "rc") return _sd.apply(this, arguments);
   S.rc = null; swOpen = null; rcDraw(); }; })();
 
+/* мастер, шаг городов: ± ночей, удаление/перестановка города не стирают недописанное название нового города */
+(function(){ var keep = null;
+  function hold(fn){ return function(){ var el = $("fCity"); keep = el ? {v:el.value, f:document.activeElement === el} : null; var r = fn.apply(this, arguments); restore(); setTimeout(restore, 0); return r; }; }
+  function restore(){ if (!keep) return; var el = $("fCity"); if (el && !el.value && keep.v){ el.value = keep.v; el.dispatchEvent(new Event("input", {bubbles:true})); var b = el.closest(".fbox"); if (b) b.classList.add("is-filled"); if (keep.f){ el.focus(); try { el.setSelectionRange(el.value.length, el.value.length); } catch(e){} } } }
+  A.cityN = hold(A.cityN);
+  var _sd = swDelete; swDelete = function(el){ var k = (el && el.getAttribute("data-sw") || "").split(":")[0]; return k === "city" ? hold(_sd).apply(this, arguments) : _sd.apply(this, arguments); };
+  var _cm = A.cityMove; if (_cm) A.cityMove = hold(_cm);
+  var _ca = A.cityAdd; A.cityAdd = function(){ keep = null; return _ca.apply(this, arguments); };
+})();
+
 </script>
 </body>
 </html>
