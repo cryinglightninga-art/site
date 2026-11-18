@@ -2252,7 +2252,7 @@ function openDay(k){
   var addRow = function(act, label, extra){ return '<button class="stop stop--add" data-act="'+act+'"'+(extra||'')+'><span class="stop__n">＋</span><span class="stop__tx">'+label+'</span></button>'; };
   if (ls.length || !g){
     h += '<div><p class="label">'+'Переезд'+'</p><div class="stops">'+
-      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"'+swAttr("move", k+"|"+i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("")+
+      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"'+swAttr("move", k+"|"+i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[(v.dep||v.arr)?legSpan(v, k):"", v.no].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("")+
       (g ? '' : addRow("moveSheet", ls.length ? 'Добавить переезд' : pendingMove(t, k) ? esc("Переезд "+pendingMove(t, k).from+" → "+pendingMove(t, k).to) : mk && mk.kind !== "mid" ? esc(moveTitle(mk)) : 'Добавить переезд', ' data-k="'+k+'" data-i="-1"'))+'</div></div>';
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
@@ -4330,7 +4330,7 @@ openDay = function(k){ _openDayArr(k); if (window.PLATES) return;
   var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {};
   var arr = arriving(t, k);
   if (arr.length){
-    var rows = arr.map(function(a){ var v = a.v; return '<button class="stop" data-act="moveSheet" data-k="'+a.k+'" data-i="'+a.i+'"'+swAttr("move", a.k+"|"+a.i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, a.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("");
+    var rows = arr.map(function(a){ var v = a.v; return '<button class="stop" data-act="moveSheet" data-k="'+a.k+'" data-i="'+a.i+'"'+swAttr("move", a.k+"|"+a.i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[(v.dep||v.arr)?legSpan(v, a.k):"", v.no].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("");
     var sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0];
     if (sec){ sec.querySelector(".stops").insertAdjacentHTML("afterbegin", rows); }
     else { var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0]; var html = '<div><p class="label">Переезд</p><div class="stops">'+rows+'<button class="stop stop--add" data-act="moveSheet" data-k="'+k+'" data-i="-1"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить переезд</span></button></div></div>'; if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html); }
@@ -5008,7 +5008,7 @@ function openTrans(key){ var t = trip(); if (!t) return; var tr = transitions(t)
   var h = '<div class="sh-head"><p class="sh-kicker">'+dates+'</p><h2 class="sh-title">Переезд</h2><div class="wrap wrap--move">'+(x.from ? badge(x.from)+(x.to ? '<span class="badge-arrow" aria-label="в">'+SVG_ARR+'</span>' : '') : '')+(x.to ? badge(x.to) : '')+'</div></div>';
   if (x.m){ var w = nightWarn(t, x.m, x.to); if (w) h += w; }
   var hrow = function(hh, kind){ var hz = hh[1], sub = kind === "out" ? 'Выезд'+(hz.outT ? ' до '+hz.outT : '') : 'Заезд'+(hz.inT ? ' с '+hz.inT : ''); return '<button class="stop" data-act="hotelOpen" data-c="'+esc(hh[0])+'"'+(g ? '' : swAttr("hotel", hh[0]))+'><span class="stop__n is-home">'+ill("hotel")+'</span><span class="stop__tx"><b>'+esc(hz.name)+'</b><small>'+esc(sub)+'</small></span></button>'; };
-  var lrow = function(l){ var v = l.v; return '<button class="stop" data-act="moveSheet" data-k="'+l.k+'" data-i="'+l.i+'"'+(g ? '' : swAttr("move", l.k+"|"+l.i))+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, l.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; };
+  var lrow = function(l){ var v = l.v; return '<button class="stop" data-act="moveSheet" data-k="'+l.k+'" data-i="'+l.i+'"'+(g ? '' : swAttr("move", l.k+"|"+l.i))+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[(v.dep||v.arr)?legSpan(v, l.k):"", v.no].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; };
   var add = function(act, attr, label){ return '<button class="stop stop--add" data-act="'+act+'"'+attr+'><span class="stop__n">'+IC.add+'</span><span class="stop__tx">'+label+'</span></button>'; };
   h += '<div><p class="label">Переезд</p><div class="stops" id="trList">'+(function(){ var rs = trRows(t, x), gr = !g && rs.length > 1 ? '<span class="tgrip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>' : ""; return rs.map(function(r, n){ var hh = r.kind === "leg" ? lrow(r.l) : hrow(r.h, r.kind); return hh.replace(/<\/button>$/, gr+"</button>").replace("<button ", '<button data-tr="'+r.key+'" '); }).join(""); })()+
     (g ? '' : add("moveSheet", ' data-k="'+(x.m || x.kB)+'" data-i="-1"', "Добавить переезд")+(key === "end" ? '' : add("hotelOpen", ' data-c="'+esc(x.to)+'" data-k="'+x.arr+'"', "Добавить отель")))+'</div></div>';
@@ -5195,7 +5195,7 @@ nightWarn = function(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) 
   return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд с '+esc(h.inT)+' — '+tail+'</p>'; };
 
 /* ===== карточка дня: подзаголовок переезда как в шторке — описание · время ===== */
-legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), [v.no, v.dep&&v.arr ? legSpan(v, k) : v.dep].filter(Boolean).map(esc).join(" · ")); };
+legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), [(v.dep||v.arr) ? legSpan(v, k) : "", v.no].filter(Boolean).map(esc).join(" · ")); };
 
 /* ===== несколько файлов: билеты транспорта и брони отеля; прикреплённые остаются в форме ===== */
 (function(){
@@ -5427,13 +5427,6 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
     if (d.day && d.day !== "_nodate") return _dmTr(d.day);
     return "";
   };
-  var _ds = docSub;
-  docSub = function(t, d){
-    var w = docWhen(t, d);
-    if (!w) return _ds.apply(this, arguments);
-    var rest = d.sub || [d.type, d.owner ? mName(t, d.owner) : "общий", d.vis === "me" ? "видите только вы" : ""].filter(Boolean).join(" · ");
-    return w + (rest ? " · "+rest : "");
-  };
 })();
 
 /* ===== свайп: кнопка удаления (Danger S, 36) вплотную к содержимому, 16 от края строки; появляется сразу ===== */
@@ -5449,6 +5442,15 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
   v.view = v.view.replace(/<div class="hotel"([^>]*)><div class="hotel__top"><div><span style="display:flex;margin-bottom:8px">(<span class="badge[^"]*">[^<]*<\/span>)<\/span>([\s\S]*?)<\/div>(<a class="stay__map"([^>]*)>(<img[^>]*>)<\/a>)?<\/div>(<div class="hotel__dates">[\s\S]*?<\/div><\/div>)<\/div>/g,
     function(m, at, badge, info, a, aat, img, dates){ return '<div class="hotel hotel--card"'+at+'>'+badge.replace('class="badge', 'class="badge hotel__badge')+'<div class="hotel__top"><div>'+info+'</div></div>'+dates+(a ? '<a class="hotel__map"'+aat+'>'+img+'<span>На карте</span></a>' : '')+'</div>'; });
   return v; }; })();
+
+/* ===== транспорт (самолёт, поезд…): сначала когда — «21 ноября 19:30 – 22 ноября 08:55», в один день «21 ноября 19:30 – 08:55» ===== */
+(function(){
+  function when(d0, t0, d1, t1){ if (!d0) return [t0, t1].filter(Boolean).join("–");
+    var a = _dmTr(d0) + (t0 ? " "+t0 : "");
+    if (d1 && d1 !== d0) return t0 || t1 ? a+" – "+_dmTr(d1)+(t1 ? " "+t1 : "") : dmRange(d0, d1);
+    return t1 && t0 ? a+" – "+t1 : a; }
+  legSpan = function(v, k){ var d0 = v.depD || (k && k.indexOf("tr:") !== 0 ? k : ""); return when(d0, v.dep, v.arrD || d0, v.arr); };
+})();
 
 </script>
 </body>
