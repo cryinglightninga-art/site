@@ -1590,6 +1590,97 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .fld--seg .chips--seg{max-width:100%;overflow-x:auto;overflow-y:hidden;scrollbar-width:none;flex-wrap:nowrap}
 .fld--seg .chips--seg::-webkit-scrollbar{display:none}
 .fld--seg .chips--seg .chip{flex:none}
+.mfl{display:flex;flex-direction:column;gap:8px;margin-bottom:8px}
+.mfl[hidden]{display:none}
+.mfl__row .att__main{cursor:default}
+.mfl__x{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;padding:0}
+.mfl__x{color:var(--label)}
+.mfl__x svg{width:20px;height:20px}
+/* карточка дня и плашка: одна строка с троеточием (без -webkit-box — на iPhone он обрезает без точек) */
+.day .att__tx,.day .att__tx small,.day .li__tx small{display:block;-webkit-line-clamp:unset;-webkit-box-orient:initial;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.day .att__tx{flex:1 1 auto}
+.day .li__tx{min-width:0}
+#fDfCard.att--card .att__main{flex:1;min-width:0;display:flex;align-items:center;gap:12px;padding:12px 0 12px 16px}
+#fDfCard .att__thumb .addcard__ic{display:contents}
+#fDfCard .att__thumb img{width:32px;height:32px;object-fit:contain}
+#fDfCard .att__nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mfl__row{padding-right:12px}
+.mfl__row .att__rep{flex:none}
+/* документ: свайп — карандаш и корзина */
+[data-sw^="doc:"] > .sw-edit{width:52px;height:36px;margin-top:-18px;border-radius:18px;right:-56px}
+[data-sw^="doc:"] > .sw-edit svg{width:18px!important;height:18px!important}
+[data-sw^="doc:"]:has(> .sw-edit) > .sw-del{right:-116px!important}
+.docstack{display:flex;flex-direction:column;gap:8px}
+.att[data-sw]{position:relative!important;overflow:hidden}
+
+/* Заметки: каждая заметка — отдельный контейнер */
+.notes-list{display:flex;flex-direction:column;gap:8px}
+
+/* Кнопка «Маршрут дня» — высота 52, как в макетах */
+.btn-route{height:52px}
+
+/* «Заменить» — круглая кнопка-иконка 36, как в макете */
+.att__rep{display:flex!important;align-items:center!important;justify-content:center!important;width:36px!important;height:36px!important;padding:0!important;border-radius:50%!important;font-size:0!important;line-height:0!important}
+.att__repic{display:block;flex:none;position:relative;z-index:1;width:20px;height:20px;background:var(--label)!important;-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2020.2832%2023.8405%27%3E%3Cpath%20d%3D%27M8.33984%200.694677L8.33984%205.1771C8.33984%205.86069%208.81836%206.04624%209.3457%205.67515L12.4609%203.48765C12.9102%203.17515%2012.9199%202.7064%2012.4609%202.38413L9.35547%200.19663C8.81836-0.184229%208.33984-0.00844799%208.33984%200.694677ZM1.66016%2011.9154C1.66016%207.32554%205.37109%203.6146%209.96094%203.6146C10.4102%203.6146%2010.791%203.23374%2010.791%202.77476C10.791%202.32554%2010.4199%201.96421%209.9707%201.95444C4.45312%201.96421%200%206.41733%200%2011.9154C0%2014.8451%201.26953%2017.5013%203.31055%2019.3275C3.75%2019.7279%204.32617%2019.5912%204.58984%2019.2201C4.81445%2018.9076%204.83398%2018.4779%204.4043%2018.0775C2.70508%2016.5541%201.66016%2014.347%201.66016%2011.9154ZM11.582%2023.1263L11.582%2018.6537C11.582%2017.9603%2011.1035%2017.7845%2010.5762%2018.1556L7.46094%2020.3431C7.01172%2020.6556%207.00195%2021.1244%207.46094%2021.4466L10.5664%2023.6244C11.1035%2024.015%2011.582%2023.8294%2011.582%2023.1263ZM18.2617%2011.9154C18.2617%2016.5052%2014.5508%2020.2162%209.96094%2020.2162C9.51172%2020.2162%209.14062%2020.5873%209.14062%2021.0462C9.14062%2021.4955%209.50195%2021.8666%209.95117%2021.8763C15.4688%2021.8666%2019.9219%2017.4134%2019.9219%2011.9154C19.9219%208.98569%2018.6523%206.32944%2016.6113%204.50327C16.1719%204.10288%2015.5957%204.2396%2015.332%204.60093C15.1074%204.92319%2015.0879%205.34311%2015.5273%205.74351C17.2168%207.27671%2018.2617%209.47397%2018.2617%2011.9154Z%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2020.2832%2023.8405%27%3E%3Cpath%20d%3D%27M8.33984%200.694677L8.33984%205.1771C8.33984%205.86069%208.81836%206.04624%209.3457%205.67515L12.4609%203.48765C12.9102%203.17515%2012.9199%202.7064%2012.4609%202.38413L9.35547%200.19663C8.81836-0.184229%208.33984-0.00844799%208.33984%200.694677ZM1.66016%2011.9154C1.66016%207.32554%205.37109%203.6146%209.96094%203.6146C10.4102%203.6146%2010.791%203.23374%2010.791%202.77476C10.791%202.32554%2010.4199%201.96421%209.9707%201.95444C4.45312%201.96421%200%206.41733%200%2011.9154C0%2014.8451%201.26953%2017.5013%203.31055%2019.3275C3.75%2019.7279%204.32617%2019.5912%204.58984%2019.2201C4.81445%2018.9076%204.83398%2018.4779%204.4043%2018.0775C2.70508%2016.5541%201.66016%2014.347%201.66016%2011.9154ZM11.582%2023.1263L11.582%2018.6537C11.582%2017.9603%2011.1035%2017.7845%2010.5762%2018.1556L7.46094%2020.3431C7.01172%2020.6556%207.00195%2021.1244%207.46094%2021.4466L10.5664%2023.6244C11.1035%2024.015%2011.582%2023.8294%2011.582%2023.1263ZM18.2617%2011.9154C18.2617%2016.5052%2014.5508%2020.2162%209.96094%2020.2162C9.51172%2020.2162%209.14062%2020.5873%209.14062%2021.0462C9.14062%2021.4955%209.50195%2021.8666%209.95117%2021.8763C15.4688%2021.8666%2019.9219%2017.4134%2019.9219%2011.9154C19.9219%208.98569%2018.6523%206.32944%2016.6113%204.50327C16.1719%204.10288%2015.5957%204.2396%2015.332%204.60093C15.1074%204.92319%2015.0879%205.34311%2015.5273%205.74351C17.2168%207.27671%2018.2617%209.47397%2018.2617%2011.9154Z%27/%3E%3C/svg%3E") center/contain no-repeat}
+/* карточки файлов и билетов: высота 74, справа 16, картинка 22 без пикселизации */
+.att--card,#fDfCard.att{min-height:74px;padding-right:16px!important}
+.att--card .att__thumb img,#fDfCard .att__thumb img{width:22px!important;height:22px!important}
+.att__thumb img{image-rendering:auto!important}
+/* Пригласить: подсказка по высоте текста, QR 160 — отступы как в макете */
+#invHint{min-height:0!important}
+.qrbox .qr{width:160px!important;height:160px!important}
+[data-sw^="doc:"] > .sw-edit{display:none!important}
+/* билеты → «Добавьте ещё»: 8, как в макете */
+.mfl{margin-bottom:0!important}
+.mfl + .addcard{margin-top:-8px}
+.wbar i{transition:width .6s cubic-bezier(.3,.8,.4,1)}
+
+/* «Открыть файл» — круглая кнопка ↗ (шторка документа и карточка дня) */
+.att__open{display:flex!important;align-items:center;justify-content:center;flex:none;width:36px;height:36px;padding:0;border-radius:50%;cursor:pointer;margin-left:8px}
+.att__openic{display:block;position:relative;z-index:1;width:18px;height:18px;background:var(--label);-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2014.7974%2014.419%27%3E%3Cpath%20d%3D%27M0.27467%2014.148C0.635999%2014.4996%201.13405%2014.5191%201.50514%2014.148L11.4172%204.24565L13.4094%202.09722C13.7415%201.76519%2013.7415%201.32573%2013.4192%201.01323C13.0969%200.690967%2012.6477%200.681202%2012.3255%201.01323L10.177%203.00542L0.27467%2012.9175C-0.0964233%2013.2886-0.0866577%2013.7867%200.27467%2014.148ZM12.6575%207.2144L12.6575%2010.8179C12.6575%2011.2867%2013.0676%2011.7066%2013.5462%2011.7066C14.0149%2011.7066%2014.4348%2011.316%2014.4348%2010.7789L14.4251%200.964405C14.4251%200.397999%2014.054%200.0171393%2013.4778%200.0171393L3.65358%200.0171393C3.1067%200.0171393%202.73561%200.427296%202.73561%200.896046C2.73561%201.3648%203.15553%201.76519%203.61451%201.76519L7.01295%201.76519L12.8919%201.56987Z%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2014.7974%2014.419%27%3E%3Cpath%20d%3D%27M0.27467%2014.148C0.635999%2014.4996%201.13405%2014.5191%201.50514%2014.148L11.4172%204.24565L13.4094%202.09722C13.7415%201.76519%2013.7415%201.32573%2013.4192%201.01323C13.0969%200.690967%2012.6477%200.681202%2012.3255%201.01323L10.177%203.00542L0.27467%2012.9175C-0.0964233%2013.2886-0.0866577%2013.7867%200.27467%2014.148ZM12.6575%207.2144L12.6575%2010.8179C12.6575%2011.2867%2013.0676%2011.7066%2013.5462%2011.7066C14.0149%2011.7066%2014.4348%2011.316%2014.4348%2010.7789L14.4251%200.964405C14.4251%200.397999%2014.054%200.0171393%2013.4778%200.0171393L3.65358%200.0171393C3.1067%200.0171393%202.73561%200.427296%202.73561%200.896046C2.73561%201.3648%203.15553%201.76519%203.61451%201.76519L7.01295%201.76519L12.8919%201.56987Z%27/%3E%3C/svg%3E") center/contain no-repeat}
+#fDfCard .att__open + .att__rep{margin-left:0!important}
+.day .att .att__go{display:none}
+/* транспорт/отель: «Добавьте билет» через 16 от дат, когда билетов нет; пустой блок не добавляет отступ */
+.mfl[hidden] + .addcard{margin-top:0}
+#fBody .stack:empty{display:none}
+#fBody .stack:has(> .is-hoisted:only-child){display:contents}
+
+/* иконки ↗ и ⟳ — один размер 20 и рисунок как в компонентах Icon/open, Icon/replace (Figma) */
+.att__openic,.att__repic{width:20px!important;height:20px!important}
+.att__openic{-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M4.93483%2018.9115C5.29616%2019.2631%205.79421%2019.2826%206.1653%2018.9115L16.0774%209.0091L18.0696%206.86067C18.4017%206.52864%2018.4017%206.08918%2018.0794%205.77668C17.7571%205.45442%2017.3079%205.44466%2016.9857%205.77668L14.8372%207.76887L4.93483%2017.681C4.56373%2018.0521%204.5735%2018.5502%204.93483%2018.9115ZM17.3177%2011.9779V15.5814C17.3177%2016.0502%2017.7278%2016.4701%2018.2064%2016.4701C18.6751%2016.4701%2019.095%2016.0795%2019.095%2015.5424L19.0853%205.72786C19.0853%205.16145%2018.7142%204.78059%2018.138%204.78059H8.31374C7.76686%204.78059%207.39577%205.19075%207.39577%205.6595C7.39577%206.12825%207.81569%206.52864%208.27467%206.52864H11.6731L17.5521%206.33332L17.3177%2011.9779Z%27/%3E%3C/svg%3E") center/contain no-repeat!important;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M4.93483%2018.9115C5.29616%2019.2631%205.79421%2019.2826%206.1653%2018.9115L16.0774%209.0091L18.0696%206.86067C18.4017%206.52864%2018.4017%206.08918%2018.0794%205.77668C17.7571%205.45442%2017.3079%205.44466%2016.9857%205.77668L14.8372%207.76887L4.93483%2017.681C4.56373%2018.0521%204.5735%2018.5502%204.93483%2018.9115ZM17.3177%2011.9779V15.5814C17.3177%2016.0502%2017.7278%2016.4701%2018.2064%2016.4701C18.6751%2016.4701%2019.095%2016.0795%2019.095%2015.5424L19.0853%205.72786C19.0853%205.16145%2018.7142%204.78059%2018.138%204.78059H8.31374C7.76686%204.78059%207.39577%205.19075%207.39577%205.6595C7.39577%206.12825%207.81569%206.52864%208.27467%206.52864H11.6731L17.5521%206.33332L17.3177%2011.9779Z%27/%3E%3C/svg%3E") center/contain no-repeat!important}
+.att__repic{-webkit-mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M10.6401%202.58893V6.34935C10.6401%206.92284%2011.0415%207.0785%2011.4839%206.76718L14.0973%204.93203C14.4743%204.66987%2014.4824%204.27662%2014.0973%204.00626L11.4921%202.17111C11.0415%201.85159%2010.6401%201.99906%2010.6401%202.58893ZM5.03631%2012.0023C5.03631%208.15174%208.1495%205.03853%2012%205.03853C12.3769%205.03853%2012.6964%204.71902%2012.6964%204.33397C12.6964%203.95711%2012.3851%203.65398%2012.0082%203.64578C7.37939%203.65398%203.64355%207.38982%203.64355%2012.0023C3.64355%2014.4601%204.7086%2016.6884%206.42086%2018.2205C6.78953%2018.5564%207.27289%2018.4417%207.49409%2018.1304C7.68252%2017.8682%207.69891%2017.5077%207.33844%2017.1718C5.91292%2015.8938%205.03631%2014.0422%205.03631%2012.0023ZM13.36%2021.4074V17.6552C13.36%2017.0735%2012.9586%2016.926%2012.5162%2017.2374L9.90273%2019.0725C9.52587%2019.3347%209.51767%2019.728%209.90273%2019.9983L12.508%2021.8253C12.9586%2022.153%2013.36%2021.9973%2013.36%2021.4074ZM18.9638%2012.0023C18.9638%2015.8528%2015.8506%2018.966%2012%2018.966C11.6232%2018.966%2011.3119%2019.2774%2011.3119%2019.6624C11.3119%2020.0393%2011.615%2020.3506%2011.9919%2020.3588C16.6207%2020.3506%2020.3566%2016.6147%2020.3566%2012.0023C20.3566%209.54448%2019.2915%207.31608%2017.5792%205.78406C17.2106%205.44816%2016.7272%205.56286%2016.506%205.86599C16.3175%206.13634%2016.3012%206.48862%2016.6698%206.82453C18.0872%208.11077%2018.9638%209.95411%2018.9638%2012.0023Z%27/%3E%3C/svg%3E") center/contain no-repeat!important;mask:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2024%2024%27%3E%3Cpath%20d%3D%27M10.6401%202.58893V6.34935C10.6401%206.92284%2011.0415%207.0785%2011.4839%206.76718L14.0973%204.93203C14.4743%204.66987%2014.4824%204.27662%2014.0973%204.00626L11.4921%202.17111C11.0415%201.85159%2010.6401%201.99906%2010.6401%202.58893ZM5.03631%2012.0023C5.03631%208.15174%208.1495%205.03853%2012%205.03853C12.3769%205.03853%2012.6964%204.71902%2012.6964%204.33397C12.6964%203.95711%2012.3851%203.65398%2012.0082%203.64578C7.37939%203.65398%203.64355%207.38982%203.64355%2012.0023C3.64355%2014.4601%204.7086%2016.6884%206.42086%2018.2205C6.78953%2018.5564%207.27289%2018.4417%207.49409%2018.1304C7.68252%2017.8682%207.69891%2017.5077%207.33844%2017.1718C5.91292%2015.8938%205.03631%2014.0422%205.03631%2012.0023ZM13.36%2021.4074V17.6552C13.36%2017.0735%2012.9586%2016.926%2012.5162%2017.2374L9.90273%2019.0725C9.52587%2019.3347%209.51767%2019.728%209.90273%2019.9983L12.508%2021.8253C12.9586%2022.153%2013.36%2021.9973%2013.36%2021.4074ZM18.9638%2012.0023C18.9638%2015.8528%2015.8506%2018.966%2012%2018.966C11.6232%2018.966%2011.3119%2019.2774%2011.3119%2019.6624C11.3119%2020.0393%2011.615%2020.3506%2011.9919%2020.3588C16.6207%2020.3506%2020.3566%2016.6147%2020.3566%2012.0023C20.3566%209.54448%2019.2915%207.31608%2017.5792%205.78406C17.2106%205.44816%2016.7272%205.56286%2016.506%205.86599C16.3175%206.13634%2016.3012%206.48862%2016.6698%206.82453C18.0872%208.11077%2018.9638%209.95411%2018.9638%2012.0023Z%27/%3E%3C/svg%3E") center/contain no-repeat!important}
+.att__openic,.att__repic{flex:none!important;min-width:20px}
+/* «Заменить» — то же стекло и та же тень, что у «Открыть» и остальных стеклянных кнопок */
+.att__rep.glass{background:rgba(248,248,248,.78)!important;box-shadow:0 12px 28px rgba(0,0,0,.11),0 2px 6px rgba(0,0,0,.04)!important}
+@media (prefers-color-scheme: dark){.att__rep.glass{background:rgba(44,44,46,.7)!important;box-shadow:0 12px 28px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.3)!important}}
+
+/* Row Gray: same 24 radius as dashed add rows and doc card */
+#fsheet .att:not(.att--card){border-radius:24px}
+/* ↗ в шторке переезда: как в карточке дня — текст сжимается, справа 16 */
+#sheetBody .docstack .att[data-op]{padding-right:16px}
+#sheetBody .docstack .att[data-op] .att__tx{flex:1 1 auto;min-width:0}
+#sheetBody .docstack .att[data-op] .att__tx,#sheetBody .docstack .att[data-op] .att__tx small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#sheetBody .docstack .att[data-op] .att__go{display:none}
+/* свайп-удаление = кнопка Danger · S · только иконка (36, круглая, иконка 20), как в Figma */
+.sw-del{width:36px!important;height:36px!important;margin-top:-18px!important;border-radius:50%!important;right:-48px!important}
+.sw-del svg{width:20px!important;height:20px!important}
+.sw-del{right:-36px!important}
+/* «Открыть» и «Заменить» ближе друг к другу — 4, как в Figma (Row › Actions) */
+#fDfCard .att__open + .att__rep,.att__open + .att__rep{margin-left:-4px!important}
+/* Hotel Card (Figma 11:104): бейдж города справа сверху, «На карте» — Button Surface L во всю ширину */
+.hotel--card{position:relative;overflow:visible!important;display:flex;flex-direction:column;gap:10px;padding:16px;border-radius:24px}
+.hotel--card .hotel__badge{position:absolute;top:-11px;right:16px;margin:0}
+.hotel--card .hotel__top{display:block}
+.hotel__map{display:flex;align-items:center;justify-content:center;gap:10px;height:52px;border-radius:1000px;background:var(--raised,#fff);color:var(--label);font:600 16px/21px "Inter",sans-serif;text-decoration:none}
+.hotel__map img{width:20px;height:20px;object-fit:contain}
+.addcard--hotel{position:relative;overflow:visible}
+.addcard--hotel > .badge{position:absolute;top:-11px;right:16px;margin:0}
+/* Row: скругление 24 во всех вариантах (серый, белый в карточке дня, пунктирный) — как в Figma */
+.att,.dayw .att,.day .att{border-radius:24px!important}
+.mconv--nr{padding:4px 0}
+.tgl[disabled]{opacity:.5;cursor:default}
+#nrBox .hint{margin-top:4px}
+.tgl.is-lock{opacity:.5}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -1879,7 +1970,7 @@ SCR.trips = function(){
   var tile = function(t){ var debt = t.archived && transfers(t).length;
     return setTile("openTrip", ' data-trip="'+t.id+'"', '<span class="set__flag">'+t.flag+'</span>', esc(t.country), rangeS(t.from, t.to)+(debt?' · есть долг':''), false); };
   var h = '<div class="home">';
-  ended.forEach(function(t){ h += '<button class="stay" data-act="go" data-s="summary" data-trip="'+t.id+'"><span class="set__flag" style="font-size:34px">'+t.flag+'</span><div class="stay__tx"><p class="stay__hotel">«'+esc(t.country)+'» закончилась</p><p class="stay__meta">Подвести итог: траты и долги</p></div><span class="att__go">'+SVG.chev+'</span></button>'; });
+  ended.forEach(function(t){ h += '<button class="stay" data-act="go" data-s="money" data-trip="'+t.id+'"><span class="set__flag" style="font-size:34px">'+t.flag+'</span><div class="stay__tx"><p class="stay__hotel">«'+esc(t.country)+'» закончилась</p><p class="stay__meta">Траты и кто кому должен</p></div><span class="att__go">'+SVG.chev+'</span></button>'; });
   if (up.length) h += '<p class="label">Предстоящие</p><div class="sets sets--grid">'+up.map(tile).join("")+'</div>';
   if (past.length) h += '<p class="label">Прошедшие</p><div class="sets sets--grid">'+past.map(tile).join("")+'</div>';
   return {title:"Мои поездки", right:right, tabs:false, view:h+'</div>'};
@@ -2165,7 +2256,7 @@ function openDay(k){
   var addRow = function(act, label, extra){ return '<button class="stop stop--add" data-act="'+act+'"'+(extra||'')+'><span class="stop__n">＋</span><span class="stop__tx">'+label+'</span></button>'; };
   if (ls.length || !g){
     h += '<div><p class="label">'+'Переезд'+'</p><div class="stops">'+
-      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"'+swAttr("move", k+"|"+i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("")+
+      ls.map(function(v, i){ return '<button class="stop" data-act="moveSheet" data-k="'+k+'" data-i="'+i+'"'+swAttr("move", k+"|"+i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[(v.dep||v.arr)?legSpan(v, k):"", v.no].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("")+
       (g ? '' : addRow("moveSheet", ls.length ? 'Добавить переезд' : pendingMove(t, k) ? esc("Переезд "+pendingMove(t, k).from+" → "+pendingMove(t, k).to) : mk && mk.kind !== "mid" ? esc(moveTitle(mk)) : 'Добавить переезд', ' data-k="'+k+'" data-i="-1"'))+'</div></div>';
   }
   if (ts.length || !g) h += '<div><p class="label">Задачи</p><div class="stops">'+(ts.length?'<div class="check tasks tasks--in">'+ts.map(function(c){ return checkItem(t, c, true); }).join("")+'</div>':'')+(g?'':addRow("addTask", "Добавить задачу"))+'</div></div>';
@@ -2417,7 +2508,7 @@ A.hotelOpen = function(d, el, e){
     fld("Ссылка на Google Maps — от отеля строится маршрут дня", '<input class="in" id="fHl" value="'+esc(h.link)+'" placeholder="https://maps.app.goo.gl/…">')+
     '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("с", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("до", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
-    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'">')+fld("Файл брони", '<input class="in" type="file" id="fHf">')+'<button class="primary" data-act="hotelSave">Сохранить</button></div>');
+    fld("Файл брони", '<input class="in" type="file" id="fHf">')+'<button class="primary" data-act="hotelSave">Сохранить</button></div>');
 };
 A.hotelSave = function(){ var n = val("fHn"); if (!n){ toast("Введите название"); return; } var oh = trip().hotels[S.hcity] || {}, nh = {name:n, addr:val("fHa"), link:val("fHl"), book:val("fHb"), inD:val("fHid"), inT:val("fHit"), outD:val("fHod"), outT:val("fHot")}; if (oh.q && oh.addr === nh.addr && oh.name === nh.name) nh.q = oh.q; trip().hotels[S.hcity] = nh; closeForm(); render(); };
 
@@ -3334,8 +3425,7 @@ A.hotelOpen = function(d, el, e){
     fld("Ссылка на Google Maps", '<input class="in" id="fHl" value="'+esc(h.link)+'" placeholder="https://maps.app.goo.gl/…">')+
     '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("Время", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("Время", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
-    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'" placeholder="Например, MF12BK">')+
-    '<label class="addcard" id="fHfCard">'+'<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот — ляжет и в «Документы»</small></span><input type="file" id="fHf" hidden></label>'+
+        '<label class="addcard" id="fHfCard">'+'<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот — ляжет и в «Документы»</small></span><input type="file" id="fHf" hidden></label>'+
     '<button class="primary" data-act="hotelSave">Сохранить</button></div>', "Проживание");
   $("fHf").onchange = function(){ var f = this.files[0]; if (f) $("fHfCard").querySelector("b").textContent = f.name; };
 };
@@ -3349,7 +3439,7 @@ A.moveSheet = function(d){
   form(title, '<div class="pg pg--sheet">'+seg("mvSeg", Object.keys(MOVE).map(function(x){ return [x, x]; }), v.type)+
     '<div class="inline">'+fld("Откуда", '<input class="in" id="fMf" value="'+esc(v.from || (i < 0 ? ((tripDays(t).filter(function(x){ return x.k === k; })[0] || {}).city || "") : ""))+'" placeholder="Город">')+fld("Куда", '<input class="in" id="fMt" value="'+esc(v.to)+'" placeholder="Город">')+'</div>'+
     '<div class="inline">'+fld("Отправление", '<input class="in" id="fMdD" type="date" value="'+esc(v.depD || k)+'">')+fld("Время", '<input class="in" id="fMd" type="time" value="'+esc(v.dep)+'">')+'</div>'+
-    '<div class="inline">'+fld("Прибытие", '<input class="in" id="fMaD" type="date" value="'+esc(v.arrD || "")+'">')+fld("Время", '<input class="in" id="fMa" type="time" value="'+esc(v.arr)+'">')+'</div>'+
+    '<div class="inline">'+fld("Прибытие", '<input class="in" id="fMaD" type="date" value="'+esc(v.arrD || (i >= 0 ? (v.depD || k) : ""))+'">')+fld("Время", '<input class="in" id="fMa" type="time" value="'+esc(v.arr)+'">')+'</div>'+
     fld("Рейс, поезд, место", '<input class="in" id="fMn" value="'+esc(v.no)+'">')+fld("Билет — уйдёт и в «Документы»", '<input class="in" type="file" id="fMfile">')+
     '<div class="stack"><button class="primary" data-act="moveSave">Сохранить</button>'+(i >= 0 ? '<button class="btn2 is-danger" data-act="moveDel">Удалить поездку</button>' : '')+'</div></div>');
 };
@@ -3566,8 +3656,7 @@ A.hotelOpen = function(d, el, e){
     mapBox("fHa", h.addr, "Адрес отеля", "hotQ")+'<div class="stops" id="hotRes" hidden></div><input type="hidden" id="fHl" value="'+esc(h.link)+'">'+
     '<div class="inline">'+fld("Заезд", '<input class="in" id="fHid" type="date" value="'+esc(h.inD)+'">')+fld("Время", '<input class="in" id="fHit" type="time" value="'+esc(h.inT)+'">')+'</div>'+
     '<div class="inline">'+fld("Выезд", '<input class="in" id="fHod" type="date" value="'+esc(h.outD)+'">')+fld("Время", '<input class="in" id="fHot" type="time" value="'+esc(h.outT)+'">')+'</div>'+
-    fld("Номер брони", '<input class="in" id="fHb" value="'+esc(h.book)+'" placeholder="Например, MF12BK">')+
-    '<label class="addcard" id="fHfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот</small></span><input type="file" id="fHf" hidden></label>'+
+        '<label class="addcard" id="fHfCard"><span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавить файл брони</b><small>PDF или скриншот</small></span><input type="file" id="fHf" hidden></label>'+
     '<button class="primary" data-act="hotelSave">Сохранить</button></div>', "Проживание");
   $("fHf").onchange = function(){ var f = this.files[0]; if (f) $("fHfCard").querySelector("b").textContent = f.name; };
   $("mapFrame").src = gmap(h.addr || (h.name ? h.name+", "+c : c), h.addr ? 16 : 12);
@@ -4245,7 +4334,7 @@ openDay = function(k){ _openDayArr(k); if (window.PLATES) return;
   var d = tripDays(t).filter(function(x){ return x.k === k; })[0] || {};
   var arr = arriving(t, k);
   if (arr.length){
-    var rows = arr.map(function(a){ var v = a.v; return '<button class="stop" data-act="moveSheet" data-k="'+a.k+'" data-i="'+a.i+'"'+swAttr("move", a.k+"|"+a.i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, a.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("");
+    var rows = arr.map(function(a){ var v = a.v; return '<button class="stop" data-act="moveSheet" data-k="'+a.k+'" data-i="'+a.i+'"'+swAttr("move", a.k+"|"+a.i)+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[(v.dep||v.arr)?legSpan(v, a.k):"", v.no].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; }).join("");
     var sec = [].filter.call(b.children, function(c){ var l = c.querySelector(":scope > .label"); return l && l.textContent === "Переезд"; })[0];
     if (sec){ sec.querySelector(".stops").insertAdjacentHTML("afterbegin", rows); }
     else { var first = [].filter.call(b.children, function(c){ return !c.classList.contains("sh-head"); })[0]; var html = '<div><p class="label">Переезд</p><div class="stops">'+rows+'<button class="stop stop--add" data-act="moveSheet" data-k="'+k+'" data-i="-1"><span class="stop__n">'+IC.add+'</span><span class="stop__tx">Добавить переезд</span></button></div></div>'; if (first) first.insertAdjacentHTML("beforebegin", html); else b.insertAdjacentHTML("beforeend", html); }
@@ -4433,7 +4522,7 @@ prepView = function(t){ var h = _prepViewN(t), g = isGuest(), sec = function(n){
   return h; };
 SCR.notes = function(r){ var t = trip(r.trip), g = ro(), ms = memos(t), h = '<div class="pg">';
   if (!ms.length) h += g ? '<p class="hint">Пусто</p>' : dash('<b>＋ Список</b><span class="hint">заметки, задачи, шаги и документы</span>', "noteNew");
-  else h += '<div class="check">'+ms.map(function(m){ return '<button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button>'; }).join("")+'</div>';
+  else h += '<div class="notes-list">'+ms.map(function(m){ return '<div class="check"><button class="li" data-act="noteOpen" data-id="'+m.id+'"'+swAttr("memo", m.id)+'><span class="li__tx"><b>'+esc(m.title)+'</b><small>'+esc(memoSummary(m))+'</small></span><span class="stop__go">'+SVG.chev+'</span></button></div>'; }).join("")+'</div>';
   return {title:"Заметки", ill:"notes", back:true, right:g?'':gbtn("noteNew", SVG.plus, "Новый список", "btn-acc"), tabs:false, view:h+'</div>'}; };
 A.noteNew = function(){ ask("Новый список", "", "", "Создать", function(n){ var t = trip(), m = {id:"m"+uid(), title:n, blocks:[]}; memos(t).push(m); S.noteId = m.id; go("note"); }); };
 A.noteOpen = function(d){ S.noteId = d.id; go("note"); };
@@ -4441,7 +4530,7 @@ function blockHtml(t, m, b, g){
   if (b.type === "text") return '<button class="memo-text" data-act="blkEdit" data-b="'+b.id+'"'+(g?' disabled':'')+'>'+esc(b.text || "").replace(/\n/g, "<br>")+'</button>';
   if (b.type === "checks") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="check">'+(b.items || []).map(function(it){
       return '<div class="check__item" data-act="memoCheck" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><span class="check__box'+(it.done?' is-done':'')+'">'+(it.done?SVG.tick:'')+'</span><span class="check__text'+(it.done?' is-done':'')+'"><b>'+esc(it.t)+'</b>'+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</span></div>'; }).join("")+
-    (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить пункт</button>')+'</div></div>';
+    (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить задачу</button>')+'</div></div>';
   if (b.type === "steps") return '<div>'+(b.title ? '<p class="label">'+esc(b.title)+'</p>' : '')+'<div class="steps">'+(b.items || []).map(function(it){
       return '<button class="step" data-act="itemEdit" data-b="'+b.id+'" data-id="'+it.id+'"'+swAttr("mitem", b.id+"|"+it.id)+'><div>'+esc(it.t)+(it.s?'<small>'+esc(it.s)+'</small>':'')+'</div></button>'; }).join("")+
     (g ? '' : '<button class="addrow" data-act="itemAdd" data-b="'+b.id+'"><span>＋</span>Добавить шаг</button>')+'</div></div>';
@@ -4477,9 +4566,9 @@ A.blkEdit = function(d){ if (ro()) return; var b = curBlk(d.b); S.blk = b.id;
   requestAnimationFrame(function(){ taFit($("fBt")); }); };
 A.blkDel = function(){ var m = memo(trip(), S.noteId), id = S.blk; ask("Удалить текст?", "", null, "Удалить", function(){ m.blocks = m.blocks.filter(function(b){ return b.id !== id; }); S.blk = null; closeForm(); render(); }, true); };
 A.itemAdd = function(d){ var b = curBlk(d.b); S.item = {b:b.id, id:null};
-  form(b.type === "steps" ? "Шаг" : "Пункт", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt">')+fld("Описание", '<textarea class="in" id="fIs" rows="2" placeholder="Подробности, если нужны"></textarea>')+'<button class="primary" data-act="itemSave">Добавить</button></div>', b.title || ""); };
+  form(b.type === "steps" ? "Шаг" : "Задача", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt">')+fld("Описание", '<textarea class="in" id="fIs" rows="2" placeholder="Подробности, если нужны"></textarea>')+'<button class="primary" data-act="itemSave">Добавить</button></div>', b.type === "steps" ? (b.title || "") : ""); };
 A.itemEdit = function(d){ if (ro()) return; var b = curBlk(d.b), it = (b.items || []).filter(function(x){ return x.id === d.id; })[0]; if (!it) return; S.item = {b:b.id, id:it.id};
-  form(b.type === "steps" ? "Шаг" : "Пункт", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt" value="'+esc(it.t)+'">')+fld("Описание", '<textarea class="in" id="fIs" rows="2">'+esc(it.s||"")+'</textarea>')+'<button class="primary" data-act="itemSave">Сохранить</button></div>', b.title || "", [["itemDel","Удалить"]]);
+  form(b.type === "steps" ? "Шаг" : "Задача", '<div class="pg pg--sheet">'+fld(b.type === "steps" ? "Что сделать" : "Название", '<input class="in" id="fIt" value="'+esc(it.t)+'">')+fld("Описание", '<textarea class="in" id="fIs" rows="2">'+esc(it.s||"")+'</textarea>')+'<button class="primary" data-act="itemSave">Сохранить</button></div>', b.type === "steps" ? (b.title || "") : "", [["itemDel","Удалить"]]);
   requestAnimationFrame(function(){ taFit($("fIs")); }); };
 A.itemSave = function(){ var v = val("fIt"); if (!v){ toast("Введите название"); return; } var b = curBlk(S.item.b), s = val("fIs");
   if (S.item.id){ var it = b.items.filter(function(x){ return x.id === S.item.id; })[0]; it.t = v; it.s = s; } else b.items.push({id:"i"+uid(), t:v, s:s, done:false});
@@ -4638,7 +4727,7 @@ placeForm = function(t, p, isNew, day){ var r = _placeFormT(t, p, isNew, day); r
 var _blockHtmlE = blockHtml;
 blockHtml = function(t, m, b, g){ if ((b.type === "checks" || b.type === "steps") && !(b.items || []).length){
     var lbl = b.title ? '<p class="label">'+esc(b.title)+'</p>' : '';
-    return '<div'+swAttr("mblk", b.id)+'>'+lbl+(g ? '<p class="hint">Пусто</p>' : dash('<b>＋ '+(b.type === "steps" ? "Добавить шаг" : "Добавить пункт")+'</b>', "itemAdd", ' data-b="'+b.id+'"'))+'</div>'; }
+    return '<div'+swAttr("mblk", b.id)+'>'+lbl+(g ? '<p class="hint">Пусто</p>' : dash('<b>＋ '+(b.type === "steps" ? "Добавить шаг" : "Добавить задачу")+'</b>', "itemAdd", ' data-b="'+b.id+'"'))+'</div>'; }
   return _blockHtmlE(t, m, b, g); };
 
 
@@ -4820,7 +4909,7 @@ dayCard = function(t, d){ return _dayCardNoSw(t, d).replace(/<button class="att"
 
 /* строки и карточки добавления — призыв к действию: «Добавьте …», «Запланируйте …» (меню и кнопки форм не трогаем) */
 (function(){ var SEL = ".stop--add, .addrow, .addcard, .dli, .dashbox, [data-act='dayAddPlace'], [data-act='hotelOpen'].li";
-  var MAP = [[/^Добавить /, "Добавьте "], [/^Запланировать /, "Запланируйте "]];
+  var MAP = [[/^Добавить /, "Добавьте "], [/^Запланировать /, "Запланируйте "], [/^Добавьте переезд$/, "Добавьте транспорт"]];
   function fix(root){ [].forEach.call((root.querySelectorAll ? root : document).querySelectorAll(SEL), function(el){
     var w = document.createTreeWalker(el, NodeFilter.SHOW_TEXT), n; while ((n = w.nextNode())){ var s = n.nodeValue, t = s; MAP.forEach(function(m){ t = t.replace(m[0], m[1]); }); if (t !== s) n.nodeValue = t; } }); }
   var busy = false; new MutationObserver(function(){ if (busy) return; busy = true; try { fix(document); } finally { busy = false; } }).observe(document.body, {childList:true, subtree:true});
@@ -4923,7 +5012,7 @@ function openTrans(key){ var t = trip(); if (!t) return; var tr = transitions(t)
   var h = '<div class="sh-head"><p class="sh-kicker">'+dates+'</p><h2 class="sh-title">Переезд</h2><div class="wrap wrap--move">'+(x.from ? badge(x.from)+(x.to ? '<span class="badge-arrow" aria-label="в">'+SVG_ARR+'</span>' : '') : '')+(x.to ? badge(x.to) : '')+'</div></div>';
   if (x.m){ var w = nightWarn(t, x.m, x.to); if (w) h += w; }
   var hrow = function(hh, kind){ var hz = hh[1], sub = kind === "out" ? 'Выезд'+(hz.outT ? ' до '+hz.outT : '') : 'Заезд'+(hz.inT ? ' с '+hz.inT : ''); return '<button class="stop" data-act="hotelOpen" data-c="'+esc(hh[0])+'"'+(g ? '' : swAttr("hotel", hh[0]))+'><span class="stop__n is-home">'+ill("hotel")+'</span><span class="stop__tx"><b>'+esc(hz.name)+'</b><small>'+esc(sub)+'</small></span></button>'; };
-  var lrow = function(l){ var v = l.v; return '<button class="stop" data-act="moveSheet" data-k="'+l.k+'" data-i="'+l.i+'"'+(g ? '' : swAttr("move", l.k+"|"+l.i))+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[v.no, v.dep&&v.arr?legSpan(v, l.k):v.dep].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; };
+  var lrow = function(l){ var v = l.v; return '<button class="stop" data-act="moveSheet" data-k="'+l.k+'" data-i="'+l.i+'"'+(g ? '' : swAttr("move", l.k+"|"+l.i))+'><span class="stop__n is-home">'+moveIc(v.type)+'</span><span class="stop__tx"><b>'+esc(v.from)+' → '+esc(v.to)+'</b><small>'+[(v.dep||v.arr)?legSpan(v, l.k):"", v.no].filter(Boolean).map(esc).join(" · ")+'</small></span></button>'; };
   var add = function(act, attr, label){ return '<button class="stop stop--add" data-act="'+act+'"'+attr+'><span class="stop__n">'+IC.add+'</span><span class="stop__tx">'+label+'</span></button>'; };
   h += '<div><p class="label">Переезд</p><div class="stops" id="trList">'+(function(){ var rs = trRows(t, x), gr = !g && rs.length > 1 ? '<span class="tgrip" aria-label="Перетащить"><i></i><i></i><i></i><i></i><i></i><i></i></span>' : ""; return rs.map(function(r, n){ var hh = r.kind === "leg" ? lrow(r.l) : hrow(r.h, r.kind); return hh.replace(/<\/button>$/, gr+"</button>").replace("<button ", '<button data-tr="'+r.key+'" '); }).join(""); })()+
     (g ? '' : add("moveSheet", ' data-k="'+(x.m || x.kB)+'" data-i="-1"', "Добавить переезд")+(key === "end" ? '' : add("hotelOpen", ' data-c="'+esc(x.to)+'" data-k="'+x.arr+'"', "Добавить отель")))+'</div></div>';
@@ -5108,6 +5197,393 @@ nightWarn = function(t, k, cityName){ var ov = overnight(t, k); if (!ov.length) 
   if (!h || h.inD !== v.arrD || !v.arr || !h.inT || v.arr >= h.inT) return "";
   var tail = v.arr < "06:00" ? "ночь без жилья" : (function(){ var a = v.arr.split(":"), b = h.inT.split(":"), m = (+b[0]*60 + +b[1]) - (+a[0]*60 + +a[1]), hh = Math.floor(m/60), mm = m % 60; return (hh ? hh+" ч" : "")+(mm ? (hh ? " " : "")+mm+" мин" : "")+" без жилья"; })();
   return '<p class="daywarn">Приезжаете '+dm(v.arrD)+' в '+esc(v.arr)+', а заезд с '+esc(h.inT)+' — '+tail+'</p>'; };
+
+/* ===== карточка дня: подзаголовок переезда как в шторке — описание · время ===== */
+legRow = function(v, k){ return li(moveIc(v.type), esc(city(v.from))+' → '+esc(city(v.to)), [(v.dep||v.arr) ? legSpan(v, k) : "", v.no].filter(Boolean).map(esc).join(" · ")); };
+
+/* ===== несколько файлов: билеты транспорта и брони отеля; прикреплённые остаются в форме ===== */
+(function(){
+  var IDS = {fMfile:"Транспорт", fHf:"Бронь"};
+  function on(id){ return IDS.hasOwnProperty(id); }
+  function reset(){ S.mf = []; }
+  reset();
+  function kind(){ return $("fMfile") ? "mv" : $("fHf") ? "ht" : null; }
+  function mvKey(from, to){ return city(from)+"→"+city(to); }
+  function trFor(t, pred){ var tr = transitions(t), all = tr.concat(tr.end ? [tr.end] : []), x = all.filter(pred)[0]; return x ? trKey(x) : null; }
+  function ctx(){ var t = trip(), k = kind();
+    if (k === "mv"){ var from = val("fMf"), to = val("fMt"), key = mvKey(from, to), base = "Билет "+city(from)+" → "+city(to);
+      var day = trFor(t, function(z){ return z.legs.some(function(l){ return city(l.v.from) === city(from) && city(l.v.to) === city(to); }); }) || val("fMdD") || S.moveK;
+      var old = S.mvOld ? mvKey(S.mvOld.from, S.mvOld.to) : null, oldBase = S.mvOld ? "Билет "+city(S.mvOld.from)+" → "+city(S.mvOld.to) : null;
+      var have = S.mvOld ? t.docs.filter(function(d){ return d.mv === old || (!d.mv && d.file && (d.title === oldBase || d.title.indexOf(oldBase+" · ") === 0)); }) : [];
+      return {t:t, k:k, base:base, type:"Транспорт", day:day, key:key, have:have, from:from, to:to}; }
+    if (k === "ht"){ var c = S.hcity, h = t.hotels[c] || {}, nmH = val("fHn") || h.name || c, base2 = "Бронь · "+nmH;
+      var day2 = trFor(t, function(z){ return z.inn.some(function(q){ return q[0] === c; }); }) || h.inD;
+      var have2 = h.name ? t.docs.filter(function(d){ return d.ht === c || (!d.ht && d.file && (d.title === "Бронь · "+h.name || d.title.indexOf("Бронь · "+h.name+" · ") === 0)); }) : [];
+      return {t:t, k:k, base:base2, type:"Бронь", day:day2, key:c, have:have2}; }
+    return null; }
+  function nm(base, i, n){ return n > 1 ? base+" · "+(i+1) : base; }
+  function ext(name){ var m = /\.([a-z0-9]+)$/i.exec(name || ""); return m ? m[1].toUpperCase() : ""; }
+  ["moveSheet","hotelOpen"].forEach(function(n){ var o = A[n]; A[n] = function(d){ reset(); var t = trip();
+    if (n === "moveSheet"){ var i = d && d.i != null ? +d.i : -1, v = i >= 0 ? (legs(t, d.k)[i] || null) : null; S.mvOld = v ? {from:v.from, to:v.to} : null; }
+    var r = o.apply(this, arguments); var b = $("fBody"); if (b) [].forEach.call(b.querySelectorAll('input[type="file"]'), function(x){ if (on(x.id)) x.multiple = true; }); draw(); return r; }; });
+  var _cf = closeForm; closeForm = function(){ reset(); S.mvOld = null; return _cf.apply(this, arguments); };
+  var X = '<svg viewBox="0 0 12 12" fill="none"><path d="M3.5 3.5l5 5M8.5 3.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+  function row(c, title, sub, ill0, extra){ return '<div class="att att--card mfl__row"'+(extra||'')+'><span class="att__main"><span class="att__thumb">'+ill0+'</span><span class="att__tx"><span class="att__nm">'+esc(title)+'</span><small>'+esc(sub)+'</small></span></span>'+'<label class="att__rep glass gbtn-s">Заменить<input type="file" hidden data-mfr="'+c+'"></label></div>'; }
+  function draw(){ var b = $("fBody"); if (!b) return; var inp = b.querySelector("#fMfile, #fHf"); if (!inp) return; var c = ctx(); if (!c) return;
+    var card = inp.closest(".addcard, .att") || $("fMfCard") || $("fHfCard"); if (!card) return;
+    var l = $("mfList"); if (!l){ l = document.createElement("div"); l.id = "mfList"; l.className = "mfl"; card.parentNode.insertBefore(l, card); }
+    var n = c.have.length + S.mf.length, sub = docSub(c.t, {type:c.type, owner:null, vis:"all", day:c.day});
+    var h = c.have.map(function(d){ var up = S.mfUp && S.mfUp[d.id]; return row("d:"+d.id, d.title, up ? "загружается…" : docSub(c.t, d), up ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(d.type)), ' data-mfo="'+esc(d.id)+'" role="button"'); }).join("");
+    h += S.mf.map(function(x, i){ return row(i, nm(c.base, c.have.length + i, n), x.ok == null ? "загружается…" : x.ok ? sub : "не загрузился — уберите и выберите снова", x.ok == null ? '<span class="upl-spin" aria-label="Загрузка"></span>' : ill(docIll(c.type))); }).join("");
+    l.innerHTML = h; l.hidden = !n;
+    var bt = card.querySelector("b"), sm = card.querySelector("small"); card.classList.remove("is-file");
+    var ic = card.querySelector(".addcard__ic"); if (ic){ ic.classList.remove("is-ill"); ic.innerHTML = IC.add; }
+    if (bt) bt.textContent = n ? "Добавьте ещё" : inp.id === "fMfile" ? "Добавьте билет" : "Добавьте файл брони";
+    if (sm) sm.textContent = "PDF или скриншот";
+    $("fsheet").classList.toggle("is-busy", S.mf.some(function(x){ return x.ok == null; }) || !!(S.mfUp && Object.keys(S.mfUp).length)); }
+  window.mfDraw = draw;
+  document.addEventListener("input", function(e){ if (e.target && (e.target.id === "fMf" || e.target.id === "fMt" || e.target.id === "fHn")) draw(); }, true);
+  document.addEventListener("change", function(e){ if (e.target && (e.target.id === "fMdD")) draw(); }, true);
+  window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.type !== "file" || !inp.closest || !inp.closest("#fBody") || !on(inp.id)) return;
+    var fs = [].slice.call(inp.files || []); if (!fs.length) return; e.stopImmediatePropagation();
+    var t = trip(); fs.forEach(function(f){ var x = {file:f, id:uid(), ok:null}; S.mf.push(x);
+      x.promise = window._putRaw(t, x.id, f).then(function(ok){ x.ok = !!ok; draw(); return x.ok; }, function(){ x.ok = false; draw(); return false; }); });
+    try { inp.value = ""; } catch(_){} draw(); }, true);
+  document.addEventListener("click", function(e){ var b = e.target.closest && e.target.closest("[data-mfx]"); if (b){ e.preventDefault(); e.stopPropagation(); S.mf.splice(+b.getAttribute("data-mfx"), 1); draw(); return; }
+    /* тап по файлу теперь открывает шторку документа — см. ниже */ }, true);
+  document.addEventListener("change", function(e){ var inp = e.target; if (!inp || !inp.getAttribute || inp.getAttribute("data-mfr") == null) return; e.stopImmediatePropagation(); var f = inp.files && inp.files[0]; if (!f) return;
+    var r = inp.getAttribute("data-mfr"), t = trip();
+    if (r.indexOf("d:") === 0){ var d = t.docs.filter(function(z){ return z.id === r.slice(2); })[0]; if (!d) return; S.mfUp = (S.mfUp || {}); S.mfUp[d.id] = 1; draw();
+      window._putRaw(t, d.id, f).then(function(ok){ delete S.mfUp[d.id]; if (ok){ d.file = d.id; d.fname = f.name; if (typeof FILECACHE !== "undefined") delete FILECACHE[t.id+"/"+d.id]; if (typeof schedule === "function") schedule(); } else toast("Не получилось заменить файл"); draw(); }); return; }
+    var y = S.mf[+r]; if (!y) return; y.file = f; y.ok = null; y.id = uid();
+    y.promise = window._putRaw(t, y.id, f).then(function(ok){ y.ok = !!ok; draw(); return y.ok; }, function(){ y.ok = false; draw(); return false; }); draw(); }, true);
+  async function ready(){ var all = S.mf.slice(); $("fsheet").classList.add("is-busy"); await Promise.all(all.map(function(x){ return x.promise; })); $("fsheet").classList.remove("is-busy"); return all.filter(function(x){ return x.ok; }); }
+  function push(c, ok){ var n = c.have.length + ok.length;
+    if (n > 1 && c.have.length === 1 && c.have[0].title === c.base) c.have[0].title = nm(c.base, 0, n);
+    ok.forEach(function(x, i){ var d = {id:x.id, title:nm(c.base, c.have.length + i, n), type:c.type, owner:null, vis:"all", day:c.day, file:x.id, fname:x.file.name}; if (c.k === "mv") d.mv = c.key; else d.ht = c.key; c.t.docs.push(d); }); }
+  var _ms = A.moveSave; A.moveSave = async function(){ var c0 = ctx(); var ok = S.mf.length ? await ready() : []; var old = S.mvOld; reset();
+    await _ms.apply(this, arguments); var c = c0; if (!c) return;
+    c.day = trFor(c.t, function(z){ return z.legs.some(function(l){ return city(l.v.from) === city(c.from) && city(l.v.to) === city(c.to); }); }) || c.day;
+    var ob = old ? "Билет "+city(old.from)+" → "+city(old.to) : null;
+    c.have.forEach(function(d){ d.mv = c.key; d.day = c.day; if (ob && ob !== c.base && d.title.indexOf(ob) === 0) d.title = c.base + d.title.slice(ob.length); });
+    push(c, ok); refresh(); };
+  var _hs = A.hotelSave; A.hotelSave = async function(){ var c0 = ctx(); var ok = S.mf.length ? await ready() : []; reset();
+    await _hs.apply(this, arguments); var t = trip(), h = t.hotels[S.hcity]; if (!c0 || !h) return;
+    c0.base = "Бронь · "+h.name; c0.have.forEach(function(d){ d.ht = c0.key; }); push(c0, ok); refresh(); };
+})();
+/* ===== новый документ: один файл; после выбора — карточка как у сохранённого документа, с «Заменить» ===== */
+window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.id !== "fDf" || !inp.closest || !inp.closest("#fBody") || S.docMode === "edit") return;
+  var x = inp.files && inp.files[0]; if (!x) return;
+  setTimeout(function(){ var card = $("fDfCard"); if (!card) return; var tx;
+    if (!card.classList.contains("att")){ var ic = card.querySelector(".addcard__ic");
+      var n = document.createElement("div"); n.className = "att att--card"; n.id = "fDfCard";
+      n.innerHTML = '<span class="att__main"><span class="att__thumb"></span><span class="att__tx"><span class="att__nm"></span><small></small></span></span><label class="att__rep glass gbtn-s">Заменить</label>';
+      if (ic) n.querySelector(".att__thumb").appendChild(ic); n.querySelector(".att__rep").appendChild(inp); card.parentNode.replaceChild(n, card); card = n; }
+    card.querySelector(".att__nm").textContent = x.name.replace(/\.[^.]+$/, ""); tx = card.querySelector(".att__tx small"); tx.setAttribute("data-up", "1"); tx.textContent = "загружается…";
+    var pr = S.pre, fin = function(ok){ if (ok){ tx.removeAttribute("data-up"); if (window.docCardSub) docCardSub(); } else tx.textContent = "не загрузился — замените файл"; };
+    if (pr && pr.file === x && pr.promise) pr.promise.then(fin); else fin(true); }, 0);
+}, true);
+/* ===== карточка файла в форме документа: подзаголовок живой — тип · чей · день · видимость ===== */
+(function(){
+  function upd(){ var b = $("fBody"), c = $("fDfCard"); if (!b || !c || !$("fDty") || !c.classList.contains("att")) return; var sm = c.querySelector(".att__tx small"); if (!sm) return;
+    if (S.docMode !== "edit" && sm.getAttribute("data-up") === "1") return;
+    var vis = val("fDv"), d = {type:val("fDty"), owner:val("fDo") || (vis === "me" ? S.me : null), day:val("fDd"), vis:vis}; sm.textContent = docSub(trip(), d); }
+  window.docCardSub = upd;
+  ["change","input","click"].forEach(function(ev){ document.addEventListener(ev, function(e){ if (e.target && e.target.closest && e.target.closest("#fBody") && $("fDty")) requestAnimationFrame(upd); }, true); });
+  var _ds = A.docSheet; A.docSheet = function(){ var r = _ds.apply(this, arguments); requestAnimationFrame(upd); return r; };
+})();
+
+/* ===== документы: тап открывает файл, свайп влево — карандаш и корзина; в шторках — карточки документов и пунктирная «Добавьте документ» ===== */
+(function(){
+  function docOf(id){ var t = trip(); return t && t.docs.filter(function(x){ return x.id === id; })[0]; }
+  function can(d){ return d && !ro() && (d.owner === S.me || !d.owner); }
+  A.docTap = function(dd){ var d = docOf(dd.id); if (!d) return; if (d.file) openDoc(d.id); else if (d.link) window.open(d.link, "_blank", "noopener"); else A.docSheet({id:d.id}); };
+  var _ar = attRow; attRow = function(t, d){ return _ar(t, d).replace('data-act="docSheet"', 'data-act="docTap"'); };
+  function addCard(src){ var b = document.createElement("button"); b.className = "addcard addcard--doc";
+    [].forEach.call(src.attributes, function(a){ if (a.name !== "class") b.setAttribute(a.name, a.value); });
+    b.innerHTML = '<span class="addcard__ic">'+IC.add+'</span><span class="addcard__tx"><b>Добавьте документ</b><small>билеты и полис</small></span>'; return b; }
+  var busy = false;
+  function fix(){ if (busy) return; busy = true; try { var t = trip(); if (!t) return;
+    /* шторки: блок «Документы» — карточки как во вкладке «Документы» */
+    [].forEach.call(document.querySelectorAll("#sheetBody .label"), function(l){ if (l.textContent !== "Документы") return; var st = l.parentNode.querySelector(":scope > .stops"); if (!st) return;
+      var box = document.createElement("div"); box.className = "stack docstack";
+      [].forEach.call(st.children, function(r){ var id = r.getAttribute("data-id");
+        if (r.getAttribute("data-act") === "docSheet" && id){ var d = docOf(id); if (d){ var w = document.createElement("div"); w.innerHTML = attRow(t, d); box.appendChild(w.firstChild); } }
+        else if (/addDoc/.test(r.getAttribute("data-act") || "")) box.appendChild(addCard(r)); });
+      st.parentNode.replaceChild(box, st); });
+    /* свайп у всех строк документа (кроме блока заметки — там свайп удаляет блок) */
+    [].forEach.call(document.querySelectorAll('.att[data-id]:not([data-sw])'), function(r){ if (r.closest("[data-sw]") || r.closest("#fBody")) return; var d = docOf(r.getAttribute("data-id")); if (can(d)) r.setAttribute("data-sw", "doc:"+d.id); });
+    [].forEach.call(document.querySelectorAll('.att[data-act="docSheet"]'), function(r){ if (!r.closest("#fBody")) r.setAttribute("data-act", "docTap"); });
+  } finally { busy = false; } }
+  new MutationObserver(fix).observe(document.body, {childList:true, subtree:true});
+  window.docFix = fix;
+  /* карандаш рядом с корзиной */
+  document.addEventListener("pointerdown", function(e){ var x = e.target.closest && e.target.closest('[data-sw^="doc:"]'); if (!x || x.querySelector(":scope > .sw-edit")) return;
+    x.insertAdjacentHTML("beforeend", '<span class="sw-edit" role="button" aria-label="Изменить" data-swedit>'+PENCIL+'</span>'); }, true);
+  window.addEventListener("click", function(e){ var ed = e.target.closest && e.target.closest("[data-swedit]"); if (!ed) return; var row = ed.closest('[data-sw^="doc:"]'); if (!row) return;
+    e.preventDefault(); e.stopImmediatePropagation(); swSet(row, false); A.docSheet({id:row.getAttribute("data-sw").split(":")[1]}); }, true);
+  var _swW = swW; swW = function(el){ return el.getAttribute && /^doc:/.test(el.getAttribute("data-sw") || "") ? 124 : _swW(el); };
+})();
+
+/* ===== шторка места: заголовок «Место», подзаголовок — дата (меняется вместе с полем) ===== */
+(function(){
+  var _ps = A.placeSheet; A.placeSheet = function(d){ var r = _ps.apply(this, arguments); if (!$("fsheet").classList.contains("is-open") || !$("fPday")) return r;
+    var upd = function(){ var v = val("fPday"); $("fSub").textContent = v ? _dmTr(v) : "Без даты"; $("fSub").hidden = false; };
+    $("fTitle").textContent = "Место"; upd(); $("fPday").addEventListener("change", upd); return r; };
+})();
+/* ===== новый документ: имя файла сразу подставляется в «Название», если оно пустое ===== */
+window.addEventListener("change", function(e){ var inp = e.target; if (!inp || inp.id !== "fDf" || S.docMode === "edit") return; var x = inp.files && inp.files[0], t = $("fDt"); if (!x || !t || t.value) return;
+  t.value = x.name.replace(/\.[^.]+$/, ""); t.dispatchEvent(new Event("input", {bubbles:true})); var bx = t.closest(".fbox"); if (bx) bx.classList.add("is-filled"); }, true);
+
+/* ===== шторка транспорта: в заголовке всегда города, не «Переезд» ===== */
+(function(){ var _ms = A.moveSheet; A.moveSheet = function(d){ var r = _ms.apply(this, arguments); var tt = $("fTitle"); if (!tt || tt.textContent !== "Переезд") return r;
+  var f = val("fMf"), t = val("fMt"), m = moveFor(trip(), S.moveK) || {}; var a = f || m.from, b = t || m.to;
+  if (a && b) tt.textContent = a+" → "+b; return r; }; })();
+/* ===== «Итог поездки» убран: закончившаяся поездка открывается как обычно, долги — во вкладке «Деньги» ===== */
+SCR.summary = function(r){ return SCR.money(r); };
+
+
+/* ===== документ: тап открывает шторку (как у задач и мест), свайп — только удалить ===== */
+(function(){
+  function docOf(id){ var t = trip(); return t && t.docs.filter(function(x){ return x.id === id; })[0]; }
+  A.docTap = function(dd){ var d = docOf(dd.id); if (!d) return; if (!ro() && (d.owner === S.me || !d.owner)) { A.docSheet({id:d.id}); return; }
+    if (d.file) openDoc(d.id); else if (d.link) window.open(d.link, "_blank", "noopener"); };
+  var _w = swW; swW = function(el){ return el.getAttribute && /^doc:/.test(el.getAttribute("data-sw") || "") ? 72 : _w(el); };
+})();
+/* ===== новая задача: без подзаголовка ===== */
+["addTask","addCheckHere","addCheck"].forEach(function(n){ var o = A[n]; if (!o) return; A[n] = function(){ var r = o.apply(this, arguments); var s = $("fSub"); if (s && $("fTitle") && $("fTitle").textContent === "Задача") s.hidden = true; return r; }; });
+/* ===== «Заменить» — иконка внутри круглой кнопки ===== */
+(function(){ function put(){ [].forEach.call(document.querySelectorAll(".att__rep:not([data-ic])"), function(b){ b.setAttribute("data-ic", "1"); b.setAttribute("aria-label", "Заменить"); b.insertAdjacentHTML("afterbegin", '<span class="att__repic"></span>'); }); }
+  new MutationObserver(put).observe(document.body, {childList:true, subtree:true}); put(); })();
+/* ===== мастер: прогресс-бар заполняется с анимацией от прошлого шага ===== */
+(function(){ var last = 0;
+  progress = function(st, extra){ var to = (st+1)/3*100, from = last; last = to;
+    setTimeout(function(){ var i = document.querySelector("#view .wbar i[data-to]"); if (i){ i.getBoundingClientRect(); i.style.width = i.getAttribute("data-to")+"%"; } }, 30);
+    return '<div class="wprog"><p class="hint">Шаг '+(st+1)+' из 3'+(extra||'')+'</p><div class="wbar"><i data-to="'+to+'" style="width:'+from+'%"></i></div></div>'; };
+  var _nt = A.newTrip; if (_nt) A.newTrip = function(){ last = 0; return _nt.apply(this, arguments); };
+})();
+/* ===== свайп документов: без карандаша (иначе корзина уезжает за край) ===== */
+document.addEventListener("pointerdown", function(e){ var x = e.target.closest && e.target.closest('[data-sw^="doc:"]'); if (!x) return; var ed = x.querySelector(":scope > .sw-edit"); if (ed) ed.remove(); }, true);
+/* ===== Отели (Мои файлы): без свайпа — удалить отель можно только внутри шторки ===== */
+(function(){ var _h = SCR.hotels; SCR.hotels = function(r){ var v = _h.apply(this, arguments); if (v && v.view) v.view = v.view.replace(/ data-sw="hotel:[^"]*"/g, ""); return v; }; })();
+/* ===== файлы в шторках транспорта и отеля: тап — шторка документа, свайп — удалить, без «Заменить»;
+   после шторки документа возвращаемся в транспорт/отель с несохранёнными полями ===== */
+(function(){
+  var last = null;
+  ["moveSheet","hotelOpen"].forEach(function(n){ var o = A[n]; A[n] = function(d){ last = {n:n, d:Object.assign({}, d || {})}; return o.apply(this, arguments); }; });
+  function strip(){ var l = $("mfList"); if (!l) return; [].forEach.call(l.querySelectorAll(".mfl__row[data-mfo]"), function(r){ var rep = r.querySelector(".att__rep"); if (rep) rep.remove(); if (!r.getAttribute("data-sw") && !ro()) r.setAttribute("data-sw", "doc:"+r.getAttribute("data-mfo"));
+    if (!r.querySelector(".att__open")){ var t = trip(), d = t && t.docs.filter(function(x){ return x.id === r.getAttribute("data-mfo"); })[0]; if (d && (d.file || d.link)) r.insertAdjacentHTML("beforeend", '<span class="att__open glass gbtn-s" role="button" aria-label="Открыть файл" data-act="docOpenNow" data-id="'+esc(d.id)+'"><span class="att__openic"></span></span>'); } }); }
+  var _d = window.mfDraw; if (_d){ window.mfDraw = function(){ var r = _d.apply(this, arguments); strip(); return r; }; }
+  new MutationObserver(function(){ strip(); }).observe(document.body, {childList:true, subtree:true});
+  var ret = null;
+  document.addEventListener("click", function(e){ var o = e.target.closest && e.target.closest("[data-mfo]"); if (!o || !o.closest("#fBody") || !last || e.target.closest("[data-swdel]") || e.target.closest(".att__open")) return;
+    if (o._swiped || o._open) return; e.preventDefault(); e.stopImmediatePropagation();
+    var vals = {}; [].forEach.call($("fBody").querySelectorAll("input[id],select[id],textarea[id]"), function(x){ if (x.type === "file") return; vals[x.id] = (x.type === "checkbox" || x.type === "radio") ? x.checked : x.value; });
+    ret = {n:last.n, d:last.d, vals:vals, mf:(S.mf || []).slice(), old:S.mvOld};
+    var id = o.getAttribute("data-mfo"); var keep = ret; closeForm(); ret = keep; setTimeout(function(){ A.docSheet({id:id}); }, 0); }, true);
+  var _cf = closeForm; closeForm = function(){ var r = _cf.apply(this, arguments); if (!ret || !S.docId) return r; var g = ret; ret = null;
+    setTimeout(function(){ A[g.n](g.d); S.mvOld = g.old; S.mf = g.mf; Object.keys(g.vals).forEach(function(k){ var x = $(k); if (!x) return; if (x.type === "checkbox" || x.type === "radio") x.checked = g.vals[k]; else x.value = g.vals[k]; x.dispatchEvent(new Event("input", {bubbles:true})); x.dispatchEvent(new Event("change", {bubbles:true})); }); if (window.mfDraw) mfDraw(); }, 30);
+    return r; };
+  /* свайп-удаление файла внутри шторки — перерисовать список */
+  var _sd = swDelete; swDelete = function(el){ var inForm = el && el.closest && el.closest("#fBody"); var r = _sd.apply(this, arguments); if (inForm && window.mfDraw) setTimeout(mfDraw, 0); return r; };
+})();
+/* после удаления файла из шторки — перерисовать список файлов */
+(function(){ var _rf = refresh; refresh = function(){ var r = _rf.apply(this, arguments); if ($("mfList") && window.mfDraw) mfDraw(); return r; }; })();
+
+/* ===== «Открыть файл» ↗: в шторке документа рядом с «Заменить» и в карточке дня для быстрого открытия ===== */
+(function(){
+  var BTN = function(extra){ return '<span class="att__open glass gbtn-s" role="button" aria-label="Открыть файл"'+extra+'><span class="att__openic"></span></span>'; };
+  A.docOpenNow = function(d){ var t = trip(), doc = t && t.docs.filter(function(x){ return x.id === d.id; })[0]; if (!doc) return; if (doc.file) openDoc(doc.id); else if (doc.link) window.open(doc.link, "_blank", "noopener"); };
+  function put(){
+    var c = $("fDfCard"); if (c && !c.querySelector(".att__open") && (c.matches('[data-act="docOpen"]') || c.querySelector('[data-act="docOpen"]'))){ var rep = c.querySelector(".att__rep"); var w = document.createElement("span"); w.innerHTML = BTN(' data-act="docOpen"'); if (rep) c.insertBefore(w.firstChild, rep); else c.appendChild(w.firstChild); }
+    var sel = '#view .day .att[data-act="docTap"]:not([data-op])' + (S.trans != null ? ', #sheetBody .docstack .att[data-act="docTap"]:not([data-op])' : '');
+    [].forEach.call(document.querySelectorAll(sel), function(r){ var t = trip(), d = t && t.docs.filter(function(x){ return x.id === r.getAttribute("data-id"); })[0]; r.setAttribute("data-op", "1"); if (!d || !(d.file || d.link)) return; r.insertAdjacentHTML("beforeend", BTN(' data-act="docOpenNow" data-id="'+esc(d.id)+'"')); });
+  }
+  new MutationObserver(put).observe(document.body, {childList:true, subtree:true}); put();
+})();
+
+/* ===== подзаголовок документа: сначала когда — «21 ноября 19:30 – 22 ноября 08:55», в один день «21 ноября 19:30 – 08:55» ===== */
+(function(){
+  function when(d0, t0, d1, t1){
+    if (!d0) return "";
+    var a = _dmTr(d0) + (t0 ? " "+t0 : "");
+    if (d1 && d1 !== d0) return t0 || t1 ? a+" – "+_dmTr(d1)+(t1 ? " "+t1 : "") : dmRange(d0, d1);
+    return t1 && t0 ? a+" – "+t1 : a;
+  }
+  function legOf(t, d){
+    var out = null;
+    Object.keys(t.moves || {}).forEach(function(k){ legs(t, k).forEach(function(l){ if (out) return;
+      var key = city(l.from)+"→"+city(l.to), base = "Билет "+city(l.from)+" → "+city(l.to);
+      if ((d.mv && d.mv === key) || (!d.mv && d.type === "Транспорт" && ((d.title||"") === base || (d.title||"").indexOf(base+" · ") === 0))) out = {l:l, k:k}; }); });
+    return out;
+  }
+  function hotelOf(t, d){
+    if (d.ht && t.hotels[d.ht]) return t.hotels[d.ht];
+    if (d.type !== "Бронь") return null;
+    var c = Object.keys(t.hotels || {}).filter(function(c){ var h = t.hotels[c]; return h && (d.title||"").indexOf("Бронь · "+h.name) === 0; })[0];
+    return c ? t.hotels[c] : null;
+  }
+  window.docWhen = function(t, d){
+    if (!t || !d) return "";
+    var m = legOf(t, d); if (m){ var l = m.l, d0 = l.depD || m.k; return when(d0, l.dep, l.arrD || d0, l.arr); }
+    var h = hotelOf(t, d); if (h) return when(h.inD, h.inT, h.outD, h.outT);
+    if (d.day && d.day.indexOf("tr:") === 0){ var x = trByKey(t, d.day); if (x && x.legs && x.legs.length){ var f = x.legs[0], z = x.legs[x.legs.length-1], f0 = f.v.depD || f.k, z0 = z.v.arrD || z.v.depD || z.k; return when(f0, f.v.dep, z0, z.v.arr); } return ""; }
+    if (d.day && d.day !== "_nodate") return _dmTr(d.day);
+    return "";
+  };
+})();
+
+/* ===== свайп: кнопка удаления (Danger S, 36) вплотную к содержимому, 16 от края строки; появляется сразу ===== */
+(function(){
+  var _w = swW; swW = function(el){ var e = el && el.querySelector && el.querySelector(":scope > .sw-edit"); return e ? _w(el) : 52; };
+  document.addEventListener("pointermove", function(){
+    [].forEach.call(document.querySelectorAll("[data-sw].sw-drag"), function(x){ if (!x.querySelector(":scope > .sw-del")) x.insertAdjacentHTML("beforeend", '<span class="sw-del" role="button" aria-label="Удалить" data-swdel>'+TRASH+'</span>'); });
+  }, true);
+})();
+
+/* ===== страница «Отели»: карточка отеля как компонент Hotel Card — город бейджем справа сверху, «На карте» кнопкой во всю ширину ===== */
+(function(){ var _h = SCR.hotels; SCR.hotels = function(r){ var v = _h.apply(this, arguments); if (!v || !v.view) return v;
+  v.view = v.view.replace(/<div class="hotel"([^>]*)><div class="hotel__top"><div><span style="display:flex;margin-bottom:8px">(<span class="badge[^"]*">[^<]*<\/span>)<\/span>([\s\S]*?)<\/div>(<a class="stay__map"([^>]*)>(<img[^>]*>)<\/a>)?<\/div>(<div class="hotel__dates">[\s\S]*?<\/div><\/div>)<\/div>/g,
+    function(m, at, badge, info, a, aat, img, dates){ return '<div class="hotel hotel--card"'+at+'>'+badge.replace('class="badge', 'class="badge hotel__badge')+'<div class="hotel__top"><div>'+info+'</div></div>'+dates+(a ? '<a class="hotel__map"'+aat+'>'+img+'<span>На карте</span></a>' : '')+'</div>'; });
+  return v; }; })();
+
+/* ===== транспорт (самолёт, поезд…): сначала когда — «21 ноября 19:30 – 22 ноября 08:55», в один день «21 ноября 19:30 – 08:55» ===== */
+(function(){
+  function when(d0, t0, d1, t1){ if (!d0) return [t0, t1].filter(Boolean).join("–");
+    var a = _dmTr(d0) + (t0 ? " "+t0 : "");
+    if (d1 && d1 !== d0) return t0 || t1 ? a+" – "+_dmTr(d1)+(t1 ? " "+t1 : "") : dmRange(d0, d1);
+    return t1 && t0 ? a+" – "+t1 : a; }
+  legSpan = function(v, k){ var d0 = v.depD || (k && k.indexOf("tr:") !== 0 ? k : ""); return when(d0, v.dep, v.arrD || d0, v.arr); };
+})();
+
+/* ===== подпись переезда в плане: без дат, только города — откуда первый транспорт и куда последний ===== */
+(function(){ var _tl = trLabel; trLabel = function(x){ if (!x || !x.legs || !x.legs.length) return _tl.apply(this, arguments);
+  var t = trip(), ls = [];
+  try { ls = trRows(t, x).filter(function(r){ return r.kind === "leg"; }).map(function(r){ return r.l.v; }); } catch(e){}
+  if (!ls.length) ls = x.legs.slice().sort(function(a, b){ var ka = (a.v.depD || a.k)+" "+(a.v.dep || ""), kb = (b.v.depD || b.k)+" "+(b.v.dep || ""); return ka < kb ? -1 : ka > kb ? 1 : 0; }).map(function(z){ return z.v; });
+  return city(ls[0].from)+" → "+city(ls[ls.length-1].to); }; })();
+
+/* ===== маршрут дня: к названию места без адреса добавляем город дня — иначе Google Maps показывает список одноимённых мест ===== */
+(function(){ var _sq = stopQ; stopQ = function(p){
+  if (!p || p.q || p.addr) return _sq.apply(this, arguments);
+  var q = _sq.apply(this, arguments); if (!q) return q;
+  var t = trip(), d = t && p.day ? tripDays(t).filter(function(x){ return x.k === p.day; })[0] : null, c = d && d.city;
+  return c && q.indexOf(c) < 0 ? q.replace(/, Japan$/, "")+", "+c+(/, Japan$/.test(q) ? ", Japan" : "") : q; }; })();
+(function(){ var _ru = routeUrl; routeUrl = function(t, k){ var ps = t.places[k] || [], bak = ps.map(function(p){ return p.day; }); ps.forEach(function(p){ if (!p.day) p.day = k; }); try { return _ru.apply(this, arguments); } finally { ps.forEach(function(p, i){ if (bak[i] === undefined) delete p.day; }); } }; })();
+
+/* ===== место: «Не включать в маршрут». Google Maps открывает маршрут максимум из 10 точек — если в дне уже 10 мест в маршруте, новое место туда не встаёт ===== */
+var ROUTE_MAX = 10;
+function routeCount(t, day, exceptId){ return (t.places[day] || []).filter(function(p){ return !p.nr && p.id !== exceptId; }).length; }
+function nrState(t, day, p){ /* -> {on, lock} */
+  if (!day || day === "_nodate") return null;
+  var full = routeCount(t, day, p && p.id) >= ROUTE_MAX, inRoute = p && p.id && !p.nr && (t.places[day] || []).indexOf(p) >= 0;
+  if (full && !inRoute) return {on:true, lock:true};
+  return {on:!!(p && p.nr), lock:false};
+}
+function nrHtml(st){ if (!st) return '<div id="nrBox"></div>';
+  return '<div id="nrBox"><div class="mconv mconv--nr"><span class="mconv__l">Не включать в маршрут</span><button type="button" class="tgl'+(st.on?' is-on':'')+'" role="switch" aria-checked="'+st.on+'" aria-label="Не включать в маршрут" data-act="nrToggle"'+(st.lock?' disabled':'')+'></button></div>'+
+    (st.lock ? '<p class="hint">В маршруте дня уже '+ROUTE_MAX+' мест — больше Google Maps не откроет. Выключите маршрут у другого места этого дня, чтобы добавить это.</p>' : '')+'</div>'; }
+var _placeFormNR = placeForm;
+placeForm = function(t, p, isNew, day){ var r = _placeFormNR(t, p, isNew, day); S.nrP = isNew ? null : p;
+  r.html = r.html.replace(/(<button class="primary" data-act="(?:placeAddNew|placeSave)")/, nrHtml(nrState(t, day, isNew ? null : p))+'$1'); return r; };
+function nrRedraw(){ var b = $("nrBox"), t = trip(); if (!b || !t) return; var day = val("fPday") || "_nodate", p = S.nrP, cur = b.querySelector(".tgl"), keep = cur && !cur.disabled ? cur.classList.contains("is-on") : (p && p.nr);
+  var st = nrState(t, day, p); if (st && !st.lock) st.on = !!keep; b.outerHTML = nrHtml(st); }
+document.addEventListener("change", function(e){ if (e.target && e.target.id === "fPday") nrRedraw(); });
+A.nrToggle = function(){ var b = document.querySelector('#nrBox .tgl'); if (!b || b.disabled) return; var on = !b.classList.contains("is-on"); b.classList.toggle("is-on", on); b.setAttribute("aria-checked", on); };
+function nrVal(){ var b = document.querySelector('#nrBox .tgl'); return !!(b && b.classList.contains("is-on")); }
+function nrApply(p){ if (!p) return; if (nrVal()) p.nr = true; else delete p.nr; }
+var _placeAddNewNR = A.placeAddNew;
+A.placeAddNew = function(){ var t = trip(), nr = nrVal(), before = {}; Object.keys(t.places).forEach(function(k){ before[k] = (t.places[k] || []).length; });
+  _placeAddNewNR(); var day = Object.keys(t.places).filter(function(k){ return (t.places[k] || []).length > (before[k] || 0); })[0];
+  if (day && nr){ var arr = t.places[day]; arr[arr.length - 1].nr = true; refresh(); } };
+var _placeSaveNR = A.placeSave;
+A.placeSave = function(){ var e = editedPlace(), nr = nrVal(), p = e && e.p; _placeSaveNR(); if (p){ if (nr) p.nr = true; else delete p.nr; refresh(); } };
+/* маршрут дня — только места без «не включать» */
+(function(){ var _du = dirUrl; dirUrl = function(hs, ps, he){ return _du.call(this, hs, (ps || []).filter(function(p){ return !p.nr; }), he); }; })();
+
+/* места с «Не включать в маршрут» — та же оранжевая подпись в списке дня (без «i»: это выбор пользователя, а не лимит) */
+(function(){ var _ro = routeOff; routeOff = function(t, k){ var ps = t.places[k] || [], keep = ps.filter(function(p){ return !p.nr; }), off;
+  t.places[k] = keep; try { off = _ro(t, k); } finally { t.places[k] = ps; }
+  ps.forEach(function(p){ if (p.nr) off[p.id] = "nr"; }); return off; };
+  var _od = openDay; openDay = function(k){ _od(k); var t = trip(), ps = t.places[k] || [];
+    [].forEach.call(document.querySelectorAll("#plist .prow"), function(row){ var p = ps[+row.getAttribute("data-i")]; if (!p || !p.nr) return;
+      var ro_ = row.querySelector(".route-off"); if (ro_){ var i = ro_.querySelector(".info-i"); if (i) i.remove(); ro_.firstChild.textContent = "Не включено в маршрут дня"; } }); }; })();
+
+/* «Не включать в маршрут» — последним полем формы места */
+(function(){ function last(){ var b = $("nrBox"); if (!b) return; var pg = b.closest(".pg--sheet") || b.parentNode; if (pg.lastElementChild !== b) pg.appendChild(b); }
+  ["addPlace","placeSheet"].forEach(function(k){ var f = A[k]; A[k] = function(){ var r = f.apply(this, arguments); last(); setTimeout(last, 0); return r; }; });
+  var _nr = nrRedraw; nrRedraw = function(){ _nr(); last(); }; })();
+
+/* ===== лимит маршрута: места сверх 10 сами получают «Не включать в маршрут» (тогл включён и не выключается, пока лимит занят);
+   пояснение — тултипом по тапу на заблокированный тогл ===== */
+function autoNr(t, k){ if (!t || !k || k === "_nodate") return false; var n = 0, ch = false;
+  (t.places[k] || []).forEach(function(p){ if (p.nr) return; n++; if (n > ROUTE_MAX){ p.nr = true; ch = true; } });
+  if (ch && typeof schedule === "function") schedule(); return ch; }
+var NR_TIP = "В маршруте дня уже "+ROUTE_MAX+" мест — больше Google Maps не откроет. Выключите маршрут у другого места этого дня, чтобы включить это.";
+nrHtml = function(st){ if (!st) return '<div id="nrBox"></div>';
+  return '<div id="nrBox"><div class="mconv mconv--nr"><span class="mconv__l">Не включать в маршрут</span><button type="button" class="tgl'+(st.on?' is-on':'')+(st.lock?' is-lock':'')+'" role="switch" aria-checked="'+st.on+'" aria-disabled="'+!!st.lock+'" aria-label="Не включать в маршрут" data-act="nrToggle"></button></div></div>'; };
+function showTip(el, text){ var old = document.querySelector(".popover"); if (old){ old.remove(); if (old._for === el) return; }
+  var pop = document.createElement("div"); pop.className = "popover"; pop._for = el; pop.textContent = text; document.body.appendChild(pop);
+  var r = el.getBoundingClientRect(), w = pop.offsetWidth, x = Math.min(window.innerWidth - w - 12, Math.max(12, r.left + r.width/2 - w/2));
+  pop.style.left = x+"px"; pop.style.top = (r.top - pop.offsetHeight - 12)+"px"; pop.style.setProperty("--ax", (r.left + r.width/2 - x)+"px");
+  anim(pop, [{opacity:0, transform:"translateY(6px) scale(.96)"},{opacity:1, transform:"none"}], {duration:260, easing:SPRING});
+  var sc = $("fBody"), close = function(){ pop.remove(); document.removeEventListener("pointerdown", h, true); if (sc) sc.removeEventListener("scroll", close); };
+  var h = function(ev){ if (!pop.contains(ev.target) && ev.target !== el) close(); };
+  setTimeout(function(){ document.addEventListener("pointerdown", h, true); if (sc) sc.addEventListener("scroll", close, {passive:true}); }, 0); }
+A.nrToggle = function(d, el){ var b = document.querySelector('#nrBox .tgl'); if (!b) return;
+  if (b.classList.contains("is-lock")){ showTip(b, NR_TIP); return; }
+  var on = !b.classList.contains("is-on"); b.classList.toggle("is-on", on); b.setAttribute("aria-checked", on); };
+(function(){ var _od = openDay; openDay = function(k){ autoNr(trip(), k); return _od.apply(this, arguments); };
+  var _ap = A.addPlace; A.addPlace = function(){ autoNr(trip(), S.day); return _ap.apply(this, arguments); };
+  var _ps = A.placeSheet; A.placeSheet = function(d){ autoNr(trip(), d && d.day); return _ps.apply(this, arguments); }; })();
+
+/* ===== маршрут дня по Google place_id: текст «ABC-MART …» Google понимает неоднозначно (в Сибуе несколько ABC-MART) и показывает выбор.
+   Ссылка api=1 с place_id ведёт ровно в выбранные места. place_id берём из подсказки Google при выборе, иначе находим через Places Text Search ===== */
+(function(){
+  var _du = dirUrl;
+  dirUrl = function(hs, ps, he){
+    var stops = (ps || []).filter(function(p){ return !p.nr; }).map(function(p){ return {q:stopQ(p), id:p.pid || ""}; }).filter(function(s){ return s.q; });
+    if (hs) stops.unshift({q:hs, id:""}); if (he) stops.push({q:he, id:""});
+    if (stops.length > 10) stops = stops.filter(function(s, i){ return !((hs && i === 0) || (he && i === stops.length - 1)); }).slice(0, 10);
+    if (!stops.length) return "";
+    if (!stops.some(function(s){ return s.id; })) return _du.call(this, hs, ps, he);
+    var o = stops[0], d = stops.length > 1 ? stops[stops.length - 1] : stops[0], w = stops.slice(1, -1), e = encodeURIComponent;
+    var u = "https://www.google.com/maps/dir/?api=1&origin="+e(o.q)+(o.id ? "&origin_place_id="+o.id : "")+"&destination="+e(d.q)+(d.id ? "&destination_place_id="+d.id : "");
+    if (w.length){ u += "&waypoints="+w.map(function(s){ return e(s.q); }).join("%7C"); if (w.every(function(s){ return s.id; })) u += "&waypoint_place_ids="+w.map(function(s){ return s.id; }).join("%7C"); }
+    return u; };
+  /* place_id из подсказки */
+  var _ga = gAuto;
+  gAuto = function(q, city){ return cityBox(city).then(function(b){
+    var body = {input:q, languageCode:"ru"}; if (b) body.locationRestriction = {rectangle:{low:{latitude:b.s, longitude:b.w}, high:{latitude:b.n, longitude:b.e}}};
+    return fetch("https://places.googleapis.com/v1/places:autocomplete", {method:"POST", headers:{"Content-Type":"application/json", "X-Goog-Api-Key":GPK}, body:JSON.stringify(body)})
+      .then(function(r){ if (!r.ok) throw new Error("places "+r.status); return r.json(); })
+      .then(function(j){ return (j.suggestions || []).map(function(s){ var p = s.placePrediction; if (!p) return null; var sf = p.structuredFormat || {};
+        return {n:(sf.mainText && sf.mainText.text) || (p.text && p.text.text) || "", a:(sf.secondaryText && sf.secondaryText.text) || "", id:p.placeId || ""}; }).filter(function(x){ return x && x.n; }); }); }); };
+  var _sp = A.sugPick; A.sugPick = function(d){ var x = SUG.res[+d.i]; _sp(d); if (SUG.field === "fPq") S.ppid = x && x.id || null; };
+  var _pq = INP.plQ; INP.plQ = function(v){ _pq(v); S.ppid = null; };
+  function resolvePid(p, city){ var q = stopQ(p); if (!q) return;
+    cityBox(city).then(function(b){ var body = {textQuery:q, maxResultCount:1}; if (b) body.locationBias = {rectangle:{low:{latitude:b.s, longitude:b.w}, high:{latitude:b.n, longitude:b.e}}};
+      return fetch("https://places.googleapis.com/v1/places:searchText", {method:"POST", headers:{"Content-Type":"application/json", "X-Goog-Api-Key":GPK, "X-Goog-FieldMask":"places.id,places.location"}, body:JSON.stringify(body)}); })
+      .then(function(r){ return r.ok ? r.json() : null; }).then(function(j){ var x = j && j.places && j.places[0]; if (!x || stopQ(p) !== q) return;
+        p.pid = x.id; if (x.location){ p.lat = x.location.latitude; p.lng = x.location.longitude; } if (typeof schedule === "function") schedule(); }).catch(function(){}); }
+  window.resolvePid = resolvePid;
+  function after(p, before, day){ if (!p) return; var t = trip();
+    if (S.ppid){ p.pid = S.ppid; delete p.lat; delete p.lng; }
+    else if (!p.pid || stopQ(p) !== before){ delete p.pid; delete p.lat; delete p.lng; resolvePid(p, dayCity(t, day || "_nodate")); }
+    S.ppid = null; if (typeof schedule === "function") schedule(); }
+  var _an = A.placeAddNew; A.placeAddNew = function(){ var t = trip(), ids = {}; Object.keys(t.places).forEach(function(k){ (t.places[k] || []).forEach(function(p){ ids[p.id] = 1; }); }); t.nodate.forEach(function(p){ ids[p.id] = 1; });
+    var ppid = S.ppid; _an.apply(this, arguments); S.ppid = ppid; var hit = null, hd = null;
+    Object.keys(t.places).forEach(function(k){ (t.places[k] || []).forEach(function(p){ if (!ids[p.id]){ hit = p; hd = k; } }); }); t.nodate.forEach(function(p){ if (!ids[p.id]) hit = p; });
+    if (hit) after(hit, null, hd); else S.ppid = null; };
+  var _sv = A.placeSave; A.placeSave = function(){ var e = editedPlace(), p = e && e.p, before = p ? stopQ(p) : null, ppid = S.ppid; _sv.apply(this, arguments); S.ppid = ppid;
+    var t = trip(), day = null; Object.keys(t.places).forEach(function(k){ if ((t.places[k] || []).indexOf(p) >= 0) day = k; }); after(p, before, day); };
+})();
+
+/* шторка дня: «Документы» — после «Маршрута дня» */
+(function(){ var _od = openDay; openDay = function(k){ var r = _od.apply(this, arguments);
+  var sb = $("sheetBody"); if (sb){ var sec = function(t){ var l = [].filter.call(sb.querySelectorAll("p.label"), function(p){ return p.textContent.trim() === t; })[0]; return l && l.parentNode; };
+    var d = sec("Документы"), m = sec("Маршрут дня"); if (d && m && d.parentNode === m.parentNode && (d.compareDocumentPosition(m) & Node.DOCUMENT_POSITION_FOLLOWING)) m.parentNode.insertBefore(d, m.nextSibling); }
+  return r; }; })();
 
 </script>
 </body>
