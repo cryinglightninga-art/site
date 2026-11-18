@@ -5508,6 +5508,11 @@ A.placeSave = function(){ var e = editedPlace(), nr = nrVal(), p = e && e.p; _pl
     [].forEach.call(document.querySelectorAll("#plist .prow"), function(row){ var p = ps[+row.getAttribute("data-i")]; if (!p || !p.nr) return;
       var ro_ = row.querySelector(".route-off"); if (ro_){ var i = ro_.querySelector(".info-i"); if (i) i.remove(); ro_.firstChild.textContent = "Не включено в маршрут дня"; } }); }; })();
 
+/* «Не включать в маршрут» — последним полем формы места */
+(function(){ function last(){ var b = $("nrBox"); if (!b) return; var pg = b.closest(".pg--sheet") || b.parentNode; if (pg.lastElementChild !== b) pg.appendChild(b); }
+  ["addPlace","placeSheet"].forEach(function(k){ var f = A[k]; A[k] = function(){ var r = f.apply(this, arguments); last(); setTimeout(last, 0); return r; }; });
+  var _nr = nrRedraw; nrRedraw = function(){ _nr(); last(); }; })();
+
 </script>
 </body>
 </html>
