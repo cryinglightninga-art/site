@@ -1680,6 +1680,7 @@ textarea.in.in--long{min-height:112px;resize:none;line-height:1.4;padding-top:14
 .mconv--nr{padding:4px 0}
 .tgl[disabled]{opacity:.5;cursor:default}
 #nrBox .hint{margin-top:4px}
+.tgl.is-lock{opacity:.5}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.min.js"></script>
@@ -5512,6 +5513,29 @@ A.placeSave = function(){ var e = editedPlace(), nr = nrVal(), p = e && e.p; _pl
 (function(){ function last(){ var b = $("nrBox"); if (!b) return; var pg = b.closest(".pg--sheet") || b.parentNode; if (pg.lastElementChild !== b) pg.appendChild(b); }
   ["addPlace","placeSheet"].forEach(function(k){ var f = A[k]; A[k] = function(){ var r = f.apply(this, arguments); last(); setTimeout(last, 0); return r; }; });
   var _nr = nrRedraw; nrRedraw = function(){ _nr(); last(); }; })();
+
+/* ===== лимит маршрута: места сверх 10 сами получают «Не включать в маршрут» (тогл включён и не выключается, пока лимит занят);
+   пояснение — тултипом по тапу на заблокированный тогл ===== */
+function autoNr(t, k){ if (!t || !k || k === "_nodate") return false; var n = 0, ch = false;
+  (t.places[k] || []).forEach(function(p){ if (p.nr) return; n++; if (n > ROUTE_MAX){ p.nr = true; ch = true; } });
+  if (ch && typeof schedule === "function") schedule(); return ch; }
+var NR_TIP = "В маршруте дня уже "+ROUTE_MAX+" мест — больше Google Maps не откроет. Выключите маршрут у другого места этого дня, чтобы включить это.";
+nrHtml = function(st){ if (!st) return '<div id="nrBox"></div>';
+  return '<div id="nrBox"><div class="mconv mconv--nr"><span class="mconv__l">Не включать в маршрут</span><button type="button" class="tgl'+(st.on?' is-on':'')+(st.lock?' is-lock':'')+'" role="switch" aria-checked="'+st.on+'" aria-disabled="'+!!st.lock+'" aria-label="Не включать в маршрут" data-act="nrToggle"></button></div></div>'; };
+function showTip(el, text){ var old = document.querySelector(".popover"); if (old){ old.remove(); if (old._for === el) return; }
+  var pop = document.createElement("div"); pop.className = "popover"; pop._for = el; pop.textContent = text; document.body.appendChild(pop);
+  var r = el.getBoundingClientRect(), w = pop.offsetWidth, x = Math.min(window.innerWidth - w - 12, Math.max(12, r.left + r.width/2 - w/2));
+  pop.style.left = x+"px"; pop.style.top = (r.top - pop.offsetHeight - 12)+"px"; pop.style.setProperty("--ax", (r.left + r.width/2 - x)+"px");
+  anim(pop, [{opacity:0, transform:"translateY(6px) scale(.96)"},{opacity:1, transform:"none"}], {duration:260, easing:SPRING});
+  var sc = $("fBody"), close = function(){ pop.remove(); document.removeEventListener("pointerdown", h, true); if (sc) sc.removeEventListener("scroll", close); };
+  var h = function(ev){ if (!pop.contains(ev.target) && ev.target !== el) close(); };
+  setTimeout(function(){ document.addEventListener("pointerdown", h, true); if (sc) sc.addEventListener("scroll", close, {passive:true}); }, 0); }
+A.nrToggle = function(d, el){ var b = document.querySelector('#nrBox .tgl'); if (!b) return;
+  if (b.classList.contains("is-lock")){ showTip(b, NR_TIP); return; }
+  var on = !b.classList.contains("is-on"); b.classList.toggle("is-on", on); b.setAttribute("aria-checked", on); };
+(function(){ var _od = openDay; openDay = function(k){ autoNr(trip(), k); return _od.apply(this, arguments); };
+  var _ap = A.addPlace; A.addPlace = function(){ autoNr(trip(), S.day); return _ap.apply(this, arguments); };
+  var _ps = A.placeSheet; A.placeSheet = function(d){ autoNr(trip(), d && d.day); return _ps.apply(this, arguments); }; })();
 
 </script>
 </body>
