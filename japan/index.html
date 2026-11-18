@@ -5459,6 +5459,14 @@ document.addEventListener("pointerdown", function(e){ var x = e.target.closest &
   if (!ls.length) ls = x.legs.slice().sort(function(a, b){ var ka = (a.v.depD || a.k)+" "+(a.v.dep || ""), kb = (b.v.depD || b.k)+" "+(b.v.dep || ""); return ka < kb ? -1 : ka > kb ? 1 : 0; }).map(function(z){ return z.v; });
   return city(ls[0].from)+" → "+city(ls[ls.length-1].to); }; })();
 
+/* ===== маршрут дня: к названию места без адреса добавляем город дня — иначе Google Maps показывает список одноимённых мест ===== */
+(function(){ var _sq = stopQ; stopQ = function(p){
+  if (!p || p.q || p.addr) return _sq.apply(this, arguments);
+  var q = _sq.apply(this, arguments); if (!q) return q;
+  var t = trip(), d = t && p.day ? tripDays(t).filter(function(x){ return x.k === p.day; })[0] : null, c = d && d.city;
+  return c && q.indexOf(c) < 0 ? q.replace(/, Japan$/, "")+", "+c+(/, Japan$/.test(q) ? ", Japan" : "") : q; }; })();
+(function(){ var _ru = routeUrl; routeUrl = function(t, k){ var ps = t.places[k] || [], bak = ps.map(function(p){ return p.day; }); ps.forEach(function(p){ if (!p.day) p.day = k; }); try { return _ru.apply(this, arguments); } finally { ps.forEach(function(p, i){ if (bak[i] === undefined) delete p.day; }); } }; })();
+
 </script>
 </body>
 </html>
