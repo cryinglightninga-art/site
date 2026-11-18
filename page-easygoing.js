@@ -137,7 +137,7 @@
     '09-docs':      'v2 09 Документы',
     '10a-exchange': 'v2 10a Деньги — конвертация',
     '11-checklist': 'v2 11 Чек-лист',
-    '06-place':     'v2 06 Шторка места'
+    '40-hotel-edit': 'v2 40 Отель — редактирование'
   };
 
   // The hero: the trip list, the plan, and the day sheet standing over it.
@@ -151,10 +151,11 @@
   // Каждый ключ — имя макета в Figma: 01 Мои поездки, 15 Мастер — Страна,
   // 16 Города и ночи, 17 Попутчики, 18 Поездка создана, 48 Поездка — пусто,
   // 02a Задача выполнена, 05 Шторка дня, 03 Мои файлы, 08 Отели,
-  // 09 Документы, 10a Деньги — конвертация, 11 Чек-лист, 06 Шторка места.
+  // 09 Документы, 10a Деньги — конвертация, 11 Чек-лист,
+  // 40 Отель — редактирование.
   var RAIL = ['01-trips', '15-country', '16-cities', '17-mates', '18-created',
               '48-empty', '02a-done', '05-day', '03-files', '08-hotels',
-              '09-docs', '10a-exchange', '11-checklist', '06-place'];
+              '09-docs', '10a-exchange', '11-checklist', '40-hotel-edit'];
 
   // The promo clip opens the gallery. Set it when the file lands.
   var PROMO = null;
